@@ -1,9 +1,108 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
+﻿
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building DFYGH apps with ASP.NET Core</a>.</p>
-    <p>hussam</p>
-</div>
+
+
+<!DOCTYPE html>
+<html lang="en" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="shortcut icon" type="image/png"  href="images/alharm22.png" />
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200..1000&display=swap"
+          rel="stylesheet" />
+    <title>الاسكان التنموي - تسجيل دخول</title>
+</head>
+<body>
+    <img src="images/logo.png" width="200px" alt="logo image" class="mx-auto" />
+    <div class="w-[80vw] md:w-[400px] bg-white mx-auto  justify-center shadow-2xl border border-primaryColor rounded-md">
+        <div class="p-6 pt-2">
+            <h1 class="text-2xl justify-center font-bold mb-10 mt-4 text-veryDarkBlue">
+                تسجيل دخول   
+            </h1>
+            <form>
+                <div class="flex flex-col">
+                    <label for="name" class="mt-4"> الرقم الوظيفي </label>
+                    <div class="flex flex-row justify-center gap-3">
+                        <img class="mt-2"
+                             width="40px"
+                             src="~/images/icon1.png"
+                             alt="cart icon" />
+                        <input class="w-full mt-2 border border-grayishViolet px-2 rounded-xl"
+                               type="text"
+                               placeholder="example@eaxmple.com"
+                               id="name" />
+                    </div>
+                    <label for="password" class="mt-4">الرمز السري</label>
+                    <div class="flex flex-row justify-center gap-3">
+                        <img class="mt-2"
+                             width="40px"
+                             src="~/images/icon2.png"
+                             alt="password icon" />
+                        <input class="w-full mt-2 border border-grayishViolet px-2 rounded-xl"
+                               type="password"
+                               id="password" />
+                    </div>
+
+@*                     <button class="mt-6      border-primaryColor ">
+                        تسجيل الدخول
+                    </button> *@
+
+                    <button class="mt-6 bg-emerald-600 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-600 transition duration-200">
+    تسجيل الدخول
+</button>
+
+                    <!-- <label for="name" class="mt-4">الرقم السري</label>
+                    <div class="flex flex-row justify-center gap-3">
+                      <img
+                        class="mt-1"
+                        src="icons/lock-key-open.svg"
+                        width="25px"
+                        alt="password icon"
+                      />
+                      <input
+                        class="w-full mt-2 border border-grayishViolet p-1 rounded-xl"
+                        type="password"
+                        id="name"
+                      />
+                    </div> -->
+                </div>
+            </form>
+
+            <div class="mt-4">
+                <a href="#" class="text-primaryColor underline underline-offset-8">نسيت كلمة السر</a>
+            </div>
+
+          @*   <div class="mt-10 border-t-2 border-t-gray">
+                <div class="mt-4">
+                    <p class="mb-3 text-xl">لايوجد حساب ؟</p>
+                    <a href="#"
+                       class="text-primaryColor underline underline-offset-8 rounded hover:text-white hover:bg-primaryColor hover:no-underline p-1 duration-200">تسجيل مستفيد جديد &larr;</a>
+                </div>
+            </div> *@
+
+
+
+
+
+        </div>
+    </div>
+</body>
+<style>
+    body {
+        background-image:   url(./images/alharm22.jpg);
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: center;
+        height: 100vh;
+       
+    }
+</style>
+</html> 
+
+
+
+
