@@ -18,4 +18,13 @@
     <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="8.0.7" />
   </ItemGroup>
 
+<ItemGroup>
+  <UpToDateCheckBuilt Include="wwwroot/css/site.css" Set="Css" />
+  <UpToDateCheckBuilt Include="tailwind.config.js" Set="Css" />
+</ItemGroup>
+
+<Target Name="Tailwind" BeforeTargets="Build">
+  <Exec Command="npm run css:build"/>
+</Target>
+
 </Project>
