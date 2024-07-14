@@ -16,6 +16,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="8.0.7" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.3" />
   </ItemGroup>
 
 <ItemGroup>
@@ -24,7 +25,7 @@
 </ItemGroup>
 
 <Target Name="Tailwind" BeforeTargets="Build">
-  <Exec Command="npm run css:build"/>
+  <Exec Command="npm run css:build" />
 </Target>
 
 </Project>
