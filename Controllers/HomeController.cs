@@ -17,14 +17,6 @@ namespace CharityProject.Controllers
         {
             return View();
         }
-        public IActionResult EmpHomePage()
-        {
-            return View();
-        }
-        public IActionResult transaction()
-        {
-            return View();
-        }
 
         public IActionResult Privacy()
         {
