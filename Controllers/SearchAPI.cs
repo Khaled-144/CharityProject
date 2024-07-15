@@ -20,14 +20,14 @@ namespace CharityProject.Controllers
         {
             int.TryParse(query, out int parsedQuery);
             var results = await _context.HolidayHistories
-                .Include(h => h.Holiday)
-                .Where(h => h.HolidayHistoryId == parsedQuery ||
-                            h.Holiday.Type.Contains(query) ||
-                            h.Status.Contains(query) ||
-                            h.EmpId.ToString().Contains(query) ||
-                            h.Duration.ToString().Contains(query) ||
-                            h.StartDate.ToString().Contains(query) ||
-                            h.EndDate.ToString().Contains(query))
+                .Include(h => h.holiday)
+                .Where(h => h.holidays_history_id == parsedQuery ||
+                            h.holiday.type.Contains(query) ||
+                            h.status.Contains(query) ||
+                            h.emp_id.ToString().Contains(query) ||
+                            h.duration.ToString().Contains(query) ||
+                            h.start_date.ToString().Contains(query) ||
+                            h.end_date.ToString().Contains(query))
                 .ToListAsync();
 
             return Ok(results);
