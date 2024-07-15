@@ -14,10 +14,11 @@ module.exports = {
             colors: {
                 background: '#DFDFDF',
                 backgroundDivider: '#E9E9E9',
-                secondaryColor: '#8AC4AE',
-                third: '#9BC0BC',
-                'primaryColor': '#248277',
-                mainText: '#000000'
+                layoutDivPrimary: '#8AC4AE',
+                layoutDivSecondary: '#9BC0BC',
+                primaryButtons: '#248277',
+                blackText: '#000000'
+
             },
         },
     },

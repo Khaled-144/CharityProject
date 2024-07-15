@@ -61,8 +61,27 @@
                 <li class="mb-2"><a href="/otherservices" class="block text-black px-4 py-2 hover:bg-gray-300 transition duration-300 ease-in-out">أخرى</a></li>
             </ul>
         </nav>
+<nav class="w-64 bg-backgroundDivider p-4 h-screen">
+    <ul class="mt-5 space-y-5 tracking-wide text-center text-2xl font-medium">
+        <li class="mb-2">
+            <a asp-controller="Home" asp-action="Index" class="nav-link @(ViewContext.RouteData.Values["action"].ToString() == "Index" ? "active" : "")">الرئيسية</a>
+        </li>
+        <li class="mb-2">
+                    <a asp-controller="Home" asp-action="Transactions" class="nav-link @(ViewContext.RouteData.Values["action"].ToString() == "Transactions" ? "active" : "")">المعاملات</a>
+        </li>
+        <li class="mb-2">
+            <a asp-controller="Home" asp-action="Holidays" class="nav-link @(ViewContext.RouteData.Values["action"].ToString() == "Holidays" ? "active" : "")">الإجازات</a>
+        </li>
+        <li class="mb-2">
+            <a asp-controller="Home" asp-action="Letters" class="nav-link @(ViewContext.RouteData.Values["action"].ToString() == "Letters" ? "active" : "")">الخطابات</a>
+        </li>
+        <li class="mb-2">
+            <a asp-controller="Home" asp-action="Inventory" class="nav-link @(ViewContext.RouteData.Values["action"].ToString() == "Inventory" ? "active" : "")">العهده</a>
+        </li>
+    </ul>
+</nav>
     </div>
-
+    <
     <!-- Footer -->
     <footer class="border-top footer text-muted">
         <div class="container">
