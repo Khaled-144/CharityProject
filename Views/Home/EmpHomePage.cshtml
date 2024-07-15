@@ -1,0 +1,71 @@
+﻿@{
+    ViewData["Title"] = "emp_home_page";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .rounded-full:hover  {
+            transform: scale(1.1);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .logo-container {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+           
+        }
+        
+        .round-text {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: #fff;
+            height: 100%;
+           
+        }
+    </style>
+</head>
+<body class="bg-dfdfdf">
+    <div class="logo-container">
+        <img src="@Url.Content("~/images/cropped-بانرات-الموقع-04-300x145.png")" alt="Logo" class="h-50 w-50">
+    </div>
+
+   
+    <div class="flex flex-col justify-center h-screen" style="align-items: center; ">
+        <div class="flex justify-center mb-10">
+            <div class="flex justify-center mb-4" style="position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);">
+                <div class="rounded-full h-40 w-40 bg-[#8AC4AE] mr-8 hover:bg-[#6c9c8e]">
+                    <div class="round-text">عدد المعاملات</div>
+                </div>
+                <div class="rounded-full h-40 w-40 bg-[#8AC4AE] mr-8 hover:bg-[#6c9c8e]">
+                    <div class="round-text">عدد المعاملات</div>
+                </div>
+                <div class="rounded-full h-40 w-40 bg-[#8AC4AE] hover:bg-[#6c9c8e]">
+                    <div class="round-text">عدد المعاملات</div>
+                </div>
+            </div>
+             <div class="flex justify-center mb-4" style="position: absolute; top: 70%; left: 50%; transform: translate(-50%, -50%);">
+                <div class="rounded-full h-40 w-40 bg-[#8AC4AE] mr-8 hover:bg-[#6c9c8e]">
+                    <div class="round-text">عدد المعاملات</div>
+                </div>
+                <div class="rounded-full h-40 w-40 bg-[#8AC4AE] mr-8 hover:bg-[#6c9c8e]">
+                    <div class="round-text">عدد المعاملات</div>
+                </div>
+                <div class="rounded-full h-40 w-40 bg-[#8AC4AE] hover:bg-[#6c9c8e]">
+                    <div class="round-text">عدد المعاملات</div>
+                </div>
+            </div>
+            <div class="flex justify-center mb-4" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+
+            </div>
+        </div>
+    </div>
+   
+</body>
+</html>
