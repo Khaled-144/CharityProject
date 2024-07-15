@@ -17,10 +17,6 @@ namespace CharityProject.Controllers
         {
             return View();
         }
-        public IActionResult Holidays()
-        {
-            return View();
-        }
 
         public IActionResult Privacy()
         {
