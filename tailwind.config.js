@@ -1,7 +1,10 @@
 module.exports = {
     content: [
         './Pages/**/*.cshtml',
-        './Views/**/*.cshtml'
+        './Views/**/*.cshtml',
+        './src/**/*.{js,ts,jsx,tsx}',
+        "./node_modules/flowbite/**/*.js",
+        './node_modules/@tailus/themer/dist/components/**/*.{js,ts}',
     ],
     theme: {
         extend: {
@@ -17,5 +20,8 @@ module.exports = {
             },
         },
     },
-    plugins: [],
+    plugins: [
+        require('flowbite/plugin')
+    ],
+
 }
