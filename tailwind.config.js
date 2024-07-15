@@ -6,14 +6,15 @@ module.exports = {
     theme: {
         extend: {
             fontFamily: {
-                sans: ['Cairo', 'sans-serif'], // Use Cairo as your sans-serif font
+                sans: ['Cairo', 'sans-serif'],
             },
             colors: {
                 background: '#DFDFDF',
                 backgroundDivider: '#E9E9E9',
-                secondary: '#8AC4AE',
+                secondaryColor: '#8AC4AE',
                 third: '#9BC0BC',
-                primary: '#248277',
+                'primaryColor': '#248277',
+                mainText: '#000000'
             },
         },
     },

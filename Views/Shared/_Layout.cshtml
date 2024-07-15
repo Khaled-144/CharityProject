@@ -11,44 +11,64 @@
     <link rel="stylesheet" href="~/css/styles.css" asp-append-version="true" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap">
 </head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">CharityProject</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
+<body class="bg-background ">
+
+    <!-- Header -->
+    <header class="flex w-full bg-white border-b-2 border-secondaryColor">
+        <nav class="font-sans flex flex-col text-center  content-center sm:flex-row sm:text-left sm:justify-between py-2 px-16 bg-white shadow sm:items-baseline w-full">
+            <div class="sm:mb-0 flex mx-20   self-center">
+                <div class=" flex justify-center">
+                    <button class="border-1 py-1 px-3 text-center border-primaryColor text-3xl flex  rounded-md hover:bg-gray-300 transition duration-300 ease-in-out">
+                        <svg class="w-7 h-7 mx-2 " xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M224 256A128 128 0 1 0 224 0a128 128 0 1 0 0 256zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512H418.3c16.4 0 29.7-13.3 29.7-29.7C448 383.8 368.2 304 269.7 304H178.3z" /></svg>
+                        محمد
+                    </button>
+                    <svg class="w-7 h-7 mx-3 my-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M224 0c-17.7 0-32 14.3-32 32V51.2C119 66 64 130.6 64 208v18.8c0 47-17.3 92.4-48.5 127.6l-7.4 8.3c-8.4 9.4-10.4 22.9-5.3 34.4S19.4 416 32 416H416c12.6 0 24-7.4 29.2-18.9s3.1-25-5.3-34.4l-7.4-8.3C401.3 319.2 384 273.9 384 226.8V208c0-77.4-55-142-128-156.8V32c0-17.7-14.3-32-32-32zm45.3 493.3c12-12 18.7-28.3 18.7-45.3H224 160c0 17 6.7 33.3 18.7 45.3s28.3 18.7 45.3 18.7s33.3-6.7 45.3-18.7z" /></svg>
+
+                </div>
+            </div> 
+
+            <div class="mb-2 sm:mb-0  flex flex-row">
+                <p class="my-auto mx-20 text-5xl font-medium">الرئيسية</p>
+                <div class="h-20 w-40 ">
+                    <img class="self-center" src="~/images/logo.png" />
                 </div>
             </div>
+
+
         </nav>
+        <!-- Navbar -->
+        
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-
-
-        <p class="text-third font-sants">The quick brown fox...</p>
-
-
+    <!-- Main Content -->
+    <div class="flex">
+        <div class="flex-1 p-4">
+            <!-- Your main content goes here -->
+            <div class="container">
+                <main role="main" class="pb-3">
+                    @RenderBody()
+                </main>
+            </div>
+        </div>
+        
+        <!-- Right Side Navbar -->
+        <nav class="w-64 bg-backgroundDivider p-4 h-screen">
+            <ul class="mt-5 space-y-5 tracking-wide text-center text-2xl font-medium 	">
+                <li class="mb-2"><a href="#" class="block text-black border-b-2 border-gray-400 rounded-md px-4 py-2 hover:bg-gray-300 transition duration-300 ease-in-out">الرئيسية</a></li>
+                <li class="mb-2"><a href="#" class="block text-black px-4 py-2 hover:bg-gray-300 transition duration-300 ease-in-out">المعاملات</a></li>
+                <li class="mb-2"><a href="#" class="block text-black px-4 py-2 hover:bg-gray-300 transition duration-300 ease-in-out">الإجازات</a></li>
+                <li class="mb-2"><a href="#" class="block text-black px-4 py-2 hover:bg-gray-300 transition duration-300 ease-in-out">الخطابات</a></li>
+                <li class="mb-2"><a href="#" class="block text-black px-4 py-2 hover:bg-gray-300 transition duration-300 ease-in-out">العهده</a></li>
+            </ul>
+        </nav>
     </div>
 
+    <!-- Footer -->
     <footer class="border-top footer text-muted">
         <div class="container">
             &copy; 2024 - CharityProject - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
