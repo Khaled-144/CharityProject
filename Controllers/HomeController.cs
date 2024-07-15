@@ -21,6 +21,10 @@ namespace CharityProject.Controllers
         {
             return View();
         }
+        public IActionResult transaction()
+        {
+            return View();
+        }
 
         public IActionResult Privacy()
         {

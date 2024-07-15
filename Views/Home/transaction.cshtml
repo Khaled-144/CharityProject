@@ -1,0 +1,74 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المعاملات</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .bg-custom {
+            background-color: #8AC4AE;
+        }
+        .bg-custom2{
+            background-color: #9BC0BC
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100">
+    <div class="container mx-auto flex flex-col items-center">
+        <h5 class="text-2xl font-bold mb-4 hover:text-green-500 transition-all duration-300">المعاملات</h5>
+        <div class="flex space-x-4">
+            <div class="bg-custom text-white px-4 py-2 rounded-md font-bold text-lg w-40 h-20 flex items-center justify-center hover:shadow-md hover:scale-105 transition-all duration-300">142</div>
+            <div class="bg-custom text-white px-4 py-2 rounded-md font-bold text-lg w-40 h-20 flex items-center justify-center hover:shadow-md hover:scale-105 transition-all duration-300">142</div>
+            <div class="bg-custom text-white px-4 py-2 rounded-md font-bold text-lg w-40 h-20 flex items-center justify-center hover:shadow-md hover:scale-105 transition-all duration-300">142</div>
+        </div>
+    </div>
+
+    <div class="flex h-screen  ">
+        <div class="flex-1 p-8">
+            <div class="sticky top-0 flex justify-start  p-2 z-10">
+                <button class="bg-white text-black border border-black px-4 py-2 mr-2 rounded hover:bg-gray-300 transition-all duration-300">الصادر</button>
+                <button class="bg-white text-black border border-black px-4 py-2 mr-2 rounded hover:bg-gray-300 transition-all duration-300">الوارد</button>
+
+                <div class="flex items-center w-64 bg-gray-200 rounded-md px-3">
+                    <input type="text" placeholder="بحث..." class="w-full bg-transparent outline-none hover:bg-gray-300 transition-all duration-300">
+                </div>
+                <div class="w-48 bg-gray-200 rounded-md px-3">
+                    <select class="w-full bg-transparent outline-none hover:bg-gray-300 transition-all duration-300">
+                        <option value="latest">الأحدث</option>
+                        <option value="oldest">الأقدم</option>
+                    </select>
+                </div>
+                <button class="bg-green-500 text-white border border-black px-4 py-2 rounded hover:bg-gray-200 transition-all duration-300 absolute right-0">إنشاء المعاملات</button>
+            </div>
+            <div class=" rounded-lg p-6 mt-4  bg-custom2">
+                <table class="w-full border-collapse">
+                    <thead>
+                        <tr>
+                            <th class="border p-2">عرض</th>
+                            <th class="border p-2">الحالة</th>
+                            <th class="border p-2">إلى</th>
+                            <th class="border p-2">من</th>
+                            <th class="border p-2">التاريخ</th>
+                            <th class="border p-2">رقم المعاملة</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="border p-2">
+                                <button class="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 transition-all duration-300">تفاصيل</button>
+                            </td>
+                            <td class="border p-2">تحت الإجراء</td>
+                            <td class="border p-2">علي احمد الحربي</td>
+                            <td class="border p-2"></td>
+                            <td class="border p-2">2025/12/1</td>
+                            <td class="border p-2">#58479</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
