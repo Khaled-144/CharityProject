@@ -21,6 +21,14 @@ namespace CharityProject.Controllers
         {
             return View();
         }
+        public IActionResult LoginPage()
+        {
+            return View();
+        }
+        public IActionResult Letters()
+        {
+            return View();
+        }
 
         public IActionResult Privacy()
         {
