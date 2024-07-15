@@ -1,5 +1,7 @@
+using CharityProject.Data;
 using CharityProject.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 
 namespace CharityProject.Controllers
@@ -7,6 +9,7 @@ namespace CharityProject.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly ApplicationDbContext _context;
 
         public HomeController(ILogger<HomeController> logger)
         {
@@ -21,6 +24,16 @@ namespace CharityProject.Controllers
         {
             return View();
         }
+       
+        public async Task<IActionResult> getHolidays()
+        {
+            return _context.HolidayHistories != null ?
+                       View(await _context.HolidayHistories.ToListAsync()) :
+                       Problem("Entity set 'ApplicationDbContext.HolidayHistories'  is null.");
+        }
+
+
+
 
         public IActionResult Privacy()
         {
