@@ -24,6 +24,8 @@ namespace CharityProject.Data
         public DbSet<Letter> Letters { get; set; }
         public DbSet<SalaryHistory> SalaryHistories { get; set; }
         public DbSet<Transaction> Transactions { get; set; }
+        public DbSet<OtherService> OtherServices { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
