@@ -1,3 +1,22 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+* {
+    font-family: theme("fontFamily.sans")
+}
+
+.nav-link {
+    display: block;
+    transition: color 200ms ease-in-out,background-color 200ms ease-in-out;
+    color: black
+}
+
+    .nav-link:hover {
+        background-color: #e0e0e0;
+        color: #248277
+    }
+
+    .nav-link.active {
+        border-bottom: 2px solid #000;
+    }

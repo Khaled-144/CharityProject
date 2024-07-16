@@ -1,0 +1,238 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha384-k6RqeWeci5ZR/Lv4MR0sA0FfDOMOW2O7enG7B5yoXKyzP4KdxGGWgHqjc7MJ6nMi" crossorigin="anonymous" />
+    <link rel="preconnect" href="https://fonts.googleapis.com/" />
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200..1000&display=swap"
+          rel="stylesheet" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Centered Divs</title>
+    <style>
+        body {
+            background-color: #DFDFDF;
+            margin: 0;
+            padding: 0;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        table {
+            border-collapse: collapse;
+            border-radius: 15px; /* Adjust this value to increase/decrease the radius */
+            overflow: hidden; /* Ensures border-radius is applied correctly */
+            border: 1px solid black; /* Black border for the table */
+            background-color: #C7D4D3;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #C7D4D3;
+            color: black;
+        }
+
+        tr {
+            border-bottom: 1px solid green;
+        }
+
+        .btn {
+            background-color: #86efac;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            gap: 100px;
+            margin-top: 15px;
+        }
+
+            .container > div {
+                background-color: lightgreen;
+                color: white;
+                width: 150px;
+                height: 150px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                border-radius: 15px;
+                text-align: center;
+            }
+
+        p {
+            margin: 0;
+        }
+
+        /* Right-to-left text direction for table headers */
+        table {
+            direction: rtl;
+            width: 900px;
+        }
+
+        .search-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Right-to-left text alignment for table cells */
+        th, td {
+            text-align: center;
+            border: 1px solid black:
+        }
+
+        /* Left-to-right text alignment for buttons */
+        .btn {
+            text-align: center;
+        }
+
+        /* Reverse column order for table */
+        .rtl-columns th,
+        .rtl-columns td {
+            display: table-cell;
+        }
+
+            .rtl-columns th:nth-child(1),
+            .rtl-columns td:nth-child(1) {
+                order: 7;
+            }
+
+            .rtl-columns th:nth-child(2),
+            .rtl-columns td:nth-child(2) {
+                order: 6;
+            }
+
+            .rtl-columns th:nth-child(3),
+            .rtl-columns td:nth-child(3) {
+                order: 5;
+            }
+
+            .rtl-columns th:nth-child(4),
+            .rtl-columns td:nth-child(4) {
+                order: 4;
+            }
+
+            .rtl-columns th:nth-child(5),
+            .rtl-columns td:nth-child(5) {
+                order: 3;
+            }
+
+            .rtl-columns th:nth-child(6),
+            .rtl-columns td:nth-child(6) {
+                order: 2;
+            }
+
+            .rtl-columns th:nth-child(7),
+            .rtl-columns td:nth-child(7) {
+                order: 1;
+            }
+    </style>
+    <script>
+        async function search() {
+            const query = document.getElementById('searchInput').value;
+            const response = await fetch(`api/search?query=${query}`);
+            const results = await response.json();
+            displayResults(results);
+        }
+
+        function displayResults(results) {
+            const tbody = document.querySelector('tbody');
+            tbody.innerHTML = '';
+            if (results.length === 0) {
+                const noResultsMessage = `<tr><td colspan="7" class="no-results">No results found.</td></tr>`;
+                tbody.innerHTML = noResultsMessage;
+            } else {
+                results.forEach(result => {
+                    const row = `<tr>
+                                                    <td>${result.holidayHistoryId}</td>
+                                                    <td>${result.startDate}</td>
+                                                    <td>${result.endDate}</td>
+                                                    <td>${result.duration}</td>
+                                                    <td>${result.holiday.type}</td>
+                                                    <td>${result.status}</td>
+                                                    <td><button class="btn">عرض</button></td>
+                                                </tr>`;
+                    tbody.innerHTML += row;
+                });
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="col-md-6">
+            المتبقي من الاضطرارية
+            <p>5</p>
+        </div>
+        <div class="col-md-6">
+            المتبقي من السنوية
+            <p>5</p>
+        </div>
+        <div class="col-md-6">
+            المتبقي من المرضية
+            <p>5</p>
+        </div>
+    </div>
+    <br />
+    <div>
+        <div class="search-container ">
+            <select>
+                <option value="default">من الاقدم للاحدث</option>
+            </select>
+            <button class="btn" onclick="search()">
+                <i class="fas fa-search"></i>بحث
+            </button>
+            <input type="text" id="searchInput" placeholder="ابحث" />
+
+            <input type="button" value="اضافة اجازة +" class="" style="margin-left:350px;margin-top:;background-color:#248277;color:white;width:150px;height:40px;border-radius:10px; margin-bottom: -10px;" />
+
+        </div>
+        <br />
+        <br />
+        <table class="rtl-columns ">
+            <thead>
+                <tr>
+                    <th>رقم الطلب</th>
+                    <th>التاريخ</th>
+                    <th>من</th>
+                    <th>عدد الايام</th>
+                    <th>نوع الاجازة</th>
+                    <th>الحالة</th>
+                    <th>عرض</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>2023-07-01</td>
+                    <td>أحمد</td>
+                    <td>5</td>
+                    <td>سنوية</td>
+                    <td>موافقة</td>
+                    <td><button class="btn">عرض</button></td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>2023-08-15</td>
+                    <td>محمد</td>
+                    <td>7</td>
+                    <td>اضطرارية</td>
+                    <td>معلقة</td>
+                    <td><button class="btn">عرض</button></td>
+                </tr>
+                <!-- Add more rows as needed -->
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
