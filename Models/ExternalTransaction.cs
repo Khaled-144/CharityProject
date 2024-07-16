@@ -6,17 +6,17 @@
     public class ExternalTransaction
     {
         [Key]
-        public int ExternalTransactionId { get; set; }
-        public string Name { get; set; }
-        public int IdentityNumber { get; set; }
-        public string Status { get; set; }
-        public string Communication { get; set; }
-        public string CaseStatus { get; set; }
-        public string SendingParty { get; set; }
-        public DateTime ReceivingDate { get; set; }
-        public DateTime SendingDate { get; set; }
-        public int SendingNumber { get; set; }
-        public int ReceivingNumber { get; set; }
+        public int external_transactions_id { get; set; }
+        public string name { get; set; }
+        public int identity_number { get; set; }
+        public string status { get; set; }
+        public string communication { get; set; }
+        public string case_status { get; set; }
+        public string sending_party { get; set; }
+        public DateTime receiving_date { get; set; }
+        public DateTime sending_date { get; set; }
+        public int sending_number { get; set; }
+        public int receiving_number { get; set; }
     }
 
 }

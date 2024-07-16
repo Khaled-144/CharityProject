@@ -6,17 +6,17 @@
     public class Transaction
     {
         [Key]
-        public int TransactionId { get; set; }
-        public string Type { get; set; }
-        public DateTime CreateDate { get; set; }
-        public DateTime? CloseDate { get; set; }
-        public string Status { get; set; }
-        public string Title { get; set; }
-        public string? Description { get; set; }
-        public string? Files { get; set; }
-        public int FromEmpId { get; set; }
-        public int? ToEmpId { get; set; }
-        public int DepartmentId { get; set; }
+        public int transaction_id { get; set; }
+        public string type { get; set; }
+        public DateTime create_date { get; set; }
+        public DateTime? close_date { get; set; }
+        public string status { get; set; }
+        public string title { get; set; }
+        public string? description { get; set; }
+        public string? files { get; set; }
+        public int from_emp_id { get; set; }
+        public int? to_emp_id { get; set; }
+        public int department_id { get; set; }
     }
 
 }

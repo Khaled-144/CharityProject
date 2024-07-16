@@ -5,9 +5,9 @@
     public class Department
     {
         [Key]
-        public int DepartmentId { get; set; }
-        public string DepartmentName { get; set; }
-        public int SupervisorId { get; set; }
+        public int departement_id { get; set; }
+        public string departement_name { get; set; }
+        public int supervisor_id { get; set; }
     }
 
 }

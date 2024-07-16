@@ -17,27 +17,9 @@
             font-family: 'Cairo', sans-serif;
         }
 
-        table {
-            border-collapse: collapse;
-            border-radius: 15px; /* Adjust this value to increase/decrease the radius */
-            overflow: hidden; /* Ensures border-radius is applied correctly */
-            border: 1px solid black; /* Black border for the table */
-            background-color: #C7D4D3;
-        }
+       
 
-        th, td {
-            padding: 10px;
-            text-align: center;
-        }
-
-        th {
-            background-color: #C7D4D3;
-            color: black;
-        }
-
-        tr {
-            border-bottom: 1px solid green;
-        }
+       
 
         .btn {
             background-color: #86efac;
@@ -56,16 +38,18 @@
         }
 
             .container > div {
-                background-color: lightgreen;
+                background-color: #8AC4AE;
                 color: white;
-                width: 150px;
-                height: 150px;
+                width: 250px;
+                height: 100px;
                 display: flex;
                 flex-direction: column;
                 justify-content: center;
                 align-items: center;
                 border-radius: 15px;
                 text-align: center;
+              margin-bottom:auto;
+                
             }
 
         p {
@@ -73,69 +57,24 @@
         }
 
         /* Right-to-left text direction for table headers */
-        table {
-            direction: rtl;
-            width: 900px;
-        }
+        
 
         .search-container {
+            margin-top:25px;
             display: flex;
             justify-content: center;
             align-items: center;
             gap: 10px;
         }
 
-        /* Right-to-left text alignment for table cells */
-        th, td {
-            text-align: center;
-            border: 1px solid black:
-        }
+        
 
         /* Left-to-right text alignment for buttons */
         .btn {
             text-align: center;
         }
 
-        /* Reverse column order for table */
-        .rtl-columns th,
-        .rtl-columns td {
-            display: table-cell;
-        }
-
-            .rtl-columns th:nth-child(1),
-            .rtl-columns td:nth-child(1) {
-                order: 7;
-            }
-
-            .rtl-columns th:nth-child(2),
-            .rtl-columns td:nth-child(2) {
-                order: 6;
-            }
-
-            .rtl-columns th:nth-child(3),
-            .rtl-columns td:nth-child(3) {
-                order: 5;
-            }
-
-            .rtl-columns th:nth-child(4),
-            .rtl-columns td:nth-child(4) {
-                order: 4;
-            }
-
-            .rtl-columns th:nth-child(5),
-            .rtl-columns td:nth-child(5) {
-                order: 3;
-            }
-
-            .rtl-columns th:nth-child(6),
-            .rtl-columns td:nth-child(6) {
-                order: 2;
-            }
-
-            .rtl-columns th:nth-child(7),
-            .rtl-columns td:nth-child(7) {
-                order: 1;
-            }
+        
     </style>
     <script>
         async function search() {
@@ -170,7 +109,7 @@
 </head>
 <body>
     <div class="container">
-        <div class="col-md-6">
+        <div class="col-md-6 ">
             المتبقي من الاضطرارية
             <p>5</p>
         </div>
@@ -184,55 +123,65 @@
         </div>
     </div>
     <br />
-    <div>
+    
         <div class="search-container ">
             <select>
                 <option value="default">من الاقدم للاحدث</option>
             </select>
-            <button class="btn" onclick="search()">
-                <i class="fas fa-search"></i>بحث
-            </button>
-            <input type="text" id="searchInput" placeholder="ابحث" />
+           
+            <input type="text" onchange="search()"  id="searchInput" placeholder="رقم الاجازة" />
 
-            <input type="button" value="اضافة اجازة +" class="" style="margin-left:350px;margin-top:;background-color:#248277;color:white;width:150px;height:40px;border-radius:10px; margin-bottom: -10px;" />
+            <input type="button" value="اضافة اجازة +" class="" style="margin-left:320px;margin-top:;background-color:#248277;color:white;width:150px;height:40px;border-radius:10px; margin-bottom: -10px;" />
 
         </div>
         <br />
         <br />
-        <table class="rtl-columns ">
+
+    <div class="overflow-x-auto bg-backgroundDivider mt-3" dir="rtl">
+        <table class="table text-center rtl">
+            <!-- head -->
             <thead>
                 <tr>
-                    <th>رقم الطلب</th>
+                    <th>رقم المعاملة</th>
                     <th>التاريخ</th>
                     <th>من</th>
-                    <th>عدد الايام</th>
-                    <th>نوع الاجازة</th>
+                    <th>إلى</th>
+                    <th>القسم</th>
                     <th>الحالة</th>
                     <th>عرض</th>
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>1</td>
-                    <td>2023-07-01</td>
-                    <td>أحمد</td>
-                    <td>5</td>
-                    <td>سنوية</td>
-                    <td>موافقة</td>
-                    <td><button class="btn">عرض</button></td>
+                <!-- row 1 -->
+                <tr class="bg-base-200 w-25">
+                    <th>1</th>
+                    <td>20/2/2024</td>
+                    <td>خالد احمد صالح محمد</td>
+                    <td>عبدالحكيم العثيم</td>
+                    <td>الموارد البشرية</td>
+                    <td>مكتملة</td>
                 </tr>
-                <tr>
-                    <td>2</td>
-                    <td>2023-08-15</td>
-                    <td>محمد</td>
-                    <td>7</td>
-                    <td>اضطرارية</td>
-                    <td>معلقة</td>
-                    <td><button class="btn">عرض</button></td>
+                <!-- row 2 -->
+                <tr class="bg-base-200 w-25">
+                    <th>2</th>
+                    <td>20/2/2024</td>
+                    <td>خالد احمد صالح محمد</td>
+                    <td>عبدالحكيم العثيم</td>
+                    <td>الموارد البشرية</td>
+                    <td>مكتملة</td>
                 </tr>
-                <!-- Add more rows as needed -->
+                <!-- row 3 -->
+                <tr class="bg-base-200 w-25">
+                    <th>3</th>
+                    <td>20/2/2024</td>
+                    <td>خالد احمد صالح محمد</td>
+                    <td>عبدالحكيم العثيم</td>
+                    <td>الموارد البشرية</td>
+                    <td>مكتملة</td>
+                </tr>
             </tbody>
         </table>
     </div>
+ 
 </body>
 </html>
