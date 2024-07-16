@@ -7,7 +7,7 @@
     {
         [Key]
         public int transaction_id { get; set; }
-        public string type { get; set; }
+        public string? type { get; set; }
         public DateTime create_date { get; set; }
         public DateTime? close_date { get; set; }
         public string status { get; set; }
