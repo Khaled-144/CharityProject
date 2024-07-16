@@ -7,24 +7,24 @@
     public class EmployeeDetails
     {
         [Key]
-        public int EmployeeDetailsId { get; set; }
-        public int IdentityNumber { get; set; }
-        public int DepartmentId { get; set; }
-        public string Position { get; set; }
-        public string PermissionPosition { get; set; }
-        public string ContractType { get; set; }
-        public string? NationalAddress { get; set; }
-        public string? EducationLevel { get; set; }
-        public DateTime HireDate { get; set; }
-        public DateTime? LeaveDate { get; set; }
-        public bool Active { get; set; }
-        public string? Email { get; set; }
-        public string? PhoneNumber { get; set; }
-        public string Gender { get; set; }
-        public string? Files { get; set; }
+        public int employee_details_id { get; set; }
+        public int identity_number { get; set; }
+        public int departement_id { get; set; }
+        public string position { get; set; }
+        public string permission_position { get; set; }
+        public string contract_type { get; set; }
+        public string? national_address { get; set; }
+        public string? education_level { get; set; }
+        public DateTime hire_date { get; set; }
+        public DateTime? leave_date { get; set; }
+        public bool active { get; set; }
+        public string? email { get; set; }
+        public string? phone_number { get; set; }
+        public string gender { get; set; }
+        public string? files { get; set; }
 
         [ForeignKey("EmployeeId")]
-        public Employee Employee { get; set; }
+        public Employee employee_id { get; set; }
     }
 
 }

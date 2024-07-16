@@ -13,22 +13,22 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Duration)
+                @Html.DisplayNameFor(model => model.duration)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.EmpId)
+                @Html.DisplayNameFor(model => model.emp_id)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.StartDate)
+                @Html.DisplayNameFor(model => model.start_date)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.EndDate)
+                @Html.DisplayNameFor(model => model.end_date)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Status)
+                @Html.DisplayNameFor(model => model.status)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Holiday)
+                @Html.DisplayNameFor(model => model.holiday_id)
             </th>
             <th></th>
         </tr>
@@ -38,27 +38,27 @@
         {
             <tr>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Duration)
+                    @Html.DisplayFor(modelItem => item.duration)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.EmpId)
+                    @Html.DisplayFor(modelItem => item.emp_id)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.StartDate)
+                    @Html.DisplayFor(modelItem => item.start_date)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.EndDate)
+                    @Html.DisplayFor(modelItem => item.end_date)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Status)
+                    @Html.DisplayFor(modelItem => item.status)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Holiday.HolidayId)
+                    @Html.DisplayFor(modelItem => item.holiday_id)
                 </td>
                 <td>
-                    <a asp-action="Edit" asp-route-id="@item.HolidayHistoryId">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.HolidayHistoryId">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.HolidayHistoryId">Delete</a>
+                    <a asp-action="Edit" asp-route-id="@item.holidays_history_id">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.holidays_history_id">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.holidays_history_id">Delete</a>
                 </td>
             </tr>
         }

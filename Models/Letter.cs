@@ -6,14 +6,14 @@
     public class Letter
     {
         [Key]
-        public int LetterId { get; set; }
-        public string Title { get; set; }
-        public string? Description { get; set; }
-        public DateTime Date { get; set; }
-        public int FromEmpId { get; set; }
-        public int? ToEmpId { get; set; }
-        public string? Files { get; set; }
-        public int DepartmentId { get; set; }
+        public int letters_id { get; set; }
+        public string title { get; set; }
+        public string? description { get; set; }
+        public DateTime date { get; set; }
+        public int from_emp_id { get; set; }
+        public int? to_emp_id { get; set; }
+        public string? files { get; set; }
+        public int departement_id { get; set; }
     }
 
 }
