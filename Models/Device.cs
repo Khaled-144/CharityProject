@@ -5,9 +5,9 @@
     public class Device
     {
         [Key]
-        public int DeviceId { get; set; }
-        public string Name { get; set; }
-        public int Quantity { get; set; }
+        public int devices_id { get; set; }
+        public string name { get; set; }
+        public int quantity { get; set; }
     }
 
 }
