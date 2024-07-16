@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using CharityProject.Data;
 using CharityProject.Models;
 
-namespace CharityProject.Views.Home
+namespace CharityProject.Controllers
 {
     public class LettersController : Controller
     {
