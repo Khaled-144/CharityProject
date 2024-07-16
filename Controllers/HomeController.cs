@@ -22,6 +22,14 @@ namespace CharityProject.Controllers
         {
             return View();
         }
+        public IActionResult transaction()
+        {
+            return View();
+        }
+        public IActionResult CreateTransaction()
+        {
+            return View();
+        }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
