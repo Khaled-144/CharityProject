@@ -34,7 +34,7 @@ namespace CharityProject.Controllers
             }
 
             var otherService = await _context.OtherServices
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.service_id == id);
             if (otherService == null)
             {
                 return NotFound();
@@ -54,7 +54,7 @@ namespace CharityProject.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,ServiceName,Description")] OtherService otherService)
+        public async Task<IActionResult> Create([Bind("service_id,service_name")] OtherService otherService)
         {
             if (ModelState.IsValid)
             {
@@ -86,9 +86,9 @@ namespace CharityProject.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,ServiceName,Description")] OtherService otherService)
+        public async Task<IActionResult> Edit(int id, [Bind("service_id,service_name")] OtherService otherService)
         {
-            if (id != otherService.Id)
+            if (id != otherService.service_id)
             {
                 return NotFound();
             }
@@ -102,7 +102,7 @@ namespace CharityProject.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!OtherServiceExists(otherService.Id))
+                    if (!OtherServiceExists(otherService.service_id))
                     {
                         return NotFound();
                     }
@@ -125,7 +125,7 @@ namespace CharityProject.Controllers
             }
 
             var otherService = await _context.OtherServices
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.service_id == id);
             if (otherService == null)
             {
                 return NotFound();
@@ -151,7 +151,7 @@ namespace CharityProject.Controllers
 
         private bool OtherServiceExists(int id)
         {
-            return _context.OtherServices.Any(e => e.Id == id);
+            return _context.OtherServices.Any(e => e.service_id == id);
         }
     }
 }
