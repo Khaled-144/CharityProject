@@ -18,13 +18,12 @@ module.exports = {
                 layoutDivSecondary: '#9BC0BC',
                 layoutDivThird: '#C7D4D3',
                 primaryButtons: '#248277',
-                blackText: '#000000'
-
+                darkedButtons: '#165049',
+                blackText: '#000000',
             },
         },
     },
     plugins: [
         require('flowbite/plugin')
     ],
-
 }
