@@ -10,22 +10,41 @@ using CharityProject.Models;
 
 namespace CharityProject.Controllers
 {
-    public class OtherServicesController : Controller
+    public class TransactionsController : Controller
     {
         private readonly ApplicationDbContext _context;
 
-        public OtherServicesController(ApplicationDbContext context)
+        public TransactionsController(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        // GET: OtherServices
+        // GET: Transactions
         public async Task<IActionResult> Index()
         {
-            return View(await _context.OtherServices.ToListAsync());
+            return View(await _context.Transactions.ToListAsync());
         }
 
-        // GET: OtherServices/Details/5
+        public IActionResult CreateNewTransaction()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateNewTransaction([Bind("type,close_date,status,title,description,files,from_emp_id,to_emp_id,department_id")] Transaction transaction)
+        {
+            if (ModelState.IsValid)
+            {
+                transaction.create_date = DateTime.Now;
+                _context.Add(transaction);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            return View(transaction);
+        }
+
+        // GET: Transactions/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -33,39 +52,39 @@ namespace CharityProject.Controllers
                 return NotFound();
             }
 
-            var otherService = await _context.OtherServices
-                .FirstOrDefaultAsync(m => m.service_id == id);
-            if (otherService == null)
+            var transaction = await _context.Transactions
+                .FirstOrDefaultAsync(m => m.transaction_id == id);
+            if (transaction == null)
             {
                 return NotFound();
             }
 
-            return View(otherService);
+            return View(transaction);
         }
 
-        // GET: OtherServices/Create
+        // GET: Transactions/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: OtherServices/Create
+        // POST: Transactions/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("service_id,service_name")] OtherService otherService)
+        public async Task<IActionResult> Create([Bind("transaction_id,type,create_date,close_date,status,title,description,files,from_emp_id,to_emp_id,department_id")] Transaction transaction)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(otherService);
+                _context.Add(transaction);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(otherService);
+            return View(transaction);
         }
 
-        // GET: OtherServices/Edit/5
+        // GET: Transactions/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -73,22 +92,22 @@ namespace CharityProject.Controllers
                 return NotFound();
             }
 
-            var otherService = await _context.OtherServices.FindAsync(id);
-            if (otherService == null)
+            var transaction = await _context.Transactions.FindAsync(id);
+            if (transaction == null)
             {
                 return NotFound();
             }
-            return View(otherService);
+            return View(transaction);
         }
 
-        // POST: OtherServices/Edit/5
+        // POST: Transactions/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("service_id,service_name")] OtherService otherService)
+        public async Task<IActionResult> Edit(int id, [Bind("transaction_id,type,create_date,close_date,status,title,description,files,from_emp_id,to_emp_id,department_id")] Transaction transaction)
         {
-            if (id != otherService.service_id)
+            if (id != transaction.transaction_id)
             {
                 return NotFound();
             }
@@ -97,12 +116,12 @@ namespace CharityProject.Controllers
             {
                 try
                 {
-                    _context.Update(otherService);
+                    _context.Update(transaction);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!OtherServiceExists(otherService.service_id))
+                    if (!TransactionExists(transaction.transaction_id))
                     {
                         return NotFound();
                     }
@@ -113,10 +132,10 @@ namespace CharityProject.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(otherService);
+            return View(transaction);
         }
 
-        // GET: OtherServices/Delete/5
+        // GET: Transactions/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -124,34 +143,34 @@ namespace CharityProject.Controllers
                 return NotFound();
             }
 
-            var otherService = await _context.OtherServices
-                .FirstOrDefaultAsync(m => m.service_id == id);
-            if (otherService == null)
+            var transaction = await _context.Transactions
+                .FirstOrDefaultAsync(m => m.transaction_id == id);
+            if (transaction == null)
             {
                 return NotFound();
             }
 
-            return View(otherService);
+            return View(transaction);
         }
 
-        // POST: OtherServices/Delete/5
+        // POST: Transactions/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var otherService = await _context.OtherServices.FindAsync(id);
-            if (otherService != null)
+            var transaction = await _context.Transactions.FindAsync(id);
+            if (transaction != null)
             {
-                _context.OtherServices.Remove(otherService);
+                _context.Transactions.Remove(transaction);
             }
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool OtherServiceExists(int id)
+        private bool TransactionExists(int id)
         {
-            return _context.OtherServices.Any(e => e.service_id == id);
+            return _context.Transactions.Any(e => e.transaction_id == id);
         }
     }
 }

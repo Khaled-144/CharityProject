@@ -1,10 +1,12 @@
-﻿namespace CharityProject.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace CharityProject.Models
 {
     public class OtherService
     {
-        public int Id { get; set; }
-        public string ServiceName { get; set; }
-        public string Description { get; set; }
+        [Key]
+        public int service_id { get; set; }
+        public string service_name { get; set; }
     }
 
 }
