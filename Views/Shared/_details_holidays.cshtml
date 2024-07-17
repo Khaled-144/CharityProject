@@ -1,0 +1,57 @@
+﻿@model CharityProjecy.Models.HolidayHistory
+@{
+    ViewData["Title"] = "Details";
+}
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</head>
+
+<div class="modal fade" id="detailModal-@Model.Id" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">detail Item</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>@Html.DisplayNameFor(model => model.holiday.holiday_id)</th>
+                                    <th>@Html.DisplayNameFor(model => model.start_date)</th>
+                                    <th>@Html.DisplayNameFor(model => model.emp_id)</th>
+                                    <th>@Html.DisplayNameFor(model => model.duration)</th>
+                                    <th>@Html.DisplayNameFor(model => model.holiday.type)</th>
+                                    <th>@Html.DisplayNameFor(model => model.status)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td>@Html.DisplayFor(modelItem => item.holiday.holiday_id)</td>
+                                        <td>@Html.DisplayFor(modelItem => item.start_date)</td>
+                                        <td>@Html.DisplayFor(modelItem => item.emp_id)</td>
+                                        <td>@Html.DisplayFor(modelItem => item.duration)</td>
+                                        <td>@Html.DisplayFor(modelItem => item.holiday.type)</td>
+                                        <td>@Html.DisplayFor(modelItem => item.status)</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+

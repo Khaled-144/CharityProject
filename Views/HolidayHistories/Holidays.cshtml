@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@model IEnumerable<CharityProject.Models.HolidayHistory>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha384-k6RqeWeci5ZR/Lv4MR0sA0FfDOMOW2O7enG7B5yoXKyzP4KdxGGWgHqjc7MJ6nMi" crossorigin="anonymous" />
@@ -36,6 +37,7 @@
             gap: 100px;
             margin-top: 15px;
         }
+        
 
             .container > div {
                 background-color: #8AC4AE;
@@ -79,30 +81,37 @@
     <script>
         async function search() {
             const query = document.getElementById('searchInput').value;
-            const response = await fetch(`api/search?query=${query}`);
-            const results = await response.json();
-            displayResults(results);
+            try {
+                const response = await fetch(`api/HolidayHistoriesAPI?query=${encodeURIComponent(query)}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const results = await response.json();
+                displayResults(results);
+            } catch (error) {
+                console.error('Error fetching search results:', error);
+            }
         }
 
         function displayResults(results) {
             const tbody = document.querySelector('tbody');
-            tbody.innerHTML = '';
+            tbody.innerHTML = ''; // Clear previous results
             if (results.length === 0) {
                 const noResultsMessage = `<tr><td colspan="7" class="no-results">No results found.</td></tr>`;
                 tbody.innerHTML = noResultsMessage;
             } else {
-                results.forEach(result => {
-                    const row = `<tr>
-                                                    <td>${result.holidayHistoryId}</td>
-                                                    <td>${result.startDate}</td>
-                                                    <td>${result.endDate}</td>
-                                                    <td>${result.duration}</td>
-                                                    <td>${result.holiday.type}</td>
-                                                    <td>${result.status}</td>
-                                                    <td><button class="btn">عرض</button></td>
-                                                </tr>`;
-                    tbody.innerHTML += row;
-                });
+                const rows = results.map(result => {
+                    return `<tr>
+                                        <td>${result.holidays_history_id}</td>
+                                        <td>${result.start_date}</td>
+                                        <td>${result.end_date}</td>
+                                        <td>${result.duration}</td>
+                                        <td>${result.holiday.type}</td>
+                                        <td>${result.status}</td>
+                                        <td><button class="btn">عرض</button></td>
+                                    </tr>`;
+                }).join('');
+                tbody.innerHTML = rows;
             }
         }
     </script>
@@ -131,54 +140,57 @@
            
             <input type="text" onchange="search()"  id="searchInput" placeholder="رقم الاجازة" />
 
-            <input type="button" value="اضافة اجازة +" class="" style="margin-left:320px;margin-top:;background-color:#248277;color:white;width:150px;height:40px;border-radius:10px; margin-bottom: -10px;" />
+            <input type="button" value="اضافة اجازة +" class="" style="margin-left:320px;background-color:#248277;color:white;width:150px;height:40px;border-radius:10px; margin-bottom: -10px;" />
 
         </div>
         <br />
         <br />
 
-    <div class="overflow-x-auto bg-backgroundDivider mt-3" dir="rtl">
-        <table class="table text-center rtl">
+    <div class="overflow-x-auto bg-layoutDivThird mt-3 rounded-lg" dir="rtl">
+        <table class="table text-center rtl " >
             <!-- head -->
             <thead>
                 <tr>
-                    <th>رقم المعاملة</th>
+                    <th>رقم الطلب</th>
                     <th>التاريخ</th>
                     <th>من</th>
-                    <th>إلى</th>
-                    <th>القسم</th>
+                    <th>عدد الايام</th>
+                    <th>نوع الاجازة</th>
                     <th>الحالة</th>
                     <th>عرض</th>
                 </tr>
             </thead>
             <tbody>
+
                 <!-- row 1 -->
-                <tr class="bg-base-200 w-25">
-                    <th>1</th>
-                    <td>20/2/2024</td>
-                    <td>خالد احمد صالح محمد</td>
-                    <td>عبدالحكيم العثيم</td>
-                    <td>الموارد البشرية</td>
-                    <td>مكتملة</td>
-                </tr>
-                <!-- row 2 -->
-                <tr class="bg-base-200 w-25">
-                    <th>2</th>
-                    <td>20/2/2024</td>
-                    <td>خالد احمد صالح محمد</td>
-                    <td>عبدالحكيم العثيم</td>
-                    <td>الموارد البشرية</td>
-                    <td>مكتملة</td>
-                </tr>
-                <!-- row 3 -->
-                <tr class="bg-base-200 w-25">
-                    <th>3</th>
-                    <td>20/2/2024</td>
-                    <td>خالد احمد صالح محمد</td>
-                    <td>عبدالحكيم العثيم</td>
-                    <td>الموارد البشرية</td>
-                    <td>مكتملة</td>
-                </tr>
+                @foreach (var item in   Model)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.holiday.holiday_id)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.start_date)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.emp_id)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.duration)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.holiday.type)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.status)
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-info" data-toggle="modal" data-target="@("#detailModal-" + @item.holiday.holiday_id)">Detail</button>
+                            @await Html.PartialAsync("_details_holidays", item)
+                        </td>
+                        
+                    </tr>
+                }
             </tbody>
         </table>
     </div>
