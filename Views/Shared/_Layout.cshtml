@@ -59,7 +59,7 @@
 				<li class="mb-2">
 					<a asp-controller="Transactions" asp-action="Index" class="nav-link @(ViewContext.RouteData.Values["action"].ToString() == "Index" ? "active" : "")">المعاملات</a>
 				</li>
-				<a asp-controller="Home" asp-action="Holidays" class="nav-link @(ViewContext.RouteData.Values["action"].ToString() == "Holidays" ? "active" : "")">الإجازات</a>
+				<a asp-controller="HolidayHistories" asp-action="Holidays" class="nav-link @(ViewContext.RouteData.Values["action"].ToString() == "Holidays" ? "active" : "")">الإجازات</a>
 				<li class="mb-2">
 					<a asp-controller="Letters" asp-action="index" class="nav-link @(ViewContext.RouteData.Values["action"].ToString() == "Letters" ? "active" : "")">الخطابات</a>
 				</li>

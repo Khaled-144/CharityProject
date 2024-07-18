@@ -32,22 +32,29 @@
 </div>
 
 <div class="flex justify-self-auto justify-between mt-10 ">
-	<div class="flex mx-20">
-		<form class="max-w-sm mx-auto border-2 rounded border-primaryButtons ml-5">
-			<select id="countries" class="bg-white border border-primaryButtons text-balck text-sm rounded-lg text-center focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-				<option selected>الفلاتر</option>
-				<option value="US">الاقدم</option>
-				<option value="CA">الاحدث</option>
-				<option value="FR">France</option>
-				<option value="DE">Germany</option>
-			</select>
-		</form>
-		<div class="justify-center inline-flex items-center border-2 rounded border-primaryButtons bg-white pr-5">
-			<input placeholder="رقم المعاملة" class="flex-grow  py-2 px-4" />
-			<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 518 518"><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z" /></svg>
+	<div class="flex ">
+
+		<div class="flex items-center p-2">
+
+			<div class="px-10 w-1/2">
+				<select name="sortOrder" id="sortOrder" class="bg-white border border-primaryButtons text-black text-sm rounded-lg text-center focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+					<option selected>الفلاتر</option>
+					<option value="oldest">الاقدم</option>
+					<option value="newest">الاحدث</option>
+				</select>
+			</div>
+
+			<form asp-action="SearchById" asp-controller="Transactions" method="get" class="flex items-center">
+				<input name="id" placeholder="رقم المعاملة" class="form-control py-2 px-4 border border-primaryButtons rounded-l" type="search" aria-label="search" />
+				<button class="btn btn-dark" type="submit">بحث</button>
+			</form>
+
+
 		</div>
+
+
 	</div>
-	<button type="button" data-toggle="modal" data-target="#insertModal" data-target="#insertModal" id="modal-toggle-button" class="model-button bg-primaryButtons flex-initial hover:bg-emerald-800 text-white font-bold mx-20 px-4 border rounded transition duration-300 ease-in-out " data-modal-target="crud-modal" data-modal-toggle="crud-modal">
+	<button type="button" data-toggle="modal" data-target="#insertModal" id="modal-toggle-button" class="model-button bg-primaryButtons flex-initial hover:bg-emerald-800 text-white font-bold  px-4 border rounded transition duration-300 ease-in-out " data-modal-target="crud-modal" data-modal-toggle="crud-modal">
 		إنشاء معاملة
 	</button>
 	@await Html.PartialAsync("_CreateNewTransaction", new Transaction())
@@ -92,7 +99,7 @@
 						@Html.DisplayFor(modelItem => item.status)
 					</td>
 					<td>
-						<button  type="button" class="btn btn-info" data-toggle="modal" data-target="@("#detailModal-" + item.transaction_id)">عرض</button>
+						<button type="button" class="btn btn-info" data-toggle="modal" data-target="@("#detailModal-" + item.transaction_id)">عرض</button>
 						@await Html.PartialAsync("_showTransactionDetail", item)
 					</td>
 				</tr>
@@ -104,3 +111,18 @@
 </script>
 <script src="../path/to/flowbite/dist/flowbite.min.js"></script>
 
+
+
+@*
+<form class="max-w-sm mx-auto border-2 rounded border-primaryButtons ml-5">
+	<select id="countries" class="bg-white border border-primaryButtons text-balck text-sm rounded-lg text-center focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+		<option selected>الفلاتر</option>
+		<option value="oldest">الاقدم</option>
+		<option value="newset">الاحدث</option>
+	</select>
+</form>
+
+
+<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 518 518"><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z" /></svg>
+
+*@
