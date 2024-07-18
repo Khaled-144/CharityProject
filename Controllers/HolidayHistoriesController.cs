@@ -51,7 +51,7 @@ namespace CharityProject.Controllers
         }
 
         // GET: HolidayHistories/Create
-        public IActionResult Create()
+        public IActionResult Create_2()
         {
             ViewData["holiday_id"] = new SelectList(_context.Holidays, "holiday_id", "holiday_id");
             return View();
@@ -62,15 +62,16 @@ namespace CharityProject.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("holidays_history_id,holiday_id,duration,emp_id,start_date,end_date,status")] HolidayHistory holidayHistory)
+        public async Task<IActionResult> Create_2([Bind("title,description,duration,emp_id,start_date,end_date,files,holiday_id")] HolidayHistory holidayHistory)
         {
             if (ModelState.IsValid)
             {
+                holidayHistory.creation_date = DateOnly.FromDateTime(DateTime.Now); // Set to current date
+                holidayHistory.status = "Pending"; // Set default status
                 _context.Add(holidayHistory);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["holiday_id"] = new SelectList(_context.Holidays, "holiday_id", "holiday_id", holidayHistory.holiday_id);
             return View(holidayHistory);
         }
 
