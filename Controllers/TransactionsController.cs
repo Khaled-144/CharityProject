@@ -32,7 +32,7 @@ namespace CharityProject.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateNewTransaction([Bind("type,close_date,status,title,description,files,from_emp_id,to_emp_id,department_id")] Transaction transaction)
+        public async Task<IActionResult> CreateNewTransaction([Bind("close_date,status,title,description,files,from_emp_id,to_emp_id,department_id")] Transaction transaction)
         {
             if (ModelState.IsValid)
             {
@@ -73,16 +73,19 @@ namespace CharityProject.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("transaction_id,type,create_date,close_date,status,title,description,files,from_emp_id,to_emp_id,department_id")] Transaction transaction)
+        public async Task<IActionResult> Create([Bind("close_date,title,description,files,from_emp_id,to_emp_id,department_id")] Transaction transaction)
         {
             if (ModelState.IsValid)
             {
+                transaction.create_date = DateTime.Now;  // Ensure the date is set to the current UTC time
+                transaction.status = "Pending";  // Set default status value
                 _context.Add(transaction);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
             return View(transaction);
         }
+
 
         // GET: Transactions/Edit/5
         public async Task<IActionResult> Edit(int? id)
