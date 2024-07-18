@@ -2,82 +2,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha384-k6RqeWeci5ZR/Lv4MR0sA0FfDOMOW2O7enG7B5yoXKyzP4KdxGGWgHqjc7MJ6nMi" crossorigin="anonymous" />
-    <link rel="preconnect" href="https://fonts.googleapis.com/" />
-    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200..1000&display=swap"
-          rel="stylesheet" />
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Centered Divs</title>
-    <style>
-        body {
-            background-color: #DFDFDF;
-            margin: 0;
-            padding: 0;
-            font-family: 'Cairo', sans-serif;
-        }
-
-       
-
-       
-
-        .btn {
-            background-color: #86efac;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .container {
-            display: flex;
-            justify-content: center;
-            gap: 100px;
-            margin-top: 15px;
-        }
-        
-
-            .container > div {
-                background-color: #8AC4AE;
-                color: white;
-                width: 250px;
-                height: 100px;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-                border-radius: 15px;
-                text-align: center;
-              margin-bottom:auto;
-                
-            }
-
-        p {
-            margin: 0;
-        }
-
-        /* Right-to-left text direction for table headers */
-        
-
-        .search-container {
-            margin-top:25px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-        }
-
-        
-
-        /* Left-to-right text alignment for buttons */
-        .btn {
-            text-align: center;
-        }
-
-        
-    </style>
+   
     <script>
         async function search() {
             const query = document.getElementById('searchInput').value;
@@ -117,36 +46,38 @@
     </script>
 </head>
 <body>
-    <div class="container">
-        <div class="col-md-6 ">
-            المتبقي من الاضطرارية
-            <p>5</p>
+    <div class="top-info flex  justify-evenly  text-2xl text-center my-10 ">
+        <div class="w-56 h-24 shadow-md bg-layoutDivSecondary rounded-lg px-2 py-2">
+            <p>20</p>
+            <p>تحت الاجراء</p>
         </div>
-        <div class="col-md-6">
-            المتبقي من السنوية
-            <p>5</p>
+        <div class="w-56 h-24 shadow-md bg-layoutDivSecondary rounded-lg px-2 py-2 mx-10">
+            <p>20</p>
+            <p>جميع المعاملات</p>
         </div>
-        <div class="col-md-6">
-            المتبقي من المرضية
-            <p>5</p>
+        <div class="w-56 h-24 shadow-md bg-layoutDivSecondary px-2 py-2 rounded-lg">
+            <p>20</p>
+            <p>مكتملة</p>
         </div>
     </div>
     <br />
     
-        <div class="search-container ">
+        <div class="search-container mb-5 flex justify-between">
+            <div>
             <select>
                 <option value="default">من الاقدم للاحدث</option>
             </select>
            
             <input type="text" onchange="search()"  id="searchInput" placeholder="رقم الاجازة" />
-
-            <input type="button" value="اضافة اجازة +" class="" style="margin-left:320px;background-color:#248277;color:white;width:150px;height:40px;border-radius:10px; margin-bottom: -10px;" />
-
         </div>
-        <br />
-        <br />
+        <button type="button" data-toggle="modal" data-target="#insertModal" data-target="#insertModal" id="modal-toggle-button" class="model-button bg-primaryButtons flex-initial hover:bg-emerald-800 text-white font-bold px-5 border rounded transition duration-300 ease-in-out " data-modal-target="crud-modal" data-modal-toggle="crud-modal">
+           اضافة اجازة+
+        </button>
+        @await Html.PartialAsync("_Create_Holiday", new HolidayHistory())
+        </div>
+       
 
-    <div class="overflow-x-auto bg-layoutDivThird mt-3 rounded-lg" dir="rtl">
+    <div class="overflow-x-auto bg-layoutDivThird  rounded-lg" dir="rtl" >
         <table class="table text-center rtl " >
             <!-- head -->
             <thead>
@@ -167,7 +98,7 @@
                 {
                     <tr>
                         <td>
-                            @Html.DisplayFor(modelItem => item.holiday.holiday_id)
+                            @Html.DisplayFor(modelItem => item.holidays_history_id)
                         </td>
                         <td>
                             @Html.DisplayFor(modelItem => item.start_date)
@@ -185,8 +116,8 @@
                             @Html.DisplayFor(modelItem => item.status)
                         </td>
                         <td>
-                            <button type="button" class="btn btn-info" data-toggle="modal" data-target="@("#detailModal-" + @item.holiday.holiday_id)">Detail</button>
-                            @await Html.PartialAsync("_details_holidays", item)
+                            <button type="button" class="btn btn-info" data-toggle="modal" data-target="@("#detailModal-" + item.holidays_history_id)">Detail</button>
+                            @await Html.PartialAsync("_details_holidays",item)
                         </td>
                         
                     </tr>
@@ -194,6 +125,8 @@
             </tbody>
         </table>
     </div>
- 
+    <script src="~/js/site.js">
+    </script>
+    <script src="../path/to/flowbite/dist/flowbite.min.js"></script>
 </body>
 </html>

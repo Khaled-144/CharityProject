@@ -1,0 +1,216 @@
+﻿@model CharityProject.Models.HolidayHistory
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+	<style>
+		.counter-container {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			
+		}
+
+			
+
+			
+	</style>
+</head>
+
+<div class="modal fade" id="insertModal" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header flex justify-center items-center">
+				<h4 class="modal-title text-center w-full">إنشاء معاملة جديدة</h4>
+			</div>
+			<div class="modal-body align-content-center">
+				<div class="col-md text-right" dir="rtl">
+					<form asp-action="Create" method="post">
+						<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+						<div class="mb-4">
+							<label for="subject" class="block text-gray-700 font-bold mb-2">موضوع الإجازة</label>
+							<input type="text" id="subject" name="subject" class="border border-gray-400 rounded-md p-2 w-full" placeholder="أدخل موضوع الإجازة">
+						</div>
+						<div class="mb-4 ">
+							<label for="holidayType" class=" text-gray-700 font-bold ml-2">نوع الإجازة</label>
+							<select id="holidayType" name="holidayType" class="border border-gray-400 rounded-md p-2 w-28 px-10 " onchange="handleHolidayTypeChange()">
+								<option value="مرضية">مرضية</option>
+								<option value="سنوية">سنوية</option>
+								<option value="اضطرارية">اضطرارية</option>
+								<option value="استئذان">استئذان</option>
+							</select>
+					
+						
+							
+							
+
+								<label for="counter" class=" text-gray-700 font-bold mr-4" id="innertext">المدة بالأيام</label>
+								<button type="button" class="" onclick="decrementCounter()">-</button>
+								<input type="number" id="counter" name="counter" class="w-12 p-1"  value="1" min="1" readonly>
+								<button type="button" onclick="incrementCounter()">+</button>
+							
+						</div>
+
+						<div class="mb-4">
+							<label for="dates" class="block text-gray-700 font-bold mb-2">التاريخ</label>
+							<div class="flex">
+								<input type="date" id="start_date" name="start_date" class="border border-gray-400 rounded-md p-2 w-1/2 mr-2" onchange="updateEndDate()">
+								<span class="text-gray-700 font-bold mx-2">إلى</span>
+								<input type="date" id="end_date" name="end_date" class="border border-gray-400 rounded-md p-2 w-1/2">
+							</div>
+						</div>
+
+						<div class="mb-4">
+							<label for="notes" class="block text-gray-700 font-bold mb-2">الملاحظات</label>
+							<textarea id="notes" name="notes" class="border border-gray-400 rounded-md p-2 w-full h-24" placeholder="أدخل الملاحظات"></textarea>
+						</div>
+
+						<div class="mb-4">
+							<label for="attachments" class="block text-gray-700 font-bold mb-2">المرفقات</label>
+							<div class="flex">
+								<input type="file" id="attachment" name="attachment" class="border border-gray-400 rounded-md p-2 w-full">
+								<button type="button" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded ml-2">X</button>
+							</div>
+						</div>
+
+						
+
+						<button type="submit" class="bg-blue-500 hover:bg-blue-700 text-black font-bold py-2 px-4 rounded">رفع الطلب</button>
+					</form>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-danger" data-dismiss="modal">الغاء</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+	function handleHolidayTypeChange() {
+		const holidayType = document.getElementById('holidayType').value;
+		const startDateInput = document.getElementById('start_date');
+		const counterInput = document.getElementById('counter');
+		const counterLabel = document.getElementById('counterLabel');
+
+		if (holidayType === 'سنوية') {
+			const currentDate = new Date();
+			currentDate.setDate(currentDate.getDate() + 3);
+			startDateInput.value = currentDate.toISOString().split('T')[0];
+			startDateInput.readOnly = true;
+			counterLabel.innerText = 'المدة بالأيام';
+			counterInput.max = '';
+		} else if (holidayType === 'اضطرارية') {
+			startDateInput.readOnly = false;
+			counterLabel.innerText = 'المدة بالأيام';
+			counterInput.max = '10';
+		} else if (holidayType === 'استئذان') {
+			startDateInput.readOnly = false;
+			counterLabel.innerText = 'المدة بالساعات';
+			counterInput.max = '2';
+		} else {
+			startDateInput.readOnly = false;
+			counterLabel.innerText = 'المدة بالأيام';
+			counterInput.max = '';
+		}
+		updateEndDate();
+	}
+
+	function incrementCounter() {
+		const counterInput = document.getElementById('counter');
+		const holidayType = document.getElementById('holidayType').value;
+		const max = holidayType === 'اضطرارية' ? 10 : (holidayType === 'استئذان' ? 2 : null);
+		if (max === null || parseInt(counterInput.value) < max) {
+			counterInput.value = parseInt(counterInput.value) + 1;
+			updateEndDate();
+		}
+	}
+
+	function decrementCounter() {
+		const counterInput = document.getElementById('counter');
+		if (parseInt(counterInput.value) > 1) {
+			counterInput.value = parseInt(counterInput.value) - 1;
+			updateEndDate();
+		}
+	}
+
+	function updateEndDate() {
+		const startDateInput = document.getElementById('start_date');
+		const endDateInput = document.getElementById('end_date');
+		const counterInput = document.getElementById('counter');
+		const holidayType = document.getElementById('holidayType').value;
+
+		if (startDateInput.value && holidayType !== 'استئذان') {
+			let startDate = new Date(startDateInput.value);
+			startDate.setDate(startDate.getDate() + parseInt(counterInput.value) - 1);
+			endDateInput.value = startDate.toISOString().split('T')[0];
+		}
+	}
+</script>
+@* 
+<script>
+	function handleHolidayTypeChange() {
+		const holidayType = document.getElementById('holidayType').value;
+		const startDateInput = document.getElementById('start_date');
+		const counterInput = document.getElementById('counter');
+		const counterLabel = document.getElementById('counterLabel');
+
+		startDateInput.value = '';
+		counterInput.value = '1';
+		counterInput.readOnly = true;
+		counterInput.max = '';
+		counterLabel.innerText = 'المدة بالأيام';
+
+		if (holidayType === 'سنوية') {
+			const currentDate = new Date();
+			currentDate.setDate(currentDate.getDate() + 3);
+			startDateInput.value = currentDate.toISOString().split('T')[0];
+			startDateInput.readOnly = true;
+		} else if (holidayType === 'اضطرارية') {
+			counterInput.max = '10';
+		} else if (holidayType === 'استئذان') {
+			counterLabel.innerText = 'المدة بالساعات';
+			counterInput.max = '2';
+		}
+
+		updateEndDate();
+	}
+
+	function incrementCounter() {
+		const counterInput = document.getElementById('counter');
+		const holidayType = document.getElementById('holidayType').value;
+		const max = counterInput.max ? parseInt(counterInput.max) : null;
+		if (!max || parseInt(counterInput.value) < max) {
+			counterInput.value = parseInt(counterInput.value) + 1;
+			updateEndDate();
+		}
+	}
+
+	function decrementCounter() {
+		const counterInput = document.getElementById('counter');
+		if (parseInt(counterInput.value) > 1) {
+			counterInput.value = parseInt(counterInput.value) - 1;
+			updateEndDate();
+		}
+	}
+
+	function updateEndDate() {
+		const startDateInput = document.getElementById('start_date');
+		const endDateInput = document.getElementById('end_date');
+		const counterInput = document.getElementById('counter');
+		const holidayType = document.getElementById('holidayType').value;
+
+		if (startDateInput.value && holidayType !== 'استئذان') {
+			let startDate = new Date(startDateInput.value);
+			startDate.setDate(startDate.getDate() + parseInt(counterInput.value) - 1);
+			endDateInput.value = startDate.toISOString().split('T')[0];
+		}
+	}
+</script> *@
+
+
+
+
+
