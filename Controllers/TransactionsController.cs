@@ -77,8 +77,8 @@ namespace CharityProject.Controllers
         {
             if (ModelState.IsValid)
             {
-                transaction.create_date = DateTime.Now;  // Ensure the date is set to the current UTC time
-                transaction.status = "Pending";  // Set default status value
+                transaction.create_date = DateTime.Now;
+                transaction.status = "Pending";
                 _context.Add(transaction);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
