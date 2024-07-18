@@ -1,7 +1,6 @@
 using CharityProject.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using PdfSharp.Fonts;
 using IronPdf;
 
 
@@ -42,10 +41,6 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 app.MapRazorPages();
-
-// Assign custom font resolver
-GlobalFontSettings.FontResolver = new CustomFontResolver();
-
 
 IronPdf.License.LicenseKey = "IRONSUITE.Z1EX3VY5Z.RELAY.FIREFOX.COM.7292-658CF33405-BZF3RPP3HBLVOH-3GR3YXCKLQZO-TC5LPG4R4Y3I-HEWQ4YQSSFMO-TPO3HMFJU6ZK-P67MZSAWCZX5-MRWIUO-TRNLFLGTPNGNEA-DEPLOYMENT.TRIAL-F42NKS.TRIAL.EXPIRES.17.AUG.2024";
 
