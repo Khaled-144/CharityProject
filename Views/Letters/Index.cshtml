@@ -237,10 +237,10 @@
 
 
 @{
-    ViewData["Title"] = "Letters";
+    ViewData["Title"] = "الخطابات";
 }
 
-<h1 class="text-5xl text-center">الخطابات</h1>
+
 
 <div class="top-info flex  justify-evenly  text-2xl text-center my-10 ">
     <div class="w-56 h-24 shadow-md bg-layoutDivSecondary rounded-lg px-2 py-2">
@@ -278,12 +278,18 @@
                 <option value="DE">Germany</option>
             </select>
         </form>
-        <input placeholder="رقم الخطاب" class="flex-grow border rounded py-2 px-4" />
+        <div class="justify-center inline-flex items-center border-2 rounded border-primaryButtons bg-white pr-5">
+            <input placeholder="رقم الخطاب" class="flex-grow  py-2 px-4" />
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 518 518"><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z" /></svg>
+        </div>
     </div>
-    <button id="modal-toggle-button" class="model-button bg-primaryButtons flex-initial hover:bg-emerald-800 text-white font-bold mx-20 px-4 border rounded transition duration-300 ease-in-out " data-modal-target="crud-modal" data-modal-toggle="crud-modal">
+    <button type="button" data-toggle="modal" data-target="#insertModal" data-target="#insertModal" id="modal-toggle-button" class="model-button bg-primaryButtons flex-initial hover:bg-emerald-800 text-white font-bold mx-20 px-4 border rounded transition duration-300 ease-in-out " data-modal-target="crud-modal" data-modal-toggle="crud-modal">
         إنشاء خطاب
     </button>
 </div>
+
+
+@await Html.PartialAsync("PartailCreate", new Letter())
 
 <div class="overflow-x-auto bg-backgroundDivider mt-3" dir="rtl">
     <table class="table text-center rtl">
@@ -302,30 +308,28 @@
         <tbody>
             @foreach (var item in Model)
             {
-                <tr>
-                    <td>
+                <tr class="bg-base-200 w-25">
+                    <th>
                         @Html.DisplayFor(modelItem => item.letters_id)
-                    </td>
+                    </th>
                     <td>
-                        @Html.DisplayFor(modelItem => item.date)
+                        @Html.DisplayFor(modelItem => item.title)
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.from_emp_id)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.title)
+                        @Html.DisplayFor(modelItem => item.to_emp_id)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.description)
+                        @Html.DisplayFor(modelItem => item.departement_id)
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.files)
                     </td>
                     <td>
-                    <button id="modal-toggle-button" class="model-button bg-primaryButtons flex-initial hover:bg-emerald-800 text-white font-bold mx-20 px-4 border rounded transition duration-300 ease-in-out " data-modal-target="crud-modal" data-modal-toggle="crud-modal">
-                        عرض
-                    </button>
-                    @await Html.PartialAsync("PartialDetails2", new Letter())
+                        <button type="button" class="btn btn-info" data-toggle="modal" data-target="@("#detailModal-" + item.letters_id)">عرض</button>
+                        @await Html.PartialAsync("PartialDetails2", item)
                     </td>
                 </tr>
             }
@@ -409,3 +413,6 @@
     *@
     @*  <button type="button" class="btn btn-info" data-toggle="modal" >عرض</button>
     @await Html.PartialAsync("Details") *@
+<script src="~/js/site.js">
+</script>
+<script src="../path/to/flowbite/dist/flowbite.min.js"></script>

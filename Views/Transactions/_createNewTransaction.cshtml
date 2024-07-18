@@ -1,68 +1,6 @@
 ﻿@model CharityProject.Models.Transaction
 
 
-<head>
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-</head>
-
-<div class="modal fade" id="insertModal" role="dialog">
-	<div class="modal-dialog">
-		<div class="modal-content">
-			<div class="modal-header flex justify-center items-center">
-				<h4 class="modal-title text-center w-full">إنشاء معاملة جديدة</h4>
-			</div>
-			<div class="modal-body align-content-center">
-				<div class="col-md text-right" dir="rtl">
-					<form asp-action="Create" method="post">
-						<div asp-validation-summary="ModelOnly" class="text-danger"></div>
-						<div class="form-group">
-							<label asp-for="title" class="control-label">عنوان المعاملة</label>
-							<input asp-for="title" class="form-control" />
-							<span asp-validation-for="title" class="text-danger"></span>
-						</div>
-						<div class="col-span-2 form-group sm:col-span-1 mb-4">
-							<label for="category" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">إلى</label>
-							<select id="category" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-								<option value="" disabled selected>اختر القسم الموجه</option>
-								<option value="TV">الموارد البشرية</option>
-								<option value="PC">التنمية المالية</option>
-								<option value="GA">إدارية المستفيدين</option>
-								<option value="PH">الإدارة التنفيذية</option>
-							</select>
-						</div>
-						<div class="form-group">
-							<label asp-for="description" class="control-label">وصف المعاملة</label>
-							<input asp-for="description" class="form-control" />
-							<span asp-validation-for="description" class="text-danger"></span>
-						</div>
-						<div class="form-group">
-							<label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="file_input">المرفقات</label>
-							<input class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" id="file_input" type="file">
-						</div>
-
-						<div class="form-group flex justify-center mt-4">
-							<input type="submit" value="رفع المعاملة" class="bg-primaryButtons hover:bg-emerald-800 text-white font-bold py-2 px-4 rounded" />
-						</div>
-					</form>
-					<div class="modal-footer">
-						<button type="button" class="btn btn-danger" data-dismiss="modal">الغاء</button>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
-
-@section Scripts {
-	@{
-		await Html.RenderPartialAsync("_ValidationScriptsPartial");
-	}
-}
-
 @*
 <div class="form-group">
 	<label asp-for="type" class="control-label"></label>
