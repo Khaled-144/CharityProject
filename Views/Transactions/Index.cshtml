@@ -6,8 +6,6 @@
 }
 
 
-
-
 <div class="top-info flex  justify-evenly  text-2xl text-center my-10 ">
 	<div class="w-56 h-24 shadow-md bg-layoutDivSecondary rounded-lg px-2 py-2">
 		<p>20</p>
@@ -52,9 +50,9 @@
 	<button type="button" data-toggle="modal" data-target="#insertModal" data-target="#insertModal" id="modal-toggle-button" class="model-button bg-primaryButtons flex-initial hover:bg-emerald-800 text-white font-bold mx-20 px-4 border rounded transition duration-300 ease-in-out " data-modal-target="crud-modal" data-modal-toggle="crud-modal">
 		إنشاء معاملة
 	</button>
+	@await Html.PartialAsync("_CreateNewTransaction", new Transaction())
 </div>
 
-@await Html.PartialAsync("_CreateNewTransaction", new Transaction())
 
 <div class="overflow-x-auto bg-backgroundDivider mt-3" dir="rtl">
 	<table class="table text-center rtl">
@@ -102,7 +100,6 @@
 		</tbody>
 	</table>
 </div>
-
 <script src="~/js/site.js">
 </script>
 <script src="../path/to/flowbite/dist/flowbite.min.js"></script>
