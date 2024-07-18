@@ -1,4 +1,4 @@
-﻿@model CharityProject.Models.Transaction
+﻿@model CharityProject.Models.Letter
 
 @{
     ViewData["Title"] = "Create";
@@ -6,28 +6,12 @@
 
 <h1>Create</h1>
 
-<h4>Transaction</h4>
+<h4>Letter</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
-            <div class="form-group">
-                <label asp-for="create_date" class="control-label"></label>
-                <input asp-for="create_date" class="form-control" />
-                <span asp-validation-for="create_date" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="close_date" class="control-label"></label>
-                <input asp-for="close_date" class="form-control" />
-                <span asp-validation-for="close_date" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="status" class="control-label"></label>
-                <input asp-for="status" class="form-control" />
-                <span asp-validation-for="status" class="text-danger"></span>
-            </div>
             <div class="form-group">
                 <label asp-for="title" class="control-label"></label>
                 <input asp-for="title" class="form-control" />
@@ -39,9 +23,9 @@
                 <span asp-validation-for="description" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="files" class="control-label"></label>
-                <input asp-for="files" class="form-control" />
-                <span asp-validation-for="files" class="text-danger"></span>
+                <label asp-for="date" class="control-label"></label>
+                <input asp-for="date" class="form-control" />
+                <span asp-validation-for="date" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="from_emp_id" class="control-label"></label>
@@ -50,13 +34,18 @@
             </div>
             <div class="form-group">
                 <label asp-for="to_emp_id" class="control-label"></label>
-                <input asp-for="to_emp_id"  class="form-control" />
+                <input asp-for="to_emp_id" class="form-control" />
                 <span asp-validation-for="to_emp_id" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="department_id" class="control-label"></label>
-                <input asp-for="department_id" class="form-control" />
-                <span asp-validation-for="department_id" class="text-danger"></span>
+                <label asp-for="files" class="control-label"></label>
+                <input asp-for="files" class="form-control" />
+                <span asp-validation-for="files" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="departement_id" class="control-label"></label>
+                <input asp-for="departement_id" class="form-control" />
+                <span asp-validation-for="departement_id" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
@@ -68,4 +57,5 @@
 <div>
     <a asp-action="Index">Back to List</a>
 </div>
+
 
