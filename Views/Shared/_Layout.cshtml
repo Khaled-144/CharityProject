@@ -68,6 +68,9 @@
         <li class="mb-2">
             <a asp-controller="Home" asp-action="Inventory" class="nav-link @(ViewContext.RouteData.Values["action"].ToString() == "Inventory" ? "active" : "")">العهده</a>
         </li>
+        <li class="mb-2">
+            <a asp-controller="OtherServices" asp-action="Index" class="nav-link @(ViewContext.RouteData.Values["action"].ToString() == "Other" ? "active" : "")">أخرى</a>
+        </li>
     </ul>
 </nav>
     </div>
