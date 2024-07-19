@@ -32,27 +32,23 @@
 </div>
 
 <div class="flex justify-self-auto justify-between mt-10 ">
-	<div class="flex ">
+	<div class="">
+		<form asp-action="SearchById" asp-controller="Transactions" method="get">
 
-		<div class="flex items-center p-2">
+			<div class="flex justify-evenly">
 
-			<div class="px-10 w-1/2">
-				<select name="sortOrder" id="sortOrder" class="bg-white border border-primaryButtons text-black text-sm rounded-lg text-center focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
-					<option selected>الفلاتر</option>
-					<option value="oldest">الاقدم</option>
-					<option value="newest">الاحدث</option>
-				</select>
-			</div>
+				<div class="">
+					<select name="sortOrder" id="sortOrder" class="bg-white border border-primaryButtons text-black text-sm rounded-lg text-center focus:ring-blue-500 focus:border-blue-500 block mr-2">
+						<option selected>فلترة</option>
+						<option value="newest">الاحدث</option>
+						<option value="oldest">الاقدم</option>
 
-			<form asp-action="SearchById" asp-controller="Transactions" method="get" class="flex items-center">
-				<input name="id" placeholder="رقم المعاملة" class="form-control py-2 px-4 border border-primaryButtons rounded-l" type="search" aria-label="search" />
+					</select>
+				</div>
+				<input name="id" placeholder="رقم المعاملة" class="form-control mr-2" type="search" aria-label="search" />
 				<button class="btn btn-dark" type="submit">بحث</button>
-			</form>
-
-
-		</div>
-
-
+			</div>
+		</form>
 	</div>
 	<button type="button" data-toggle="modal" data-target="#insertModal" id="modal-toggle-button" class="model-button bg-primaryButtons flex-initial hover:bg-emerald-800 text-white font-bold  px-4 border rounded transition duration-300 ease-in-out " data-modal-target="crud-modal" data-modal-toggle="crud-modal">
 		إنشاء معاملة
