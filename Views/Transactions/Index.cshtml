@@ -7,27 +7,10 @@
 
 
 <div class="flex justify-self-auto justify-between mt-10 ">
-    <div class="">
-        <form asp-action="SearchById" asp-controller="Transactions" method="get">
 
-            <div class="flex justify-evenly">
-
-                <div class="">
-                    <select name="sortOrder" id="sortOrder" class="bg-white border border-primaryButtons text-black text-sm rounded-lg text-center focus:ring-blue-500 focus:border-blue-500 block mr-2">
-                        <option selected>فلترة</option>
-                        <option value="newest">الاحدث</option>
-                        <option value="oldest">الاقدم</option>
-
-                    </select>
-                </div>
-                <input name="id" placeholder="رقم المعاملة" class="form-control mr-2" type="search" aria-label="search" />
-                <button class="btn btn-dark" type="submit">بحث</button>
-            </div>
-        </form>
-    </div>
     <div>
-        <button id="dropdownDefaultButton" data-dropdown-toggle="dropdown" class="text-white bg-primaryButtons hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" type="button">
-            جديد <svg class="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+        <button id="dropdownDefaultButton" data-dropdown-toggle="dropdown" class="text-white w-auto bg-primaryButtons hover:bg-emerald-800	 focus:ring-4  focus:outline-none focus:ring-blue-300 font-medium  rounded-lg text-sm px-4 py-2.5 text-center inline-flex justify-evenly items-center">
+            جديد <svg class="w-2.5 h-2.5 mx-1 mt-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4" />
             </svg>
         </button>
@@ -49,21 +32,40 @@
                 </li>
             </ul>
         </div>
-
     </div>
+
+    <div>
+        <form asp-action="SearchById" asp-controller="Transactions" method="get">
+
+            <div class="flex justify-evenly">
+                <input name="id" placeholder="رقم المعاملة" class="form-control mr-2" type="search" aria-label="search" />
+                <button class="btn btn-dark" type="submit">بحث</button>
+                <div class="">
+                    <select name="sortOrder" id="sortOrder" class="bg-white border border-primaryButtons px-5 text-black text-sm rounded-lg text-center focus:ring-blue-500 focus:border-blue-500 block mr-2">
+                        <option selected>فلترة</option>
+                        <option value="newest">الاحدث</option>
+                        <option value="oldest">الاقدم</option>
+
+                    </select>
+                </div>
+            </div>
+        </form>
+    </div>
+
     @await Html.PartialAsync("_CreateNewTransaction", new Transaction())
 </div>
 
-<div class="mt-10 p-2 bg-backgroundDivider rounded-lg" dir="rtl" style="max-height: 500px; overflow-y: auto;">
+<div class="mt-10 p-2  rounded-lg" style="max-height: 500px; overflow-y: auto;">
     <ul class="w-full divide-y divide-gray-200 dark:divide-gray-700">
         @foreach (var item in Model)
         {
-            <li class="pb-3 sm:pb-4 border-b border-black shadow-xl ">
-                <div class="flex items-center space-x-4 rtl:space-x-reverse text-center">
-                    <div class="flex-shrink-0 p-3">
-                        <p>خطاب</p>
-                        <p>
-                          #  @Html.DisplayFor(modelItem => item.transaction_id)
+            <li class="mb-2 shadow-sm bg-white  ">
+                <div class="flex items-center space-x-4 rtl:space-x-reverse  text-center ">
+                    <div class="flex-shrink-0 ml-3 p-3 ">
+                        <p class="font-bold">خطاب</p>
+                        <hr />
+                        <p class="text-blue-600">
+                            #@Html.DisplayFor(modelItem => item.transaction_id)
                         </p>
                     </div>
                     <div class="flex-1 min-w-0 text-right">
@@ -72,7 +74,7 @@
                                 @Html.DisplayFor(modelItem => item.title)
                             </p>
                             <p class="text-sm font-medium text-gray-900 truncate dark:text-white">
-                                @Html.DisplayFor(modelItem=>item.create_date)
+                                @Html.DisplayFor(modelItem => item.create_date)
                             </p>
                         </div>
                         <p class="text-sm text-gray-500 truncate dark:text-gray-400">
@@ -88,23 +90,6 @@
         }
     </ul>
 </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 <script src="~/js/site.js">
 </script>
