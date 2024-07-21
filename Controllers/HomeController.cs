@@ -33,10 +33,7 @@ namespace CharityProject.Controllers
                     Problem("Entity set 'ApplicationDbContext.HolidayHistories' is null.");
         }
 
-        public IActionResult Holidays()
-        {
-            return View();
-        }
+      
 
         public IActionResult Letters()
         {

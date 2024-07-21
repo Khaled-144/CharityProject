@@ -1,0 +1,72 @@
+﻿@model CharityProject.Models.Transaction
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>Transaction</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.create_date)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.create_date)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.close_date)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.close_date)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.status)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.status)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.title)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.title)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.description)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.description)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.files)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.files)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.from_emp_id)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.from_emp_id)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.to_emp_id)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.to_emp_id)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.department_id)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.department_id)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model?.transaction_id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>

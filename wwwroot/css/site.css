@@ -8,40 +8,15 @@
 
 .nav-link {
     display: block;
-    transition: color 200ms ease-in-out,background-color 200ms ease-in-out;
-    color: black
+    transition: color 200ms ease-in-out, background-color 200ms ease-in-out;
+    color: black;
 }
 
     .nav-link:hover {
         background-color: #e0e0e0;
-        color: #248277
+        color: #248277;
     }
 
     .nav-link.active {
         border-bottom: 2px solid #000;
     }
-
-.hidden {
-    display: none;
-}
-/* Center the modal */
-#crud-modal {
-    display: none;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 50; /* Ensure the modal is above other content */
-}
-
-    /* Show the modal */
-    #crud-modal.show {
-        display: block;
-    }
-
-
-
-
-.modal-overlay.show {
-    display: block;
-}

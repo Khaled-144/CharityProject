@@ -1,0 +1,79 @@
+﻿@model CharityProject.Models.Transaction
+
+@{
+	ViewData["Title"] = "_showTransactionDetail";
+}
+<div class="modal fade" id="detailModal-@Model.transaction_id" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header flex justify-content-center">
+				<h4>معلومات المعاملة  #@Model.transaction_id</h4>
+			</div>
+			<div class="modal-body align-content-center">
+				<div class="col-md text-right my-1" dir="rtl">
+					<div>
+						<dl class="row text-center">
+							<dt class="col-sm-4">
+								العنوان
+							</dt>
+							<dd class="col-sm-8">
+								@Html.DisplayFor(model => model.title)
+							</dd>
+							<dt class="col-sm-4">
+								الوصف
+							</dt>
+							<dd class="col-sm-8">
+								@Html.DisplayFor(model => model.description)
+							</dd>
+							<dt class="col-sm-5">
+								الى
+							</dt>
+							<dd class="col-sm-7">
+								4
+							</dd>
+							<dt class="col-sm-5">
+								قسم
+							</dt>
+							<dd class="col-sm-7">
+								@Html.DisplayFor(model => model.department_id)
+							</dd>
+							<dt class="col-sm-5">
+								تاريخ الانشاء
+							</dt>
+							<dd class="col-sm-7">
+								@Html.DisplayFor(model => model.create_date)
+							</dd>
+							<dt class="col-sm-5">
+								تاريخ الانهاء
+							</dt>
+							<dd class="col-sm-7">
+								@Html.DisplayFor(model => model.close_date)
+							</dd>
+							<dt class="col-sm-4">
+								الحالة
+							</dt>
+							<dd class="col-sm-8">
+								@Html.DisplayFor(model => model.status)
+							</dd>
+							<dt class="col-sm-4">
+								@Html.DisplayNameFor(model => model.files)
+							</dt>
+							<dd class="col-sm-18">
+								@Html.DisplayFor(model => model.files)
+							</dd>
+						</dl>
+					</div>
+					<div class="flex justify-center">
+						<button data-dismiss="modal" type="button" class="text-white bg-emerald-800 hover:bg-emerald-900 focus:ring-4 focus:ring-blue-300 transition duration-300 ease-in-out  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">إخفاء</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+
+
+
+
