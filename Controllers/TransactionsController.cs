@@ -51,9 +51,6 @@ namespace CharityProject.Controllers
 		}
 
 
-
-
-
 		public IActionResult CreateNewTransaction()
 		{
 			return View();
@@ -204,5 +201,8 @@ namespace CharityProject.Controllers
 		{
 			return _context.Transactions.Any(e => e.transaction_id == id);
 		}
+
+
+
 	}
 }
