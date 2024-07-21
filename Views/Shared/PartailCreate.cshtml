@@ -1,61 +1,172 @@
 ﻿@model CharityProject.Models.Letter
 
-@{
-    ViewData["Title"] = "Create";
-}
 
-<h1>Create</h1>
 
-<h4>Letter</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="title" class="control-label"></label>
-                <input asp-for="title" class="form-control" />
-                <span asp-validation-for="title" class="text-danger"></span>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form with Conditional Employee Div</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+ @*    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const recipientSelect = document.getElementById('recipient');
+            const employeeDiv = document.getElementById('employee-div');
+
+            recipientSelect.addEventListener('change', function () {
+                if (this.value === 'مخصص') {
+                    employeeDiv.style.display = 'block';
+                } else {
+                    employeeDiv.style.display = 'none';
+                }
+            });
+        });
+    </script> *@   
+</head>
+
+<div class="modal fade" id="insertModal" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header flex justify-center items-center">
+                <h4 class="modal-title text-center w-full">إنشاء خطاب جديد</h4>
             </div>
-            <div class="form-group">
-                <label asp-for="description" class="control-label"></label>
-                <input asp-for="description" class="form-control" />
-                <span asp-validation-for="description" class="text-danger"></span>
+            <div class="modal-body align-content-center">
+                <div class="col-md text-right" dir="rtl">
+                    <form asp-action="Create" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+
+                        <div class="mb-4">
+                            <label for="subject" class="block text-sm font-medium text-gray-700">موضوع الخطاب</label>
+                            <input type="text" id="subject" name="subject" class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="type" class="block text-sm font-medium text-gray-700">نوع الخطاب</label>
+                            <select id="type" name="type" class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">اختر نوع الخطاب</option>
+                                <option value="urgent">عام</option>
+                                <option value="very_urgent"> تظلم</option>
+                              
+                            </select>
+                        </div>
+
+
+                        <div class="mb-4 flex-container">
+                            <div class="flex-item">
+                                <label for="department" class=" text-sm font-medium text-gray-700">القسم</label>
+                                <select id="department" name="department" class="mt-1 p-2 w-40 ml-2 border rounded-md focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="">اختر القسم</option>
+                                    <option value="urgent">الموارد البشرية</option>
+                                    <option value="very_urgent">التنمية المالية</option>
+                                    <option value="extremely_urgent">إدارية المستفيدين</option>
+                                    <option value="extremely_urgent">الإدارة التنفيذية</option>
+                                </select>
+                                <label for="employee" class=" mr-4 text-sm font-medium text-gray-700">الموظف</label>
+                                <select id="employee" name="employee" class="mt-1 p-2 w-25 ml-2 border rounded-md focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="mohamed">محمد</option>
+                                    <option value="abdullah">عبدالله</option>
+                                    <option value="ziad">زياد</option>
+                                </select>
+                            </div>
+
+                            <div class="flex-item">
+                               
+                            </div>
+                        </div>
+
+
+               @*          بتاتباخعهبارخهابرخ *@
+
+                  @*       <div class="mb-4">
+                            <label for="department" class="block text-sm font-medium text-gray-700">القسم</label>
+                            <select id="department" name="department" class="mt-1 p-2  border rounded-md focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">اختر القسم</option>
+                                <option value="urgent">الموارد البشرية</option>
+                                <option value="very_urgent">التنمية المالية</option>
+                                <option value="extremely_urgent"> إدارية المستفيدين </option>
+
+                                <option value="extremely_urgent"> الإدارة التنفيذية </option>
+                            </select>
+
+
+                        
+                                <label for="employee" class="block text-sm font-medium text-gray-700">الموظف</label>
+                                <select id="employee" name="employee" class="mt-1 p-2  border rounded-md focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="mohamed">محمد</option>
+                                    <option value="abdullah">عبدالله</option>
+                                    <option value="ziad">زياد</option>
+                                </select>
+                       
+                        </div>   *@  
+
+                       @*  <div class="mb-4">
+                            <label for="recipient" class="block text-sm font-medium text-gray-700">إلى</label>
+                            <select id="recipient" name="recipient" class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">اختر</option>
+                                <option value="مخصص">مخصص</option>
+                                <option value="عام">عام</option>
+                            </select>
+                        </div> *@
+
+
+                   @*      <div class="mb-4">
+                            <label for="recipient" class="block text-sm font-medium text-gray-700"> إلى</label>
+                            <select id="department" name="department" class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500">
+
+                                <option value="">اختر</option>
+                                <option value="مخصص">مخصص</option>
+                                <option value="عام">عام</option>
+
+                            </select>
+                        </div>
+                        <div id="modal-overlay" class="modal-overlay"></div>
+
+                        <div id="employee-div" class="mb-4" style="display: none;">
+                            <label for="employee" class="block text-sm font-medium text-gray-700">الموظف</label>
+                            <select id="employee" name="employee" class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500">
+                                <option value="mohamed">محمد</option>
+                                <option value="abdullah">عبدالله</option>
+                                <option value="ziad">زياد</option>
+                            </select>
+                        </div> *@
+
+
+                        <div class="mb-4">
+                            <label for="notes" class="block text-sm font-medium text-gray-700">الملاحظات</label>
+                            <textarea id="notes" name="notes" class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500"></textarea>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="attachments" class="block text-sm font-medium text-gray-700">المرفقات</label>
+                            <input type="file" id="attachments" name="attachments" class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div class="flex justify-center">
+                            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white  font-bold py-2 px-4 ">رفع الخطاب</button>
+
+                        </div>
+                      
+
+                    </form>
+                    
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">الغاء</button>
+                 
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="date" class="control-label"></label>
-                <input asp-for="date" class="form-control" />
-                <span asp-validation-for="date" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="from_emp_id" class="control-label"></label>
-                <input asp-for="from_emp_id" class="form-control" />
-                <span asp-validation-for="from_emp_id" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="to_emp_id" class="control-label"></label>
-                <input asp-for="to_emp_id" class="form-control" />
-                <span asp-validation-for="to_emp_id" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="files" class="control-label"></label>
-                <input asp-for="files" class="form-control" />
-                <span asp-validation-for="files" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="departement_id" class="control-label"></label>
-                <input asp-for="departement_id" class="form-control" />
-                <span asp-validation-for="departement_id" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
 
