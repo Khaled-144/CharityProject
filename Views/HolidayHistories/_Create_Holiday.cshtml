@@ -37,10 +37,10 @@
 							<label for="holidayType" class=" text-gray-700 font-bold ml-2">نوع الإجازة</label>
 							<select id="holidayType" name="holiday_id" class="border border-gray-400 rounded-md p-2 w-28 px-10 " onchange="handleHolidayTypeChange()" asp-for="holiday_id">
 								<option disabled selected > </option>
-								<option value="1">مرضية</option>
-								<option value="2">سنوية</option>
-								<option value="3">اضطرارية</option>
-								<option value="4">استئذان</option>
+								<option value=1>مرضية</option>
+								<option value=2>سنوية</option>
+								<option value=3>اضطرارية</option>
+								<option value=4>استئذان</option>
 							</select>
 					
 						
@@ -97,7 +97,7 @@
 		const counterLabel = document.getElementById('counterLabel');
 
 
-		if (holidayType === '1') {
+		if (holidayType == 1) {
 			const currentDate = new Date();
 			currentDate.setDate(currentDate.getDate());
 			startDateInput.value = currentDate.toISOString().split('T')[0];
@@ -105,18 +105,18 @@
 			counterLabel.innerText = 'المدة بالأيام';
 		}
 		
-		 else if (holidayType === '2') {
+		 else if (holidayType == 2) {
 			const currentDate = new Date();
 			currentDate.setDate(currentDate.getDate() + 3);
 			startDateInput.value = currentDate.toISOString().split('T')[0];
 			startDateInput.readOnly = true;
 			counterLabel.innerText = 'المدة بالأيام';
 			counterInput.max = '';
-		} else if (holidayType === '3') {
+		} else if (holidayType == 3) {
 			startDateInput.readOnly = false;
 			counterLabel.innerText = 'المدة بالأيام';
 			counterInput.max = '10';
-		} else if (holidayType === '4') {
+		} else if (holidayType == 4) {
 			startDateInput.readOnly = false;
 			counterLabel.innerText = 'المدة بالساعات';
 			counterInput.max = '2';
