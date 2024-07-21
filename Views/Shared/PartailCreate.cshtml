@@ -15,77 +15,53 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Form with Conditional Employee Div</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
- @*    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const recipientSelect = document.getElementById('recipient');
-            const employeeDiv = document.getElementById('employee-div');
+   @*   <script>
+    function toggleElements() {
+    var choice = document.getElementById("choice").value;
+    var general = document.getElementById("h");
+    var custom= document.getElementById("m");
 
-            recipientSelect.addEventListener('change', function () {
-                if (this.value === 'مخصص') {
-                    employeeDiv.style.display = 'block';
-                } else {
-                    employeeDiv.style.display = 'none';
-                }
-            });
-        });
-    </script> *@   
+    if (choice === "عام") { 
+        general.style.display = "block";
+               
+            
+    } else if (choice === "مخصص") {
+    custom.style.display = "block";
+                general.style.display = "block";
+    }
+    }
+    </script>  *@
+
+
+    <script>
+        function toggleElements() {
+            const choice = document.getElementById('choice').value;
+            const general = document.getElementById('h');
+            const custom = document.getElementById('m');
+
+            if (choice === 'عام') {
+                general.style.display = 'block';
+                custom.style.display = 'none';
+            } else if (choice === 'مخصص') {
+                general.style.display = 'block';
+                custom.style.display = 'block';
+            } else {
+                general.style.display = 'none';
+                custom.style.display = 'none';
+            }
+        }
+    </script>
+    <style>
+        .general, .custom {
+            display: none;
+        }
+    </style>
 </head>
 
-<div class="modal fade" id="insertModal" role="dialog">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header flex justify-center items-center">
-                <h4 class="modal-title text-center w-full">إنشاء خطاب جديد</h4>
-            </div>
-            <div class="modal-body align-content-center">
-                <div class="col-md text-right" dir="rtl">
-                    <form asp-action="Create" method="post">
-                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
+@*          بتاتباخعهبارخهابرخ *@
 
-                        <div class="mb-4">
-                            <label for="subject" class="block text-sm font-medium text-gray-700">موضوع الخطاب</label>
-                            <input type="text" id="subject" name="subject" class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500">
-                        </div>
-
-                        <div class="mb-4">
-                            <label for="type" class="block text-sm font-medium text-gray-700">نوع الخطاب</label>
-                            <select id="type" name="type" class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500">
-                                <option value="">اختر نوع الخطاب</option>
-                                <option value="urgent">عام</option>
-                                <option value="very_urgent"> تظلم</option>
-                              
-                            </select>
-                        </div>
-
-
-                        <div class="mb-4 flex-container">
-                            <div class="flex-item">
-                                <label for="department" class=" text-sm font-medium text-gray-700">القسم</label>
-                                <select id="department" name="department" class="mt-1 p-2 w-40 ml-2 border rounded-md focus:ring-blue-500 focus:border-blue-500">
-                                    <option value="">اختر القسم</option>
-                                    <option value="urgent">الموارد البشرية</option>
-                                    <option value="very_urgent">التنمية المالية</option>
-                                    <option value="extremely_urgent">إدارية المستفيدين</option>
-                                    <option value="extremely_urgent">الإدارة التنفيذية</option>
-                                </select>
-                                <label for="employee" class=" mr-4 text-sm font-medium text-gray-700">الموظف</label>
-                                <select id="employee" name="employee" class="mt-1 p-2 w-25 ml-2 border rounded-md focus:ring-blue-500 focus:border-blue-500">
-                                    <option value="mohamed">محمد</option>
-                                    <option value="abdullah">عبدالله</option>
-                                    <option value="ziad">زياد</option>
-                                </select>
-                            </div>
-
-                            <div class="flex-item">
-                               
-                            </div>
-                        </div>
-
-
-               @*          بتاتباخعهبارخهابرخ *@
-
-                  @*       <div class="mb-4">
+@*       <div class="mb-4">
                             <label for="department" class="block text-sm font-medium text-gray-700">القسم</label>
                             <select id="department" name="department" class="mt-1 p-2  border rounded-md focus:ring-blue-500 focus:border-blue-500">
                                 <option value="">اختر القسم</option>
@@ -97,17 +73,17 @@
                             </select>
 
 
-                        
+
                                 <label for="employee" class="block text-sm font-medium text-gray-700">الموظف</label>
                                 <select id="employee" name="employee" class="mt-1 p-2  border rounded-md focus:ring-blue-500 focus:border-blue-500">
                                     <option value="mohamed">محمد</option>
                                     <option value="abdullah">عبدالله</option>
                                     <option value="ziad">زياد</option>
                                 </select>
-                       
-                        </div>   *@  
 
-                       @*  <div class="mb-4">
+                        </div>   *@
+
+@*  <div class="mb-4">
                             <label for="recipient" class="block text-sm font-medium text-gray-700">إلى</label>
                             <select id="recipient" name="recipient" class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500">
                                 <option value="">اختر</option>
@@ -117,7 +93,7 @@
                         </div> *@
 
 
-                   @*      <div class="mb-4">
+@*      <div class="mb-4">
                             <label for="recipient" class="block text-sm font-medium text-gray-700"> إلى</label>
                             <select id="department" name="department" class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500">
 
@@ -139,25 +115,165 @@
                         </div> *@
 
 
-                        <div class="mb-4">
-                            <label for="notes" class="block text-sm font-medium text-gray-700">الملاحظات</label>
-                            <textarea id="notes" name="notes" class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500"></textarea>
+
+
+
+
+
+<div class="modal fade" id="insertModal" role="dialog">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header flex justify-center items-center">
+                <h4 class="modal-title text-center w-full">إنشاء خطاب جديد</h4>
+            </div>
+            <div class="modal-body align-content-center">
+                <div class="col-md text-right" dir="rtl">
+                    <form asp-action="Create" method="post" enctype="multipart/form-data">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                        <div class="mb-4 form-group">
+                            <label asp-for="title" for="title" class="block  font-bold text-sm font-medium text-gray-700">موضوع الخطاب</label>
+                            <input asp-for="title" type="text" id="title" name="title" class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500">
                         </div>
 
-                        <div class="mb-4">
-                            <label for="attachments" class="block text-sm font-medium text-gray-700">المرفقات</label>
-                            <input type="file" id="attachments" name="attachments" class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500">
-                        </div>
-                        <div class="flex justify-center">
-                            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white  font-bold py-2 px-4 ">رفع الخطاب</button>
 
-                        </div>
-                      
 
+
+
+
+
+
+
+                        <div class=" mb-4 flex-container form-group ">
+                            <div class="flex-item form-group">
+                                <label asp-for="date" for="date" class="text-sm pr-20  font-bold font-medium text-gray-700"> التاريخ</label>
+                                <input type="date" id="date" name="date" class="">
+                                <label asp-for="type" for="type" class="mr-4 text-sm    pr-20 font-bold font-medium text-gray-700">نوع الخطاب</label>
+                                <select asp-for="type" id="type" name="type" class="mt-1 p-2 w-25 ml-2 border rounded-md focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="" disabled selected>اختر نوع الخطاب</option>
+                                    <option value="عام">عام</option>
+                                    <option value="تظلم">تظلم</option>
+                                </select>
+                            </div>
+                        </div>
+
+
+
+
+                    @*     <div id="choice" class=" mb-4 flex-container form-group">
+                            <div class="flex-item form-group" onchange="toggleElements()">
+                                <label for="choice" class="text-sm font-medium text-gray-700">موجه الى</label>
+                                <select id="choice" name="choice" onchange="toggleElements()" class="mt-1 p-2 w-full ml-2 border rounded-md focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="" disabled selected>اختر </option>
+
+                                    <option value="مخصص">مخصص</option>
+                                    <option value="عام">عام</option>
+                                </select>
+                            </div>
+
+
+
+
+
+                            <div id="h" class="general mb-4" >
+                                    <label for="department" class="block text-sm font-medium text-gray-700">القسم</label>
+                                    <select id="department" name="department" class="mt-1 p-2  border rounded-md focus:ring-blue-500 focus:border-blue-500">
+                                        <option value="">اختر القسم</option>
+                                        <option value="urgent">الموارد البشرية</option>
+                                        <option value="very_urgent">التنمية المالية</option>
+                                        <option value="extremely_urgent"> إدارية المستفيدين </option>
+
+                                        <option value="extremely_urgent"> الإدارة التنفيذية </option>
+                                    </select>
+                                </div>
+
+
+                                <div id="m"  class="custom mb-4 ">
+                                    <label asp-for="to_emp_id" for="to_emp_id" class="mr-4 text-sm font-medium text-gray-700">الموظف</label>
+                                    <select asp-for="to_emp_id" id="to_emp_id" name="to_emp_id" class="mt-1 p-2 w-25 ml-2 border rounded-md focus:ring-blue-500 focus:border-blue-500">
+                                        <option value="1">محمد</option>
+                                        <option value="2">عبدالله</option>
+                                        <option value="3">زياد</option>
+                                    </select>
+
+                                </div>
+                           *@
+
+
+                        <div  class="my-10 flex px-5  form-group">
+                            <div class="flex form-group">
+                                <label for="choice" class="text-sm font-medium text-gray-700">موجه الى</label>
+                                <select id="choice" name="choice" onchange="toggleElements()" class="border rounded-md w-24 focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="" disabled selected>اختر </option>
+                                    <option value="مخصص">مخصص</option>
+                                    <option value="عام">عام</option>
+                                </select>
+                            </div>
+
+                            <div id="h" class="general px-5 flex">
+                                <label for="department" class=" text-sm font-medium text-gray-700">القسم</label>
+                                <select id="department" name="department" class=" border rounded-md focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="">اختر القسم</option>
+                                    <option value="urgent">الموارد البشرية</option>
+                                    <option value="very_urgent">التنمية المالية</option>
+                                    <option value="extremely_urgent">إدارية المستفيدين</option>
+                                    <option value="extremely_urgent">الإدارة التنفيذية</option>
+                                </select>
+                            </div>
+
+                            <div id="m" class="custom px-5 flex>
+                                <label asp-for="to_emp_id" for="to_emp_id" class="mr-4 px-4  text-sm font-medium text-gray-700">الموظف</label>
+                                <select asp-for="to_emp_id" id="to_emp_id" name="to_emp_id" class=" border w-24 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="1">محمد</option>
+                                    <option value="2">عبدالله</option>
+                                    <option value="3">زياد</option>
+                                </select>
+                            </div>
+                        </div>
+                         
+
+
+
+                            <div class="mb-4 form-group">
+                                <label asp-for="description" for="description" class="block text-sm font-medium text-gray-700">الملاحظات</label>
+                                <textarea asp-for="description" id="description" name="description" class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500"></textarea>
+                            </div>
+
+                            <div class="mb-4 form-group">
+                                <label asp-for="files" for="files" class="block text-sm font-medium text-gray-700">المرفقات</label>
+                                <input asp-for="files" type="file" id="files" name="files" class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div class="flex justify-center form-group">
+                                <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4">رفع الخطاب</button>
+                            </div>
+
+
+                            <div class="flex justify-between">
+                                <div class="mb-4 p-">
+                                    <label for="conf" class="block text-gray-700 font-bold mb-2">
+                                        <i class="fas fa-lock"></i> سرية الخطاب
+                                    </label>
+                                    <input type="radio" id="conf" name="confidentiality" /> سري <br />
+                                    <input type="radio" id="conf" name="confidentiality" /> غير سري
+                                </div>
+                                <div class="mb-4 p-">
+                                    <label for="conf" class="block text-gray-700 font-bold mb-2">
+                                        <i class="fas fa-clock"></i> أعجلية الخطاب
+                                    </label>
+                                    <input type="radio" id="conf" name="confidentiality" /> غير عاجلة <br />
+                                    <input type="radio" id="conf" name="confidentiality" /> عاجلة <br />
+                                    <input type="radio" id="conf" name="confidentiality" /> حالاً
+                                </div>
+                                <div class="mb-4 p-">
+                                    <label for="conf" class="block text-gray-700 font-bold mb-2">
+                                        <i class="fas fa-exclamation-circle"></i> أهمية الخطاب
+                                    </label>
+                                    <input type="radio" id="conf" name="confidentiality" /> عادي <br />
+                                    <input type="radio" id="conf" name="confidentiality" /> هام
+                                </div>
+                            </div>
                     </form>
-                    
-                        <button type="button" class="btn btn-danger" data-dismiss="modal">الغاء</button>
-                 
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">الغاء</button>
                 </div>
             </div>
         </div>

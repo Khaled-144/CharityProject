@@ -298,11 +298,10 @@
             <tr>
                 <th>رقم الخطاب</th>
                 <th>التاريخ</th>
-                <th>من</th>
-                <th>عنوان الخطاب</th>
-                <th>الاهمية</th>
-                <th>الحالة</th>
-                <th>عرض</th>
+                <th>الى</th>
+                <th>عنوان الخطاب</th> 
+                <th>نوع الخطاب</th>
+                <th>عرض</th>      
             </tr>
         </thead>
         <tbody>
@@ -313,20 +312,21 @@
                         @Html.DisplayFor(modelItem => item.letters_id)
                     </th>
                     <td>
-                        @Html.DisplayFor(modelItem => item.title)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.from_emp_id)
+                        @Html.DisplayFor(modelItem => item.date)
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.to_emp_id)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.departement_id)
+                        @Html.DisplayFor(modelItem => item.title)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.files)
+                        @Html.DisplayFor(modelItem => item.type)
                     </td>
+                  
+                 @*    <td>
+                        @Html.DisplayFor(modelItem => item.files)
+                    </td> *@
                     <td>
                         <button type="button" class="btn btn-info" data-toggle="modal" data-target="@("#detailModal-" + item.letters_id)">عرض</button>
                         @await Html.PartialAsync("PartialDetails2", item)
@@ -336,9 +336,6 @@
         </tbody>
     </table>
 </div>
-
-
-
 
 <!-- Modal toggle -->
 <!-- Modal overlay -->
