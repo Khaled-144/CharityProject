@@ -51,9 +51,6 @@ namespace CharityProject.Controllers
 		}
 
 
-
-
-
 		public IActionResult CreateNewTransaction()
 		{
 			return View();
