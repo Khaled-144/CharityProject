@@ -7,9 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-  </ItemGroup>
-
-  <ItemGroup>
     <Content Include="pdfs\Templates\SalaryStatementTemplate.pdf" />
   </ItemGroup>
 
