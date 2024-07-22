@@ -1,79 +1,119 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
-	<meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<title>@ViewData["Title"] - CharityProject</title>
-	<link rel="icon" type="image/x-icon" href="~/256_clean_icon.ico" />
-	<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-	<link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-	<link rel="stylesheet" href="~/CharityProject.styles.css" asp-append-version="true" />
-	<link rel="stylesheet" href="~/css/styles.css" asp-append-version="true" />
-	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - CharityProject</title>
+    <link rel="icon" type="image/x-icon" href="~/256_clean_icon.ico" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/CharityProject.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap">
+    <!-- Add Flowbite CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.6.5/flowbite.min.css" rel="stylesheet" />
 </head>
-<body class="bg-background ">
+<body class="bg-background">
+    <!-- Header -->
+    <header class="flex w-full bg-white border-b-2 border-secondaryColor">
+        <nav class="font-sans flex items-center justify-between py-2 px-6 sm:px-12 bg-white shadow w-full">
 
-	<!-- Header -->
-	<header class="flex w-full bg-white border-b-2 border-secondaryColor">
-		<nav class="font-sans flex flex-col text-center  content-center sm:flex-row sm:text-left sm:justify-between py-2 px-16 bg-white shadow sm:items-baseline w-full">
-			<div class="sm:mb-0 flex mx-20   self-center">
-				<div class=" flex justify-center">
-					<button class="border-1 py-1 px-3 text-center border-primaryColor text-3xl flex  rounded-md hover:bg-gray-300 transition duration-300 ease-in-out">
-						<svg class="w-7 h-7 mx-2 " xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M224 256A128 128 0 1 0 224 0a128 128 0 1 0 0 256zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512H418.3c16.4 0 29.7-13.3 29.7-29.7C448 383.8 368.2 304 269.7 304H178.3z" /></svg>
-						محمد
-					</button>
-					<svg class="w-7 h-7 mx-3 my-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M224 0c-17.7 0-32 14.3-32 32V51.2C119 66 64 130.6 64 208v18.8c0 47-17.3 92.4-48.5 127.6l-7.4 8.3c-8.4 9.4-10.4 22.9-5.3 34.4S19.4 416 32 416H416c12.6 0 24-7.4 29.2-18.9s3.1-25-5.3-34.4l-7.4-8.3C401.3 319.2 384 273.9 384 226.8V208c0-77.4-55-142-128-156.8V32c0-17.7-14.3-32-32-32zm45.3 493.3c12-12 18.7-28.3 18.7-45.3H224 160c0 17 6.7 33.3 18.7 45.3s28.3 18.7 45.3 18.7s33.3-6.7 45.3-18.7z" /></svg>
-
-				</div>
-			</div>
-			<div class="mb-2 sm:mb-0 flex flex-row">
-				<p class="my-auto mx-20 text-5xl font-medium">@ViewData["PageTitle"]</p>
-				<div class="h-20 w-40">
-					<img class="self-center" src="~/images/logo.png" />
-				</div>
-			</div>
+            <!-- Updated Drawer Toggle Button -->
+            <div class="text-center">
+                <button class="text-white bg-primaryButtons hover:bg-darkedButtons focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-4 py-2 mb-2 focus:outline-none"  data-drawer-target="drawer-right-example" data-drawer-show="drawer-right-example" data-drawer-placement="right" aria-controls="drawer-right-example">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                    </svg>
+                </button>
+            </div>
 
 
+            <!-- Drawer Component -->
+            <div id="drawer-right-example" class="fixed top-0 right-0 z-40 h-screen p-4 overflow-y-auto transition-transform translate-x-full bg-white w-60 dark:bg-gray-800" tabindex="-1" aria-labelledby="drawer-right-label">
+                    <div class="mb-2 sm:mb-0 flex flex-row justify-between w-full">
+                        <div class="h-20 w-40">
+                            <img class="self-center" src="~/images/logo.png" />
+                        </div>
+                    </div>
+                <button type="button" data-drawer-hide="drawer-right-example" aria-controls="drawer-right-example" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 absolute top-2.5 end-2.5 inline-flex items-center justify-center dark:hover:bg-gray-600 dark:hover:text-white">
+                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                    </svg>
+                    <span class="sr-only">Close menu</span>
+                </button>
+                <!-- Nav pages-->
+                <div class="py-4 overflow-y-auto">
+                    <ul class="space-y-2 font-medium">
+                        <li>
+                            <a asp-controller="Home" asp-action="Index" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+                                <svg class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 21">
+                                    <path d="M16.975 11H10V4.025a1 1 0 0 0-1.066-.998 8.5 8.5 0 1 0 9.039 9.039.999.999 0 0 0-1-1.066h.002Z" />
+                                    <path d="M12.5 0c-.157 0-.311.01-.565.027A1 1 0 0 0 11 1.02V10h8.975a1 1 0 0 0 1-.935c.013-.188.028-.374.028-.565A8.51 8.51 0 0 0 12.5 0Z" />
+                                </svg>
+                                <span class="ms-3">الصفحة الرئيسية</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a asp-controller="Transactions" asp-action="Index" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+                                
+                                <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" >
+                                    <path fill-rule="evenodd" d="M6.912 3a3 3 0 0 0-2.868 2.118l-2.411 7.838a3 3 0 0 0-.133.882V18a3 3 0 0 0 3 3h15a3 3 0 0 0 3-3v-4.162c0-.299-.045-.596-.133-.882l-2.412-7.838A3 3 0 0 0 17.088 3H6.912Zm13.823 9.75-2.213-7.191A1.5 1.5 0 0 0 17.088 4.5H6.912a1.5 1.5 0 0 0-1.434 1.059L3.265 12.75H6.11a3 3 0 0 1 2.684 1.658l.256.513a1.5 1.5 0 0 0 1.342.829h3.218a1.5 1.5 0 0 0 1.342-.83l.256-.512a3 3 0 0 1 2.684-1.658h2.844Z" clip-rule="evenodd" />
+                                </svg>
 
-		</nav>
-		<!-- Navbar -->
+                                <span class="ms-3 whitespace-nowrap">المعاملات</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a asp-controller="Transactions" asp-action="Index" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+                                <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.5 10.5L21 3m-5 0h5v5m0 6v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5" />
+                                </svg>
+                                <span class="ms-3 whitespace-nowrap">المرسلات</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a asp-controller="OtherServices" asp-action="Index" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+                                <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M19.5 21a3 3 0 0 0 3-3v-4.5a3 3 0 0 0-3-3h-15a3 3 0 0 0-3 3V18a3 3 0 0 0 3 3h15ZM1.5 10.146V6a3 3 0 0 1 3-3h5.379a2.25 2.25 0 0 1 1.59.659l2.122 2.121c.14.141.331.22.53.22H19.5a3 3 0 0 1 3 3v1.146A4.483 4.483 0 0 0 19.5 9h-15a4.483 4.483 0 0 0-3 1.146Z" />
+                                </svg>
+                                <span class="ms-3 whitespace-nowrap">خدمات أخرى</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Charity middle Icon -->
+            <div class="flex justify-center ">
+                <p class="text-4xl font-medium">@ViewData["PageTitle"]</p>
+                <div class="h-16 w-32">
+                    <img class="object-contain" src="~/images/logo.png" />
+                </div>
+            </div>
 
-	</header>
-	<!-- Main Content -->
-	<div class="flex">
-		<div class="flex-1 p-4">
-			<!-- Your main content goes here -->
-			<div class="container">
-				<main role="main" class="pb-3">
-					@RenderBody()
-				</main>
-			</div>
-		</div>
+            <!-- User and Notifications -->
+            <div class="flex items-center space-x-4">
+                <button class="border py-1 px-3 text-center border-primaryColor text-3xl flex rounded-md hover:bg-gray-300 transition duration-300 ease-in-out">
+                    <svg class="w-7 h-7 mx-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M224 256A128 128 0 1 0 224 0a128 128 0 1 0 0 256zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512H418.3c16.4 0 29.7-13.3 29.7-29.7C448 383.8 368.2 304 269.7 304H178.3z" /></svg>
+                    محمد
+                </button>
+                <svg class="w-7 h-7 mx-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M224 0c-17.7 0-32 14.3-32 32V51.2C119 66 64 130.6 64 208v18.8c0 47-17.3 92.4-48.5 127.6l-7.4 8.3c-8.4 9.4-10.4 22.9-5.3 34.4S19.4 416 32 416H416c12.6 0 24-7.4 29.2-18.9s3.1-25-5.3-34.4l-7.4-8.3C401.3 319.2 384 273.9 384 226.8V208c0-77.4-55-142-128-156.8V32c0-17.7-14.3-32-32-32zm45.3 493.3c12-12 18.7-28.3 18.7-45.3H224 160c0 17 6.7 33.3 18.7 45.3s28.3 18.7 45.3 18.7s33.3-6.7 45.3-18.7z" /></svg>
+            </div>
+        </nav>
+    </header>
 
-		<!-- Right Side Navbar -->
-		<nav class="w-64 bg-backgroundDivider p-4 h-screen">
-			<ul class="mt-5 space-y-5 tracking-wide text-center text-2xl font-medium">
-				<li class="mb-2">
-					<a asp-controller="Home" asp-action="Index" class="nav-link @(ViewContext.RouteData.Values["action"].ToString() == "Indexx" ? "active" : "")">الرئيسية</a>
-				</li>
-				<li class="mb-2">
-					<a asp-controller="Transactions" asp-action="Index" class="nav-link @(ViewContext.RouteData.Values["action"].ToString() == "Index" ? "active" : "")">المعاملات</a>
-				</li>
-				<a asp-controller="Home" asp-action="Holidays" class="nav-link @(ViewContext.RouteData.Values["action"].ToString() == "Holidays" ? "active" : "")">الإجازات</a>
-				<li class="mb-2">
-					<a asp-controller="Letters" asp-action="index" class="nav-link @(ViewContext.RouteData.Values["action"].ToString() == "Letters" ? "active" : "")">الخطابات</a>
-				</li>
-				<li class="mb-2">
-					<a asp-controller="Home" asp-action="Inventory" class="nav-link @(ViewContext.RouteData.Values["action"].ToString() == "Inventory" ? "active" : "")">العهده</a>
-				</li>
-			</ul>
-		</nav>
-	</div>
-	<
-	<!-- Footer -->
-	<script src="~/lib/jquery/dist/jquery.min.js"></script>
-	<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-	<script src="~/js/site.js" asp-append-version="true"></script>
-	@await RenderSectionAsync("Scripts", required: false)
+    <!-- Main Content -->
+    <main role="main" class="pb-3">
+        @RenderBody()
+    </main>
+
+
+    <!-- Scripts -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <!-- Add Flowbite JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.6.5/flowbite.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
