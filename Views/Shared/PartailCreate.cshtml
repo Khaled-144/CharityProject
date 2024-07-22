@@ -10,7 +10,8 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Form with Conditional Employee Div</title>
@@ -50,10 +51,34 @@
                 custom.style.display = 'none';
             }
         }
-    </script>
+
+
+        
+        </script>
+
+ 
     <style>
         .general, .custom {
             display: none;
+        }
+
+    
+        .close-button {
+            font-size: 3rem;
+            font-weight: bold;
+       text-align:left;
+       color:red;
+       padding-left:5px;
+       margin-left:5px;
+          
+        }
+
+        .icon-red {
+            color: red;
+        }
+
+        .icon-blue{
+            color:mediumseagreen
         }
     </style>
 </head>
@@ -123,7 +148,13 @@
 <div class="modal fade" id="insertModal" role="dialog">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
+
+
             <div class="modal-header flex justify-center items-center">
+                <button type="button" class="close text-danger close-button" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+        
                 <h4 class="modal-title text-center w-full">إنشاء خطاب جديد</h4>
             </div>
             <div class="modal-body align-content-center">
@@ -147,9 +178,13 @@
                         <div class=" mb-4 flex-container form-group ">
                             <div class="flex-item form-group">
                                 <label asp-for="date" for="date" class="text-sm pr-20  font-bold font-medium text-gray-700"> التاريخ</label>
-                                <input type="date" id="date" name="date" class="">
+                                <input type="date" id="date" name="date" class="font-bold  border rounded-md"> 
+                    
+
+
+                 
                                 <label asp-for="type" for="type" class="mr-4 text-sm    pr-20 font-bold font-medium text-gray-700">نوع الخطاب</label>
-                                <select asp-for="type" id="type" name="type" class="mt-1 p-2 w-25 ml-2 border rounded-md focus:ring-blue-500 focus:border-blue-500">
+                                <select asp-for="type" id="type" name="type" class="mt-1 p-2 w-25 ml-2 font-bold border rounded-md focus:ring-blue-500 focus:border-blue-500">
                                     <option value="" disabled selected>اختر نوع الخطاب</option>
                                     <option value="عام">عام</option>
                                     <option value="تظلم">تظلم</option>
@@ -200,10 +235,10 @@
                            *@
 
 
-                        <div  class="my-10 flex px-5  form-group">
+                        <div  class="mt-5 flex px-5  form-group">
                             <div class="flex form-group">
-                                <label for="choice" class="text-sm font-medium text-gray-700">موجه الى</label>
-                                <select id="choice" name="choice" onchange="toggleElements()" class="border rounded-md w-24 focus:ring-blue-500 focus:border-blue-500">
+                                <label for="choice" class="text-sm font-bold pl-2 font-medium text-gray-700"> موجه الى   </label>
+                                <select id="choice" name="choice" onchange="toggleElements()" class="  font-bold border rounded-md w-28 focus:ring-blue-500 focus:border-blue-500">
                                     <option value="" disabled selected>اختر </option>
                                     <option value="مخصص">مخصص</option>
                                     <option value="عام">عام</option>
@@ -211,8 +246,8 @@
                             </div>
 
                             <div id="h" class="general px-5 flex">
-                                <label for="department" class=" text-sm font-medium text-gray-700">القسم</label>
-                                <select id="department" name="department" class=" border rounded-md focus:ring-blue-500 focus:border-blue-500">
+                                <label for="department" class=" text-sm font-bold font-medium text-gray-700">القسم</label>
+                                <select id="department" name="department" class="font-bold border w-44 rounded-md focus:ring-blue-500 focus:border-blue-500">
                                     <option value="">اختر القسم</option>
                                     <option value="urgent">الموارد البشرية</option>
                                     <option value="very_urgent">التنمية المالية</option>
@@ -222,8 +257,8 @@
                             </div>
 
                             <div id="m" class="custom px-5 flex>
-                                <label asp-for="to_emp_id" for="to_emp_id" class="mr-4 px-4  text-sm font-medium text-gray-700">الموظف</label>
-                                <select asp-for="to_emp_id" id="to_emp_id" name="to_emp_id" class=" border w-24 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                                <label asp-for="to_emp_id" for="to_emp_id" class="mr-4 px-4  font-bold text-sm font-medium text-gray-700">الموظف</label>
+                                <select asp-for="to_emp_id" id="to_emp_id" name="to_emp_id" class="font-bold   border w-24 rounded-md focus:ring-blue-500 focus:border-blue-500">
                                     <option value="1">محمد</option>
                                     <option value="2">عبدالله</option>
                                     <option value="3">زياد</option>
@@ -235,30 +270,30 @@
 
 
                             <div class="mb-4 form-group">
-                                <label asp-for="description" for="description" class="block text-sm font-medium text-gray-700">الملاحظات</label>
+                            <label asp-for="description" for="description" class="block text-sm  font-bold font-medium text-gray-700">الملاحظات</label>
                                 <textarea asp-for="description" id="description" name="description" class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500"></textarea>
                             </div>
 
                             <div class="mb-4 form-group">
-                                <label asp-for="files" for="files" class="block text-sm font-medium text-gray-700">المرفقات</label>
+                            <label asp-for="files" for="files" class="block font-bold text-sm font-medium text-gray-700">المرفقات</label>
                                 <input asp-for="files" type="file" id="files" name="files" class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500">
                             </div>
-                            <div class="flex justify-center form-group">
-                                <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4">رفع الخطاب</button>
-                            </div>
+         
 
 
                             <div class="flex justify-between">
                                 <div class="mb-4 p-">
+                                   @*  <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true"  fill="none" viewBox="0 0 18 20">
+                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="icons8-lock" /> *@
                                     <label for="conf" class="block text-gray-700 font-bold mb-2">
-                                        <i class="fas fa-lock"></i> سرية الخطاب
+                                    <i class="fas fa-lock"></i> سرية الخطاب
                                     </label>
                                     <input type="radio" id="conf" name="confidentiality" /> سري <br />
                                     <input type="radio" id="conf" name="confidentiality" /> غير سري
                                 </div>
                                 <div class="mb-4 p-">
                                     <label for="conf" class="block text-gray-700 font-bold mb-2">
-                                        <i class="fas fa-clock"></i> أعجلية الخطاب
+                                        <i class="fas fa-clock    icon-blue "></i> أعجلية الخطاب
                                     </label>
                                     <input type="radio" id="conf" name="confidentiality" /> غير عاجلة <br />
                                     <input type="radio" id="conf" name="confidentiality" /> عاجلة <br />
@@ -266,14 +301,18 @@
                                 </div>
                                 <div class="mb-4 p-">
                                     <label for="conf" class="block text-gray-700 font-bold mb-2">
-                                        <i class="fas fa-exclamation-circle"></i> أهمية الخطاب
+                                    <i class="fas fa-exclamation-circle   icon-red"></i> أهمية الخطاب
                                     </label>
                                     <input type="radio" id="conf" name="confidentiality" /> عادي <br />
                                     <input type="radio" id="conf" name="confidentiality" /> هام
                                 </div>
                             </div>
+
+                        <div class="flex justify-center form-group">
+                            <button type="submit" class="bg-gradient-to-r from-green-400 via-green-500 to-green-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 text-white font-bold py-2 px-4">رفع الخطاب</button>
+                        </div>
                     </form>
-                    <button type="button" class="btn btn-danger" data-dismiss="modal">الغاء</button>
+                   @*  <button type="button" class="btn btn-danger" data-dismiss="modal">الغاء</button> *@
                 </div>
             </div>
         </div>
