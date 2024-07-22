@@ -7,6 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="pdfs\Templates\SalaryStatementTemplate.pdf" />
   </ItemGroup>
 
@@ -40,5 +43,17 @@
 <Target Name="Tailwind" BeforeTargets="Build">
   <Exec Command="npm run css:build" />
 </Target>
+
+<ItemGroup>
+  <UpToDateCheckInput Remove="Views\Shared\_ProfilePartial.cshtml" />
+</ItemGroup>
+
+<ItemGroup>
+  <_ContentIncludedByDefault Remove="Views\Shared\_ProfilePartial.cshtml" />
+</ItemGroup>
+
+<ItemGroup>
+  <None Include="Views\Shared\_ProfilePartial.cshtml" />
+</ItemGroup>
 
 </Project>
