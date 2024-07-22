@@ -19,10 +19,12 @@
         <div id="dropdown" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow  dark:bg-gray-700">
             <ul class="py-2 text-base text-black dark:text-gray-200" aria-labelledby="dropdownDefaultButton">
                 <li>
-                    <button class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">داخلية</button>
+
+                    <button data-toggle="modal" data-target="#insertTransactionModal" id="modal-toggle-button" class="block px-4  py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">داخلية</button>
+
                 </li>
                 <li>
-                    <button class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">خارجية</button>
+                    <button type="button" data-toggle="modal" data-target="#insertLetterModal"  id="modal-toggle-button" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">خارجية</button>
                 </li>
                 <li>
                     <button class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">اجازة</button>
@@ -40,20 +42,20 @@
             <div class="flex justify-evenly">
                 <input name="id" placeholder="رقم المعاملة" class="form-control mr-2" type="search" aria-label="search" />
                 <button class="btn btn-dark" type="submit">بحث</button>
-                <div class="">
                     <select name="sortOrder" id="sortOrder" class="bg-white border border-primaryButtons px-5 text-black text-sm rounded-lg text-center focus:ring-blue-500 focus:border-blue-500 block mr-2">
                         <option selected>فلترة</option>
                         <option value="newest">الاحدث</option>
                         <option value="oldest">الاقدم</option>
-
                     </select>
-                </div>
             </div>
         </form>
     </div>
 
-    @await Html.PartialAsync("_CreateNewTransaction", new Transaction())
 </div>
+@await Html.PartialAsync("_CreateNewTransaction", new Transaction())
+
+@await Html.PartialAsync("PartailCreate", new Letter())
+
 
 <div class="mt-10 p-2  rounded-lg" style="max-height: 500px; overflow-y: auto;">
     <ul class="w-full divide-y divide-gray-200 dark:divide-gray-700">
