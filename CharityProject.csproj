@@ -7,6 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="pdfs\Templates\SalaryStatementTemplate.pdf" />
   </ItemGroup>
 
@@ -15,6 +18,7 @@
     <PackageReference Include="IronPdf" Version="2024.7.8" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.7" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.7" />
+    <PackageReference Include="Microsoft.AspNetCore.Session" Version="2.1.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.7" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.7" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.7">
@@ -39,5 +43,17 @@
 <Target Name="Tailwind" BeforeTargets="Build">
   <Exec Command="npm run css:build" />
 </Target>
+
+<ItemGroup>
+  <UpToDateCheckInput Remove="Views\Shared\_ProfilePartial.cshtml" />
+</ItemGroup>
+
+<ItemGroup>
+  <_ContentIncludedByDefault Remove="Views\Shared\_ProfilePartial.cshtml" />
+</ItemGroup>
+
+<ItemGroup>
+  <None Include="Views\Shared\_ProfilePartial.cshtml" />
+</ItemGroup>
 
 </Project>

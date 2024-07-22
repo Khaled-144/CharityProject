@@ -64,15 +64,13 @@ namespace CharityProject.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create_2([Bind("title,description,duration,emp_id,start_date,end_date,files,holiday_id")] HolidayHistory holidayHistory)
         {
-            if (ModelState.IsValid)
-            {
+            
                 holidayHistory.creation_date = DateOnly.FromDateTime(DateTime.Now); // Set to current date
                 holidayHistory.status = "Pending"; // Set default status
                 _context.Add(holidayHistory);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(holidayHistory);
+                return RedirectToAction(nameof(Holidays));
+            
         }
 
         // GET: HolidayHistories/Edit/5

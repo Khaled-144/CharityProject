@@ -12,6 +12,7 @@
         public DateTime start_date { get; set; }
         public string status { get; set; }
         public DateTime? end_date { get; set; }
+        public int number_of_devices { get; set; }
     }
 
 }

@@ -2,17 +2,20 @@
 
 
 <head>
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </head>
 
-<div class="modal fade" id="insertModal" role="dialog">
+<div class="modal fade" id="insertTransactionModal" role="dialog">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header flex justify-center items-center">
+                <button type="button" class="close text-danger close-button" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
                 <h4 class="modal-title text-center w-full">إنشاء معاملة جديدة</h4>
             </div>
             <div class="modal-body align-content-center">
@@ -45,9 +48,37 @@
                             <input asp-for="files" class="form-control" type="file" />
                             <span asp-validation-for="files" class="text-danger"></span>
                         </div>
-                        <div class="form-group flex justify-center mt-4">
-                            <input type="submit" value="رفع المعاملة" class="bg-primaryButtons hover:bg-emerald-800 text-white font-bold py-2 px-4 rounded" />
+
+                        <div class="flex justify-between">
+                            <div class="mb-4 p-">
+
+                                <label for="conf" class="block text-gray-700 font-bold mb-2">
+                                    <i class="fas fa-lock"></i> سرية الخطاب
+                                </label>
+                                <input type="radio" id="conf" name="confidentiality" /> سري <br />
+                                <input type="radio" id="conf" name="confidentiality" /> غير سري
+                            </div>
+                            <div class="mb-4 p-">
+                                <label for="conf" class="block text-gray-700 font-bold mb-2">
+                                    <i class="fas fa-clock text-green-500"></i> أعجلية الخطاب
+                                </label>
+                                <input type="radio" id="conf" name="confidentiality" /> غير عاجلة <br />
+                                <input type="radio" id="conf" name="confidentiality" /> عاجلة <br />
+                                <input type="radio" id="conf" name="confidentiality" /> حالاً
+                            </div>
+                            <div class="mb-4 p-">
+                                <label for="conf" class="block text-gray-700 font-bold mb-2">
+                                    <i class="fas fa-exclamation-circle  text-red-500 icon-red"></i> أهمية الخطاب
+                                </label>
+                                <input type="radio" id="conf" name="confidentiality" /> عادي <br />
+                                <input type="radio" id="conf" name="confidentiality" /> هام
+                            </div>
                         </div>
+                        <div class="form-group flex justify-center mt-4">
+                            <button type="submit" class="bg-gradient-to-r from-green-400 via-green-500 to-green-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 text-white font-bold py-2 px-4">رفع الخطاب</button>
+                        </div>
+
+
                     </form>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-danger" data-dismiss="modal">الغاء</button>
@@ -60,8 +91,8 @@
 
 
 @section Scripts {
-	@{
-		await Html.RenderPartialAsync("_ValidationScriptsPartial");
-	}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }
 

@@ -54,10 +54,12 @@ namespace CharityProject.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("letters_id,title,description,date,from_emp_id,to_emp_id,files,departement_id")] Letter letter)
+        public async Task<IActionResult> Create([Bind("title,description,type,from_emp_id,to_emp_id,files")] Letter letter)
         {
             if (ModelState.IsValid)
             {
+                letter.date = DateTime.Now; // Set the current date
+                letter.departement_id = 3;
                 _context.Add(letter);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
