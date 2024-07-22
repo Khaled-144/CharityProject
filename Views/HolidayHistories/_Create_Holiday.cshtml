@@ -5,11 +5,29 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form with Conditional Employee Div</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
         .counter-container {
             display: flex;
             align-items: center;
             justify-content: center;
+        }
+
+        .icon-red {
+            color: red;
+        }
+
+        .icon-blue {
+            color: mediumseagreen
         }
 
     </style>
@@ -19,8 +37,9 @@
     <div class="modal-dialog modal-xl">
         <div class="modal-content ">
             <div class="modal-header flex justify-center items-center ">
-                <h4 class="modal-title text-center w-full">إنشاء معاملة جديدة</h4>
                 <button type="button" class="btn btn-danger" data-dismiss="modal">X</button>
+                <h4 class="modal-title text-center w-full">إنشاء معاملة جديدة</h4>
+                
             </div>
             <div class="modal-body align-content-center">
                 <div class="col-md text-right" dir="rtl">
@@ -64,28 +83,35 @@
                                 
                             </div>
                         </div>
-                        <div class="flex justify-between ">
+                        <div class="flex justify-between">
                             <div class="mb-4 p-">
-                                <label for="conf" class="block text-gray-700 font-bold mb-2 ">سرية المعاملة</label>
-                                <input type="radio" id="conf" name="confidentiality1" class="m-1" value="0" /> غير سري<br />
-                                <input type="radio" id="conf" name="confidentiality1" class="m-1" value="1" /> سري
+                              
+                                <label for="conf" class="block text-gray-700 font-bold mb-2">
+                                    <i class="fas fa-lock"></i> سرية الخطاب
+                                </label>
+                                <input type="radio" id="conf" name="confidentiality" /> سري <br />
+                                <input type="radio" id="conf" name="confidentiality" /> غير سري
                             </div>
                             <div class="mb-4 p-">
-                                <label for="conf" class="block text-gray-700 font-bold mb-2 ">أعجلية المعاملة</label>
-                                <input type="radio" id="conf" name="confidentiality2" class="m-1" value="0" />غير عاجلة <br />
-                                <input type="radio" id="conf" name="confidentiality2" class="m-1" value="1" /> عاجلة<br />
-                                <input type="radio" id="conf" name="confidentiality2" class="m-1" value="2" /> حالاً
+                                <label for="conf" class="block text-gray-700 font-bold mb-2">
+                                    <i class="fas fa-clock    icon-blue "></i> أعجلية الخطاب
+                                </label>
+                                <input type="radio" id="conf" name="confidentiality" /> غير عاجلة <br />
+                                <input type="radio" id="conf" name="confidentiality" /> عاجلة <br />
+                                <input type="radio" id="conf" name="confidentiality" /> حالاً
                             </div>
                             <div class="mb-4 p-">
-                                <label for="conf" class="block text-gray-700 font-bold mb-2 ">أهمية المعاملة</label>
-                                <input type="radio" id="conf" name="confidentiality3" class="m-1" value="0" /> عادي <br />
-                                <input type="radio" id="conf" name="confidentiality3" class="m-1" value="1" />هام
+                                <label for="conf" class="block text-gray-700 font-bold mb-2">
+                                    <i class="fas fa-exclamation-circle   icon-red"></i> أهمية الخطاب
+                                </label>
+                                <input type="radio" id="conf" name="confidentiality" /> عادي <br />
+                                <input type="radio" id="conf" name="confidentiality" /> هام
                             </div>
                         </div>
 
 
                         <div class="flex justify-center ">
-                        <button type="submit" class=" bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ">رفع الطلب</button>
+                            <button type="submit" class="bg-gradient-to-r from-green-400 via-green-500 to-green-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 text-white font-bold py-2 px-4">رفع الطلب</button>
                         </div>
                     </form>
                         
