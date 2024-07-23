@@ -1,67 +1,86 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+﻿@model IEnumerable<CharityProject.Models.EmployeeDetails>
+
+@{
+    Layout = "_Layout";
+    ViewData["PageTitle"] = "تسجيل الدخول";
+    ViewData["Title"] = "صفحة تسجيل الدخول";
+}
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
 
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-   <link rel="shortcut icon" type="image/jpeg" href="images/alharm22.jpg" />
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
-          rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200..1000&display=swap" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.css" rel="stylesheet" />
     <title>الاسكان التنموي - تسجيل دخول</title>
 </head>
 
-<body >
-
-
-
-    <div dir="rtl">
-        <img src="images/logo.png" alt="logo image" class="mx-auto w-52" />
+<body class="bg-cover bg-center bg-no-repeat bg-fixed" style="background-image: url('../images/alharm22.jpg');">
+    <div>
+        <img src="/images/logo.png" alt="logo image" class="mx-auto w-52" />
         <div class="w-[80vw] md:w-[400px] bg-white mx-auto justify-center shadow-2xl border border-primaryColor rounded-md">
             <div class="p-6 pt-2">
-                <h1 class="text-2xl justify-center font-bold mb-10 mt-4 text-veryDarkBlue">
-                    تسجيل دخول
+                <h1 class="text-2xl justify-center font-bold mt-4 text-veryDarkBlue">
+                    تسجيل الدخول
                 </h1>
                 <form asp-action="LoginPage">
-                    <div class="flex flex-col">
-                        <p class="mt-4 text-red-500">@ViewData["Message"]</p>
-                        <label for="userid" class="mt-4">الرقم الوظيفي</label>
-                        <div class="flex flex-row justify-center gap-3">
-                            <img class="mt-2" width="40px" src="/images/icon1.png" alt="cart icon" />
-                            <input class="w-full mt-2 border border-grayishViolet px-2 rounded-xl"
-                                   type="text"
-                                   placeholder="example@example.com"
-                                   id="userid"
-                                   name="userid" />
+                    <!-- my login -->
+                    <div class="mt-2 mb-2 flex flex-col">
+                        @{
+                            var message = (string)ViewData["Message"];
+                            if (message == "Wrong username or password")
+                            {
+                                message = "الرقم الوظيفي أو كلمة المرور غير صحيحة";
+                            }
+                        }
+                        <p class="mb-2 text-red-500">
+                            @message
+                        </p>
+                        <label for="userid" class="block mb-2 text-base font-medium text-gray-900 dark:text-white">الرقم الوظيفي</label>
+                        <div class="relative mb-6">
+                            <div class="flex flex-row justify-center gap-3">
+                                <img class=" " width="40px" src="/images/icon1.png" alt="cart icon" />
+                                <input type="text" id="userid" name="userid" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
+                                        focus:ring-blue-500 focus:border-blue-500 block w-full  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400
+                                        dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="مثل: 10001" required>
+                            </div>
                         </div>
-                        <label for="pass" class="mt-4">الرمز السري</label>
-                        <div class="flex flex-row justify-center gap-3">
-                            <img class="mt-2" width="40px" src="/images/icon2.png" alt="password icon" />
-                            <input class="w-full mt-2 border border-grayishViolet px-2 rounded-xl"
-                                   type="password"
-                                   id="pass"
-                                   name="pass" />
+                    </div>
+                    
+                        <!-- Password -->
+                        <div class="mb-2 flex flex-col">
+                            <label for="pass" class="block mb-2 text-base font-medium text-gray-900 dark:text-white">الرمز السري</label>
+                            <div class="flex flex-row justify-center gap-3 ">
+                                <img class=" " width="40px" src="/images/icon2.png" alt="password icon" />
+                                <input type="password" id="pass" name="pass" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
+                                   focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 
+                                   dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="•••••••••" required/>
+                            </div>
                         </div>
-                       
-                        <button class="mt-6 bg-emerald-600 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-600 transition duration-200"
-                                type="submit">
-                            تسجيل الدخول
+                        <!-- remember me checkbox -->
+                        <div class="flex items-center mt-4">
+                        <input id="rememberMe" type="checkbox" name="rememberMe" value="true" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                        <label for="rememberMe" class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">تذكرني</label>
+                        </div>
+                        <!-- login button-->
+                    <button class="mt-6 bg-green-400 hover:bg-emerald-800 text-white font-bold py-2 px-4 w-full rounded-md transition duration-200"
+                                type="submit"> تسجيل الدخول
                         </button>
-                    </div>
-                    <div class="flex items-center mt-4">
-                        <input class="mr-2 leading-tight" type="checkbox" id="rememberMe" name="rememberMe" value="true" />
-                        <label for="rememberMe" class="text-sm">تذكرني</label>
-                    </div>
-
                 </form>
-                <div class="mt-4">
+                <!-- forgot password -->
+                <div class="mt-2">
                     <a href="#" class="text-primaryColor underline underline-offset-8">نسيت كلمة السر</a>
                 </div>
             </div>
         </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.js"></script>
 </body>
 <style>
     body {
