@@ -5,8 +5,10 @@
     ViewData["PageTitle"] = "المعاملات";
     ViewData["Title"] = "صفحة المعاملات";
 }
+<!DOCTYPE html>
+<html lang="ar">
 
-
+<body>
 <div class="flex justify-self-auto justify-between mt-10 ">
 
     <div>
@@ -62,11 +64,17 @@
 @await Html.PartialAsync("PartailCreate", new Letter())
 
 
-<div>
-    @await Html.PartialAsync("_getAllTransactions");
-
+<div class="mt-10">
+    <h5 class="text-right">المعاملات:</h5>
+    @await Html.PartialAsync("_getAllTransactions")
 </div>
+<div class="mt-5">
+    <h5 class="text-right">الخطابات:</h5>
+    @await Html.PartialAsync("_getAllTransactions")
+</div>
+
 
 <script src="~/js/site.js">
 </script>
-
+</body>
+</html>
