@@ -5,8 +5,10 @@
     ViewData["PageTitle"] = "المعاملات";
     ViewData["Title"] = "صفحة المعاملات";
 }
+<!DOCTYPE html>
+<html lang="ar">
 
-
+<body>
 <div class="flex justify-self-auto justify-between mt-10 ">
 
     <div>
@@ -25,13 +27,14 @@
 
                 </li>
                 <li>
-                    <button type="button" data-toggle="modal" data-target="#insertLetterModal"  id="modal-toggle-button" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">خارجية</button>
+                    <button data-toggle="modal" data-target="#insertTransactionModal" id="modal-toggle-button" class="block px-4  py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">خارجية</button>
+
                 </li>
                 <li>
-                    <button class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">اجازة</button>
+                    <button data-toggle="modal" data-target="#insertTransactionModal" id="modal-toggle-button" class="block px-4  py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">إجازة</button>
                 </li>
                 <li>
-                    <button class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">خطاب</button>
+                    <button type="button" data-toggle="modal" data-target="#insertLetterModal" id="modal-toggle-button" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">خطاب</button>
                 </li>
                 <li>
                     <button class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">عهدة</button>
@@ -46,11 +49,11 @@
             <div class="flex justify-evenly">
                 <input name="id" placeholder="رقم المعاملة" class="form-control mr-2" type="search" aria-label="search" />
                 <button class="btn btn-dark" type="submit">بحث</button>
-                    <select name="sortOrder" id="sortOrder" class="bg-white border border-primaryButtons px-5 text-black text-sm rounded-lg text-center focus:ring-blue-500 focus:border-blue-500 block mr-2">
-                        <option selected>فلترة</option>
-                        <option value="newest">الاحدث</option>
-                        <option value="oldest">الاقدم</option>
-                    </select>
+                <select name="sortOrder" id="sortOrder" class="bg-white border border-primaryButtons px-5 text-black text-sm rounded-lg text-center focus:ring-blue-500 focus:border-blue-500 block mr-2">
+                    <option selected>فلترة</option>
+                    <option value="newest">الاحدث</option>
+                    <option value="oldest">الاقدم</option>
+                </select>
             </div>
         </form>
     </div>
@@ -61,60 +64,12 @@
 @await Html.PartialAsync("PartailCreate", new Letter())
 
 
-<div class="mt-10 p-2  rounded-lg" style="max-height: 500px; overflow-y: auto;">
-    <ul class="w-full divide-y divide-gray-200 dark:divide-gray-700">
-        @foreach (var item in Model)
-        {
-            <li class="mb-2 shadow-sm bg-white  ">
-                <div class="flex items-center space-x-4 rtl:space-x-reverse  text-center ">
-                    <div class="flex-shrink-0 ml-3 p-3 ">
-                        <p class="font-bold">خطاب</p>
-                        <hr />
-                        <p class="text-blue-600">
-                            #@Html.DisplayFor(modelItem => item.transaction_id)
-                        </p>
-                    </div>
-                    <div class="flex-1 min-w-0 text-right">
-                        <div class="flex">
-                            <p class="text-sm font-medium text-gray-900 truncate dark:text-white px-2">
-                                @Html.DisplayFor(modelItem => item.title)
-                            </p>
-                            <p class="text-sm font-medium text-gray-900 truncate dark:text-white">
-                                @Html.DisplayFor(modelItem => item.create_date)
-                            </p>
-                        </div>
-                        <p class="text-sm text-gray-500 truncate dark:text-gray-400">
-                            @Html.DisplayFor(modelItem => item.description)
-                        </p>
-                    </div>
-                    <div class="inline-flex items-center text-base font-semibold text-gray-900 ml-3 dark:text-white">
-                        <button type="button" class="btn btn-" data-toggle="modal" data-target="@("#detailModal-" + item.transaction_id)">عرض</button>
-                        @await Html.PartialAsync("_showTransactionDetail", item)
-                    </div>
-                </div>
-            </li>
-        }
-    </ul>
+<div>
+    @await Html.PartialAsync("_getAllTransactions");
+
 </div>
 
 <script src="~/js/site.js">
 </script>
-<script src="../path/to/flowbite/dist/flowbite.min.js"></script>
-
-
-
-@*
-<form class="max-w-sm mx-auto border-2 rounded border-primaryButtons ml-5">
-	<select id="countries" class="bg-white border border-primaryButtons text-balck text-sm rounded-lg text-center focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-		<option selected>الفلاتر</option>
-		<option value="oldest">الاقدم</option>
-		<option value="newset">الاحدث</option>
-	</select>
-</form>
-
-
-<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 518 518"><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z" /></svg>
-
-*@
-
-<script src="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.js"></script>
+</body>
+</html>
