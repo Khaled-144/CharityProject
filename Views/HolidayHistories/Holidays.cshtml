@@ -70,7 +70,7 @@
            
             <input type="text" onchange="search()"  id="searchInput" placeholder="رقم الاجازة" />
         </div>
-        <button type="button" data-toggle="modal" data-target="#insertModal" data-target="#insertModal" id="modal-toggle-button" class="model-button bg-primaryButtons flex-initial hover:bg-emerald-800 text-white font-bold px-5 border rounded transition duration-300 ease-in-out " data-modal-target="crud-modal" data-modal-toggle="crud-modal">
+        <button type="button" data-toggle="modal" data-target="#insertHolidayModal" data-target="#insertModal" id="modal-toggle-button" class="model-button bg-primaryButtons flex-initial hover:bg-emerald-800 text-white font-bold px-5 border rounded transition duration-300 ease-in-out " data-modal-target="crud-modal" data-modal-toggle="crud-modal">
            اضافة اجازة+
         </button>
         @await Html.PartialAsync("_Create_Holiday", new HolidayHistory())
