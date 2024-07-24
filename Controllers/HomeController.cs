@@ -25,6 +25,12 @@ namespace CharityProject.Controllers
         }
 
 
+        public IActionResult WorkingLoginPage()
+        {
+            return View();
+        }
+
+
 
         public async Task<IActionResult> getHolidays()
         {
@@ -90,6 +96,8 @@ namespace CharityProject.Controllers
                 }
             }
         }
+
+
 
         [HttpPost, ActionName("LoginPage")]
         [ValidateAntiForgeryToken]

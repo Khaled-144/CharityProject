@@ -1,79 +1,88 @@
 ﻿@model CharityProject.Models.Transaction
 
 @{
-	ViewData["Title"] = "_showTransactionDetail";
+    ViewData["Title"] = "Transaction Details";
 }
+
 <div class="modal fade" id="detailModal-@Model.transaction_id" role="dialog">
-	<div class="modal-dialog">
-		<div class="modal-content">
-			<div class="modal-header flex justify-content-center">
-				<h4>معلومات المعاملة  #@Model.transaction_id</h4>
-			</div>
-			<div class="modal-body align-content-center">
-				<div class="col-md text-right my-1" dir="rtl">
-					<div>
-						<dl class="row text-center">
-							<dt class="col-sm-4">
-								العنوان
-							</dt>
-							<dd class="col-sm-8">
-								@Html.DisplayFor(model => model.title)
-							</dd>
-							<dt class="col-sm-4">
-								الوصف
-							</dt>
-							<dd class="col-sm-8">
-								@Html.DisplayFor(model => model.description)
-							</dd>
-							<dt class="col-sm-5">
-								الى
-							</dt>
-							<dd class="col-sm-7">
-								4
-							</dd>
-							<dt class="col-sm-5">
-								قسم
-							</dt>
-							<dd class="col-sm-7">
-								@Html.DisplayFor(model => model.department_id)
-							</dd>
-							<dt class="col-sm-5">
-								تاريخ الانشاء
-							</dt>
-							<dd class="col-sm-7">
-								@Html.DisplayFor(model => model.create_date)
-							</dd>
-							<dt class="col-sm-5">
-								تاريخ الانهاء
-							</dt>
-							<dd class="col-sm-7">
-								@Html.DisplayFor(model => model.close_date)
-							</dd>
-							<dt class="col-sm-4">
-								الحالة
-							</dt>
-							<dd class="col-sm-8">
-								@Html.DisplayFor(model => model.status)
-							</dd>
-							<dt class="col-sm-4">
-								@Html.DisplayNameFor(model => model.files)
-							</dt>
-							<dd class="col-sm-18">
-								@Html.DisplayFor(model => model.files)
-							</dd>
-						</dl>
-					</div>
-					<div class="flex justify-center">
-						<button data-dismiss="modal" class="text-white bg-red-800 hover:bg-red-900 focus:ring-4 focus:ring-blue-300 transition duration-300 ease-in-out  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">إخفاء</button>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header flex  justify-content-center">
+                <h4>معلومات المعاملة  #@Model.transaction_id</h4>
+            </div>
+            <div class="modal-body align-content-center">
+                <div class="col-md  my-1" dir="rtl">
+                    <div>
+                        <dl class="row text-right">
+                            <dt class="col-sm-4">
+                                العنوان
+                            </dt>
+                            <dd class="col-sm-8">
+                                @Html.DisplayFor(model => model.title)
+                            </dd>
+                            <dt class="col-sm-4">
+                                الوصف
+                            </dt>
+                            <dd class="col-sm-8">
+                                @Html.DisplayFor(model => model.description)
+                            </dd>
+                            <dt class="col-sm-4">
+                                الى
+                            </dt>
+                            <dd class="col-sm-7">
+                                4
+                            </dd>
+                            <dt class="col-sm-4 ">
+                                قسم
+                            </dt>
+                            <dd class="col-sm-7">
+                                @Html.DisplayFor(model => model.department_id)
+                            </dd>
+                            <dt class="col-sm-4">
+                                تاريخ الانشاء
+                            </dt>
+                            <dd class="col-sm-7">
+                                @Html.DisplayFor(model => model.create_date)
+                            </dd>
+                            <dt class="col-sm-4">
+                                تاريخ الانهاء
+                            </dt>
+                            <dd class="col-sm-7">
+                                @Html.DisplayFor(model => model.close_date)
+                            </dd>
+                            <dt class="col-sm-4">
+                                الحالة
+                            </dt>
+                            <dd class="col-sm-8">
+                                @Html.DisplayFor(model => model.status)
+                            </dd>
+                            <dt class="col-sm-4">
+                                @Html.DisplayNameFor(model => model.files)
+                            </dt>
+                            <dd class="col-sm-18">
+                                @Html.DisplayFor(model => model.files)
+                            </dd>
+                        </dl>
+                    </div>
+                    <div class="flex mt-5 justify-center">
+                        @* Check if the status is not "Closed" to show the button *@
+                        @if (Model.status != "منهاة")
+                        {
+                            @* Use a form to submit the status update *@
+                            @using (Html.BeginForm("UpdateStatus", "Transactions", FormMethod.Post, new { id = $"updateStatusForm-{Model.transaction_id}" }))
+                            {
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="block text-white bg-red-900 hover:bg-red-900 focus:ring-4 focus:ring-blue-300 transition duration-300 ease-in-out font-medium rounded-lg text-sm px-5 py-2.5 me-2 my-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
+                                    إنهاء المعاملة
+                                </button>
+                                @Html.HiddenFor(model => model.transaction_id)
+                            }
+                        }
+                    </div>
+                    <button type="button" class="block btn btn-dark mt-5" data-dismiss="modal">الغاء</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-
-
-
-
-
-

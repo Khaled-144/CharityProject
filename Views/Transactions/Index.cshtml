@@ -3,112 +3,75 @@
 @{
     Layout = "_Layout";
     ViewData["PageTitle"] = "المعاملات";
+    ViewData["Title"] = "صفحة المعاملات";
 }
+<!DOCTYPE html>
+<html lang="ar">
 
+<body>
+    <div class="flex justify-self-auto justify-between mt-10 ">
 
-<div class="flex justify-self-auto justify-between mt-10 ">
+        <div>
+            <button id="dropdownDefaultButton" data-dropdown-toggle="dropdown" class="text-white w-32  bg-primaryButtons hover:bg-emerald-800	 focus:ring-4  focus:outline-none focus:ring-blue-300 font-medium  rounded-lg text-xl px-4 py-2.5 text-center inline-flex justify-evenly items-center">
+                جديد <svg class="w-2.5 h-2.5 mx-1 mt-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4" />
+                </svg>
+            </button>
 
-    <div>
-        <button id="dropdownDefaultButton" data-dropdown-toggle="dropdown" class="text-white w-32  bg-primaryButtons hover:bg-emerald-800	 focus:ring-4  focus:outline-none focus:ring-blue-300 font-medium  rounded-lg text-xl px-4 py-2.5 text-center inline-flex justify-evenly items-center">
-            جديد <svg class="w-2.5 h-2.5 mx-1 mt-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4" />
-            </svg>
-        </button>
+            <!-- Dropdown menu -->
+            <div id="dropdown" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow  dark:bg-gray-700">
+                <ul class="py-2 text-base text-black dark:text-gray-200" aria-labelledby="dropdownDefaultButton">
+                    <li>
 
-        <!-- Dropdown menu -->
-        <div id="dropdown" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow  dark:bg-gray-700">
-            <ul class="py-2 text-base text-black dark:text-gray-200" aria-labelledby="dropdownDefaultButton">
-                <li>
-                    <button class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">داخلية</button>
-                </li>
-                <li>
-                    <button class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">خارجية</button>
-                </li>
-                <li>
-                    <button class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">اجازة</button>
-                </li>
-                <li>
-                    <button class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">خطاب</button>
-                </li>
-            </ul>
+                        <button data-toggle="modal" data-target="#insertTransactionModal" id="modal-toggle-button" class="block px-4  py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">داخلية</button>
+
+                    </li>
+                    <li>
+                        <button data-toggle="modal" data-target="#insertTransactionModal" id="modal-toggle-button" class="block px-4  py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">خارجية</button>
+
+                    </li>
+                    <li>
+                        <button data-toggle="modal" data-target="#insertHolidayModal" id="modal-toggle-button" class="block px-4  py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">إجازة</button>
+                    </li>
+                    <li>
+                        <button type="button" data-toggle="modal" data-target="#insertLetterModal" id="modal-toggle-button" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">خطاب</button>
+                    </li>
+                    <li>
+                        <button class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">عهدة</button>
+                    </li>
+                </ul>
+            </div>
         </div>
-    </div>
 
-    <div>
-        <form asp-action="SearchById" asp-controller="Transactions" method="get">
-
-            <div class="flex justify-evenly">
-                <input name="id" placeholder="رقم المعاملة" class="form-control mr-2" type="search" aria-label="search" />
-                <button class="btn btn-dark" type="submit">بحث</button>
-                <div class="">
+        <div>
+            <form asp-action="SearchById" asp-controller="Transactions" method="get">
+                <div class="flex justify-evenly">
+                    <input name="id" placeholder="رقم المعاملة" class="form-control mr-2" type="search" aria-label="search" />
+                    <button class="btn btn-dark" type="submit">بحث</button>
                     <select name="sortOrder" id="sortOrder" class="bg-white border border-primaryButtons px-5 text-black text-sm rounded-lg text-center focus:ring-blue-500 focus:border-blue-500 block mr-2">
                         <option selected>فلترة</option>
                         <option value="newest">الاحدث</option>
                         <option value="oldest">الاقدم</option>
-
                     </select>
                 </div>
-            </div>
-        </form>
+            </form>
+        </div>
+
+    </div>
+    @await Html.PartialAsync("_CreateNewTransaction", new Transaction())
+
+    @await Html.PartialAsync("PartailCreate", new Letter())
+
+    @await Html.PartialAsync("_Create_Holiday", new HolidayHistory())
+
+        
+
+    <div class="mt-10">
+        @await Html.PartialAsync("_getAllTransactions")
     </div>
 
-    @await Html.PartialAsync("_CreateNewTransaction", new Transaction())
-</div>
 
-<div class="mt-10 p-2  rounded-lg" style="max-height: 500px; overflow-y: auto;">
-    <ul class="w-full divide-y divide-gray-200 dark:divide-gray-700">
-        @foreach (var item in Model)
-        {
-            <li class="mb-2 shadow-sm bg-white  ">
-                <div class="flex items-center space-x-4 rtl:space-x-reverse  text-center ">
-                    <div class="flex-shrink-0 ml-3 p-3 ">
-                        <p class="font-bold">خطاب</p>
-                        <hr />
-                        <p class="text-blue-600">
-                            #@Html.DisplayFor(modelItem => item.transaction_id)
-                        </p>
-                    </div>
-                    <div class="flex-1 min-w-0 text-right">
-                        <div class="flex">
-                            <p class="text-sm font-medium text-gray-900 truncate dark:text-white px-2">
-                                @Html.DisplayFor(modelItem => item.title)
-                            </p>
-                            <p class="text-sm font-medium text-gray-900 truncate dark:text-white">
-                                @Html.DisplayFor(modelItem => item.create_date)
-                            </p>
-                        </div>
-                        <p class="text-sm text-gray-500 truncate dark:text-gray-400">
-                            @Html.DisplayFor(modelItem => item.description)
-                        </p>
-                    </div>
-                    <div class="inline-flex items-center text-base font-semibold text-gray-900 ml-3 dark:text-white">
-                        <button type="button" class="btn btn-" data-toggle="modal" data-target="@("#detailModal-" + item.transaction_id)">عرض</button>
-                        @await Html.PartialAsync("_showTransactionDetail", item)
-                    </div>
-                </div>
-            </li>
-        }
-    </ul>
-</div>
-
-<script src="~/js/site.js">
-</script>
-<script src="../path/to/flowbite/dist/flowbite.min.js"></script>
-
-
-
-@*
-<form class="max-w-sm mx-auto border-2 rounded border-primaryButtons ml-5">
-	<select id="countries" class="bg-white border border-primaryButtons text-balck text-sm rounded-lg text-center focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-		<option selected>الفلاتر</option>
-		<option value="oldest">الاقدم</option>
-		<option value="newset">الاحدث</option>
-	</select>
-</form>
-
-
-<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 518 518"><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z" /></svg>
-
-*@
-
-<script src="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.js"></script>
+    <script src="~/js/site.js">
+    </script>
+</body>
+</html>

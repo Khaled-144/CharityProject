@@ -4,7 +4,7 @@
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
 
-    public class EmployeeDetails
+    public class employee_details
     {
         [Key]
         public int employee_details_id { get; set; }
