@@ -99,11 +99,14 @@ namespace CharityProject.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("close_date,title,description,files,from_emp_id,to_emp_id,department_id")] Transaction transaction)
+        public async Task<IActionResult> Create([Bind("create_date,close_date,title,description,files,from_emp_id,to_emp_id,department_id")] Transaction transaction)
         {
             if (ModelState.IsValid)
             {
-                transaction.create_date = DateTime.Now;  
+                if (transaction.create_date == null) {
+                    transaction.create_date = DateTime.Now;
+                }
+                
                 transaction.status = "مرسلة";  // Set default status value
                 _context.Add(transaction);
                 await _context.SaveChangesAsync();
@@ -219,6 +222,29 @@ namespace CharityProject.Controllers
             await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));
+        }
+
+
+        public IActionResult Create_Holiday()
+        {
+            ViewData["holiday_id"] = new SelectList(_context.Holidays, "holiday_id", "holiday_id");
+            return View();
+        }
+
+        // POST: HolidayHistories/Create
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create_Holiday([Bind("title,description,duration,emp_id,start_date,end_date,files,holiday_id")] HolidayHistory holidayHistory)
+        {
+
+            holidayHistory.creation_date = DateOnly.FromDateTime(DateTime.Now); // Set to current date
+            holidayHistory.status = "تم الإرسال"; // Set default status
+            _context.Add(holidayHistory);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+
         }
     }
 }
