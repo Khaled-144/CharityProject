@@ -1,0 +1,337 @@
+﻿
+<!DOCTYPE html>
+<html lang="ar" >
+<head>
+    <meta charset="UTF-8" dir="rtl">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>عهدة استلام</title>
+
+@*     <script>
+        function toggleElements() {
+            const choice = document.getElementById('choice').value;
+            const general = document.getElementById('h');
+            const custom = document.getElementById('m');
+
+            if (choice === 'عام') {
+                general.style.display = 'block';
+                custom.style.display = 'none';
+            } else if (choice === 'مخصص') {
+                general.style.display = 'block';
+                custom.style.display = 'block';
+            } else {
+                general.style.display = 'none';
+                custom.style.display = 'none';
+            }
+        }
+
+
+
+    </script> *@
+
+
+@*     <style>
+        .general, .custom {
+            display: none;
+        }
+
+    </style> *@
+
+
+
+
+
+</head>
+
+
+
+
+<body>
+    <div class="container mx-auto px-6 py-8">
+        <div class="flex flex-col bg-white shadow-md rounded-lg overflow-hidden md:flex-row">
+            <div class="w-full md:w-1/4 px-5 py-8">
+
+                <form  asp-for=""   calss="flex items-center justify-center form-group ">
+
+
+                    <h2 class="text-2xl flex items-center justify-center font-bold text-gray-800 mb-4">نموذج عهده</h2>
+                 
+                    <hr class="text-1xl" />
+
+
+                    <div class=" flex  items-center   mt-3 mb-4">
+
+                        <label  for="charter_info" class="font-bold pl-3 text-sm font-medium text-gray-700 " required>معلومات العهدة  </label>
+                        <input type="text"  class=" pl-3  w-64 rounded-md border border-gray-300 focus:outline-none focus:ring-1 focus:ring-blue-500">
+
+                    <label for="serialNumber" class="pr-5  pl-3    font-bold font-medium text-gray-700">الرقم التسلسلي</label>
+                        <input type="text" id="serialNumber" class=" pl-3 w-64 rounded-md border border-gray-300 focus:outline-none focus:ring-1 focus:ring-blue-500">
+
+                    </div>
+
+
+                <div class="mb-2  flex  items-center ">
+                         <label for="receivedDate" class=" pl-3 font-bold text-sm font-medium text-gray-700" required>تاريخ الانشاء</label>
+                        <input type="date" id="myDateField" class=" pl-3 w-64  rounded-md border border-gray-300 focus:outline-none focus:ring-1 focus:ring-blue-500"> 
+
+                 
+                          @*   <label asp-for"create_date"> تاريخ الانشاء</label>
+                            <input  type="date"  id="myDateField" /> *@
+                     
+
+                    <label for="section" class=" pl-3 pr-20 font-bold text-sm font-medium text-gray-700">القسم</label>
+                        <input type="text" id="section" class="pl-3 pr-20 w-64 rounded-md border border-gray-300 focus:outline-none focus:ring-1 focus:ring-blue-500" >
+                </div>
+
+
+
+
+
+
+                    <div class="mb-3 mt-4   flex  items-center ">
+                        <label for="deliveredStatus" class="  pl-3 font-bold text-sm font-medium text-gray-700" required>حالة التسليم</label>
+                        <input type="text" id="deliveredStatus" class=" pl-3 w-64  rounded-md border border-gray-300 focus:outline-none focus:ring-1 focus:ring-blue-500" placeholder="تم التسليم">
+
+
+
+
+                        <label for="remarks" class="pl-3 pr-20 font-bold text-sm font-medium text-gray-700">ملاحظات</label>
+                        <input type="text" id="remarks" class="pl-3 pr-20 w-64  rounded-md border border-gray-300 focus:outline-none focus:ring-1 focus:ring-blue-500"/>
+                </div>
+             
+
+
+                <div class="mt-3 flex px-5   form-group">
+             
+
+                    <div id="h" class="general px-5 flex">
+                        <label for="department" class="  font-bold font-medium text-gray-700">القسم</label>
+                        <select id="department" name="department" class="font-bold border w-44 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">اختر القسم</option>
+                            <option value="urgent">الموارد البشرية</option>
+                            <option value="very_urgent">التنمية المالية</option>
+                            <option value="extremely_urgent">إدارية المستفيدين</option>
+                            <option value="extremely_urgent">الإدارة التنفيذية</option>
+                        </select>
+                    </div>
+
+                    <div id="m" class="custom px-5 flex>
+                        <label asp-for="to_emp_id" for="to_emp_id" class="mr-4 px-4  font-bold  font-medium text-gray-700">الموظف</label>
+                        <select id="to_emp_id" name="to_emp_id" class="font-bold   border w-24 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                            <option value="1">محمد</option>
+                            <option value="2">عبدالله</option>
+                            <option value="3">زياد</option>
+                        </select>
+                    </div>
+                </div>
+
+
+
+
+                    <div class="flex justify-center form-group  mt-4">
+                    <button type="submit" class="bg-gradient-to-r from-green-400 via-green-500 to-green-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 text-white font-bold py-2 px-4 transition duration-300 ease-in-out">إرسال</button>
+                </div>
+
+                          </form>
+
+
+            </div>
+        </div>
+    </div>
+</body> 
+
+
+
+
+    @*
+    <div class="container mx-auto px-3 py-4">
+    <div class="flex flex-col bg-white shadow-md rounded-lg overflow-hidden md:flex-row">
+    <div class="w-full md:w-1/4 px-4 py-4">
+    <h2 class="text-2xl font-bold text-gray-800 mb-4">نموذج عهده</h2>
+    <form >
+    <div class="flex items-center mb-4">
+    <label for="serialNumber" class="font-bold pl-3 text-sm font-medium text-gray-700" placeholder="John" required>معلومات العهدة</label>
+    <input type="text" id="serialNumber" class="pl-3 w-80 rounded-md border border-gray-300 focus:outline-none focus:ring-1 focus:ring-blue-500">
+
+    <label for="serialNumber" class="pr-20 pl-3 font-bold font-medium text-gray-700">الرقم التسلسلي</label>
+    <input type="text" id="serialNumber" class="pl-3 w-30 rounded-md border border-gray-300 focus:outline-none focus:ring-1 focus:ring-blue-500">
+    </div>
+
+    <div class="mb-2 flex items-center">
+    <label for="receivedDate" class="pl-3 font-bold text-sm font-medium text-gray-700">تاريخ الانشاء</label>
+    <input type="date" id="receivedDate" class="pl-3 w-80 rounded-md border border-gray-300 focus:outline-none focus:ring-1 focus:ring-blue-500">
+
+    <label for="section" class="pl-3 pr-20 font-bold text-sm font-medium text-gray-700">القسم</label>
+    <input type="text" id="section" class="pl-3 pr-20 w-80 rounded-md border border-gray-300 focus:outline-none focus:ring-1 focus:ring-blue-500" readonly>
+    </div>
+
+    <div class="mb-3 flex items-center">
+    <label for="deliveredStatus" class="font-bold text-sm font-medium text-gray-700">حالة التسليم</label>
+    <input type="text" id="deliveredStatus" class="px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-1 focus:ring-blue-500" placeholder="تم التسليم">
+
+    <label for="remarks" class="font-bold text-sm font-medium text-gray-700">ملاحظات</label>
+    <input type="text" id="section" class="pl-3 pr-20 w-80 rounded-md border border-gray-300 focus:outline-none focus:ring-1 focus:ring-blue-500" readonly>
+    </div>
+
+    <div class="mt-3 flex px-5 form-group">
+    <div class="flex items-center form-group">
+    <label for="choice" class="font-bold pl-2 font-bold font-medium text-gray-700">موجه الى</label>
+    <select id="choice" name="choice" onchange="toggleElements()" class="font-bold border rounded-md w-28 focus:ring-blue-500 focus:border-blue-500">
+    <option value="" disabled selected>اختر</option>
+    <option value="مخصص">مخصص</option>
+    <option value="عام">عام</option>
+    </select>
+    </div>
+
+    <div id="h" class="general px-5 flex">
+    <label for="department" class="font-bold font-medium text-gray-700">القسم</label>
+    <select id="department" name="department" class="font-bold border w-44 rounded-md focus:ring-blue-500 focus:border-blue-500">
+    <option value="">اختر القسم</option>
+    <option value="urgent">الموارد البشرية</option>
+    <option value="very_urgent">التنمية المالية</option>
+    <option value="extremely_urgent">إدارية المستفيدين</option>
+    <option value="extremely_urgent">الإدارة التنفيذية</option>
+    </select>
+    </div>
+
+    <div id="m" class="custom px-5 flex">
+    <label  for="to_emp_id" class="mr-4 px-4 font-bold font-medium text-gray-700">الموظف</label>
+    <select id="to_emp_id" name="to_emp_id" class="font-bold border w-24 rounded-md focus:ring-blue-500 focus:border-blue-500">
+    <option value="1">محمد</option>
+    <option value="2">عبدالله</option>
+    <option value="3">زياد</option>
+    </select>
+    </div>
+    </div>
+
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+    إرسال
+    </button>
+
+
+    </form>
+    </div>
+    </div>
+    </div> *@
+
+
+
+   @*  <body>
+       
+
+    
+
+
+
+            <div class="modal-content">
+
+
+                <div class="modal-header flex justify-center items-center">
+                    <button type="button" class="close text-danger close-button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+
+                    <h4 class="modal-title text-center w-full">إنشاء خطاب جديد</h4>
+                </div>
+
+
+                <div class="modal-body align-content-center">
+                    <div class="col-md text-right" dir="rtl">
+
+                        <form asp-action="Create" method="post" enctype="multipart/form-data">
+                            <div asp-validation-summary="ModelOnly" class="text-danger">
+
+                       
+
+                 @*            <div class="mb-4 form-group">
+                                <label @* asp-for="title"  for="title" class="block  font-bold text-sm font-medium text-gray-700">معلومات العهدة</label>
+                                <input @* asp-for="title" type="text" id="title" name="title" class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+
+                            <div class="mb-4 form-group">
+                                <label @* asp-for="serialNumber " for="files" class="block font-bold text-sm font-medium text-gray-700">الرقم التسلسلي</label>
+                                <input @* asp-for="serialNumber"  id="serialNumber" name="files" class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+
+
+                             <div class=" mb-4 flex-container form-group ">
+                                <div class="flex-item form-group">
+                                    <label @* asp-for="start_date"  for="start_date" class="text-sm pr-20  font-bold font-medium text-gray-700"> تاريخ الانشاء</label>
+                                    <input  type="date" id="start_date" name="date" class="font-bold  border rounded-md">
+
+                                        <label @* asp-for="start_date" for="section" class=" pl-3 pr-20 font-bold text-sm font-medium text-gray-700">القسم</label>
+                                        <input type="text" id="section" class="pl-3 pr-20 w-80 rounded-md border border-gray-300 focus:outline-none focus:ring-1 focus:ring-blue-500" readonly>
+
+
+                                </div>
+                            </div>
+
+                                <div class="mb-4 form-group">
+                                    <label @* asp-for="description"  for="description" class="block text-sm  font-bold font-medium text-gray-700">الملاحظات</label>
+                                    <textarea @* asp-for="description"  id="description" name="description" class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500"></textarea>
+                                </div>
+
+
+                            <div class="mt-5 flex px-5  form-group">
+                                <div class="flex form-group">
+                                    <label for="choice" class="text-sm font-bold pl-2 font-medium text-gray-700"> موجه الى   </label>
+                                    <select id="choice" name="choice" onchange="toggleElements()" class="  font-bold border rounded-md w-28 focus:ring-blue-500 focus:border-blue-500">
+                                        <option value="" disabled selected>اختر </option>
+                                        <option value="مخصص">مخصص</option>
+                                        <option value="عام">عام</option>
+                                    </select>
+                                </div>
+
+                                <div id="h" class="general px-5 flex">
+                                    <label for="department" class=" text-sm font-bold font-medium text-gray-700">القسم</label>
+                                    <select id="department" name="department" class="font-bold border w-44 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                                        <option value="">اختر القسم</option>
+                                        <option value="urgent">الموارد البشرية</option>
+                                        <option value="very_urgent">التنمية المالية</option>
+                                        <option value="extremely_urgent">إدارية المستفيدين</option>
+                                        <option value="extremely_urgent">الإدارة التنفيذية</option>
+                                    </select>
+                                </div>
+
+                                <div id="m" class="custom px-5 flex>
+                                        <label @* asp-for="to_emp_id"  for="to_emp_id" class="mr-4 px-4  font-bold text-sm font-medium text-gray-700">الموظف</label>
+                                        <select @* asp-for="to_emp_id"  id="to_emp_id" name="to_emp_id" class="font-bold   border w-24 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                                        <option value="1">محمد</option>
+                                        <option value="2">عبدالله</option>
+                                        <option value="3">زياد</option>
+                                    </select>
+                                </div>
+                            </div>
+
+
+
+
+                      
+
+                      
+                            <div class="flex justify-center form-group">
+                                <button type="submit" class="bg-gradient-to-r from-green-400 via-green-500 to-green-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 text-white font-bold py-2 px-4 transition duration-300 ease-in-out">رفع الخطاب</button>
+                            </div>
+                            
+                       
+                        </form>
+
+</body> *@  
+
+
+
+</html>
+
+<script>
+    // Get today's date
+    let today = new Date();
+
+    // Format the date to YYYY-MM-DD (required by input type="date")
+    let dd = String(today.getDate()).padStart(2, '0');
+    let mm = String(today.getMonth() + 1).padStart(2, '0'); // January is 0!
+    let yyyy = today.getFullYear();
+
+    let formattedDate = yyyy + '-' + mm + '-' + dd;
+
+    // Set the value of the date input field
+    document.getElementById('myDateField').value = formattedDate;
+</script>
