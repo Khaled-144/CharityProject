@@ -43,7 +43,12 @@
                             <input asp-for="description" class="form-control" />
                             <span asp-validation-for="description" class="text-danger"></span>
                         </div>
-                        <div class="form-group">
+
+                        <div>
+                            <label asp-for"create_date"> تاريخ الانشاء</label>
+                            <input asp-for="create_date" type="date" class="w-full" id="myDateField" />
+                        </div>
+                        <div class="form-group my-3">
                             <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="files">المرفقات</label>
                             <input asp-for="files" class="form-control" type="file" />
                             <span asp-validation-for="files" class="text-danger"></span>
@@ -86,6 +91,22 @@
         </div>
     </div>
 </div>
+
+
+<script>
+    // Get today's date
+    let today = new Date();
+
+    // Format the date to YYYY-MM-DD (required by input type="date")
+    let dd = String(today.getDate()).padStart(2, '0');
+    let mm = String(today.getMonth() + 1).padStart(2, '0'); // January is 0!
+    let yyyy = today.getFullYear();
+
+    let formattedDate = yyyy + '-' + mm + '-' + dd;
+
+    // Set the value of the date input field
+    document.getElementById('myDateField').value = formattedDate;
+</script>
 
 
 @section Scripts {

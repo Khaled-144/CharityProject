@@ -66,7 +66,7 @@
                     </div>
                     <div class="flex mt-5 justify-center">
                         @* Check if the status is not "Closed" to show the button *@
-                        @if (Model.status != "Closed")
+                        @if (Model.status != "منهاة")
                         {
                             @* Use a form to submit the status update *@
                             @using (Html.BeginForm("UpdateStatus", "Transactions", FormMethod.Post, new { id = $"updateStatusForm-{Model.transaction_id}" }))
@@ -77,7 +77,6 @@
                                 </button>
                                 @Html.HiddenFor(model => model.transaction_id)
                             }
-
                         }
                     </div>
                     <button type="button" class="block btn btn-dark mt-5" data-dismiss="modal">الغاء</button>

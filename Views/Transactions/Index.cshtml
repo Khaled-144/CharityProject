@@ -9,70 +9,69 @@
 <html lang="ar">
 
 <body>
-<div class="flex justify-self-auto justify-between mt-10 ">
+    <div class="flex justify-self-auto justify-between mt-10 ">
 
-    <div>
-        <button id="dropdownDefaultButton" data-dropdown-toggle="dropdown" class="text-white w-32  bg-primaryButtons hover:bg-emerald-800	 focus:ring-4  focus:outline-none focus:ring-blue-300 font-medium  rounded-lg text-xl px-4 py-2.5 text-center inline-flex justify-evenly items-center">
-            جديد <svg class="w-2.5 h-2.5 mx-1 mt-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4" />
-            </svg>
-        </button>
+        <div>
+            <button id="dropdownDefaultButton" data-dropdown-toggle="dropdown" class="text-white w-32  bg-primaryButtons hover:bg-emerald-800	 focus:ring-4  focus:outline-none focus:ring-blue-300 font-medium  rounded-lg text-xl px-4 py-2.5 text-center inline-flex justify-evenly items-center">
+                جديد <svg class="w-2.5 h-2.5 mx-1 mt-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4" />
+                </svg>
+            </button>
 
-        <!-- Dropdown menu -->
-        <div id="dropdown" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow  dark:bg-gray-700">
-            <ul class="py-2 text-base text-black dark:text-gray-200" aria-labelledby="dropdownDefaultButton">
-                <li>
+            <!-- Dropdown menu -->
+            <div id="dropdown" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow  dark:bg-gray-700">
+                <ul class="py-2 text-base text-black dark:text-gray-200" aria-labelledby="dropdownDefaultButton">
+                    <li>
 
-                    <button data-toggle="modal" data-target="#insertTransactionModal" id="modal-toggle-button" class="block px-4  py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">داخلية</button>
+                        <button data-toggle="modal" data-target="#insertTransactionModal" id="modal-toggle-button" class="block px-4  py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">داخلية</button>
 
-                </li>
-                <li>
-                    <button data-toggle="modal" data-target="#insertTransactionModal" id="modal-toggle-button" class="block px-4  py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">خارجية</button>
+                    </li>
+                    <li>
+                        <button data-toggle="modal" data-target="#insertTransactionModal" id="modal-toggle-button" class="block px-4  py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">خارجية</button>
 
-                </li>
-                <li>
-                    <button data-toggle="modal" data-target="#insertTransactionModal" id="modal-toggle-button" class="block px-4  py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">إجازة</button>
-                </li>
-                <li>
-                    <button type="button" data-toggle="modal" data-target="#insertLetterModal" id="modal-toggle-button" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">خطاب</button>
-                </li>
-                <li>
-                    <button class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">عهدة</button>
-                </li>
-            </ul>
-        </div>
-    </div>
-
-    <div>
-        <form asp-action="SearchById" asp-controller="Transactions" method="get">
-
-            <div class="flex justify-evenly">
-                <input name="id" placeholder="رقم المعاملة" class="form-control mr-2" type="search" aria-label="search" />
-                <button class="btn btn-dark" type="submit">بحث</button>
-                <select name="sortOrder" id="sortOrder" class="bg-white border border-primaryButtons px-5 text-black text-sm rounded-lg text-center focus:ring-blue-500 focus:border-blue-500 block mr-2">
-                    <option selected>فلترة</option>
-                    <option value="newest">الاحدث</option>
-                    <option value="oldest">الاقدم</option>
-                </select>
+                    </li>
+                    <li>
+                        <button data-toggle="modal" data-target="#insertHolidayModal" id="modal-toggle-button" class="block px-4  py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">إجازة</button>
+                    </li>
+                    <li>
+                        <button type="button" data-toggle="modal" data-target="#insertLetterModal" id="modal-toggle-button" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">خطاب</button>
+                    </li>
+                    <li>
+                        <button class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">عهدة</button>
+                    </li>
+                </ul>
             </div>
-        </form>
+        </div>
+
+        <div>
+            <form asp-action="SearchById" asp-controller="Transactions" method="get">
+                <div class="flex justify-evenly">
+                    <input name="id" placeholder="رقم المعاملة" class="form-control mr-2" type="search" aria-label="search" />
+                    <button class="btn btn-dark" type="submit">بحث</button>
+                    <select name="sortOrder" id="sortOrder" class="bg-white border border-primaryButtons px-5 text-black text-sm rounded-lg text-center focus:ring-blue-500 focus:border-blue-500 block mr-2">
+                        <option selected>فلترة</option>
+                        <option value="newest">الاحدث</option>
+                        <option value="oldest">الاقدم</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+
+    </div>
+    @await Html.PartialAsync("_CreateNewTransaction", new Transaction())
+
+    @await Html.PartialAsync("PartailCreate", new Letter())
+
+    @await Html.PartialAsync("_Create_Holiday", new HolidayHistory())
+
+        
+
+    <div class="mt-10">
+        @await Html.PartialAsync("_getAllTransactions")
     </div>
 
-</div>
-@await Html.PartialAsync("_CreateNewTransaction", new Transaction())
 
-@await Html.PartialAsync("PartailCreate", new Letter())
-
-
-
-
-<div class="mt-10">
-    <h5 class="text-right">المعاملات:</h5>
-    @await Html.PartialAsync("_getAllTransactions")
-</div>
-
-
-<script src="~/js/site.js">
-</script>
+    <script src="~/js/site.js">
+    </script>
 </body>
 </html>

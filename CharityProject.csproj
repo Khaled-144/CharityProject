@@ -38,6 +38,7 @@
 
 <ItemGroup>
   <Folder Include="pdfs\Outputs\" />
+  <Folder Include="Views\Shared\Shared2\" />
 </ItemGroup>
 
 <Target Name="Tailwind" BeforeTargets="Build">
