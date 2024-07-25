@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using CharityProject.Data;
 using CharityProject.Models;
+using System.Runtime.InteropServices;
 
 namespace CharityProject.Controllers
 {
@@ -63,6 +64,23 @@ namespace CharityProject.Controllers
                 return RedirectToAction(nameof(Index));
             }
             return View(charter);
+        }
+        public async Task<IActionResult> UpdateStatus(int charter_id)
+        {
+            var charter = await _context.Charter.FindAsync(charter_id);
+            if (charter == null)
+            {
+                return NotFound();
+            }
+
+            // Update the status to "Closed"
+            charter.status = "تم الإقرار";
+            charter.receive_date = DateTime.Now;
+
+            // Save changes to the database
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Charters/Edit/5
