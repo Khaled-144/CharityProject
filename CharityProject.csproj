@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Views\Shared\Shared2\**" />
+    <Content Remove="Views\Shared\Shared2\**" />
+    <EmbeddedResource Remove="Views\Shared\Shared2\**" />
+    <None Remove="Views\Shared\Shared2\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -38,23 +42,10 @@
 
 <ItemGroup>
   <Folder Include="pdfs\Outputs\" />
-  <Folder Include="Views\Shared\Shared2\" />
 </ItemGroup>
 
 <Target Name="Tailwind" BeforeTargets="Build">
   <Exec Command="npm run css:build" />
 </Target>
-
-<ItemGroup>
-  <UpToDateCheckInput Remove="Views\Shared\_ProfilePartial.cshtml" />
-</ItemGroup>
-
-<ItemGroup>
-  <_ContentIncludedByDefault Remove="Views\Shared\_ProfilePartial.cshtml" />
-</ItemGroup>
-
-<ItemGroup>
-  <None Include="Views\Shared\_ProfilePartial.cshtml" />
-</ItemGroup>
 
 </Project>
