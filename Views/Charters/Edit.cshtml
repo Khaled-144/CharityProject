@@ -1,0 +1,76 @@
+﻿@model CharityProject.Models.Charter
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>Charter</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="charter_id" />
+            <div class="form-group">
+                <label asp-for="charter_info" class="control-label"></label>
+                <input asp-for="charter_info" class="form-control" />
+                <span asp-validation-for="charter_info" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="serial_number" class="control-label"></label>
+                <input asp-for="serial_number" class="form-control" />
+                <span asp-validation-for="serial_number" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="creation_date" class="control-label"></label>
+                <input asp-for="creation_date" class="form-control" />
+                <span asp-validation-for="creation_date" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="from_departement_name" class="control-label"></label>
+                <input asp-for="from_departement_name" class="form-control" />
+                <span asp-validation-for="from_departement_name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="status" class="control-label"></label>
+                <input asp-for="status" class="form-control" />
+                <span asp-validation-for="status" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="notes" class="control-label"></label>
+                <input asp-for="notes" class="form-control" />
+                <span asp-validation-for="notes" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="to_departement_name" class="control-label"></label>
+                <input asp-for="to_departement_name" class="form-control" />
+                <span asp-validation-for="to_departement_name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="to_emp_id" class="control-label"></label>
+                <input asp-for="to_emp_id" class="form-control" />
+                <span asp-validation-for="to_emp_id" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="receive_date" class="control-label"></label>
+                <input asp-for="receive_date" class="form-control" />
+                <span asp-validation-for="receive_date" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="end_date" class="control-label"></label>
+                <input asp-for="end_date" class="form-control" />
+                <span asp-validation-for="end_date" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+

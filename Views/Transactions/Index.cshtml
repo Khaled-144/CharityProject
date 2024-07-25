@@ -5,33 +5,39 @@
     ViewData["PageTitle"] = "المعاملات";
     ViewData["Title"] = "صفحة المعاملات";
 }
+
 <!DOCTYPE html>
 <html lang="ar">
 
-<body>
-    <div class="flex justify-self-auto justify-between mt-10 ">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["PageTitle"]</title>
+    <link rel="stylesheet" href="~/css/site.css">
+    <!-- Add any additional CSS or JS references here -->
+</head>
 
+<body>
+    <div class="flex justify-self-auto justify-between mt-10">
         <div>
-            <button id="dropdownDefaultButton" data-dropdown-toggle="dropdown" class="text-white w-32  bg-primaryButtons hover:bg-emerald-800	 focus:ring-4  focus:outline-none focus:ring-blue-300 font-medium  rounded-lg text-xl px-4 py-2.5 text-center inline-flex justify-evenly items-center">
-                جديد <svg class="w-2.5 h-2.5 mx-1 mt-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+            <button id="dropdownDefaultButton" data-dropdown-toggle="dropdown" class="text-white w-32 bg-primaryButtons hover:bg-emerald-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-xl px-4 py-2.5 text-center inline-flex justify-evenly items-center">
+                جديد
+                <svg class="w-2.5 h-2.5 mx-1 mt-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4" />
                 </svg>
             </button>
 
             <!-- Dropdown menu -->
-            <div id="dropdown" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow  dark:bg-gray-700">
+            <div id="dropdown" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700">
                 <ul class="py-2 text-base text-black dark:text-gray-200" aria-labelledby="dropdownDefaultButton">
                     <li>
-
-                        <button data-toggle="modal" data-target="#insertTransactionModal" id="modal-toggle-button" class="block px-4  py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">داخلية</button>
-
+                        <button data-toggle="modal" data-target="#insertTransactionModal" id="modal-toggle-button" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">داخلية</button>
                     </li>
                     <li>
-                        <button data-toggle="modal" data-target="#insertTransactionModal" id="modal-toggle-button" class="block px-4  py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">خارجية</button>
-
+                        <button data-toggle="modal" data-target="#insertTransactionModal" id="modal-toggle-button" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">خارجية</button>
                     </li>
                     <li>
-                        <button data-toggle="modal" data-target="#insertHolidayModal" id="modal-toggle-button" class="block px-4  py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">إجازة</button>
+                        <button data-toggle="modal" data-target="#insertHolidayModal" id="modal-toggle-button" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">إجازة</button>
                     </li>
                     <li>
                         <button type="button" data-toggle="modal" data-target="#insertLetterModal" id="modal-toggle-button" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">خطاب</button>
@@ -43,11 +49,11 @@
             </div>
         </div>
 
-        <div>
-            <form asp-action="SearchById" asp-controller="Transactions" method="get">
+        <div class="mx-4">
+            <form id="searchForm">
                 <div class="flex justify-evenly">
                     <input name="id" placeholder="رقم المعاملة" class="form-control mr-2" type="search" aria-label="search" />
-                    <button class="btn btn-dark" type="submit">بحث</button>
+                    <button id="searchButton" class="btn btn-dark" type="submit">بحث</button>
                     <select name="sortOrder" id="sortOrder" class="bg-white border border-primaryButtons px-5 text-black text-sm rounded-lg text-center focus:ring-blue-500 focus:border-blue-500 block mr-2">
                         <option selected>فلترة</option>
                         <option value="newest">الاحدث</option>
@@ -56,22 +62,71 @@
                 </div>
             </form>
         </div>
-
     </div>
+
     @await Html.PartialAsync("_CreateNewTransaction", new Transaction())
-
     @await Html.PartialAsync("PartailCreate", new Letter())
-
     @await Html.PartialAsync("_Create_Holiday", new HolidayHistory())
 
-        
-
-    <div class="mt-10">
-        @await Html.PartialAsync("_getAllTransactions")
+    <div id="transactionListContainer" class="mt-5">
+        <!-- Placeholder for transaction list and loading spinner -->
+        <div id="loadingIndicator" class="text-center">
+            <div class="spinner"></div>
+            <p>جاري تحميل المعاملات...</p>
+        </div>
+        <div id="transactionListPlaceholder">
+            <!-- Content will be replaced by AJAX -->
+        </div>
     </div>
 
+    <script src="~/js/site.js"></script>
 
-    <script src="~/js/site.js">
+    <script>
+        $(document).ready(function () {
+            function loadTransactions() {
+                $("#loadingIndicator").show(); // Show loading indicator
+                $("#transactionListPlaceholder").hide(); // Hide transaction list
+
+                $.ajax({
+                    url: '@Url.Action("SearchById", "Transactions")',
+                    type: 'GET',
+                    data: { id: 0, sortOrder: '' }, // Default values or adjust as needed
+                    success: function (result) {
+                        $("#transactionListPlaceholder").html(result); // Update the div with the partial view
+                        $("#loadingIndicator").hide(); // Hide loading indicator
+                        $("#transactionListPlaceholder").show(); // Show transaction list
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(error);
+                        $("#loadingIndicator").html("<p>فشل تحميل المعاملات. حاول مرة أخرى لاحقاً.</p>");
+                    }
+                });
+            }
+
+            loadTransactions(); // Load transactions on page load
+
+            $("#searchForm").submit(function (event) {
+                event.preventDefault(); // Prevent the form from submitting via the browser
+
+                $("#loadingIndicator").show(); // Show loading indicator
+                $("#transactionListPlaceholder").hide(); // Hide transaction list
+
+                $.ajax({
+                    url: '@Url.Action("SearchById", "Transactions")',
+                    type: 'GET',
+                    data: $(this).serialize(),
+                    success: function (result) {
+                        $("#transactionListPlaceholder").html(result); // Update the div with the partial view
+                        $("#loadingIndicator").hide(); // Hide loading indicator
+                        $("#transactionListPlaceholder").show(); // Show transaction list
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(error);
+                        $("#loadingIndicator").html("<p>فشل تحميل المعاملات. حاول مرة أخرى لاحقاً.</p>");
+                    }
+                });
+            });
+        });
     </script>
 </body>
 </html>
