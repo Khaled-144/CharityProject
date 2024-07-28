@@ -1,0 +1,47 @@
+﻿@* @model IEnumerable<CharityProject.Models.Devices>
+
+<table class="table text-center rtl">
+    <thead>
+        <tr>
+            <th>رقم الجهاز</th>
+            <th>الاسم</th>
+            <th>الكمية</th>
+            <th>عرض</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr class="bg-base-200 w-25">
+                <td>@Html.DisplayFor(modelItem => item.devices_id)</td>
+                <td>@Html.DisplayFor(modelItem => item.name)</td>
+                <td>@Html.DisplayFor(modelItem => item.quantity)</td>
+            </tr>
+        }
+    </tbody>
+</table> *@    
+
+
+
+@model IEnumerable<CharityProject.Models.Devices>
+
+<table class="table text-center rtl">
+    <thead>
+        <tr>
+            <th>رقم الجهاز</th>
+            <th>الاسم</th>
+            <th>الكمية</th>
+            <th>عرض</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr class="bg-base-200 w-25">
+                <td>@Html.DisplayFor(modelItem => item.devices_id)</td>
+                <td>@Html.DisplayFor(modelItem => item.name)</td>
+                <td>@Html.DisplayFor(modelItem => item.quantity)</td>
+            </tr>
+        }
+    </tbody>
+</table>
