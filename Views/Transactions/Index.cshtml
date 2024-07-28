@@ -15,6 +15,12 @@
     <title>@ViewData["PageTitle"]</title>
     <link rel="stylesheet" href="~/css/site.css">
     <!-- Add any additional CSS or JS references here -->
+    <style>
+        .active-tab {
+            border-color: #248277;
+            color: #248277;
+        }
+    </style>
 </head>
 
 <body>
@@ -64,22 +70,59 @@
         </div>
     </div>
 
+    <div class="mb-4 border-b border-gray-200 dark:border-gray-700">
+        <ul class="flex flex-wrap -mb-px text-xl font-medium text-center" id="default-tab" role="tablist">
+            <li class="me-2" role="presentation">
+                <button class="inline-block p-4 border-b-2 rounded-t-lg hover:font-extrabold transition ease-in-out duration-200 active-tab" id="internal-tab" data-content-url="@Url.Action("GetAllTransactions", "Transactions")" type="button" role="tab">داخلية </button>
+            </li>
+            <li class="me-2" role="presentation">
+                <button class="inline-block p-4 border-b-2 rounded-t-lg" id="holidays-tab" data-content-url="@Url.Action("GetAllHolidays", "Transactions")" type="button" role="tab">إجازات</button>
+            </li>
+            <li class="me-2" role="presentation">
+                <button class="inline-block p-4 border-b-2 rounded-t-lg" id="letters-tab" data-content-url="@Url.Action("GetAllLetters", "Transactions")" type="button" role="tab">خطابات</button>
+            </li>
+            <li role="presentation">
+                <button class="inline-block p-4 border-b-2 rounded-t-lg" id="assets-tab" data-content-url="@Url.Action("GetAllAssets", "Assets")" type="button" role="tab">عهده</button>
+            </li>
+        </ul>
+    </div>
+    <div id="tab-content-container" class="mt-5">
+        <!-- Content will be dynamically loaded here -->
+    </div>
+
     @await Html.PartialAsync("_CreateNewTransaction", new Transaction())
     @await Html.PartialAsync("PartailCreate", new Letter())
     @await Html.PartialAsync("_Create_Holiday", new HolidayHistory())
 
-    <div id="transactionListContainer" class="mt-5">
-        <!-- Placeholder for transaction list and loading spinner -->
-        <div id="loadingIndicator" class="text-center">
-            <div class="spinner"></div>
-            <p>جاري تحميل المعاملات...</p>
-        </div>
-        <div id="transactionListPlaceholder">
-            <!-- Content will be replaced by AJAX -->
-        </div>
-    </div>
-
     <script src="~/js/site.js"></script>
+    <script>
+        $(document).ready(function () {
+            function loadTabContent(url) {
+                $("#tab-content-container").html('<div class="text-center"><div class="spinner"></div><p>جاري تحميل المحتوى...</p></div>');
+                $.ajax({
+                    url: url,
+                    type: 'GET',
+                    success: function (result) {
+                        $("#tab-content-container").html(result);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(error);
+                        $("#tab-content-container").html("<p>فشل تحميل المحتوى. حاول مرة أخرى لاحقاً.</p>");
+                    }
+                });
+            }
+
+            $("#default-tab button").on("click", function () {
+                var url = $(this).data("content-url");
+                loadTabContent(url);
+                $("#default-tab button").removeClass("active-tab");
+                $(this).addClass("active-tab");
+            });
+
+            // Load initial tab content
+            $("#internal-tab").trigger("click");
+        });
+    </script>
 
     <script>
         $(document).ready(function () {
@@ -98,35 +141,22 @@
                     },
                     error: function (xhr, status, error) {
                         console.error(error);
-                        $("#loadingIndicator").html("<p>فشل تحميل المعاملات. حاول مرة أخرى لاحقاً.</p>");
+                        $("#loadingIndicator").hide(); // Hide loading indicator in case of error
+                        $("#transactionListPlaceholder").show(); // Show transaction list even if empty
                     }
                 });
             }
 
-            loadTransactions(); // Load transactions on page load
+            // Call the function when the page loads
+            loadTransactions();
 
-            $("#searchForm").submit(function (event) {
-                event.preventDefault(); // Prevent the form from submitting via the browser
-
-                $("#loadingIndicator").show(); // Show loading indicator
-                $("#transactionListPlaceholder").hide(); // Hide transaction list
-
-                $.ajax({
-                    url: '@Url.Action("SearchById", "Transactions")',
-                    type: 'GET',
-                    data: $(this).serialize(),
-                    success: function (result) {
-                        $("#transactionListPlaceholder").html(result); // Update the div with the partial view
-                        $("#loadingIndicator").hide(); // Hide loading indicator
-                        $("#transactionListPlaceholder").show(); // Show transaction list
-                    },
-                    error: function (xhr, status, error) {
-                        console.error(error);
-                        $("#loadingIndicator").html("<p>فشل تحميل المعاملات. حاول مرة أخرى لاحقاً.</p>");
-                    }
-                });
+            // Attach event handler to search button
+            $("#searchButton").on("click", function (event) {
+                event.preventDefault(); // Prevent form from submitting normally
+                loadTransactions(); // Call the function
             });
         });
     </script>
 </body>
+
 </html>
