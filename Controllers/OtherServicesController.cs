@@ -14,8 +14,8 @@ using System.Threading.Tasks;
 using IronPdf;
 using IronPdf.Rendering;
 using IronPdf.Font;
+using IronSoftware.Drawing;
 using Microsoft.Extensions.Logging;
-using System.Drawing;
 
 
 namespace CharityProject.Controllers
@@ -35,7 +35,47 @@ namespace CharityProject.Controllers
 
         }
 
-        [HttpPost]
+        public async Task<IActionResult> GeneratePdf()
+        {
+            // Path to the existing PDF file
+            string pdfPath = Path.Combine(Directory.GetCurrentDirectory(), "pdfs/Templates/mySalaryStatementTemplate.pdf");
+
+            // Load the existing PDF
+            var pdf = PdfDocument.FromFile(pdfPath);
+
+            // HTML content to add to the PDF
+            string htmlContent = @"
+                <div style='font-family: Arial, sans-serif; font-size: 24pt; color: #000;'>
+                    <h1 style='position: absolute; top: 0; left: 50%; transform: translateX(-50%);'>من يهمه الأمر</h1>
+                </div>";
+
+            // Create a renderer for the HTML content
+            var renderer = new ChromePdfRenderer();
+
+            // Render the HTML content to an image
+            var htmlPdf = renderer.RenderHtmlAsPdf(htmlContent);
+            var htmlImage = htmlPdf.ToBitmap(300)[0]; // Convert the first page to an image (DPI = 300) 
+
+            // Adjust the x and y coordinates to move the text on the PDF
+            int index = 0;
+            int x = 0; // Move units
+            int y = 0; // Move units
+            int width = 100; // Width of the drawn image
+            int height = 100; // Height of the drawn image
+
+            // Draw the image on the existing PDF
+            pdf.DrawBitmap(htmlImage, index, x, y, width, height); // Adjust the position and size as needed
+
+            // Save the modified PDF to a file (optional)
+            string outputPdfPath = Path.Combine(Directory.GetCurrentDirectory(), "pdfs/Outputs/replaceTextOnSinglePage.pdf");
+            pdf.SaveAs(outputPdfPath);
+
+            // Return the modified PDF as a file result
+            return File(pdf.BinaryData, "application/pdf", "replaceTextOnSinglePage.pdf");
+        }
+    
+
+    [HttpPost]
         public async Task<IActionResult> GenerateSalaryStatement(string employeeName, string employeeId, string salaryAmount, string recipient, string customRecipientName)
         {
             string dateTime = DateTime.Now.ToString("yyyyMMdd_HHmmss");
@@ -75,6 +115,7 @@ namespace CharityProject.Controllers
                 // Render HTML content to an overlay PDF document
                 var Renderer = new ChromePdfRenderer();
                 var overlayPdf = Renderer.RenderHtmlAsPdf(htmlContent);
+
 
                 // Merge the overlay PDF with the template PDF
                 var mergedPdf = PdfDocument.Merge(new List<PdfDocument> { templatePdf, overlayPdf });

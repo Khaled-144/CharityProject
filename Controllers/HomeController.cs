@@ -55,6 +55,8 @@ namespace CharityProject.Controllers
         {
             return View();
         }
+   
+
 
         public IActionResult transactions()
         {
@@ -165,20 +167,7 @@ namespace CharityProject.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("title,description,type,from_emp_id,to_emp_id,files")] Letter letter)
-        {
-            if (ModelState.IsValid)
-            {
-                letter.date = DateTime.Now; // Set the current date
-                letter.departement_id = 3;
-                _context.Add(letter);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(letter);
-        }
+
 
     }
 }
