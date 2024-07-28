@@ -1,0 +1,185 @@
+﻿@* @model IEnumerable<CharityProject.Models.Devices>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+
+
+
+
+
+
+
+<div class="flex justify-self-auto justify-between mt-10 ">
+
+
+    <button type="button" data-toggle="modal" data-target="#insertModal" data-target="#insertModal" id="modal-toggle-button" class="bg-gradient-to-r from-green-400 via-green-500 to-green-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 text-white py-2 px-4">
+            إضافه جهاز
+        </button>
+
+  
+
+
+    <div class="flex items-center border-2 rounded border-primaryButtons bg-white">
+        <input placeholder="رقم الجهاز" class="flex-grow py-2 px-4" />
+        <button class="flex items-center justify-center px-4 py-2  text-white rounded-r ">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 518 518">
+                <path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z" />
+            </svg>
+        </button>
+    </div>
+
+ 
+
+
+</div>
+
+
+
+
+
+
+<div class="overflow-x-auto bg-backgroundDivider mt-3" dir="rtl">
+    <table class="table text-center rtl">
+        <!-- head -->
+        <thead>
+            <tr>
+                <th>رقم الجهاز</th>
+                <th>الاسم </th>
+                <th>الكمية</th>
+                <th>عرض</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            <!-- row 1 -->
+            @foreach (var item in Model)
+            {
+                <tr class="bg-base-200 w-25">
+                    <td>
+                        @Html.DisplayFor(modelItem => item.devices_id)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.quantity)
+                    </td>
+          
+
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+  
+
+ *@    
+
+@* 
+@model IEnumerable<CharityProject.Models.Devices>
+
+@{
+    ViewData["Title"] = "Index";
+}
+<div class="flex justify-self-auto justify-between mt-10 ">
+    <button type="button" data-toggle="modal" data-target="#insertModal" id="modal-toggle-button" class="bg-gradient-to-r from-green-400 via-green-500 to-green-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 text-white py-2 px-4">
+        إضافه جهاز
+    </button>
+
+    <div class="flex items-center border-2 rounded border-primaryButtons bg-white">
+        <input placeholder="رقم الجهاز" class="flex-grow py-2 px-4" />
+        <button class="flex items-center justify-center px-4 py-2 text-white rounded-r">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 518 518">
+                <path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z" />
+            </svg>
+        </button>
+    </div>
+</div>
+
+<div class="overflow-x-auto bg-backgroundDivider mt-3" dir="rtl">
+    <div id="devicesTable">
+        @Html.Partial("_DevicesTable", Model)
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            loadDevicesTable();
+
+            function loadDevicesTable() {
+                $.ajax({
+                    url: '@Url.Action("LoadDevicesTable", "Devices")',
+                    type: 'GET',
+                    success: function (result) {
+                        $('#devicesTable').html(result);
+                    }
+                });
+            }
+        });
+    </script>
+} *@    
+
+
+
+    @model IEnumerable<CharityProject.Models.Devices>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<div class="flex justify-self-auto justify-between mt-10">
+    <button type="button" data-toggle="modal" data-target="#insertModal" id="modal-toggle-button" class="bg-gradient-to-r from-green-400 via-green-500 to-green-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 text-white py-2 px-4">
+        إضافه جهاز
+    </button>
+
+    <div class="flex items-center border-2 rounded border-primaryButtons bg-white">
+        <input id="searchInput" placeholder="رقم الجهاز" class="flex-grow py-2 px-4" />
+        <button id="searchButton" class="flex items-center justify-center px-4 py-2 text-white rounded-r bg-primaryButtons">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 518 518">
+                <path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z" />
+            </svg>
+        </button>
+    </div>
+</div>
+
+<div class="overflow-x-auto bg-backgroundDivider mt-3" dir="rtl">
+    <div id="devicesTable">
+        @Html.Partial("_DevicesTable", Model)
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            loadDevicesTable();
+
+            function loadDevicesTable(searchQuery = '') {
+                $.ajax({
+                    url: '@Url.Action("LoadDevicesTable", "Devices")',
+                    type: 'GET',
+                    data: { searchQuery: searchQuery },
+                    success: function (result) {
+                        $('#devicesTable').html(result);
+                    }
+                });
+            }
+
+            $('#searchButton').click(function () {
+                var searchQuery = $('#searchInput').val();
+                loadDevicesTable(searchQuery);
+            });
+
+            $('#searchInput').keypress(function (e) {
+                if (e.which == 13) {  // Enter key pressed
+                    var searchQuery = $(this).val();
+                    loadDevicesTable(searchQuery);
+                }
+            });
+        });
+    </script>
+}
