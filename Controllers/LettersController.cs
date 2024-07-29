@@ -25,6 +25,12 @@ namespace CharityProject.Controllers
             return View(await _context.Letters.ToListAsync());
         }
 
+        public async Task<IActionResult> GetAllLetters()
+        {
+            var letters = await _context.Letters.ToListAsync();
+            return PartialView("_getAllLetters", letters);
+        }
+
         // GET: Letters/Details/5
         public async Task<IActionResult> Details(int? id)
         {

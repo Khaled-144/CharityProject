@@ -24,7 +24,9 @@
         public string? files { get; set; }
 
         [ForeignKey("EmployeeId")]
-        public Employee employee_id { get; set; }
+        public employee employee_id { get; set; }
     }
+    
+   
 
 }

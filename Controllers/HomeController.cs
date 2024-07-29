@@ -25,12 +25,6 @@ namespace CharityProject.Controllers
         }
 
 
-        public IActionResult WorkingLoginPage()
-        {
-            return View();
-        }
-
-
 
         public async Task<IActionResult> getHolidays()
         {
@@ -45,18 +39,15 @@ namespace CharityProject.Controllers
         {
             return View();
         }
-        public IActionResult Charter()
+        public IActionResult addEmp()
         {
-
-        return View(); 
+            return View();
         }
 
         public IActionResult Privacy()
         {
             return View();
         }
-   
-
 
         public IActionResult transactions()
         {
@@ -83,11 +74,16 @@ namespace CharityProject.Controllers
                 string id = HttpContext.Request.Cookies["Id"].ToString();
                 string name = HttpContext.Request.Cookies["Name"].ToString();
                 string position = HttpContext.Request.Cookies["Position"].ToString();
-                string departementId = HttpContext.Request.Cookies["DepartementId"].ToString();
+                string departmentId = HttpContext.Request.Cookies["DepartmentId"].ToString();
+                string departmentName = HttpContext.Request.Cookies["DepartmentName"].ToString();
+
                 HttpContext.Session.SetString("Id", id);
                 HttpContext.Session.SetString("Name", name);
                 HttpContext.Session.SetString("Position", position);
-                HttpContext.Session.SetString("DeparetementId", departementId);
+                HttpContext.Session.SetString("DepartmentId", departmentId);
+                HttpContext.Session.SetString("DepartmentName", departmentName);
+               
+
                 if (position == "employee")
                 {
                     return RedirectToAction("EmpHomePage", "Home");
@@ -99,63 +95,77 @@ namespace CharityProject.Controllers
             }
         }
 
-
-
         [HttpPost, ActionName("LoginPage")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> LoginPage(string userid, string pass, bool rememberMe)
         {
             var builder = WebApplication.CreateBuilder();
             string conStr = builder.Configuration.GetConnectionString("DefaultConnection");
-            SqlConnection conn1 = new SqlConnection(conStr);
-            string sql;
-            sql = "SELECT e.employee_id, e.name, ed.permission_position, ed.departement_id " +
-                  "FROM employee e " +
-                  "JOIN employee_details ed ON e.employee_id = ed.employee_details_id " +
-                  "WHERE e.employee_id ='" + userid + "' AND e.password ='" + pass + "'";
-            SqlCommand comm = new SqlCommand(sql, conn1);
-            conn1.Open();
-            SqlDataReader reader = comm.ExecuteReader();
-
-            if (reader.Read())
+            using (SqlConnection conn = new SqlConnection(conStr))
             {
-                string id = Convert.ToString((int)reader["employee_id"]);
-                string name = (string)reader["name"];
-                string position = (string)reader["permission_position"];
-                string departementId = Convert.ToString((int)reader["departement_id"]);
-                reader.Close();
-                conn1.Close();
+                string sql = @"SELECT e.employee_id, e.name, ed.permission_position, ed.departement_id, d.departement_name
+                           FROM employee e 
+                           JOIN employee_details ed ON e.employee_id = ed.employee_details_id 
+                           JOIN Department d ON ed.departement_id = d.departement_id
+                           WHERE e.employee_id = @UserId AND e.password = @Password";
 
-                HttpContext.Session.SetString("Id", id);
-                HttpContext.Session.SetString("Name", name);
-                HttpContext.Session.SetString("Position", position);
-                HttpContext.Session.SetString("DepartementId", departementId);
-                if (rememberMe)
+                using (SqlCommand comm = new SqlCommand(sql, conn))
                 {
-                    HttpContext.Response.Cookies.Append("Id", id);
-                    HttpContext.Response.Cookies.Append("Name", name);
-                    HttpContext.Response.Cookies.Append("Position", position);
-                    HttpContext.Response.Cookies.Append("DepartementId", departementId);
-                }
+                    comm.Parameters.AddWithValue("@UserId", userid);
+                    comm.Parameters.AddWithValue("@Password", pass);
 
-                if (position == "employee")
-                {
-                    return RedirectToAction("EmpHomePage", "Home");
-                }
-                else if (position == "manager")
-                {
-                    return RedirectToAction("ManagerHomePage", "Home");
-                }
-                else
-                {
-                    ViewData["Message"] = "Unknown position";
-                    return View();
+                    conn.Open();
+                    using (SqlDataReader reader = await comm.ExecuteReaderAsync())
+                    {
+                        if (await reader.ReadAsync())
+                        {
+                            string id = reader["employee_id"].ToString();
+                            string name = reader["name"].ToString();
+                            string position = reader["permission_position"].ToString();
+                            string departmentId = reader["departement_id"].ToString();
+                            string departmentName = reader["departement_name"].ToString();
+
+                            SetSessionAndCookies(id, name, position, departmentId, departmentName, rememberMe);
+
+                            if (position == "employee")
+                            {
+                                return RedirectToAction("EmpHomePage", "Home");
+                            }
+                            else if (position == "manager")
+                            {
+                                return RedirectToAction("ManagerHomePage", "Home");
+                            }
+                            else
+                            {
+                                ViewData["Message"] = "Unknown position";
+                                return View();
+                            }
+                        }
+                        else
+                        {
+                            ViewData["Message"] = "Wrong username or password";
+                            return View();
+                        }
+                    }
                 }
             }
-            else
+        }
+
+        private void SetSessionAndCookies(string id, string name, string position, string departmentId, string departmentName, bool rememberMe)
+        {
+            HttpContext.Session.SetString("Id", id);
+            HttpContext.Session.SetString("Name", name);
+            HttpContext.Session.SetString("Position", position);
+            HttpContext.Session.SetString("DepartmentId", departmentId);
+            HttpContext.Session.SetString("DepartmentName", departmentName);
+
+            if (rememberMe)
             {
-                ViewData["Message"] = "Wrong username or password";
-                return View();
+                HttpContext.Response.Cookies.Append("Id", id);
+                HttpContext.Response.Cookies.Append("Name", name);
+                HttpContext.Response.Cookies.Append("Position", position);
+                HttpContext.Response.Cookies.Append("DepartmentId", departmentId);
+                HttpContext.Response.Cookies.Append("DepartmentName", departmentName);
             }
         }
 
@@ -166,8 +176,5 @@ namespace CharityProject.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
-
-
-
     }
 }

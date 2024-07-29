@@ -18,5 +18,5 @@
         public int sending_number { get; set; }
         public int receiving_number { get; set; }
     }
-
+    
 }

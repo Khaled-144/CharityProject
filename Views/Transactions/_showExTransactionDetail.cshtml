@@ -1,0 +1,74 @@
+﻿@model CharityProject.Models.ExternalTransaction
+
+<div id="ExternalDetailModal" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.name)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.name)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.identity_number)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.identity_number)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.status)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.status)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.communication)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.communication)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.case_status)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.case_status)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.sending_party)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.sending_party)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.receiving_date)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.receiving_date)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.sending_date)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.sending_date)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.sending_number)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.sending_number)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.receiving_number)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.receiving_number)
+        </dd>
+    </dl>
+</div>
+<div>
+    </div>
+    </div>
+    <a asp-action="_editExTransaction" asp-route-id="@Model?.external_transactions_id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>
