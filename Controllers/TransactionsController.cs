@@ -24,13 +24,28 @@ namespace CharityProject.Controllers
 		{
 			return View(await _context.Transactions.ToListAsync());
 		}
-        public async Task<IActionResult> _showTransactionDetail()
-        {
-            return View(await _context.ExternalTransactions.ToListAsync());
-        }
+
+		public async Task<IActionResult> GetAllTransactions()
+		{
+			var transactions = await _context.Transactions.ToListAsync();
+			return PartialView("_getAllTransactions", transactions);
+		}
+
+		public async Task<IActionResult> GetAllHolidays()
+		{
+			var holidays = await _context.HolidayHistories.ToListAsync();
+			return PartialView("_getAllHolidays", holidays);
+		}
+
+		public async Task<IActionResult> GetAllLetters()
+		{
+			var letters = await _context.Letters.ToListAsync();
+			return PartialView("_getAllLetters", letters);
+		}
 
 
-        public async Task<IActionResult> SearchById(int id, string sortOrder)
+
+		public async Task<IActionResult> SearchById(int id = 0, string sortOrder = "")
 		{
 			var transactions = from t in _context.Transactions
 							   select t;
@@ -52,58 +67,26 @@ namespace CharityProject.Controllers
 					break;
 			}
 
-			return View("Index", await transactions.ToListAsync());
+			var transactionList = await transactions.ToListAsync();
+
+			if (!transactionList.Any())
+			{
+				// Return a partial view with a message indicating no results found
+				return PartialView("_NoResults");
+			}
+
+			// Return the partial view with the transaction list
+			return PartialView("_getAllTransactions", transactionList);
 		}
-        
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> externalTransactions([Bind("name, identity_number, status, communication, case_status, sending_party, receiving_date, sending_date, sending_number, receiving_number")] ExternalTransaction ex)
-        {
-            if (ModelState.IsValid)
-            {
-				ex.external_transactions_id = 1;
-                _context.Add(ex);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(ex);
-        }
-        public async Task<IActionResult> externalTransactionView()
-        {
-            return View(await _context.ExternalTransactions.ToListAsync());
-        }
-        public async Task<IActionResult> _showTransactionDetail(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
 
-            var transaction = await _context.ExternalTransactions
-                .FirstOrDefaultAsync(m => m.external_transactions_id == id);
-            if (transaction == null)
-            {
-                return NotFound();
-            }
 
-            return View(transaction);
-        }
-        public async Task<IActionResult> _editExTransaction(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
+		public IActionResult CreateNewTransaction()
+		{
+			return View();
+		}
 
-            var transaction = await _context.ExternalTransactions.FindAsync(id);
-            if (transaction == null)
-            {
-                return NotFound();
-            }
-            return View(transaction);
-        }
-        [HttpPost]
+		[HttpPost]
 		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> CreateNewTransaction([Bind("close_date,status,title,description,files,from_emp_id,to_emp_id,department_id")] Transaction transaction)
 		{
@@ -146,32 +129,26 @@ namespace CharityProject.Controllers
 		// For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> Create([Bind("close_date,title,description,files,from_emp_id,to_emp_id,department_id")] Transaction transaction)
+		public async Task<IActionResult> Create([Bind("create_date,close_date,title,description,files,from_emp_id,to_emp_id,department_id")] Transaction transaction)
 		{
 			if (ModelState.IsValid)
 			{
-				transaction.create_date = DateTime.Now;  // Ensure the date is set to the current UTC time
-				transaction.status = "Pending";  // Set default status value
+				if (transaction.create_date == null)
+				{
+					transaction.create_date = DateTime.Now;
+				}
+
+				transaction.status = "مرسلة";  // Set default status value
 				_context.Add(transaction);
 				await _context.SaveChangesAsync();
 				return RedirectToAction(nameof(Index));
 			}
 			return View(transaction);
 		}
-        public async Task<IActionResult> Create2([Bind("name,identity_number,status,communication,case_status,sending_party,receiving_date,sending_date,sending_number,receiving_number")] ExternalTransaction externalTransaction)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(externalTransaction);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(externalTransaction);
-        }
 
 
-        // GET: Transactions/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+		// GET: Transactions/Edit/5
+		public async Task<IActionResult> Edit(int? id)
 		{
 			if (id == null)
 			{
@@ -258,8 +235,47 @@ namespace CharityProject.Controllers
 		{
 			return _context.Transactions.Any(e => e.transaction_id == id);
 		}
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> UpdateStatus(int transaction_id)
+		{
+			var transaction = await _context.Transactions.FindAsync(transaction_id);
+			if (transaction == null)
+			{
+				return NotFound();
+			}
+
+			// Update the status to "Closed"
+			transaction.status = "منهاة";
+			transaction.close_date = DateTime.Now;
+
+			// Save changes to the database
+			await _context.SaveChangesAsync();
+
+			return RedirectToAction(nameof(Index));
+		}
 
 
+		public IActionResult Create_Holiday()
+		{
+			ViewData["holiday_id"] = new SelectList(_context.Holidays, "holiday_id", "holiday_id");
+			return View();
+		}
 
+		// POST: HolidayHistories/Create
+		// To protect from overposting attacks, enable the specific properties you want to bind to.
+		// For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> Create_Holiday([Bind("title,description,duration,emp_id,start_date,end_date,files,holiday_id")] HolidayHistory holidayHistory)
+		{
+
+			holidayHistory.creation_date = DateOnly.FromDateTime(DateTime.Now); // Set to current date
+			holidayHistory.status = "تم الإرسال"; // Set default status
+			_context.Add(holidayHistory);
+			await _context.SaveChangesAsync();
+			return RedirectToAction(nameof(Index));
+
+		}
 	}
 }

@@ -3,120 +3,160 @@
 @{
     Layout = "_Layout";
     ViewData["PageTitle"] = "المعاملات";
+    ViewData["Title"] = "صفحة المعاملات";
 }
 
+<!DOCTYPE html>
+<html lang="ar">
 
-<div class="flex justify-self-auto justify-between mt-10 ">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["PageTitle"]</title>
+    <link rel="stylesheet" href="~/css/site.css">
+    <!-- Add any additional CSS or JS references here -->
+    <style>
+        .active-tab {
+            border-color: #248277;
+            color: #248277;
+        }
+    </style>
+</head>
 
-    <div>
-        <button id="dropdownDefaultButton" data-dropdown-toggle="dropdown" class="text-white w-32  bg-primaryButtons hover:bg-emerald-800	 focus:ring-4  focus:outline-none focus:ring-blue-300 font-medium  rounded-lg text-xl px-4 py-2.5 text-center inline-flex justify-evenly items-center">
-            جديد <svg class="w-2.5 h-2.5 mx-1 mt-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4" />
-            </svg>
-        </button>
+<body>
+    <div class="flex justify-self-auto justify-between mt-10">
+        <div>
+            <button id="dropdownDefaultButton" data-dropdown-toggle="dropdown" class="text-white w-32 bg-primaryButtons hover:bg-emerald-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-xl px-4 py-2.5 text-center inline-flex justify-evenly items-center">
+                جديد
+                <svg class="w-2.5 h-2.5 mx-1 mt-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4" />
+                </svg>
+            </button>
 
-        <!-- Dropdown menu -->
-        <div id="dropdown" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow  dark:bg-gray-700">
-            <ul class="py-2 text-base text-black dark:text-gray-200" aria-labelledby="dropdownDefaultButton">
-                <li>
-                    <button class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">داخلية</button>
-                </li>
-                <li>
-                    <button data-toggle="modal" data-target="#insertExternalModal" id="modal-toggle-button" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">خارجية</button>
-                  
-                </li>
-                <li>
-                    <button data-toggle="modal" data-target="#ExternalModal" id="modal-toggle-button" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">اجازة</button>
-                </li>
-                <li>
-                    <button class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">خطاب</button>
-                </li>
-            </ul>
+            <!-- Dropdown menu -->
+            <div id="dropdown" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700">
+                <ul class="py-2 text-base text-black dark:text-gray-200" aria-labelledby="dropdownDefaultButton">
+                    <li>
+                        <button data-toggle="modal" data-target="#insertTransactionModal" id="modal-toggle-button" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">داخلية</button>
+                    </li>
+                    <li>
+                        <button data-toggle="modal" data-target="#insertTransactionModal" id="modal-toggle-button" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">خارجية</button>
+                    </li>
+                    <li>
+                        <button data-toggle="modal" data-target="#insertHolidayModal" id="modal-toggle-button" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">إجازة</button>
+                    </li>
+                    <li>
+                        <button type="button" data-toggle="modal" data-target="#insertLetterModal" id="modal-toggle-button" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">خطاب</button>
+                    </li>
+                    <li>
+                        <button class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">عهدة</button>
+                    </li>
+                </ul>
+            </div>
         </div>
-    </div>
-   <div class="justify-content-center">
-    @await Html.PartialAsync("externalTransaction", new ExternalTransaction())
 
-
-        @await Html.PartialAsync("externalTransactionView", new List<ExternalTransaction> { new ExternalTransaction() })
-                   
-    </div>
-    <div>
-      
-        <form asp-action="SearchById" asp-controller="Transactions" method="get">
-
-            <div class="flex justify-evenly">
-                <input name="id" placeholder="رقم المعاملة" class="form-control mr-2" type="search" aria-label="search" />
-                <button class="btn btn-dark" type="submit">بحث</button>
-                <div class="">
+        <div class="mx-4">
+            <form id="searchForm">
+                <div class="flex justify-evenly">
+                    <input name="id" placeholder="رقم المعاملة" class="form-control mr-2" type="search" aria-label="search" />
+                    <button id="searchButton" class="btn btn-dark" type="submit">بحث</button>
                     <select name="sortOrder" id="sortOrder" class="bg-white border border-primaryButtons px-5 text-black text-sm rounded-lg text-center focus:ring-blue-500 focus:border-blue-500 block mr-2">
                         <option selected>فلترة</option>
                         <option value="newest">الاحدث</option>
                         <option value="oldest">الاقدم</option>
-
                     </select>
                 </div>
-            </div>
-        </form>
+            </form>
+        </div>
+    </div>
+
+    <div class="mb-4 border-b border-gray-200 dark:border-gray-700">
+        <ul class="flex flex-wrap -mb-px text-xl font-medium text-center" id="default-tab" role="tablist">
+            <li class="me-2" role="presentation">
+                <button class="inline-block p-4 border-b-2 rounded-t-lg hover:font-extrabold transition ease-in-out duration-200 active-tab" id="internal-tab" data-content-url="@Url.Action("GetAllTransactions", "Transactions")" type="button" role="tab">داخلية </button>
+            </li>
+            <li class="me-2" role="presentation">
+                <button class="inline-block p-4 border-b-2 rounded-t-lg" id="holidays-tab" data-content-url="@Url.Action("GetAllHolidays", "Transactions")" type="button" role="tab">إجازات</button>
+            </li>
+            <li class="me-2" role="presentation">
+                <button class="inline-block p-4 border-b-2 rounded-t-lg" id="letters-tab" data-content-url="@Url.Action("GetAllLetters", "Transactions")" type="button" role="tab">خطابات</button>
+            </li>
+            <li role="presentation">
+                <button class="inline-block p-4 border-b-2 rounded-t-lg" id="assets-tab" data-content-url="@Url.Action("GetAllAssets", "Assets")" type="button" role="tab">عهده</button>
+            </li>
+        </ul>
+    </div>
+    <div id="tab-content-container" class="mt-5">
+        <!-- Content will be dynamically loaded here -->
     </div>
 
     @await Html.PartialAsync("_CreateNewTransaction", new Transaction())
-</div>
+    @await Html.PartialAsync("PartailCreate", new Letter())
+    @await Html.PartialAsync("_Create_Holiday", new HolidayHistory())
 
-<div class="mt-10 p-2  rounded-lg" style="max-height: 500px; overflow-y: auto;">
-    <ul class="w-full divide-y divide-gray-200 dark:divide-gray-700">
-        @foreach (var item in Model)
-        {
-            <li class="mb-2 shadow-sm bg-white  ">
-                <div class="flex items-center space-x-4 rtl:space-x-reverse  text-center ">
-                    <div class="flex-shrink-0 ml-3 p-3 ">
-                        <p class="font-bold">خطاب</p>
-                        <hr />
-                        <p class="text-blue-600">
-                            #@Html.DisplayFor(modelItem => item.transaction_id)
-                        </p>
-                    </div>
-                    <div class="flex-1 min-w-0 text-right">
-                        <div class="flex">
-                            <p class="text-sm font-medium text-gray-900 truncate dark:text-white px-2">
-                                @Html.DisplayFor(modelItem => item.title)
-                            </p>
-                            <p class="text-sm font-medium text-gray-900 truncate dark:text-white">
-                                @Html.DisplayFor(modelItem => item.create_date)
-                            </p>
-                        </div>
-                        <p class="text-sm text-gray-500 truncate dark:text-gray-400">
-                            @Html.DisplayFor(modelItem => item.description)
-                        </p>
-                    </div>
-                    <div class="inline-flex items-center text-base font-semibold text-gray-900 ml-3 dark:text-white">
-                        <button type="button" class="btn btn-" data-toggle="modal" data-target="@("#detailModal-" + item.transaction_id)">عرض</button>
-                        @await Html.PartialAsync("_showTransactionDetail", item)
-                    </div>
-                </div>
-            </li>
-        }
-    </ul>
-</div>
+    <script src="~/js/site.js"></script>
+    <script>
+        $(document).ready(function () {
+            function loadTabContent(url) {
+                $("#tab-content-container").html('<div class="text-center"><div class="spinner"></div><p>جاري تحميل المحتوى...</p></div>');
+                $.ajax({
+                    url: url,
+                    type: 'GET',
+                    success: function (result) {
+                        $("#tab-content-container").html(result);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(error);
+                        $("#tab-content-container").html("<p>فشل تحميل المحتوى. حاول مرة أخرى لاحقاً.</p>");
+                    }
+                });
+            }
 
-<script src="~/js/site.js">
-</script>
-<script src="../path/to/flowbite/dist/flowbite.min.js"></script>
+            $("#default-tab button").on("click", function () {
+                var url = $(this).data("content-url");
+                loadTabContent(url);
+                $("#default-tab button").removeClass("active-tab");
+                $(this).addClass("active-tab");
+            });
 
+            // Load initial tab content
+            $("#internal-tab").trigger("click");
+        });
+    </script>
 
+    <script>
+        $(document).ready(function () {
+            function loadTransactions() {
+                $("#loadingIndicator").show(); // Show loading indicator
+                $("#transactionListPlaceholder").hide(); // Hide transaction list
 
-@*
-<form class="max-w-sm mx-auto border-2 rounded border-primaryButtons ml-5">
-	<select id="countries" class="bg-white border border-primaryButtons text-balck text-sm rounded-lg text-center focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-		<option selected>الفلاتر</option>
-		<option value="oldest">الاقدم</option>
-		<option value="newset">الاحدث</option>
-	</select>
-</form>
+                $.ajax({
+                    url: '@Url.Action("SearchById", "Transactions")',
+                    type: 'GET',
+                    data: { id: 0, sortOrder: '' }, // Default values or adjust as needed
+                    success: function (result) {
+                        $("#transactionListPlaceholder").html(result); // Update the div with the partial view
+                        $("#loadingIndicator").hide(); // Hide loading indicator
+                        $("#transactionListPlaceholder").show(); // Show transaction list
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(error);
+                        $("#loadingIndicator").hide(); // Hide loading indicator in case of error
+                        $("#transactionListPlaceholder").show(); // Show transaction list even if empty
+                    }
+                });
+            }
 
+            // Call the function when the page loads
+            loadTransactions();
 
-<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 518 518"><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z" /></svg>
+            // Attach event handler to search button
+            $("#searchButton").on("click", function (event) {
+                event.preventDefault(); // Prevent form from submitting normally
+                loadTransactions(); // Call the function
+            });
+        });
+    </script>
+</body>
 
-*@
-
-<script src="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.js"></script>
+</html>

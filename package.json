@@ -16,6 +16,7 @@
   "dependencies": {
     "@tailus/themer": "^0.1.6",
     "flowbite": "^2.4.1",
+    "html-pdf-node": "^1.0.8",
     "lucide-react": "^0.408.0",
     "tailwind-merge": "^2.4.0"
   }

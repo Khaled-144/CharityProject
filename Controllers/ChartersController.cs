@@ -7,31 +7,26 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using CharityProject.Data;
 using CharityProject.Models;
+using System.Runtime.InteropServices;
 
 namespace CharityProject.Controllers
 {
-    public class LettersController : Controller
+    public class ChartersController : Controller
     {
         private readonly ApplicationDbContext _context;
 
-        public LettersController(ApplicationDbContext context)
+        public ChartersController(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        // GET: Letters
+        // GET: Charters
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Letters.ToListAsync());
+            return View(await _context.Charter.ToListAsync());
         }
 
-        public async Task<IActionResult> GetAllLetters()
-        {
-            var letters = await _context.Letters.ToListAsync();
-            return PartialView("_getAllLetters", letters);
-        }
-
-        // GET: Letters/Details/5
+        // GET: Charters/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -39,41 +34,56 @@ namespace CharityProject.Controllers
                 return NotFound();
             }
 
-            var letter = await _context.Letters
-                .FirstOrDefaultAsync(m => m.letters_id == id);
-            if (letter == null)
+            var charter = await _context.Charter
+                .FirstOrDefaultAsync(m => m.charter_id == id);
+            if (charter == null)
             {
                 return NotFound();
             }
 
-            return View(letter);
+            return View(charter);
         }
 
-        // GET: Letters/Create
+        // GET: Charters/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Letters/Create
+        // POST: Charters/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("title,description,type,from_emp_id,to_emp_id,files")] Letter letter)
+        public async Task<IActionResult> Create([Bind("charter_id,charter_info,serial_number,creation_date,from_departement_name,status,notes,to_departement_name,to_emp_id,receive_date,end_date")] Charter charter)
         {
             if (ModelState.IsValid)
             {
-                letter.date = DateTime.Now; // Set the current date
-                letter.departement_id = 3;
-                _context.Add(letter);
+                _context.Add(charter);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(letter);
+            return View(charter);
+        }
+        public async Task<IActionResult> UpdateStatus(int charter_id)
+        {
+            var charter = await _context.Charter.FindAsync(charter_id);
+            if (charter == null)
+            {
+                return NotFound();
+            }
+
+            // Update the status to "Closed"
+            charter.status = "تم الإقرار";
+            charter.receive_date = DateTime.Now;
+
+            // Save changes to the database
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
         }
 
-        // GET: Letters/Edit/5
+        // GET: Charters/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -81,22 +91,22 @@ namespace CharityProject.Controllers
                 return NotFound();
             }
 
-            var letter = await _context.Letters.FindAsync(id);
-            if (letter == null)
+            var charter = await _context.Charter.FindAsync(id);
+            if (charter == null)
             {
                 return NotFound();
             }
-            return View(letter);
+            return View(charter);
         }
 
-        // POST: Letters/Edit/5
+        // POST: Charters/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("letters_id,title,description,date,from_emp_id,to_emp_id,files,departement_id")] Letter letter)
+        public async Task<IActionResult> Edit(int id, [Bind("charter_id,charter_info,serial_number,creation_date,from_departement_name,status,notes,to_departement_name,to_emp_id,receive_date,end_date")] Charter charter)
         {
-            if (id != letter.letters_id)
+            if (id != charter.charter_id)
             {
                 return NotFound();
             }
@@ -105,12 +115,12 @@ namespace CharityProject.Controllers
             {
                 try
                 {
-                    _context.Update(letter);
+                    _context.Update(charter);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!LetterExists(letter.letters_id))
+                    if (!CharterExists(charter.charter_id))
                     {
                         return NotFound();
                     }
@@ -121,10 +131,10 @@ namespace CharityProject.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(letter);
+            return View(charter);
         }
 
-        // GET: Letters/Delete/5
+        // GET: Charters/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -132,34 +142,34 @@ namespace CharityProject.Controllers
                 return NotFound();
             }
 
-            var letter = await _context.Letters
-                .FirstOrDefaultAsync(m => m.letters_id == id);
-            if (letter == null)
+            var charter = await _context.Charter
+                .FirstOrDefaultAsync(m => m.charter_id == id);
+            if (charter == null)
             {
                 return NotFound();
             }
 
-            return View(letter);
+            return View(charter);
         }
 
-        // POST: Letters/Delete/5
+        // POST: Charters/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var letter = await _context.Letters.FindAsync(id);
-            if (letter != null)
+            var charter = await _context.Charter.FindAsync(id);
+            if (charter != null)
             {
-                _context.Letters.Remove(letter);
+                _context.Charter.Remove(charter);
             }
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool LetterExists(int id)
+        private bool CharterExists(int id)
         {
-            return _context.Letters.Any(e => e.letters_id == id);
+            return _context.Charter.Any(e => e.charter_id == id);
         }
     }
 }
