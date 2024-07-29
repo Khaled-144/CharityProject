@@ -1,0 +1,50 @@
+﻿@model IEnumerable<CharityProject.Models.ExternalTransaction>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>External Transactions</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+    <div>
+        <div class="p-2 rounded-lg shadow" style="max-height: 750px; overflow-y: auto;">
+            <ul class="w-full divide-y divide-gray-200 dark:divide-gray-700">
+                @foreach (var item in Model)
+                {
+                    <li class="mb-2 shadow-sm bg-white">
+                        <div class="flex items-center space-x-4 rtl:space-x-reverse text-center">
+                            <div class="flex-shrink-0 border-2 m-2 ml-3 p-3">
+                                <p class="text-blue-600">
+                                    #@Html.DisplayFor(modelItem => item.external_transactions_id)
+                                </p>
+                            </div>
+                            <div class="flex-1 min-w-0 text-xl text-right">
+                                <div class="flex">
+                                    <p class="font-medium text-gray-900 truncate dark:text-white px-2">
+                                        @Html.DisplayFor(modelItem => item.name)
+                                    </p>
+                                    <p class="font-medium text-gray-900 truncate dark:text-white">
+                                        Date: @Html.DisplayFor(modelItem => item.sending_party)
+                                    </p>
+                                </div>
+                                <p class="text-gray-500 truncate dark:text-gray-400">
+                                    @Html.DisplayFor(modelItem => item.receiving_number)
+                                </p>
+                            </div>
+                            <div class="inline-flex items-center text-base font-semibold text-gray-900 ml-3 dark:text-white">
+                                <button type="button" class="btn btn-dark" data-toggle="modal" data-target="@("#ExternalDetailModal" + item.external_transactions_id)">عرض</button>
+                                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="@("#ExternalEditModal" + item.external_transactions_id)">تعديل</button>
+                                @await Html.PartialAsync("_showExTransactionDetail", item)
+                                @await Html.PartialAsync("_editExTransaction", item)
+                            </div>
+                        </div>
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

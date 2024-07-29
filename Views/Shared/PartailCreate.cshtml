@@ -16,23 +16,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Form with Conditional Employee Div</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-   @*   <script>
-    function toggleElements() {
-    var choice = document.getElementById("choice").value;
-    var general = document.getElementById("h");
-    var custom= document.getElementById("m");
-
-    if (choice === "عام") { 
-        general.style.display = "block";
-               
-            
-    } else if (choice === "مخصص") {
-    custom.style.display = "block";
-                general.style.display = "block";
-    }
-    }
-    </script>  *@
-
+   
 
     <script>
         function toggleElements() {
@@ -84,60 +68,7 @@
 </head>
 
 
-@*          بتاتباخعهبارخهابرخ *@
 
-@*       <div class="mb-4">
-                            <label for="department" class="block text-sm font-medium text-gray-700">القسم</label>
-                            <select id="department" name="department" class="mt-1 p-2  border rounded-md focus:ring-blue-500 focus:border-blue-500">
-                                <option value="">اختر القسم</option>
-                                <option value="urgent">الموارد البشرية</option>
-                                <option value="very_urgent">التنمية المالية</option>
-                                <option value="extremely_urgent"> إدارية المستفيدين </option>
-
-                                <option value="extremely_urgent"> الإدارة التنفيذية </option>
-                            </select>
-
-
-
-                                <label for="employee" class="block text-sm font-medium text-gray-700">الموظف</label>
-                                <select id="employee" name="employee" class="mt-1 p-2  border rounded-md focus:ring-blue-500 focus:border-blue-500">
-                                    <option value="mohamed">محمد</option>
-                                    <option value="abdullah">عبدالله</option>
-                                    <option value="ziad">زياد</option>
-                                </select>
-
-                        </div>   *@
-
-@*  <div class="mb-4">
-                            <label for="recipient" class="block text-sm font-medium text-gray-700">إلى</label>
-                            <select id="recipient" name="recipient" class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500">
-                                <option value="">اختر</option>
-                                <option value="مخصص">مخصص</option>
-                                <option value="عام">عام</option>
-                            </select>
-                        </div> *@
-
-
-@*      <div class="mb-4">
-                            <label for="recipient" class="block text-sm font-medium text-gray-700"> إلى</label>
-                            <select id="department" name="department" class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500">
-
-                                <option value="">اختر</option>
-                                <option value="مخصص">مخصص</option>
-                                <option value="عام">عام</option>
-
-                            </select>
-                        </div>
-                        <div id="modal-overlay" class="modal-overlay"></div>
-
-                        <div id="employee-div" class="mb-4" style="display: none;">
-                            <label for="employee" class="block text-sm font-medium text-gray-700">الموظف</label>
-                            <select id="employee" name="employee" class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500">
-                                <option value="mohamed">محمد</option>
-                                <option value="abdullah">عبدالله</option>
-                                <option value="ziad">زياد</option>
-                            </select>
-                        </div> *@
 
 
 
@@ -195,44 +126,7 @@
 
 
 
-                    @*     <div id="choice" class=" mb-4 flex-container form-group">
-                            <div class="flex-item form-group" onchange="toggleElements()">
-                                <label for="choice" class="text-sm font-medium text-gray-700">موجه الى</label>
-                                <select id="choice" name="choice" onchange="toggleElements()" class="mt-1 p-2 w-full ml-2 border rounded-md focus:ring-blue-500 focus:border-blue-500">
-                                    <option value="" disabled selected>اختر </option>
-
-                                    <option value="مخصص">مخصص</option>
-                                    <option value="عام">عام</option>
-                                </select>
-                            </div>
-
-
-
-
-
-                            <div id="h" class="general mb-4" >
-                                    <label for="department" class="block text-sm font-medium text-gray-700">القسم</label>
-                                    <select id="department" name="department" class="mt-1 p-2  border rounded-md focus:ring-blue-500 focus:border-blue-500">
-                                        <option value="">اختر القسم</option>
-                                        <option value="urgent">الموارد البشرية</option>
-                                        <option value="very_urgent">التنمية المالية</option>
-                                        <option value="extremely_urgent"> إدارية المستفيدين </option>
-
-                                        <option value="extremely_urgent"> الإدارة التنفيذية </option>
-                                    </select>
-                                </div>
-
-
-                                <div id="m"  class="custom mb-4 ">
-                                    <label asp-for="to_emp_id" for="to_emp_id" class="mr-4 text-sm font-medium text-gray-700">الموظف</label>
-                                    <select asp-for="to_emp_id" id="to_emp_id" name="to_emp_id" class="mt-1 p-2 w-25 ml-2 border rounded-md focus:ring-blue-500 focus:border-blue-500">
-                                        <option value="1">محمد</option>
-                                        <option value="2">عبدالله</option>
-                                        <option value="3">زياد</option>
-                                    </select>
-
-                                </div>
-                           *@
+                  
 
 
                         <div  class="mt-5 flex px-5  form-group">
@@ -283,8 +177,7 @@
 
                             <div class="flex justify-between">
                                 <div class="mb-4 p-">
-                                   @*  <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true"  fill="none" viewBox="0 0 18 20">
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="icons8-lock" /> *@
+                                  
                                     <label for="conf" class="block text-gray-700 font-bold mb-2">
                                     <i class="fas fa-lock"></i> سرية الخطاب
                                     </label>
@@ -312,7 +205,7 @@
                             <button type="submit" class="bg-gradient-to-r from-green-400 via-green-500 to-green-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 text-white font-bold py-2 px-4">رفع الخطاب</button>
                         </div>
                     </form>
-                   @*  <button type="button" class="btn btn-danger" data-dismiss="modal">الغاء</button> *@
+                  
                 </div>
             </div>
         </div>
