@@ -44,6 +44,13 @@
   <Folder Include="pdfs\Outputs\" />
 </ItemGroup>
 
+<ItemGroup>
+  <Content Update="Views\Employees\_showTransactionDetail.cshtml">
+    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+  </Content>
+</ItemGroup>
+
 <Target Name="Tailwind" BeforeTargets="Build">
   <Exec Command="npm run css:build" />
 </Target>
