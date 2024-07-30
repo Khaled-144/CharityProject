@@ -1,5 +1,4 @@
-﻿@model IEnumerable<CharityProject.Models.Transaction>
-
+﻿@model IEnumerable<CharityProject.Models.Letter>
 <div class="p-2 rounded-lg shadow" style="max-height: 750px; overflow-y: auto;">
     <ul class="w-full divide-y divide-gray-200 dark:divide-gray-700">
         @foreach (var item in Model)
@@ -8,7 +7,7 @@
                 <div class="flex items-center space-x-4 rtl:space-x-reverse text-center">
                     <div class="flex-shrink-0 border-2 m-2 ml-3 p-3">
                         <p class="text-blue-600">
-                            #@Html.DisplayFor(modelItem => item.transaction_id)
+                            #@Html.DisplayFor(modelItem => item.letters_id)
                         </p>
                     </div>
                     <div class="flex-1 min-w-0 text-xl text-right">
@@ -17,7 +16,7 @@
                                 @Html.DisplayFor(modelItem => item.title)
                             </p>
                             <p class="font-medium text-gray-900 truncate dark:text-white">
-                                Date: @Html.DisplayFor(modelItem => item.create_date)
+                                بتاريخ: @Html.DisplayFor(modelItem => item.date)
                             </p>
                         </div>
                         <p class="text-gray-500 truncate dark:text-gray-400">
@@ -25,8 +24,8 @@
                         </p>
                     </div>
                     <div class="inline-flex items-center text-base font-semibold text-gray-900 ml-3 dark:text-white">
-                        <button type="button" class="btn btn-dark" data-toggle="modal" data-target="@("#detailModal-" + item.transaction_id)">عرض</button>
-                        @await Html.PartialAsync("_showTransactionDetail", item)
+                        <button type="button" class="btn btn-dark" data-toggle="modal" data-target="@("#detailModal-" + item.letters_id)">عرض</button>
+                        @await Html.PartialAsync("_ShowLetterDetail", item)
                     </div>
                 </div>
             </li>

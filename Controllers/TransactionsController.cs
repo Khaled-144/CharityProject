@@ -25,6 +25,26 @@ namespace CharityProject.Controllers
 			return View(await _context.Transactions.ToListAsync());
 		}
 
+		public async Task<IActionResult> GetAllTransactions()
+		{
+			var transactions = await _context.Transactions.ToListAsync();
+			return PartialView("_getAllTransactions", transactions);
+		}
+
+		public async Task<IActionResult> GetAllHolidays()
+		{
+			var holidays = await _context.HolidayHistories.ToListAsync();
+			return PartialView("_getAllHolidays", holidays);
+		}
+
+		public async Task<IActionResult> GetAllLetters()
+		{
+			var letters = await _context.Letters.ToListAsync();
+			return PartialView("_getAllLetters", letters);
+		}
+
+
+
 		public async Task<IActionResult> SearchById(int id = 0, string sortOrder = "")
 		{
 			var transactions = from t in _context.Transactions
