@@ -26,6 +26,8 @@
                     </div>
                     <div class="inline-flex items-center text-base font-semibold text-gray-900 ml-3 dark:text-white">
                         <button type="button" class="btn btn-dark" data-toggle="modal" data-target="@("#detailModal-" + item.holidays_history_id)">عرض</button>
+                        @await Html.PartialAsync("_ShowHolidayDetail", item)
+
                     </div>
                 </div>
             </li>

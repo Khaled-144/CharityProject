@@ -1,0 +1,162 @@
+﻿@model CharityProject.Models.Letter
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form with Conditional Employee Div</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+
+
+    <script>
+        function toggleElements() {
+            const choice = document.getElementById('choice').value;
+            const general = document.getElementById('h');
+            const custom = document.getElementById('m');
+            if (choice === 'عام') {
+                general.style.display = 'block';
+                custom.style.display = 'none';
+            } else if (choice === 'مخصص') {
+                general.style.display = 'block';
+                custom.style.display = 'block';
+            } else {
+                general.style.display = 'none';
+                custom.style.display = 'none';
+            }
+        }
+    </script>
+
+    <style>
+        .general, .custom {
+            display: none;
+        }
+
+    </style>
+
+</head>
+<div class="modal fade" id="insertLetterModal" role="dialog">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+
+
+            <div class="modal-header flex justify-center items-center">
+                <button type="button" class="close text-danger close-button" data-dismiss="modal" aria-label="Close">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">X</button>
+                </button>
+
+                <h4 class="modal-title text-center w-full">إنشاء خطاب جديد</h4>
+            </div>
+            <div class="modal-body align-content-center">
+                <div class="col-md text-right" dir="rtl">
+                    <form asp-action="Create_Letter" method="post" enctype="multipart/form-data">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                        <div class="mb-4 form-group">
+                            <label asp-for="title" for="title" class="block text-sm font-medium text-gray-700">موضوع الخطاب</label>
+                            <input asp-for="title" required type="text" id="title" name="title" class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+
+                        <div class=" mb-4 flex-container form-group ">
+                            <div class="flex-item form-group">
+                                <label asp-for="date" for="date" class="text-sm pr-20   font-medium text-gray-700"> التاريخ</label>
+                                <input type="date" id="date" name="date" class="border rounded-md">
+                                <label asp-for="type" for="type" class="mr-4 text-sm    pr-20 font-medium text-gray-700">نوع الخطاب</label>
+                                <select asp-for="type" required id="type" name="type" class="mt-1 p-2 w-25 ml-2  border rounded-md focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="" disabled selected>اختر نوع الخطاب</option>
+                                    <option value="عام">عام</option>
+                                    <option value="تظلم">تظلم</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="flex px-5 items-center  form-group">
+                            <div class="flex form-group">
+                                <label for="choice" class="text-sm  pl-2 font-medium text-gray-700"> موجه الى   </label>
+                                <select id="choice" required name="choice" onchange="toggleElements()" class="  border rounded-md w-28 focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="" disabled selected>اختر </option>
+                                    <option value="مخصص">مخصص</option>
+                                    <option value="عام">عام</option>
+                                </select>
+                            </div>
+
+                            <div id="h" class="general px-5 flex">
+                                <label for="department" class=" text-sm  font-medium text-gray-700">القسم</label>
+                                <select id="department" required name="department" class=" border w-44 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="">اختر القسم</option>
+                                    <option value="urgent">الموارد البشرية</option>
+                                    <option value="very_urgent">التنمية المالية</option>
+                                    <option value="extremely_urgent">إدارية المستفيدين</option>
+                                    <option value="extremely_urgent">الإدارة التنفيذية</option>
+                                </select>
+                            </div>
+
+                            <div id="m" class="custom px-5 flex">
+                                <label asp-for="to_emp_id" required for="to_emp_id" class="mr-4 px-4  text-sm font-medium text-gray-700">الموظف</label>
+                                <select asp-for="to_emp_id" id="to_emp_id" name="to_emp_id" class="  border w-24 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="1">محمد</option>
+                                    <option value="2">عبدالله</option>
+                                    <option value="3">زياد</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-4 form-group">
+                            <label asp-for="description" for="description" class="block text-sm  font-medium text-gray-700">الملاحظات</label>
+                            <textarea asp-for="description" id="description" name="description" class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500"></textarea>
+                        </div>
+
+                        <div class="mb-4 form-group">
+                            <label asp-for="files" for="files" class="block text-sm font-medium text-gray-700">المرفقات</label>
+                            <input asp-for="files" type="file" id="files" name="files" class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div class="flex justify-between">
+                            <div class="mb-4 p-">
+
+                                <label for="conf" class="block text-gray-700 mb-2">
+                                    <i class="fas fa-lock"></i> سرية الخطاب
+                                </label>
+                                <input type="radio" id="conf" name="confidentiality" /> سري <br />
+                                <input type="radio" id="conf" name="confidentiality" /> غير سري
+                            </div>
+                            <div class="mb-4 p-">
+                                <label for="conf" class="block text-gray-700 mb-2">
+                                    <i class="fas fa-clock text-green-500"></i> أعجلية الخطاب
+                                </label>
+                                <input type="radio" id="conf" name="confidentiality" /> غير عاجلة <br />
+                                <input type="radio" id="conf" name="confidentiality" /> عاجلة <br />
+                                <input type="radio" id="conf" name="confidentiality" /> حالاً
+                            </div>
+                            <div class="mb-4 p-">
+                                <label for="conf" class="block text-gray-700 mb-2">
+                                    <i class="fas fa-exclamation-circle  text-red-500 icon-red"></i> أهمية الخطاب
+                                </label>
+                                <input type="radio" id="conf" name="confidentiality" /> عادي <br />
+                                <input type="radio" id="conf" name="confidentiality" /> هام
+                            </div>
+                        </div>
+
+                        <div class="flex justify-center form-group">
+                            <button type="submit" class="bg-gradient-to-r from-green-400 via-green-500 to-green-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 text-white  py-2 px-4">رفع الخطاب</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+

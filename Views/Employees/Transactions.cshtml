@@ -67,13 +67,13 @@
     <div class="mb-4 border-b border-gray-200 dark:border-gray-700">
         <ul class="flex flex-wrap -mb-px text-xl font-medium text-center" id="default-tab" role="tablist">
             <li class="me-2" role="presentation">
-                <button class="inline-block p-4 border-b-2 rounded-t-lg transition ease-in-out duration-200 active-tab" id="internal-tab" data-content-url="@Url.Action("GetAllTransactions", "Transactions")" type="button" role="tab">داخلية </button>
+                <button class="inline-block p-4 border-b-2 rounded-t-lg active-tab" id="internal-tab" data-content-url="@Url.Action("GetAllTransactions", "Employees")" type="button" role="tab">داخلية </button>
             </li>
             <li class="me-2" role="presentation">
-                <button class="inline-block p-4 border-b-2 rounded-t-lg" id="holidays-tab" data-content-url="@Url.Action("GetAllHolidays", "Transactions")" type="button" role="tab">إجازات</button>
+                <button class="inline-block p-4 border-b-2 rounded-t-lg" id="holidays-tab" data-content-url="@Url.Action("GetAllHolidays", "Employees")" type="button" role="tab">إجازات</button>
             </li>
             <li class="me-2" role="presentation">
-                <button class="inline-block p-4 border-b-2 rounded-t-lg" id="letters-tab" data-content-url="@Url.Action("GetAllLetters", "Transactions")" type="button" role="tab">خطابات</button>
+                <button class="inline-block p-4 border-b-2 rounded-t-lg" id="letters-tab" data-content-url="@Url.Action("GetAllLetters", "Employees")" type="button" role="tab">خطابات</button>
             </li>
             <li role="presentation">
                 <button class="inline-block p-4 border-b-2 rounded-t-lg" id="assets-tab" data-content-url="@Url.Action("GetAllAssets", "Assets")" type="button" role="tab">عهده</button>
@@ -85,7 +85,7 @@
     </div>
 
     @await Html.PartialAsync("_CreateNewTransaction", new Transaction())
-    @await Html.PartialAsync("PartailCreate", new Letter())
+    @await Html.PartialAsync("_Create_Letter", new Letter())
     @await Html.PartialAsync("_Create_Holiday", new HolidayHistory())
 
 
@@ -93,7 +93,7 @@
     <script>
         $(document).ready(function () {
             function loadTabContent(url) {
-                $("#tab-content-container").html('<div class="text-center"><div class="spinner"></div><p>جاري تحميل المحتوى...</p></div>');
+                $("#tab-content-container").html('<div class="text-center"><div class="spinner text-center"></div><p>جاري تحميل المحتوى...</p></div>');
                 $.ajax({
                     url: url,
                     type: 'GET',
@@ -102,7 +102,7 @@
                     },
                     error: function (xhr, status, error) {
                         console.error(error);
-                        $("#tab-content-container").html("<p>فشل تحميل المحتوى. حاول مرة أخرى لاحقاً.</p>");
+                        $("#tab-content-container").html('<p class = " text-center ">فشل تحميل المحتوى. حاول مرة أخرى لاحقاً.</p>');
                     }
                 });
             }

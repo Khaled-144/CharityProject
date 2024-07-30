@@ -28,12 +28,12 @@
                         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                         <div class="mb-4">
                             <label for="subject" class="block text-gray-700 font-bold mb-2">موضوع الإجازة</label>
-                            <input type="text" id="subject" name="title" asp-for="title" class="border border-gray-400 rounded-md p-2 w-full" placeholder="أدخل موضوع الإجازة">
+                            <input type="text" id="subject" name="title" asp-for="title" required class="border border-gray-400 rounded-md p-2 w-full" placeholder="أدخل موضوع الإجازة">
                         </div>
 
                         <div class="mb-4 flex items-center">
                             <label for="holidayType" class="text-gray-700 font-bold ml-2">نوع الإجازة</label>
-                            <select id="holidayType" name="holiday_id" class="border border-gray-400 rounded-md p-2 w-28 px-10" onchange="handleHolidayTypeChange()" asp-for="holiday_id">
+                            <select id="holidayType" required name="holiday_id" class="border border-gray-400 rounded-md p-2 w-28 px-10" onchange="handleHolidayTypeChange()" asp-for="holiday_id">
                                 <option disabled selected></option>
                                 <option value="1">مرضية</option>
                                 <option value="2">سنوية</option>
@@ -47,13 +47,13 @@
                             <label for="counter" class="text-gray-700 font-bold mr-4" id="counterLabel">المدة</label>
                             <div class="flex px-4">
                                 <button type="button" onclick="decrementCounter()" class="text-2xl">-</button>&nbsp;
-                                <input type="number" id="counter" asp-for="duration" name="duration" class="w-12 p-2" readonly>&nbsp;
+                                <input required type="number" id="counter" asp-for="duration" name="duration" class="w-12 p-2" readonly>&nbsp;
                                 <button type="button" onclick="incrementCounter()" class="text-2xl">+</button>
                             </div>
                             <span id="from-label" class="text-gray-700 font-bold mx-2">من</span>
-                            <input type="date" id="start_date" asp-for="start_date" name="start_date" class="border border-gray-400 rounded-md p-2 w-1/4" onchange="updateDuration()"><br />
+                            <input required type="date" id="start_date" asp-for="start_date" name="start_date" class="border border-gray-400 rounded-md p-2 w-1/4" onchange="updateDuration()"><br />
                             <span id="to-label" class="text-gray-700 mr-4 ml-2 font-bold">إلى</span>
-                            <input type="date" id="end_date" asp-for="end_date" name="end_date" class="border border-gray-400 rounded-md p-2 w-1/4" onchange="updateDuration()">
+                            <input required type="date" id="end_date" asp-for="end_date" name="end_date" class="border border-gray-400 rounded-md p-2 w-1/4" onchange="updateDuration()">
                         </div>
 
                         <div class="mb-4">
