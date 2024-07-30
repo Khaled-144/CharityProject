@@ -13,9 +13,9 @@ namespace CharityProject.Data
         }
 
         // DbSet properties for your entities
-        public DbSet<Charter> Charters { get; set; }
+        public DbSet<Charter> Charter { get; set; }
         public DbSet<Department> Departments { get; set; }
-        public DbSet<Device> Devices { get; set; }
+        public DbSet<Devices> Devices { get; set; }
         public DbSet<employee> employee { get; set; }
         public DbSet<employee_details> employee_details { get; set; }
         public DbSet<ExternalTransaction> ExternalTransactions { get; set; }
