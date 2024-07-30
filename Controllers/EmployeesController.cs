@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using CharityProject.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Xml.Linq;
 namespace CharityProject.Controllers
 {
     public class EmployeesController : Controller
@@ -14,6 +15,60 @@ namespace CharityProject.Controllers
         {
             _context = context;
         }
+        // Start of khaled work -----------------------------------------------------
+
+        public IActionResult ReferTransaction()
+        {
+            return RedirectToAction("Transactions", "Employees");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ReferTransaction(int transaction_id, int to_employee_id, string comments)
+        {
+            var transaction = await _context.Transactions.FindAsync(transaction_id);
+            if (transaction == null)
+            {
+                return NotFound();
+            }
+
+            // Get the current employee's ID from the session
+            int fromEmployeeId;
+            if (!int.TryParse(HttpContext.Session.GetString("Id"), out fromEmployeeId))
+            {
+                // Handle the case where the ID is not in the session or is invalid
+                return RedirectToAction("LoginPage", "Home"); // Redirect to login or handle appropriately
+            }
+
+            var referral = new Referral
+            {
+                transaction_id = transaction_id,
+                from_employee_id = fromEmployeeId, // Use the ID from the session
+                to_employee_id = to_employee_id,
+                referral_date = DateTime.Now,
+                comments = comments,
+            };
+
+            _context.Referrals.Add(referral);
+            transaction.to_emp_id = to_employee_id;
+            await _context.SaveChangesAsync();
+
+            // Redirect to the Transactions page after successful referral
+            return RedirectToAction("Transactions");
+        }
+
+        // New method to view referral history
+        public async Task<IActionResult> ReferralHistory(int id)
+        {
+            var referrals = await _context.Referrals
+                .Where(r => r.transaction_id == id)
+                .OrderByDescending(r => r.referral_date)
+                .ToListAsync();
+
+            return View(referrals);
+        }
+
+        // End of khaled work -----------------------------------------------------
 
         public IActionResult Index()
         {
@@ -29,7 +84,9 @@ namespace CharityProject.Controllers
 
         public async Task<IActionResult> GetAllTransactions()
         {
-            var transactions = await _context.Transactions.ToListAsync();
+            var transactions = await _context.Transactions
+                .Include(t => t.Referrals)
+                .ToListAsync();
             return PartialView("_getAllTransactions", transactions);
         }
 
@@ -48,10 +105,6 @@ namespace CharityProject.Controllers
 
         // Create Actions  --------------------------------------------------------
 
-        public IActionResult Create_Transaction()
-        {
-            return View();
-        }
 
         // POST: Transactions/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.

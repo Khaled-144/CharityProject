@@ -64,6 +64,34 @@
                             </dd>
                         </dl>
                     </div>
+                    <!-- New section for referrals -->
+                    @if (Model.Referrals != null && Model.Referrals.Any())
+                    {
+                        <div class="mt-4">
+                            <h5>سجل الإحالات</h5>
+                            <table class="table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>تاريخ الإحالة</th>
+                                        <th>من الموظف</th>
+                                        <th>إلى الموظف</th>
+                                        <th>التعليقات</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var referral in Model.Referrals.OrderByDescending(r => r.referral_date))
+                                    {
+                                        <tr>
+                                            <td>@referral.referral_date.ToString("dd/MM/yyyy HH:mm")</td>
+                                            <td>@referral.from_employee_id</td>
+                                            <td>@referral.to_employee_id</td>
+                                            <td>@referral.comments</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
                     <div class="flex mt-5 justify-center">
                         @* Check if the status is not "Closed" to show the button *@
                         @if (Model.status != "منهاة")
@@ -77,11 +105,50 @@
                                 </button>
                                 @Html.HiddenFor(model => model.transaction_id)
                             }
+                            <button type="button" class="block text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 transition duration-300 ease-in-out font-medium rounded-lg text-sm px-5 py-2.5 me-2 my-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800" data-toggle="modal" data-target="#referModal-@Model.transaction_id">
+                                إحالة المعاملة
+                            </button>
                         }
                     </div>
                     <button type="button" class="block btn btn-dark mt-5" data-dismiss="modal">الغاء</button>
 
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- New modal for referring the transaction -->
+<div class="modal fade" id="referModal-@Model.transaction_id" tabindex="-1" role="dialog" aria-labelledby="referModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="referModalLabel">إحالة المعاملة #@Model.transaction_id</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @using (Html.BeginForm("ReferTransaction", "Employees", FormMethod.Post, new { id = $"referTransactionForm-{Model.transaction_id}" }))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.HiddenFor(model => model.transaction_id)
+                    <div class="form-group">
+                        <label for="to_employee_id">إحالة إلى الموظف:</label>
+                        <select name="to_employee_id" id="to_employee_id" class="form-control" required>
+                            <option value="">اختر الموظف</option>
+                            <!-- You'll need to populate this dropdown with actual employee data -->
+                            <option value="1">موظف 1</option>
+                            <option value="2">موظف 2</option>
+                            <!-- Add more options as needed -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="comments">توجيهات الإحالة:</label>
+                        <textarea name="comments" id="comments" class="form-control" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">تأكيد الإحالة</button>
+                }
             </div>
         </div>
     </div>
