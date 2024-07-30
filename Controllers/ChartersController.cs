@@ -23,7 +23,7 @@ namespace CharityProject.Controllers
         // GET: Charters
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Charter.ToListAsync());
+            return View(await _context.charter.ToListAsync());
         }
 
         // GET: Charters/Details/5
@@ -34,7 +34,7 @@ namespace CharityProject.Controllers
                 return NotFound();
             }
 
-            var charter = await _context.Charter
+            var charter = await _context.charter
                 .FirstOrDefaultAsync(m => m.charter_id == id);
             if (charter == null)
             {
@@ -55,7 +55,7 @@ namespace CharityProject.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("charter_id,charter_info,serial_number,creation_date,from_departement_name,status,notes,to_departement_name,to_emp_id,receive_date,end_date")] Charter charter)
+        public async Task<IActionResult> Create([Bind("charter_id,charter_info,serial_number,creation_date,from_departement_name,status,notes,to_departement_name,to_emp_id,receive_date,end_date")] charter charter)
         {
             if (ModelState.IsValid)
             {
@@ -67,7 +67,7 @@ namespace CharityProject.Controllers
         }
         public async Task<IActionResult> UpdateStatus(int charter_id)
         {
-            var charter = await _context.Charter.FindAsync(charter_id);
+            var charter = await _context.charter.FindAsync(charter_id);
             if (charter == null)
             {
                 return NotFound();
@@ -91,7 +91,7 @@ namespace CharityProject.Controllers
                 return NotFound();
             }
 
-            var charter = await _context.Charter.FindAsync(id);
+            var charter = await _context.charter.FindAsync(id);
             if (charter == null)
             {
                 return NotFound();
@@ -104,7 +104,7 @@ namespace CharityProject.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("charter_id,charter_info,serial_number,creation_date,from_departement_name,status,notes,to_departement_name,to_emp_id,receive_date,end_date")] Charter charter)
+        public async Task<IActionResult> Edit(int id, [Bind("charter_id,charter_info,serial_number,creation_date,from_departement_name,status,notes,to_departement_name,to_emp_id,receive_date,end_date")] charter charter)
         {
             if (id != charter.charter_id)
             {
@@ -142,7 +142,7 @@ namespace CharityProject.Controllers
                 return NotFound();
             }
 
-            var charter = await _context.Charter
+            var charter = await _context.charter
                 .FirstOrDefaultAsync(m => m.charter_id == id);
             if (charter == null)
             {
@@ -157,10 +157,10 @@ namespace CharityProject.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var charter = await _context.Charter.FindAsync(id);
+            var charter = await _context.charter.FindAsync(id);
             if (charter != null)
             {
-                _context.Charter.Remove(charter);
+                _context.charter.Remove(charter);
             }
 
             await _context.SaveChangesAsync();
@@ -169,7 +169,7 @@ namespace CharityProject.Controllers
 
         private bool CharterExists(int id)
         {
-            return _context.Charter.Any(e => e.charter_id == id);
+            return _context.charter.Any(e => e.charter_id == id);
         }
     }
 }
