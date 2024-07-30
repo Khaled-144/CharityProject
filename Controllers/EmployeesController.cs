@@ -29,29 +29,30 @@ namespace CharityProject.Controllers
 
         public async Task<IActionResult> GetAllTransactions()
         {
-            var transactions = await _context.Transactions.ToListAsync();
+            var transactions = await _context.Transactions
+                .OrderByDescending(t => t.transaction_id) // Replace TransactionId with the actual ID column name
+                .ToListAsync();
             return PartialView("_getAllTransactions", transactions);
         }
 
-
         public async Task<IActionResult> GetAllHolidays()
         {
-            var holidays = await _context.HolidayHistories.ToListAsync();
+            var holidays = await _context.HolidayHistories
+                .OrderByDescending(h => h.holidays_history_id) // Replace HolidaysHistoryId with the actual ID column name
+                .ToListAsync();
             return PartialView("_getAllHolidays", holidays);
         }
 
         public async Task<IActionResult> GetAllLetters()
         {
-            var letters = await _context.Letters.ToListAsync();
+            var letters = await _context.Letters
+                .OrderByDescending(l => l.letters_id) // Replace LettersId with the actual ID column name
+                .ToListAsync();
             return PartialView("_getAllLetters", letters);
         }
 
         // Create Actions  --------------------------------------------------------
 
-        public IActionResult Create_Transaction()
-        {
-            return View();
-        }
 
         // POST: Transactions/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
