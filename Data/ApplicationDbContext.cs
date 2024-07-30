@@ -16,7 +16,7 @@ namespace CharityProject.Data
         public DbSet<Charter> Charter { get; set; }
         public DbSet<Department> Departments { get; set; }
         public DbSet<Devices> Devices { get; set; }
-        public DbSet<Employee> employee { get; set; }
+        public DbSet<employee> employee { get; set; }
         public DbSet<employee_details> employee_details { get; set; }
         public DbSet<ExternalTransaction> ExternalTransactions { get; set; }
         public DbSet<Holiday> Holidays { get; set; }
