@@ -4,7 +4,7 @@
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
 
-    public class Charter
+    public class charter
     {
         [Key]
         public int charter_id { get; set; }

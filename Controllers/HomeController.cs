@@ -45,11 +45,9 @@ namespace CharityProject.Controllers
         {
             return View();
         }
-        public IActionResult Charter()
-        {
 
-        return View(); 
-        }
+
+      
 
         public IActionResult Privacy()
         {

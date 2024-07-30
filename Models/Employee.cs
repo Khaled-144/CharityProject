@@ -2,7 +2,7 @@
 {
     using System.ComponentModel.DataAnnotations;
 
-    public class Employee
+    public class employee
     {
         [Key]
         public int employee_id { get; set; }
