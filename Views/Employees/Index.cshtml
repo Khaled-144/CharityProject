@@ -17,7 +17,9 @@
                 <!-- User info -->
                 <div class="flex items-center space-x-4">
                     <svg class="w-12 h-12 mx-2 rounded-full border-2 border-tealBlue-light p-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M224 256A128 128 0 1 0 224 0a128 128 0 1 0 0 256zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512H418.3c16.4 0 29.7-13.3 29.7-29.7C448 383.8 368.2 304 269.7 304H178.3z" /></svg>
-                    <span class="font-semibold text-lg">مدير النظام</span>
+                    <span class="font-semibold text-lg">
+                        @Context.Session.GetString("Name")
+                    </span>
                 </div>
                 <!-- Main navigation -->
                 <div class="flex items-center">
@@ -53,7 +55,9 @@
     <!-- Main content area -->
     <main class="container mx-auto py-8">
         <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-            <h1 class="text-3xl font-bold mb-4 text-black">مرحباً، مدير النظام</h1>
+            <h1 class="text-3xl font-bold mb-4 text-black">
+                مرحباً،                             @Context.Session.GetString("Name")
+            </h1>
             <p class="text-xl mb-6 text-black">هذه نظرة عامة على نشاطك الأخير</p>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div class="bg-gradient-to-tr from-blue-200 to-blue-600 p-4 rounded-lg shadow-md">
