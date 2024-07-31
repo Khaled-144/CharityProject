@@ -1,7 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace CharityProject.Models
+﻿namespace CharityProject.Models
 {
+    using System.ComponentModel.DataAnnotations;
+
     public class employee
     {
         [Key]
@@ -11,4 +11,5 @@ namespace CharityProject.Models
         public string password { get; set; }
         public string? search_role { get; set; }
     }
+
 }
