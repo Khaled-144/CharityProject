@@ -22,7 +22,7 @@ namespace CharityProject.Data
         public DbSet<Holiday> Holidays { get; set; }
         public DbSet<HolidayHistory> HolidayHistories { get; set; }
         public DbSet<Letter> Letters { get; set; }
-        public DbSet<SalaryHistory> SalaryHistories { get; set; }
+        public DbSet<salaries_history> SalaryHistories { get; set; }
         public DbSet<Transaction> Transactions { get; set; }
         public DbSet<OtherService> OtherServices { get; set; }
         public DbSet<Referral> Referrals { get; set; }
