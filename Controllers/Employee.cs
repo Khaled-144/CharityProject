@@ -28,7 +28,7 @@ namespace CharityProject.Controllers
         }
         public IActionResult EmployeeProfile()
         {
-          
+
             return View();
         }
         public IActionResult EmployeeView()
@@ -144,7 +144,7 @@ namespace CharityProject.Controllers
                         {
                             transaction.Rollback();
                             return Json(new { success = false, message = "لم يتم إنشاء الموظف." });
-                            
+
                         }
 
                     }
@@ -237,12 +237,12 @@ namespace CharityProject.Controllers
                 conn.Open();
                 using (SqlTransaction transaction = conn.BeginTransaction())
                 {
-                   
-                        using (SqlCommand cmd = new SqlCommand())
-                        {
-                            cmd.Connection = conn;
-                            cmd.Transaction = transaction;
-                            cmd.CommandText = @"
+
+                    using (SqlCommand cmd = new SqlCommand())
+                    {
+                        cmd.Connection = conn;
+                        cmd.Transaction = transaction;
+                        cmd.CommandText = @"
                 UPDATE employee 
                 SET name = @Name, username = @Username, password = @Password, search_role = @SearchRole 
                 WHERE employee_id = @EmployeeId;
@@ -255,51 +255,51 @@ namespace CharityProject.Controllers
                     email = @Email, phone_number = @PhoneNumber, gender = @Gender, active = @Active 
                 WHERE employee_details_id = @EmployeeId;";
 
-                            // Set parameters for both updates
-                            cmd.Parameters.AddWithValue("@EmployeeId", employee_id);
-                            cmd.Parameters.AddWithValue("@Name", employee_name);
-                            cmd.Parameters.AddWithValue("@Username", employee_username);
-                            cmd.Parameters.AddWithValue("@Password", employee_password);
-                            cmd.Parameters.AddWithValue("@SearchRole", employee_search_role);
-                            cmd.Parameters.AddWithValue("@IdentityNumber", employee_identity_number);
-                            cmd.Parameters.AddWithValue("@DepartmentId", employee_departement_id);
-                            cmd.Parameters.AddWithValue("@Position", employee_position);
-                            cmd.Parameters.AddWithValue("@PermissionPosition", employee_permission_position);
-                            cmd.Parameters.AddWithValue("@ContractType", employee_contract_type);
-                            cmd.Parameters.AddWithValue("@NationalAddress", employee_national_address);
-                            cmd.Parameters.AddWithValue("@EducationLevel", employee_education_level);
-                            cmd.Parameters.AddWithValue("@HireDate", employee_hire_date);
-                            cmd.Parameters.AddWithValue("@LeaveDate", employee_leave_date);
-                            cmd.Parameters.AddWithValue("@Email", employee_email);
-                            cmd.Parameters.AddWithValue("@PhoneNumber", employee_phone_number);
-                            cmd.Parameters.AddWithValue("@Gender", employee_gender);
-                            cmd.Parameters.AddWithValue("@Active", employee_active);
+                        // Set parameters for both updates
+                        cmd.Parameters.AddWithValue("@EmployeeId", employee_id);
+                        cmd.Parameters.AddWithValue("@Name", employee_name);
+                        cmd.Parameters.AddWithValue("@Username", employee_username);
+                        cmd.Parameters.AddWithValue("@Password", employee_password);
+                        cmd.Parameters.AddWithValue("@SearchRole", employee_search_role);
+                        cmd.Parameters.AddWithValue("@IdentityNumber", employee_identity_number);
+                        cmd.Parameters.AddWithValue("@DepartmentId", employee_departement_id);
+                        cmd.Parameters.AddWithValue("@Position", employee_position);
+                        cmd.Parameters.AddWithValue("@PermissionPosition", employee_permission_position);
+                        cmd.Parameters.AddWithValue("@ContractType", employee_contract_type);
+                        cmd.Parameters.AddWithValue("@NationalAddress", employee_national_address);
+                        cmd.Parameters.AddWithValue("@EducationLevel", employee_education_level);
+                        cmd.Parameters.AddWithValue("@HireDate", employee_hire_date);
+                        cmd.Parameters.AddWithValue("@LeaveDate", employee_leave_date);
+                        cmd.Parameters.AddWithValue("@Email", employee_email);
+                        cmd.Parameters.AddWithValue("@PhoneNumber", employee_phone_number);
+                        cmd.Parameters.AddWithValue("@Gender", employee_gender);
+                        cmd.Parameters.AddWithValue("@Active", employee_active);
 
-                            try
-                            {
-                                cmd.ExecuteNonQuery();
-                                transaction.Commit();
-                               
+                        try
+                        {
+                            cmd.ExecuteNonQuery();
+                            transaction.Commit();
+
                             return Json(new { success = true, message = "تم تعديل موظف جديد بنجاح!" });
 
                         }
-                            catch (Exception ex)
-                            {
-                                transaction.Rollback();
+                        catch (Exception ex)
+                        {
+                            transaction.Rollback();
                             return Json(new { success = false, message = "لم يتم تعديل الموظف." });
-                                
-                            }
 
                         }
 
                     }
 
+                }
 
-            }
 
             }
 
         }
 
     }
+
+}
 

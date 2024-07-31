@@ -1,0 +1,50 @@
+﻿@model CharityProject.Models.Devices
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+</head>
+
+<div class="modal fade" id="insertDeviceModal" role="dialog">
+    <div class="modal-dialog ">
+        <div class="modal-content ">
+            <div class="modal-header flex justify-center items-center ">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">X</button>
+                <h4 class="modal-title text-center w-full">إضافة جهاز</h4>
+            </div>
+            <div class="modal-body align-content-center">
+                <div class=" text-right" dir="rtl">
+                    <form asp-action="_Device_Create">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <div class=" flex">
+                            <div class="form-group flex">
+                            <label asp-for="name" class="control-label py-2  w-3/4">اسم الجهاز</label>
+                            <input asp-for="name" class="form-control   " type="text" />
+                            <span asp-validation-for="name" class="text-danger"></span>
+                            </div>
+                            <div class="form-group flex">
+                            <label asp-for="quantity" class="control-label p-1 m-1">الكمية</label>
+                            <input asp-for="quantity" class="form-control  " type="number" />
+                            <span asp-validation-for="quantity" class="text-danger"></span>
+                            </div>
+                           
+                        </div>
+                        <div class="justify-center flex">
+                        <input type="submit" value="إضافة" class="btn btn-primary items-center" />
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+

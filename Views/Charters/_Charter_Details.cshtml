@@ -1,10 +1,10 @@
-﻿@model CharityProject.Models.Charter
+﻿@model CharityProject.Models.charter
 
 <div class="modal fade" id="detailModal-@Model.charter_id" role="dialog">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header flex justify-content-center">
-                <h4>معلومات المعاملة  #@Model.charter_id</h4>
+                <h4>معلومات العهدة  #@Model.charter_id</h4>
             </div>
             <div class="modal-body align-content-center">
                 <div class="col-md text-right my-1" dir="rtl">
@@ -53,7 +53,7 @@
                     </div>
                     <div class="flex mt-5 justify-center">
                         @* Check if the status is not "Closed" to show the button *@
-                        @if (Model.status == null)
+                        @if (Model.status !="تم الإقرار")
                         {
                             @* Use a form to submit the status update *@
                             @using (Html.BeginForm("UpdateStatus", "Charters", FormMethod.Post, new { id = $"updateStatusForm-{Model.charter_id}" }))

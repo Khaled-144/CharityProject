@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using CharityProject.Data;
 using CharityProject.Models;
 using System.Runtime.InteropServices;
+using Microsoft.CodeAnalysis.Elfie.Diagnostics;
+using Microsoft.Data.SqlClient;
 
 namespace CharityProject.Controllers
 {
@@ -20,10 +22,17 @@ namespace CharityProject.Controllers
             _context = context;
         }
 
+
+        public IActionResult Charter()
+        {
+
+            return View();
+        }
+
         // GET: Charters
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Charter.ToListAsync());
+            return View(await _context.charter.ToListAsync());
         }
 
         // GET: Charters/Details/5
@@ -34,7 +43,7 @@ namespace CharityProject.Controllers
                 return NotFound();
             }
 
-            var charter = await _context.Charter
+            var charter = await _context.charter
                 .FirstOrDefaultAsync(m => m.charter_id == id);
             if (charter == null)
             {
@@ -44,9 +53,42 @@ namespace CharityProject.Controllers
             return View(charter);
         }
 
+
+
         // GET: Charters/Create
-        public IActionResult Create()
+        /*   public IActionResult Create1()
+            {
+
+                ViewData["Departments"] = _context.Department.Select(d => new
+                {
+                        d.departement_name,
+                            d.departement_id
+                }).ToList();
+
+                ViewData["Employees"] = _context.employee.Select(e => new
+                {
+                    e.employee_id,
+                    e.name
+                }).ToList();
+
+                return View();
+            }*/
+
+
+        public IActionResult Create1()
         {
+            ViewData["Departments"] = _context.Department.Select(d => new SelectListItem
+            {
+                Value = d.departement_name,
+                Text = d.departement_name
+            }).ToList();
+
+            ViewData["Employees"] = _context.employee.Select(e => new SelectListItem
+            {
+                Value = e.employee_id.ToString(),
+                Text = e.name
+            }).ToList();
+
             return View();
         }
 
@@ -55,33 +97,23 @@ namespace CharityProject.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("charter_id,charter_info,serial_number,creation_date,from_departement_name,status,notes,to_departement_name,to_emp_id,receive_date,end_date")] Charter charter)
+        public async Task<IActionResult> Create1([Bind("charter_id,charter_info,serial_number,creation_date,from_departement_name,status,notes,to_departement_name,to_emp_id,receive_date,end_date")] charter charter)
         {
-            if (ModelState.IsValid)
-            {
-                _context.Add(charter);
+          
+
+
+            _context.Add(charter);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
-            }
-            return View(charter);
+
+
+
+
+            
+
+
         }
-        public async Task<IActionResult> UpdateStatus(int charter_id)
-        {
-            var charter = await _context.Charter.FindAsync(charter_id);
-            if (charter == null)
-            {
-                return NotFound();
-            }
 
-            // Update the status to "Closed"
-            charter.status = "تم الإقرار";
-            charter.receive_date = DateTime.Now;
-
-            // Save changes to the database
-            await _context.SaveChangesAsync();
-
-            return RedirectToAction(nameof(Index));
-        }
 
         // GET: Charters/Edit/5
         public async Task<IActionResult> Edit(int? id)
@@ -91,7 +123,7 @@ namespace CharityProject.Controllers
                 return NotFound();
             }
 
-            var charter = await _context.Charter.FindAsync(id);
+            var charter = await _context.charter.FindAsync(id);
             if (charter == null)
             {
                 return NotFound();
@@ -104,7 +136,7 @@ namespace CharityProject.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("charter_id,charter_info,serial_number,creation_date,from_departement_name,status,notes,to_departement_name,to_emp_id,receive_date,end_date")] Charter charter)
+        public async Task<IActionResult> Edit(int id, [Bind("charter_id,charter_info,serial_number,creation_date,from_departement_name,status,notes,to_departement_name,to_emp_id,receive_date,end_date")] charter charter)
         {
             if (id != charter.charter_id)
             {
@@ -142,7 +174,7 @@ namespace CharityProject.Controllers
                 return NotFound();
             }
 
-            var charter = await _context.Charter
+            var charter = await _context.charter
                 .FirstOrDefaultAsync(m => m.charter_id == id);
             if (charter == null)
             {
@@ -157,10 +189,10 @@ namespace CharityProject.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var charter = await _context.Charter.FindAsync(id);
+            var charter = await _context.charter.FindAsync(id);
             if (charter != null)
             {
-                _context.Charter.Remove(charter);
+                _context.charter.Remove(charter);
             }
 
             await _context.SaveChangesAsync();
@@ -169,7 +201,73 @@ namespace CharityProject.Controllers
 
         private bool CharterExists(int id)
         {
-            return _context.Charter.Any(e => e.charter_id == id);
+            return _context.charter.Any(e => e.charter_id == id);
         }
+
+
+
+
+
+
+
+        /// <summary>
+        /// //////////////////
+        /// </summary>
+        /// <returns></returns>
+        /// 
+
+
+
+
+        //////////////////////
+
+
+
+
+
+
+/*
+        public IActionResult Create_Charter()
+        {
+            return View();
+        }
+*/
+        // POST: Charters/Create
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+  /*           [HttpPost]
+             [ValidateAntiForgeryToken]
+             public async Task<IActionResult> Create_Charter([Bind("charter_info,serial_number,from_departement_name,status,notes,to_departement_name,to_emp_id,receive_date,end_date")] charter charter)
+             {
+                 if (ModelState.IsValid)
+                 {
+
+                charter.creation_date = DateOnly.FromDateTime(DateTime.Now);
+                _context.Add(charter);
+                     await _context.SaveChangesAsync();
+                     return RedirectToAction(nameof(Index));
+                 }
+                 return View(charter);
+             }*/
+        public async Task<IActionResult> UpdateStatus(int charter_id)
+        {
+            var charter = await _context.charter.FindAsync(charter_id);
+            if (charter == null)
+            {
+                return NotFound();
+            }
+
+            // Update the status to "Closed"
+            charter.status = "تم الإقرار";
+            charter.receive_date = DateTime.Now;
+
+            // Save changes to the database
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
+        }
+
+
+
     }
 }
