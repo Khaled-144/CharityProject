@@ -8,7 +8,7 @@
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body text-right">
-                <form asp-action="Edit" asp-route-id="@Model.devices_id" method="post">
+                <form asp-action="EditDevice" asp-route-id="@Model.devices_id" method="post">
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                     <input type="hidden" asp-for="devices_id" />
 
