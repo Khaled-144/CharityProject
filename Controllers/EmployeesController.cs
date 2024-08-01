@@ -71,14 +71,14 @@ namespace CharityProject.Controllers
 			return View(referrals);
 		}
 
-		// End of khaled work -----------------------------------------------------
+        // End of khaled work -----------------------------------------------------
 
 
 
 
 
-		public IActionResult Index()
-		{
+        public IActionResult Index()
+		{ 
 			return View();
 		}
 
@@ -86,6 +86,7 @@ namespace CharityProject.Controllers
 
 		public async Task<IActionResult> Transactions()
 		{
+
 			return View(await _context.Transactions.ToListAsync());
 		}
 
