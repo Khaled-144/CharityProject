@@ -1,36 +1,38 @@
 ﻿@model CharityProject.Models.Devices
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "تعديل";
 }
 
-<h1>Edit</h1>
+<h1>تعديل</h1>
 
-<h4>Devices</h4>
+<h4>الأجهزة</h4>
 <hr />
-<div class="row">
-    <div class="col-md-4">
+<div class="row justify-content-center">
+    <div class="col-md-6">
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="devices_id" />
+
             <div class="form-group">
-                <label asp-for="name" class="control-label"></label>
-                <input asp-for="name" class="form-control" />
+                <label asp-for="name" class="control-label">اسم الجهاز</label>
+                <input asp-for="name" class="form-control" placeholder="أدخل اسم الجهاز" />
                 <span asp-validation-for="name" class="text-danger"></span>
             </div>
+
             <div class="form-group">
-                <label asp-for="quantity" class="control-label"></label>
-                <input asp-for="quantity" class="form-control" />
+                <label asp-for="quantity" class="control-label">الكمية</label>
+                <input asp-for="quantity" class="form-control" placeholder="أدخل الكمية" />
                 <span asp-validation-for="quantity" class="text-danger"></span>
             </div>
+
             <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
+                <input type="submit" value="حفظ" class="btn btn-success btn-block" />
             </div>
         </form>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
+<div class="text-center mt-4">
+    <a asp-action="Index" class="btn btn-secondary">العودة إلى القائمة</a>
 </div>
-

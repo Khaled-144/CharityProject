@@ -1,0 +1,38 @@
+﻿@model CharityProject.Models.Devices
+
+<div class="modal fade" id="DeleteDeviceModal-@Model.devices_id" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">حذف الجهاز</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body text-right">
+                <h4>تفاصيل الجهاز</h4>
+                <hr />
+                <dl class="row">
+                    <dt class="col-sm-2 text-right">
+                        الجهاز
+                    </dt>
+                    <dd class="col-sm-10 text-right">
+                        @Html.DisplayFor(model => model.name)
+                    </dd>
+                    <dt class="col-sm-2 text-right">
+                        الكمية
+                    </dt>
+                    <dd class="col-sm-10 text-right">
+                        @Html.DisplayFor(model => model.quantity)
+                    </dd>
+                </dl>
+                <p>هل أنت متأكد أنك تريد حذف هذا الجهاز؟</p>
+            </div>
+            <div class="modal-footer">
+                <form asp-action="Delete" asp-route-id="@Model.devices_id">
+                    <input type="hidden" asp-for="devices_id" />
+                    <button type="submit" class="btn btn-danger">حذف</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">إلغاء</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

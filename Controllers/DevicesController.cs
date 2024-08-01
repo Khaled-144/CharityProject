@@ -14,71 +14,16 @@ namespace CharityProject.Controllers
     {
         private readonly ApplicationDbContext _context;
 
-
-
-
-        /*     public IActionResult LoadDevicesTable(string searchQuery)
-             {
-                 var devices = string.IsNullOrEmpty(searchQuery)
-                     ? _context.Devices.ToList()
-                     : _context.Devices.Where(d => d.devices_id.FindAsy(searchQuery)).ToList();
-
-                 return PartialView("_DevicesTable", devices);
-             }*/
-
-
-
-        public IActionResult LoadDevicesTable(string searchQuery)
-        {
-            List<Devices> devices;
-            if (string.IsNullOrEmpty(searchQuery))
-            {
-                devices = _context.Devices.ToList();
-            }
-            else if (int.TryParse(searchQuery, out int searchId))
-            {
-                devices = _context.Devices.Where(d => d.devices_id == searchId).ToList();
-            }
-            else
-            {
-                devices = new List<Devices>();
-            }
-
-            return PartialView("_DevicesTable", devices);
-        }
-
-        public IActionResult Index()
-        {
-            var devices = _context.Devices.ToList();
-            return View(devices);
-        }
-
-
-
-
-
-
-
-
-
-
-
-
-        /*nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn*/
-
-
-
         public DevicesController(ApplicationDbContext context)
         {
             _context = context;
         }
 
         // GET: Devices
-  /*      public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index()
         {
             return View(await _context.Devices.ToListAsync());
-        }*/
-    
+        }
 
         // GET: Devices/Details/5
         public async Task<IActionResult> Details(int? id)
@@ -170,13 +115,18 @@ namespace CharityProject.Controllers
             }
             return View(devices);
         }
+        public async Task<IActionResult> SearchDevices(string searchQuery)
+        {
+            var devices = from d in _context.Devices
+                          select d;
 
-      
-       
-        
+            if (!String.IsNullOrEmpty(searchQuery))
+            {
+                devices = devices.Where(d => d.name.Contains(searchQuery) || d.devices_id.ToString().Contains(searchQuery));
+            }
 
-
-
+            return PartialView("_DevicesTable", await devices.ToListAsync());
+        }
         // GET: Devices/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
