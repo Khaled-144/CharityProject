@@ -24,6 +24,8 @@ namespace CharityProject.Controllers
             return View();
         }
 
+
+
         public IActionResult ManageSalaries()
         {
             var salarySummary = _context.SalaryHistories
