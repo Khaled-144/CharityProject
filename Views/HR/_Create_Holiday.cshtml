@@ -1,0 +1,218 @@
+﻿@model CharityProject.Models.HolidayHistory
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form with Conditional Employee Div</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+</head>
+
+<div class="modal fade" id="insertHolidayModal" role="dialog">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content ">
+            <div class="modal-header flex justify-center items-center ">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">X</button>
+                <h4 class="modal-title text-center w-full">إنشاء طلب جديد</h4>
+            </div>
+            <div class="modal-body align-content-center">
+                <div class="col-md text-right" dir="rtl">
+                    <form asp-action="Create_Holiday" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <div class="mb-4">
+                            <label for="subject" class="block text-gray-700 font-bold mb-2">موضوع الإجازة</label>
+                            <input type="text" id="subject" name="title" asp-for="title" required class="border border-gray-400 rounded-md p-2 w-full" placeholder="أدخل موضوع الإجازة">
+                        </div>
+
+                        <div class="mb-4 flex items-center">
+                            <label for="holidayType" class="text-gray-700 font-bold ml-2">نوع الإجازة</label>
+                            <select id="holidayType" required name="holiday_id" class="border border-gray-400 rounded-md p-2 w-28 px-10" onchange="handleHolidayTypeChange()" asp-for="holiday_id">
+                                <option disabled selected></option>
+                                <option value="1">مرضية</option>
+                                <option value="2">سنوية</option>
+                                <option value="3">اضطرارية</option>
+                                <option value="4">استئذان</option>
+                            </select>
+                            <label class="text-gray-700 font-bold mr-5">الرصيد المتبقي : 10</label>
+                        </div>
+
+                        <div id="normal-div" class="mb-4 flex items-center">
+                            <label for="counter" class="text-gray-700 font-bold mr-4" id="counterLabel">المدة</label>
+                            <div class="flex px-4">
+                                <button type="button" onclick="decrementCounter()" class="text-2xl">-</button>&nbsp;
+                                <input required type="number" id="counter" asp-for="duration" name="duration" class="w-12 p-2" readonly>&nbsp;
+                                <button type="button" onclick="incrementCounter()" class="text-2xl">+</button>
+                            </div>
+                            <span id="from-label" class="text-gray-700 font-bold mx-2">من</span>
+                            <input required type="date" id="start_date" asp-for="start_date" name="start_date" class="border border-gray-400 rounded-md p-2 w-1/4" onchange="updateDuration()"><br />
+                            <span id="to-label" class="text-gray-700 mr-4 ml-2 font-bold">إلى</span>
+                            <input required type="date" id="end_date" asp-for="end_date" name="end_date" class="border border-gray-400 rounded-md p-2 w-1/4" onchange="updateDuration()">
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="notes" class="block text-gray-700 font-bold mb-2">الملاحظات</label>
+                            <input type="text" id="notes" name="description" asp-for="description" class="border border-gray-400 rounded-md p-2 w-full " placeholder="أدخل الملاحظات"></input>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="attachments" class="block text-gray-700 font-bold mb-2">المرفقات</label>
+                            <div class="flex">
+                                <input type="file" asp-for="files" id="attachment" name="files" class="border border-gray-400 rounded-md p-2 w-full">
+                            </div>
+                        </div>
+                        <div class="flex justify-evenly">
+                            <div class="mb-4">
+                                <label for="conf" class="block text-gray-700 font-bold mb-2">
+                                    <i class="fas fa-lock"></i> سرية الخطاب
+                                </label>
+                                <input type="radio" id="conf" name="confidentiality" /> سري <br />
+                                <input type="radio" id="conf" name="confidentiality" /> غير سري
+                            </div>
+                            <div class="mb-4 p-">
+                                <label for="conf" class="block text-gray-700 font-bold mb-2">
+                                    <i class="fas fa-clock text-green-600"></i> أعجلية الخطاب
+                                </label>
+                                <input type="radio" id="conf" name="urgency " /> غير عاجلة <br />
+                                <input type="radio" id="conf" name="urgency " /> عاجلة <br />
+                                <input type="radio" id="conf" name="urgency " /> حالاً
+                            </div>
+                            <div class="mb-4 p-">
+                                <label for="conf" class="block text-gray-700 font-bold mb-2">
+                                    <i class="fas fa-exclamation-circle text-red-600"></i> أهمية الخطاب
+                                </label>
+                                <input type="radio" id="conf" name="importance " /> عادي <br />
+                                <input type="radio" id="conf" name="importance " /> هام
+                            </div>
+                        </div>
+                        <div class="flex justify-center ">
+                            <button type="submit" class="bg-gradient-to-r from-green-400 via-green-500 to-green-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 text-white font-bold py-2 px-4">رفع الطلب</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let currentDate = new Date();
+        document.getElementById('start_date').value = currentDate.toISOString().split('T')[0];
+        document.getElementById('end_date').value = currentDate.toISOString().split('T')[0];
+    });
+
+    function handleHolidayTypeChange() {
+        const holidayType = document.getElementById('holidayType').value;
+        const counterInput = document.getElementById('counter');
+        const startDateInput = document.getElementById('start_date');
+        const endDateInput = document.getElementById('end_date');
+        const fromLabel = document.getElementById('from-label');
+        const toLabel = document.getElementById('to-label');
+
+        let currentDate = new Date();
+        let startDate = new Date(currentDate);
+        let endDate = new Date(currentDate);
+
+        if (holidayType == 2) {
+            startDate.setDate(currentDate.getDate() + 3);
+            endDate = new Date(startDate);
+            endDate.setDate(startDate.getDate() + parseInt(counterInput.value));
+        }
+
+        if (holidayType == 4) {
+            startDateInput.value = currentDate.toISOString().split('T')[0];
+            endDateInput.value = currentDate.toISOString().split('T')[0];
+            startDateInput.style.display = 'none';
+            endDateInput.style.display = 'none';
+            fromLabel.style.display = 'none';
+            toLabel.style.display = 'none';
+            document.getElementById('counterLabel').textContent = 'المدة بالساعات';
+            counterInput.setAttribute('min', '1');
+            counterInput.setAttribute('max', '2');
+        } else {
+            startDateInput.style.display = 'inline';
+            endDateInput.style.display = 'inline';
+            fromLabel.style.display = 'inline';
+            toLabel.style.display = 'inline';
+            document.getElementById('counterLabel').textContent = 'المدة بالأيام';
+            counterInput.removeAttribute('min');
+            counterInput.removeAttribute('max');
+
+            if (holidayType == 3) {
+                counterInput.setAttribute('max', '5');
+            } else if (holidayType == 2) {
+                counterInput.setAttribute('max', '30');
+            } else {
+                counterInput.removeAttribute('max');
+            }
+
+            startDateInput.value = startDate.toISOString().split('T')[0];
+            endDateInput.value = endDate.toISOString().split('T')[0];
+            updateEndDate();
+        }
+    }
+
+    function incrementCounter() {
+        const holidayType = document.getElementById('holidayType').value;
+        const counterInput = document.getElementById('counter');
+        let max = holidayType == 4 ? 2 : holidayType == 3 ? 5 : holidayType == 2 ? 30 : null;
+
+        if (max === null || parseInt(counterInput.value) < max) {
+            counterInput.value = parseInt(counterInput.value) + 1;
+            if (holidayType != 4) {
+                updateEndDate();
+            }
+        }
+    }
+
+    function decrementCounter() {
+        const counterInput = document.getElementById('counter');
+        if (parseInt(counterInput.value) > 1) {
+            counterInput.value = parseInt(counterInput.value) - 1;
+            if (document.getElementById('holidayType').value != 4) {
+                updateEndDate();
+            }
+        }
+    }
+
+    function updateDuration() {
+        const holidayType = document.getElementById('holidayType').value;
+        const startDateInput = document.getElementById('start_date');
+        const endDateInput = document.getElementById('end_date');
+        const counterInput = document.getElementById('counter');
+
+        if (holidayType != 4) {
+            const startDate = new Date(startDateInput.value);
+            const endDate = new Date(endDateInput.value);
+            const duration = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
+            counterInput.value = duration;
+        }
+    }
+
+    function updateEndDate() {
+        const startDateInput = document.getElementById('start_date');
+        const endDateInput = document.getElementById('end_date');
+        const counterInput = document.getElementById('counter');
+
+        if (startDateInput.value && document.getElementById('holidayType').value != 4) {
+            const startDate = new Date(startDateInput.value);
+            const durationDays = parseInt(counterInput.value);
+            startDate.setDate(startDate.getDate() + durationDays);
+            endDateInput.value = startDate.toISOString().split('T')[0];
+        }
+    }
+
+</script>
+
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

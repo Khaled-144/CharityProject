@@ -98,7 +98,8 @@ namespace CharityProject.Controllers
 			return PartialView("_getAllTransactions", transactions);
 		}
 
-		public async Task<IActionResult> GetAllHolidays()
+      
+        public async Task<IActionResult> GetAllHolidays()
 		{
 			var holidays = await _context.HolidayHistories
 				.OrderByDescending(h => h.holidays_history_id) // Replace HolidaysHistoryId with the actual ID column name
