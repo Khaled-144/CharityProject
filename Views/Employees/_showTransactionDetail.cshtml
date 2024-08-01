@@ -5,18 +5,18 @@
 }
 
 <div class="modal fade" id="detailModal-@Model.transaction_id" role="dialog">
-    <div class="modal-dialog modal-lg">
-        <!-- Changed to modal-lg for a larger modal -->
+    <div class="modal-dialog modal-xl">
+        <!-- Changed to modal-xl for an extra large modal -->
         <div class="modal-content">
             <div class="modal-header flex justify-content-center">
                 <h4>معلومات المعاملة  #@Model.transaction_id</h4>
             </div>
             <div class="modal-body">
                 <div class="row">
-                    <!-- Added a row to create two sections -->
                     <!-- Right section for transaction details -->
-                    <div class="col-md-6" dir="rtl">
+                    <div class="col-md-5" dir="rtl">
                         <h5>تفاصيل المعاملة</h5>
+                        <hr class="w-48 h-1 mx-auto my-2 bg-gray-950 border-2 rounded md:my-10 dark:bg-gray-800">
                         <dl class="row text-right">
                             <dt class="col-sm-4">العنوان</dt>
                             <dd class="col-sm-8">@Html.DisplayFor(model => model.title)</dd>
@@ -38,31 +38,39 @@
                     </div>
 
                     <!-- Left section for referrals details -->
-                    <div class="col-md-6" dir="rtl">
+                    <div class="col-md-7" dir="rtl">
                         <h5>تفاصيل الإحالات</h5>
+                        <hr class="w-48 h-1 mx-auto my-2 bg-gray-950 border-2 rounded md:my-10 dark:bg-gray-800">
                         @if (Model.Referrals != null && Model.Referrals.Any())
                         {
-                            <table class="table table-bordered table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>تاريخ الإحالة</th>
-                                        <th>من الموظف</th>
-                                        <th>إلى الموظف</th>
-                                        <th>التعليقات</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var referral in Model.Referrals.OrderByDescending(r => r.referral_date))
-                                    {
+                            <div class="border border-gray-300 shadow-sm rounded-lg overflow-hidden">
+                                <table class="w-full text-sm leading-5">
+                                    <thead class="bg-gray-100">
                                         <tr>
-                                            <td>@referral.referral_date.ToString("dd/MM/yyyy HH:mm")</td>
-                                            <td>@referral.from_employee_id</td>
-                                            <td>@referral.to_employee_id</td>
-                                            <td>@referral.comments</td>
+                                            <th class="py-3 px-4 text-right font-medium text-gray-600">تاريخ الإحالة</th>
+                                            <th class="py-3 px-4 text-right font-medium text-gray-600">من الموظف</th>
+                                            <th class="py-3 px-4 text-right font-medium text-gray-600">إلى الموظف</th>
+                                            <th class="py-3 px-4 text-right font-medium text-gray-600">التعليقات</th>
                                         </tr>
-                                    }
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody>
+                                        @{
+                                            var index = 0;
+                                            foreach (var referral in Model.Referrals.OrderByDescending(r => r.referral_date))
+                                            {
+                                                var rowClass = index % 2 == 0 ? "" : "bg-gray-50";
+                                                <tr class="@rowClass">
+                                                    <td class="py-3 px-4 text-right">@referral.referral_date.ToString("dd/MM/yyyy HH:mm")</td>
+                                                    <td class="py-3 px-4 text-right">@referral.from_employee_id</td>
+                                                    <td class="py-3 px-4 text-right">@referral.to_employee_id</td>
+                                                    <td class="py-3 px-4 text-right">@referral.comments</td>
+                                                </tr>
+                                                index++;
+                                            }
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
                         }
                         else
                         {
@@ -78,14 +86,14 @@
                             @using (Html.BeginForm("UpdateStatus", "Transactions", FormMethod.Post, new { id = $"updateStatusForm-{Model.transaction_id}", @class = "d-inline" }))
                             {
                                 @Html.AntiForgeryToken()
-                                <button type="submit" class="btn btn-danger">إنهاء المعاملة</button>
+                                <button type="submit" class="btn btn-danger ml-8">إنهاء المعاملة</button>
                                 @Html.HiddenFor(model => model.transaction_id)
                             }
-                            <button type="button" class="btn btn-primary mr-8" data-toggle="modal" data-target="#referModal-@Model.transaction_id">
+                            <button type="button" class="btn btn-primary ml-8" data-toggle="modal" data-target="#referModal-@Model.transaction_id">
                                 إحالة المعاملة
                             </button>
                         }
-                        <button type="button" class="btn btn-secondary mr-8" data-dismiss="modal">الغاء</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">الغاء</button>
                     </div>
                 </div>
             </div>

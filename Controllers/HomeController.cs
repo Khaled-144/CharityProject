@@ -61,6 +61,15 @@ namespace CharityProject.Controllers
         {
             return View();
         }
+        public IActionResult Charter()
+        {
+
+            return View();
+        }
+        public IActionResult WorkingLoginPage()
+        {
+            return View();
+        }
         public IActionResult EmpHomePage()
         {
             return View();
