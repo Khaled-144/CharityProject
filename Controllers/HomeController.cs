@@ -138,11 +138,11 @@ namespace CharityProject.Controllers
 
                             if (position == "employee")
                             {
-                                return RedirectToAction("EmpHomePage", "Home");
+                                return RedirectToAction("Index", "Employees");
                             }
                             else if (position == "manager")
                             {
-                                return RedirectToAction("ManagerHomePage", "Home");
+                                return RedirectToAction("Index", "Employees");
                             }
                             else
                             {

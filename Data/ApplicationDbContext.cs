@@ -13,8 +13,8 @@ namespace CharityProject.Data
         }
 
         // DbSet properties for your entities
-        public DbSet<Charter> Charter { get; set; }
-        public DbSet<Department> Departments { get; set; }
+        public DbSet<charter> charter { get; set; }
+        public DbSet<Department> Department { get; set; }
         public DbSet<Devices> Devices { get; set; }
         public DbSet<employee> employee { get; set; }
         public DbSet<employee_details> employee_details { get; set; }
@@ -22,10 +22,10 @@ namespace CharityProject.Data
         public DbSet<Holiday> Holidays { get; set; }
         public DbSet<HolidayHistory> HolidayHistories { get; set; }
         public DbSet<Letter> Letters { get; set; }
-        public DbSet<SalaryHistory> SalaryHistories { get; set; }
+        public DbSet<salaries_history> SalaryHistories { get; set; }
         public DbSet<Transaction> Transactions { get; set; }
         public DbSet<OtherService> OtherServices { get; set; }
-
+        public DbSet<Referral> Referrals { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
