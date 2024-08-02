@@ -56,12 +56,12 @@ namespace CharityProject.Controllers
 			transaction.to_emp_id = to_employee_id;
 			await _context.SaveChangesAsync();
 
-			// Redirect to the Transactions page after successful referral
-			return RedirectToAction("Transactions");
-		}
+            // Redirect to the Transactions page after successful referral
+            return RedirectToAction("Transactions", "Employees");
+        }
 
-		// New method to view referral history
-		public async Task<IActionResult> ReferralHistory(int id)
+        // New method to view referral history
+        public async Task<IActionResult> ReferralHistory(int id)
 		{
 			var referrals = await _context.Referrals
 				.Where(r => r.transaction_id == id)
@@ -71,14 +71,14 @@ namespace CharityProject.Controllers
 			return View(referrals);
 		}
 
-		// End of khaled work -----------------------------------------------------
+        // End of khaled work -----------------------------------------------------
 
 
 
 
 
-		public IActionResult Index()
-		{
+        public IActionResult Index()
+		{ 
 			return View();
 		}
 
@@ -86,6 +86,7 @@ namespace CharityProject.Controllers
 
 		public async Task<IActionResult> Transactions()
 		{
+
 			return View(await _context.Transactions.ToListAsync());
 		}
 

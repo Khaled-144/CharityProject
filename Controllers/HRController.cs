@@ -1,6 +1,7 @@
 ﻿using CharityProject.Data;
 using CharityProject.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CharityProject.Controllers
 {
@@ -16,6 +17,11 @@ namespace CharityProject.Controllers
         public IActionResult Index()
         {
             return View();
+        }
+        public async Task<IActionResult> ViewDevice()
+        {
+            var devices = await _context.Devices.ToListAsync();
+            return View(devices);
         }
 
         public IActionResult ManageSalaries()
@@ -47,6 +53,86 @@ namespace CharityProject.Controllers
                 return RedirectToAction(nameof(ManageSalaries), new { month = salaryHistory.date.ToString("MMMM") });
             }
             return View(salaryHistory);
+        }
+        public async Task<IActionResult> EditDevice(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var device = await _context.Devices.FindAsync(id);
+            if (device == null)
+            {
+                return NotFound();
+            }
+            return View(device);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditDevice(int id, [Bind("devices_id,name,quantity")] Devices device)
+        {
+            if (id != device.devices_id)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(device);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!DeviceExists(device.devices_id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(ViewDevice)); // Assuming you have an Index action
+            }
+            return View(device);
+        }
+        public async Task<IActionResult> DeleteDevice(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var device = await _context.Devices
+                .FirstOrDefaultAsync(m => m.devices_id == id);
+            if (device == null)
+            {
+                return NotFound();
+            }
+
+            return View(device);
+        }
+        [HttpPost, ActionName("DeleteDevice")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var device = await _context.Devices.FindAsync(id);
+            if (device != null)
+            {
+                _context.Devices.Remove(device);
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction(nameof(ViewDevice)); 
+                                                        
+        }
+        private bool DeviceExists(int id)
+        {
+            return _context.Devices.Any(e => e.devices_id == id);
         }
     }
 }
