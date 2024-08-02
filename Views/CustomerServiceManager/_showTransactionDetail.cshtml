@@ -35,12 +35,15 @@
                             <dd class="col-sm-8">@Html.DisplayFor(model => model.status)</dd>
                             <dt class="col-sm-4">@Html.DisplayNameFor(model => model.files)</dt>
                             <dd class="col-sm-8">
-
-                                <a href="@fileUrl" target="_blank">@Model.files</a>
-
-
-
-                            </dd>
+                                @if (!string.IsNullOrEmpty(Model.files))
+                                {
+                                    <a href="@fileUrl" target="_blank">@Model.files</a>
+                                }
+                                else
+                                {
+                                    <span>لا توجد مرفقات</span>
+                                }
+                                </dd>
                         </dl>
                     </div>
 

@@ -125,21 +125,29 @@ namespace CharityProject.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create_Transaction(IFormFile files, [Bind("create_date,close_date,title,description,from_emp_id,to_emp_id,department_id")] Transaction transaction)
         {
-            if (files != null)
+            if (files != null && files.Length > 0)
             {
-                string filename = Path.GetFileName(files.FileName);
-                string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "files", filename);
+                // Validate the file type
+                var allowedExtensions = new[] { ".pdf", ".xls", ".xlsx", ".doc", ".docx" };
+                var extension = Path.GetExtension(files.FileName).ToLower();
 
-                // Ensure the directory exists
-                if (!Directory.Exists(Path.GetDirectoryName(path)))
+                if (!allowedExtensions.Contains(extension))
                 {
-                    Directory.CreateDirectory(Path.GetDirectoryName(path));
+                    ModelState.AddModelError("files", "Only PDF, Excel, and Word files are allowed.");
+                    return View(transaction); // Return the view with validation error
                 }
 
-                using (var filestream = new FileStream(path, FileMode.Create))
+                string filename = Path.GetFileName(files.FileName);
+                string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/files");
+                if (!Directory.Exists(path))
+                {
+                    Directory.CreateDirectory(path);
+                }
+                string filePath = Path.Combine(path, filename);
+                using (var filestream = new FileStream(filePath, FileMode.Create))
                 {
                     await files.CopyToAsync(filestream);
-                }   
+                }
                 transaction.files = filename;
             }
 
@@ -154,7 +162,6 @@ namespace CharityProject.Controllers
 
             return RedirectToAction(nameof(Transactions));
         }
-
 
 
         [HttpPost]
