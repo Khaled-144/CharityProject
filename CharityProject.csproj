@@ -42,7 +42,7 @@
 
 <ItemGroup>
   <Folder Include="pdfs\Outputs\" />
-  <Folder Include="Views\HR_manger\" />
+  <Folder Include="wwwroot\files\" />
 </ItemGroup>
 
 <ItemGroup>

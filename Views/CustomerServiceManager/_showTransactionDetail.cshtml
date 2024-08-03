@@ -1,0 +1,140 @@
+﻿@model CharityProject.Models.Transaction
+
+@{
+    ViewData["Title"] = "Transaction Details";
+    string fileUrl = Url.Content("~/files/" + Model.files);
+}
+
+<div class="modal fade" id="detailModal-@Model.transaction_id" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <!-- Changed to modal-lg for a larger modal -->
+        <div class="modal-content">
+            <div class="modal-header flex justify-content-center">
+                <h4>معلومات المعاملة  #@Model.transaction_id</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <!-- Added a row to create two sections -->
+                    <!-- Right section for transaction details -->
+                    <div class="col-md-6" dir="rtl">
+                        <h5>تفاصيل المعاملة</h5>
+                        <dl class="row text-right">
+                            <dt class="col-sm-4">العنوان</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.title)</dd>
+                            <dt class="col-sm-4">الوصف</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.description)</dd>
+                            <dt class="col-sm-4">الى</dt>
+                            <dd class="col-sm-8">4</dd>
+                            <dt class="col-sm-4">قسم</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.department_id)</dd>
+                            <dt class="col-sm-4">تاريخ الانشاء</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.create_date)</dd>
+                            <dt class="col-sm-4">تاريخ الانهاء</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.close_date)</dd>
+                            <dt class="col-sm-4">الحالة</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.status)</dd>
+                            <dt class="col-sm-4">@Html.DisplayNameFor(model => model.files)</dt>
+                            <dd class="col-sm-8">
+                                @if (!string.IsNullOrEmpty(Model.files))
+                                {
+                                    <a href="@fileUrl" target="_blank">@Model.files</a>
+                                }
+                                else
+                                {
+                                    <span>لا توجد مرفقات</span>
+                                }
+                                </dd>
+                        </dl>
+                    </div>
+
+                    <!-- Left section for referrals details -->
+                    <div class="col-md-6" dir="rtl">
+                        <h5>تفاصيل الإحالات</h5>
+                        @if (Model.Referrals != null && Model.Referrals.Any())
+                        {
+                            <table class="table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>تاريخ الإحالة</th>
+                                        <th>من الموظف</th>
+                                        <th>إلى الموظف</th>
+                                        <th>التعليقات</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var referral in Model.Referrals.OrderByDescending(r => r.referral_date))
+                                    {
+                                        <tr>
+                                            <td>@referral.referral_date.ToString("dd/MM/yyyy HH:mm")</td>
+                                            <td>@referral.from_employee_id</td>
+                                            <td>@referral.to_employee_id</td>
+                                            <td>@referral.comments</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        }
+                        else
+                        {
+                            <p>لا توجد إحالات لهذه المعاملة.</p>
+                        }
+                    </div>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-12 text-center">
+                        @if (Model.status != "منهاة")
+                        {
+                            @using (Html.BeginForm("UpdateStatus", "Transactions", FormMethod.Post, new { id = $"updateStatusForm-{Model.transaction_id}", @class = "d-inline" }))
+                            {
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-danger">إنهاء المعاملة</button>
+                                @Html.HiddenFor(model => model.transaction_id)
+                            }
+                            <button type="button" class="btn btn-primary mr-8" data-toggle="modal" data-target="#referModal-@Model.transaction_id">
+                                إحالة المعاملة
+                            </button>
+                        }
+                        <button type="button" class="btn btn-secondary mr-8" data-dismiss="modal">الغاء</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- New modal for referring the transaction -->
+<div class="modal fade" id="referModal-@Model.transaction_id" tabindex="-1" role="dialog" aria-labelledby="referModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="referModalLabel">إحالة المعاملة #@Model.transaction_id</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @using (Html.BeginForm("ReferTransaction", "Employees", FormMethod.Post, new { id = $"referTransactionForm-{Model.transaction_id}" }))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.HiddenFor(model => model.transaction_id)
+                    <div class="form-group">
+                        <label for="to_employee_id">إحالة إلى الموظف:</label>
+                        <select name="to_employee_id" id="to_employee_id" class="form-control" required>
+                            <option value="">اختر الموظف</option>
+                            <!-- You'll need to populate this dropdown with actual employee data -->
+                            <option value="1">موظف 1</option>
+                            <option value="2">موظف 2</option>
+                            <!-- Add more options as needed -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="comments">توجيهات الإحالة:</label>
+                        <textarea name="comments" id="comments" class="form-control" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">تأكيد الإحالة</button>
+                }
+            </div>
+        </div>
+    </div>
+</div>

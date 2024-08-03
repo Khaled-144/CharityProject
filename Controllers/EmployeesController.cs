@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using CharityProject.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Xml.Linq;
+using System.Linq;
 namespace CharityProject.Controllers
 {
 	public class EmployeesController : Controller
@@ -123,24 +124,51 @@ namespace CharityProject.Controllers
 		// For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> Create_Transaction([Bind("create_date,close_date,title,description,files,from_emp_id,to_emp_id,department_id")] Transaction transaction)
-		{
+      
+            public async Task<IActionResult> Create_Transaction(IFormFile files, [Bind("create_date,close_date,title,description,from_emp_id,to_emp_id,department_id")] Transaction transaction)
+            {
+                if (files != null && files.Length > 0)
+                {
+                    // Validate the file type
+                    var allowedExtensions = new[] { ".pdf", ".xls", ".xlsx", ".doc", ".docx" };
+                    var extension = Path.GetExtension(files.FileName).ToLower();
 
-			if (transaction.create_date == null)
-			{
-				transaction.create_date = DateTime.Now;
-			}
+                    if (!allowedExtensions.Contains(extension))
+                    {
+                        ModelState.AddModelError("files", "Only PDF, Excel, and Word files are allowed.");
+                        return View(transaction); // Return the view with validation error
+                    }
 
-			transaction.status = "مرسلة";
-			_context.Add(transaction);
-			await _context.SaveChangesAsync();
+                    string filename = Path.GetFileName(files.FileName);
+                    string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/files");
+                    if (!Directory.Exists(path))
+                    {
+                        Directory.CreateDirectory(path);
+                    }
+                    string filePath = Path.Combine(path, filename);
+                    using (var filestream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await files.CopyToAsync(filestream);
+                    }
+                    transaction.files = filename;
+                }
 
-			return RedirectToAction(nameof(Transactions));
+                if (transaction.create_date == null)
+                {
+                    transaction.create_date = DateTime.Now;
+                }
 
-		}
+                transaction.status = "مرسلة";
+                _context.Add(transaction);
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction(nameof(Transactions));
+            }
 
 
-		[HttpPost]
+
+
+            [HttpPost]
 		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> Create_Holiday([Bind("title,description,duration,emp_id,start_date,end_date,files,holiday_id")] HolidayHistory holidayHistory)
 		{
