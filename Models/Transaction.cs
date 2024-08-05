@@ -17,10 +17,16 @@
 		public int? to_emp_id { get; set; }
 		public int department_id { get; set; }
 
-        // New property for referrals
-        //public virtual ICollection<Referral> Referrals { get; set; }
-        public ICollection<Referral> Referrals { get; set; }
+		public string? Confidentiality { get; set; }
+		public string? Urgency { get; set; }
+		public string? Importance { get; set; }
 
-    }
+		// New property for referrals
+		//public virtual ICollection<Referral> Referrals { get; set; }
+		public ICollection<Referral> Referrals { get; set; }
+
+		
+
+	}
 
 }

@@ -15,6 +15,10 @@
         public int? to_emp_id { get; set; }
         public string? files { get; set; }
         public int departement_id { get; set; }
+
+        public string? Confidentiality { get; set; }
+        public string? Urgency { get; set; }
+        public string? Importance { get; set; }
     }
 
 }

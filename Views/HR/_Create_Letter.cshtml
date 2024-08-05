@@ -120,27 +120,26 @@
                         </div>
                         <div class="flex justify-between">
                             <div class="mb-4 p-">
-
-                                <label for="conf" class="block text-gray-700 mb-2">
-                                    <i class="fas fa-lock"></i> سرية الخطاب
+                                <label for="Confidentiality" class="block text-gray-700 font-bold mb-2">
+                                    <i class="fas fa-lock"></i> سرية المعاملة
                                 </label>
-                                <input type="radio" id="conf" name="confidentiality" /> سري <br />
-                                <input type="radio" id="conf" name="confidentiality" /> غير سري
+                                <input type="radio" asp-for="Confidentiality" name="Confidentiality" value="سري" /> سري <br />
+                                <input type="radio" asp-for="Confidentiality" name="Confidentiality" value="غير سري" /> غير سري
                             </div>
                             <div class="mb-4 p-">
-                                <label for="conf" class="block text-gray-700 mb-2">
-                                    <i class="fas fa-clock text-green-500"></i> أعجلية الخطاب
+                                <label for="Urgency" class="block text-gray-700 font-bold mb-2">
+                                    <i class="fas fa-clock text-green-500"></i> أعجلية المعاملة
                                 </label>
-                                <input type="radio" id="conf" name="confidentiality" /> غير عاجلة <br />
-                                <input type="radio" id="conf" name="confidentiality" /> عاجلة <br />
-                                <input type="radio" id="conf" name="confidentiality" /> حالاً
+                                <input type="radio" asp-for="Urgency" name="Urgency" value="غير عاجلة" /> غير عاجلة <br />
+                                <input type="radio" asp-for="Urgency" name="Urgency" value="عاجلة" /> عاجلة <br />
+                                <input type="radio" asp-for="Urgency" name="Urgency" value="حالاً" /> حالاً
                             </div>
                             <div class="mb-4 p-">
-                                <label for="conf" class="block text-gray-700 mb-2">
-                                    <i class="fas fa-exclamation-circle  text-red-500 icon-red"></i> أهمية الخطاب
+                                <label for="Importance" class="block text-gray-700 font-bold mb-2">
+                                    <i class="fas fa-exclamation-circle text-red-500 icon-red"></i> أهمية المعاملة
                                 </label>
-                                <input type="radio" id="conf" name="confidentiality" /> عادي <br />
-                                <input type="radio" id="conf" name="confidentiality" /> هام
+                                <input type="radio" asp-for="Importance" name="Importance" value="عادي" /> عادي <br />
+                                <input type="radio" asp-for="Importance" name="Importance" value="هام" /> هام
                             </div>
                         </div>
 
