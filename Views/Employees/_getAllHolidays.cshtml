@@ -57,7 +57,7 @@
                         </div>
                     </div>
                     <div class="inline-flex items-center text-base font-semibold text-gray-900 ml-3 dark:text-white">
-                        <button class="text-white w-32 bg-primaryButtons hover:bg-emerald-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg  px-2 py-1.5 text-center transition duration-300 ease-in-out" data-toggle="modal" data-target="@("#detailModal-" + item.holidays_history_id)">عرض</button>
+                        <button class="btn btn-dark" data-toggle="modal" data-target="@("#detailModal-" + item.holidays_history_id)">عرض</button>
                         @await Html.PartialAsync("_ShowHolidayDetail", item)
                     </div>
                 </div>

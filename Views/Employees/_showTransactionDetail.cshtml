@@ -169,3 +169,10 @@
 		form.appendChild(input);
 	}
 </script>
+<script>
+	$(document).ready(function () {
+		$("#toggleReferForm-@Model.transaction_id").click(function () {
+			$("#referForm-@Model.transaction_id").toggle();
+		});
+	});
+</script>
