@@ -1,0 +1,47 @@
+﻿@model CharityProject.Models.SalariesViewModel
+
+<form method="post" asp-action="SaveSalaries">
+    <select id="month" name="SelectedMonth">
+        <!-- Month options here -->
+    </select>
+    <select id="year" name="SelectedYear">
+        <!-- Year options here -->
+    </select>
+    <button type="submit">Get Salaries</button>
+
+    <table class="table-auto w-full">
+        <thead>
+            <tr>
+                <th>Employee ID</th>
+                <th>Name</th>
+                <th>Base Salary</th>
+                <th>Housing Allowance</th>
+                <!-- Add more salary-related columns here -->
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.Employees.Count; i++)
+            {
+                var employee = Model.Employees[i];
+                var salary = Model.Salaries.FirstOrDefault(s => s.emp_id == employee.employee_id);
+
+                <tr>
+                    <td>
+                        <input type="hidden" name="Salaries[@i].emp_id" value="@employee.employee_id" />
+                        @employee.employee_id
+                    </td>
+                    <td>@employee.name</td>
+                    <td>
+                        <input type="number" name="Salaries[@i].BaseSalary" value="@(salary?.base_salary ?? 0)" />
+                    </td>
+                    <td>
+                        <input type="number" name="Salaries[@i].HousingAllowances" value="@(salary?.housing_allowances ?? 0)" />
+                    </td>
+                    <!-- Add more input fields for salary attributes -->
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <button type="submit">Save</button>
+</form>

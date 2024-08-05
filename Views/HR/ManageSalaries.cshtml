@@ -1,4 +1,4 @@
-﻿@model IEnumerable<dynamic>
+﻿@model CharityProject.Models.SalariesViewModel
 
 @{
     ViewData["Title"] = "إدارة الرواتب";
@@ -7,79 +7,38 @@
 <!-- Bootstrap CSS -->
 <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
 
-<h1 class="text-right">@ViewData["Title"]</h1>
+<table class="table-auto w-full">
+	<thead>
+		<tr>
+			<th>Employee ID</th>
+			<th>Name</th>
+			<th>Base Salary</th>
+			<th>Housing Allowance</th>
+			<!-- Add more salary-related columns here -->
+		</tr>
+	</thead>
+	<tbody>
+		@for (int i = 0; i < Model.Employees.Count; i++)
+		{
+			var employee = Model.Employees[i];
+			var salary = Model.Salaries.FirstOrDefault(s => s.emp_id == employee.employee_id && s.date.Month == Model.SelectedMonth && s.date.Year == Model.SelectedYear);
 
-<table class="table table-bordered text-center table-sm">
-    <thead>
-        <tr>
-            <th>رقم الموظف</th>
-            <th>الراتب الأساسي</th>
-            <th>إجمالي البدلات</th>
-            <th>إجمالي الخصومات</th>
-            <th>إجمالي الراتب</th>
-            <th>إجراءات</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>@item.EmpId</td>
-                <td>@item.BaseSalary</td>
-                <td>@item.TotalAllowances</td>
-                <td>@item.TotalDiscounts</td>
-                <td>@item.TotalSalary</td>
-                <td>
-                    <button class="btn btn-info" type="button" data-toggle="collapse" data-target="#details-@item.EmpId" aria-expanded="false" aria-controls="details-@item.EmpId">عرض التفاصيل</button>
-                </td>
-            </tr>
-            <tr id="details-@item.EmpId" class="collapse">
-                <td colspan="6">
-                    <table class="table table-bordered table-sm">
-                        <thead>
-                            <tr>
-                                <th>تاريخ</th>
-                                <th>الراتب الأساسي</th>
-                                <th>بدل سكن</th>
-                                <th>بدل مواصلات</th>
-                                <th>بدلات أخرى</th>
-                                <th>ساعات إضافية</th>
-                                <th>مكافأة</th>
-                                <th>خصم تأخير</th>
-                                <th>خصم غياب</th>
-                                <th>خصم آخر</th>
-                                <th>دين</th>
-                                <th>حصة مشتركة</th>
-                                <th>حصة مرافق</th>
-                                <th>أيام العمل</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var detail in item.Details)
-                            {
-                                <tr>
-                                    <td>@detail.date.ToShortDateString()</td>
-                                    <td>@detail.base_salary</td>
-                                    <td>@detail.housing_allowances</td>
-                                    <td>@detail.transportaion_allowances</td>
-                                    <td>@detail.other_allowances</td>
-                                    <td>@detail.overtime</td>
-                                    <td>@detail.bonus</td>
-                                    <td>@detail.delay_discount</td>
-                                    <td>@detail.absence_discount</td>
-                                    <td>@detail.other_discount</td>
-                                    <td>@detail.debt</td>
-                                    <td>@detail.shared_portion</td>
-                                    <td>@detail.facility_portion</td>
-                                    <td>@detail.work_days</td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </td>
-            </tr>
-        }
-    </tbody>
+			<tr>
+				<td>
+					<input type="hidden" name="Salaries[@i].emp_id" value="@employee.employee_id" />
+					@employee.employee_id
+				</td>
+				<td>@employee.name</td>
+				<td>
+					<input type="number" name="Salaries[@i].BaseSalary" value="@(salary?.base_salary ?? 0)" />
+				</td>
+				<td>
+					<input type="number" name="Salaries[@i].HousingAllowances" value="@(salary?.housing_allowances ?? 0)" />
+				</td>
+				<!-- Add more input fields for salary attributes -->
+			</tr>
+		}
+	</tbody>
 </table>
 
 <!-- jQuery, Popper.js, and Bootstrap JavaScript -->
