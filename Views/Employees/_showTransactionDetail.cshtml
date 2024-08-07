@@ -146,7 +146,7 @@
 				</div>
 			</div>
 			<div class="modal-footer flex pt-14 justify-center">
-				@using (Html.BeginForm("UpdateStatus", "Employees", FormMethod.Post, new { id = $"updateStatusFormConfirm-{Model.transaction_id}" }))
+				@using (Html.BeginForm("UpdateTransactionsStatus", "Employees", FormMethod.Post, new { id = $"updateStatusFormConfirm-{Model.transaction_id}" }))
 				{
 					@Html.AntiForgeryToken()
 					@Html.HiddenFor(model => model.transaction_id)
