@@ -23,10 +23,9 @@
         public string gender { get; set; }
         public string? files { get; set; }
 
-        [ForeignKey("EmployeeId")]
-        public employee employee_id { get; set; }
-    }
-    
-   
+       public int employee_id { get; set; }
 
+        [ForeignKey("employee_id")]
+        public employee employee { get; set; }
+    }
 }

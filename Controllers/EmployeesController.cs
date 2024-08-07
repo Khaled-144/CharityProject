@@ -5,13 +5,21 @@ using CharityProject.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Xml.Linq;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 namespace CharityProject.Controllers
 {
     public class EmployeesController : Controller
     {
 
         private readonly ApplicationDbContext _context;
+        private readonly ILogger<EmployeesController> _logger;
+        private readonly ApplicationDbContext _context;
 
+        public EmployeesController(ApplicationDbContext context, ILogger<EmployeesController> logger)
+        {
+            _context = context;
+            _logger = logger;
+        }
         public EmployeesController(ApplicationDbContext context)
         {
             _context = context;
@@ -21,6 +29,10 @@ namespace CharityProject.Controllers
 
         // Start of khaled work -----------------------------------------------------
 
+        public IActionResult ReferTransaction()
+		{
+			return RedirectToAction("Transactions", "Employees");
+		}
         public IActionResult ReferTransaction()
         {
             return RedirectToAction("Transactions", "Employees");
@@ -57,6 +69,8 @@ namespace CharityProject.Controllers
             transaction.to_emp_id = to_employee_id;
             await _context.SaveChangesAsync();
 
+            
+
             // Redirect to the Transactions page after successful referral
             return RedirectToAction("Transactions", "Employees");
         }
@@ -64,14 +78,58 @@ namespace CharityProject.Controllers
         // New method to view referral history
         public async Task<IActionResult> ReferralHistory(int id)
         {
+            _logger.LogInformation($"Fetching referral history for transaction {id}");
+
+            var referrals = await _context.Referrals
+                .Where(r => r.transaction_id == id)
+                .Include(r => r.from_employee)
+                .Include(r => r.to_employee)
+                .OrderByDescending(r => r.referral_date)
+                .ToListAsync();
+        {
             var referrals = await _context.Referrals
                 .Where(r => r.transaction_id == id)
                 .OrderByDescending(r => r.referral_date)
                 .ToListAsync();
 
+            _logger.LogInformation($"Found {referrals.Count} referrals");
+
+            foreach (var referral in referrals)
+            {
+                _logger.LogInformation($"Referral {referral.referral_id}: From {referral.from_employee_id} ({referral.from_employee?.name ?? "N/A"}) To {referral.to_employee_id} ({referral.to_employee?.name ?? "N/A"})");
+            }
+
+            return View(referrals);
+        }
             return View(referrals);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetEmployeesByDepartment(int departmentId)
+        {
+            _logger.LogInformation($"Fetching employees for department ID: {departmentId}");
+
+            var employees = await _context.employee_details
+                .Where(ed => ed.departement_id == departmentId)
+                .Select(ed => new
+                {
+                    employee_id = ed.employee_id,
+                    name = ed.employee.name,
+                    position = ed.position
+                })
+                .GroupBy(e => e.employee_id)
+                .Select(g => g.First())
+                .ToListAsync();
+
+            if (!employees.Any())
+            {
+                _logger.LogWarning($"No employees found for department ID: {departmentId}");
+                return NotFound("No employees found for the given department.");
+            }
+
+            _logger.LogInformation($"Found {employees.Count} employees for department ID: {departmentId}");
+            return Ok(employees);
+        }
         // End of khaled work -----------------------------------------------------
 
 
@@ -85,6 +143,11 @@ namespace CharityProject.Controllers
 
         // GET Actions -------------------------------------------------------- no details needed ( all used thrugh partial view )
 
+		public async Task<IActionResult> Transactions()
+		{
+            
+            return View(await _context.Transactions.ToListAsync());
+		}
         public async Task<IActionResult> Transactions()
         {
             ViewData["Departments"] = _context.Department.Select(d => new SelectListItem
@@ -113,11 +176,33 @@ namespace CharityProject.Controllers
         {
             var transactions = await _context.Transactions
                 .Include(t => t.Referrals)
+                    .ThenInclude(r => r.from_employee)
+                .Include(t => t.Referrals)
+                    .ThenInclude(r => r.to_employee)
+                .OrderByDescending(t => t.transaction_id)
+                .ToListAsync();
+            // Fetch departments for the dropdown
+            var departments = await _context.Department.ToListAsync();
+            ViewBag.Departments = new SelectList(departments, "departement_id", "departement_name");
+
+            return PartialView("_getAllTransactions", transactions);
+        }
+        public async Task<IActionResult> GetAllTransactions()
+        {
+            var transactions = await _context.Transactions
+                .Include(t => t.Referrals)
                 .OrderByDescending(t => t.transaction_id) // Order by transaction_id in descending order
                 .ToListAsync();
             return PartialView("_getAllTransactions", transactions);
         }
 
+        public async Task<IActionResult> GetAllHolidays()
+		{
+			var holidays = await _context.HolidayHistories
+				.OrderByDescending(h => h.holidays_history_id) // Replace HolidaysHistoryId with the actual ID column name
+				.ToListAsync();
+			return PartialView("_getAllHolidays", holidays);
+		}
         public async Task<IActionResult> GetAllHolidays()
         {
             var holidays = await _context.HolidayHistories
