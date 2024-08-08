@@ -214,7 +214,7 @@ namespace CharityProject.Controllers
 			// Save changes to the database
 			await _context.SaveChangesAsync();
 
-			return RedirectToAction(nameof(Index));
+			return RedirectToAction(nameof(Transactions));
 		}
 
 

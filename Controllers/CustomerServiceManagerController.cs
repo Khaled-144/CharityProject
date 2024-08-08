@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using CharityProject.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Xml.Linq;
+using CharityProject.ViewModel;
+using System;
 
 namespace CharityProject.Controllers
 {
@@ -210,13 +212,33 @@ namespace CharityProject.Controllers
             // Save changes to the database
             await _context.SaveChangesAsync();
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Transactions));
         }
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> ApproveTransaction(int transaction_id)
+		{
+			var transaction = await _context.Transactions.FindAsync(transaction_id);
+			if (transaction == null)
+			{
+				return NotFound();
+			}
+
+			// Update the status to "Closed"
+			transaction.status = "موافقة المدير المباشر";
+			transaction.close_date = DateTime.Now;
+
+			// Save changes to the database
+			await _context.SaveChangesAsync();
+
+			return RedirectToAction(nameof(Transactions));
+		}
 
 
-        // Delete Actions --------------------------------------------------------
+
+		// Delete Actions --------------------------------------------------------
 
 
 
-    }
+	}
 }
