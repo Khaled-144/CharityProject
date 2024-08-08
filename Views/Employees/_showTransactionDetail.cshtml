@@ -107,21 +107,24 @@
                 </div>
 
                 <div class="row mt-3">
-                    <div class="col-12 text-center">
+                    <div class="col-12 text-center flex justify-center ">
                         @if (Model.status != "منهاة")
                         {
                             @using (Html.BeginForm("UpdateStatus", "Transactions", FormMethod.Post, new { id = $"updateStatusForm-{Model.transaction_id}", @class = "d-inline" }))
                             {
                                 @Html.AntiForgeryToken()
-                                <button type="submit" class="btn btn-danger ml-8">إنهاء المعاملة</button>
+                                <button type="button" class="btn btn-danger " data-toggle="modal" data-target="#confirmEndModal-@Model.transaction_id">
+                                    إنهاء المعاملة
+                                </button>
                                 @Html.HiddenFor(model => model.transaction_id)
                             }
-                            <button type="button" class="btn btn-primary ml-8" id="toggleReferForm-@Model.transaction_id">
+                            <button type="button" class="btn btn-primary mx-4" id="toggleReferForm-@Model.transaction_id">
                                 إحالة المعاملة
                             </button>
                         }
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">الغاء</button>
+                        <button type="button" class="btn btn-dark" data-dismiss="modal">إخفاء</button>
                     </div>
+
                 </div>
 
                 <!-- Referral form (initially hidden) -->
@@ -162,28 +165,7 @@
 
 <!-- Confirmation Modal -->
 <div class="modal fade" id="confirmEndModal-@Model.transaction_id" tabindex="-1" role="dialog" aria-labelledby="confirmEndLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="confirmEndLabel">تأكيد إنهاء المعاملة</h5>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label for="endReason">سبب الإنهاء:</label>
-                    <textarea id="endReason-@Model.transaction_id" name="endReason" class="form-control mb-14" required></textarea>
-                </div>
-            </div>
-            <div class="modal-footer flex pt-14 justify-center">
-                @using (Html.BeginForm("UpdateStatus", "Employees", FormMethod.Post, new { id = $"updateStatusFormConfirm-{Model.transaction_id}" }))
-                {
-                    @Html.AntiForgeryToken()
-                    @Html.HiddenFor(model => model.transaction_id)
-                    <button type="submit" class="btn btn-danger" onclick="addReasonToForm(@Model.transaction_id)">نعم، إنهاء</button>
-                }
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">الغاء</button>
-            </div>
-        </div>
-    </div>
+
 	<div class="modal-dialog" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
