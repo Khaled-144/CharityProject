@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CharityProject.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240723101840_EveryModelAndTableUpdated")]
-    partial class EveryModelAndTableUpdated
+    [Migration("20240804132527_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,39 +24,6 @@ namespace CharityProject.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("CharityProject.Models.Charter", b =>
-                {
-                    b.Property<int>("charter_id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("charter_id"));
-
-                    b.Property<string>("devices")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("end_date")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("number_of_devices")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("start_date")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("to_emp_id")
-                        .HasColumnType("int");
-
-                    b.HasKey("charter_id");
-
-                    b.ToTable("Charters");
-                });
 
             modelBuilder.Entity("CharityProject.Models.Department", b =>
                 {
@@ -75,10 +42,10 @@ namespace CharityProject.Migrations
 
                     b.HasKey("departement_id");
 
-                    b.ToTable("Departments");
+                    b.ToTable("Department");
                 });
 
-            modelBuilder.Entity("CharityProject.Models.Device", b =>
+            modelBuilder.Entity("CharityProject.Models.Devices", b =>
                 {
                     b.Property<int>("devices_id")
                         .ValueGeneratedOnAdd()
@@ -96,98 +63,6 @@ namespace CharityProject.Migrations
                     b.HasKey("devices_id");
 
                     b.ToTable("Devices");
-                });
-
-            modelBuilder.Entity("CharityProject.Models.Employee", b =>
-                {
-                    b.Property<int>("employee_id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("employee_id"));
-
-                    b.Property<string>("name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("password")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("search_role")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("username")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("employee_id");
-
-                    b.ToTable("Employees");
-                });
-
-            modelBuilder.Entity("CharityProject.Models.EmployeeDetails", b =>
-                {
-                    b.Property<int>("employee_details_id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("employee_details_id"));
-
-                    b.Property<int>("EmployeeId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("active")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("contract_type")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("departement_id")
-                        .HasColumnType("int");
-
-                    b.Property<string>("education_level")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("email")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("files")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("gender")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("hire_date")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("identity_number")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("leave_date")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("national_address")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("permission_position")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("phone_number")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("position")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("employee_details_id");
-
-                    b.HasIndex("EmployeeId");
-
-                    b.ToTable("EmployeeDetails");
                 });
 
             modelBuilder.Entity("CharityProject.Models.ExternalTransaction", b =>
@@ -367,69 +242,38 @@ namespace CharityProject.Migrations
                     b.ToTable("OtherServices");
                 });
 
-            modelBuilder.Entity("CharityProject.Models.SalaryHistory", b =>
+            modelBuilder.Entity("CharityProject.Models.Referral", b =>
                 {
-                    b.Property<int>("salaries_history_id")
+                    b.Property<int>("referral_id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("salaries_history_id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("referral_id"));
 
-                    b.Property<float?>("absence_discount")
-                        .HasColumnType("real");
+                    b.Property<string>("comments")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<float>("base_salary")
-                        .HasColumnType("real");
+                    b.Property<int>("from_employee_id")
+                        .HasColumnType("int");
 
-                    b.Property<float?>("bonus")
-                        .HasColumnType("real");
-
-                    b.Property<DateTime>("date")
+                    b.Property<DateTime>("referral_date")
                         .HasColumnType("datetime2");
 
-                    b.Property<float?>("debt")
-                        .HasColumnType("real");
-
-                    b.Property<float?>("delay_discount")
-                        .HasColumnType("real");
-
-                    b.Property<int>("emp_id")
+                    b.Property<int>("to_employee_id")
                         .HasColumnType("int");
 
-                    b.Property<string>("exchange_statement")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<float?>("facility_portion")
-                        .HasColumnType("real");
-
-                    b.Property<float?>("housing_allowances")
-                        .HasColumnType("real");
-
-                    b.Property<string>("notes")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<float?>("other_allowances")
-                        .HasColumnType("real");
-
-                    b.Property<float?>("other_discount")
-                        .HasColumnType("real");
-
-                    b.Property<float?>("overtime")
-                        .HasColumnType("real");
-
-                    b.Property<float?>("shared_portion")
-                        .HasColumnType("real");
-
-                    b.Property<float?>("transportaion_allowances")
-                        .HasColumnType("real");
-
-                    b.Property<int>("work_days")
+                    b.Property<int>("transaction_id")
                         .HasColumnType("int");
 
-                    b.HasKey("salaries_history_id");
+                    b.HasKey("referral_id");
 
-                    b.ToTable("SalaryHistories");
+                    b.HasIndex("from_employee_id");
+
+                    b.HasIndex("to_employee_id");
+
+                    b.HasIndex("transaction_id");
+
+                    b.ToTable("Referrals");
                 });
 
             modelBuilder.Entity("CharityProject.Models.Transaction", b =>
@@ -473,15 +317,209 @@ namespace CharityProject.Migrations
                     b.ToTable("Transactions");
                 });
 
-            modelBuilder.Entity("CharityProject.Models.EmployeeDetails", b =>
+            modelBuilder.Entity("CharityProject.Models.charter", b =>
                 {
-                    b.HasOne("CharityProject.Models.Employee", "employee_id")
-                        .WithMany()
-                        .HasForeignKey("EmployeeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Property<int>("charter_id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
 
-                    b.Navigation("employee_id");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("charter_id"));
+
+                    b.Property<string>("charter_info")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateOnly>("creation_date")
+                        .HasColumnType("date");
+
+                    b.Property<DateTime?>("end_date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("from_departement_name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("notes")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("receive_date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("serial_number")
+                        .HasColumnType("int");
+
+                    b.Property<string>("status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("to_departement_name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("to_emp_id")
+                        .HasColumnType("int");
+
+                    b.HasKey("charter_id");
+
+                    b.ToTable("charter");
+                });
+
+            modelBuilder.Entity("CharityProject.Models.employee", b =>
+                {
+                    b.Property<int>("employee_id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("employee_id"));
+
+                    b.Property<string>("name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("password")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("search_role")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("username")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("employee_id");
+
+                    b.ToTable("employee");
+                });
+
+            modelBuilder.Entity("CharityProject.Models.employee_details", b =>
+                {
+                    b.Property<int>("employee_details_id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("employee_details_id"));
+
+                    b.Property<bool>("active")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("contract_type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("departement_id")
+                        .HasColumnType("int");
+
+                    b.Property<string>("education_level")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("email")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("employee_id")
+                        .HasColumnType("int");
+
+                    b.Property<string>("files")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("gender")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("hire_date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("identity_number")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("leave_date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("national_address")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("permission_position")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("phone_number")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("position")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("employee_details_id");
+
+                    b.HasIndex("employee_id");
+
+                    b.ToTable("employee_details");
+                });
+
+            modelBuilder.Entity("CharityProject.Models.salaries_history", b =>
+                {
+                    b.Property<int>("salaries_history_id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("salaries_history_id"));
+
+                    b.Property<double?>("absence_discount")
+                        .HasColumnType("float");
+
+                    b.Property<double>("base_salary")
+                        .HasColumnType("float");
+
+                    b.Property<double?>("bonus")
+                        .HasColumnType("float");
+
+                    b.Property<DateTime>("date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<double?>("debt")
+                        .HasColumnType("float");
+
+                    b.Property<double?>("delay_discount")
+                        .HasColumnType("float");
+
+                    b.Property<int>("emp_id")
+                        .HasColumnType("int");
+
+                    b.Property<string>("exchange_statement")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double?>("facility_portion")
+                        .HasColumnType("float");
+
+                    b.Property<double?>("housing_allowances")
+                        .HasColumnType("float");
+
+                    b.Property<string>("notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double?>("other_allowances")
+                        .HasColumnType("float");
+
+                    b.Property<double?>("other_discount")
+                        .HasColumnType("float");
+
+                    b.Property<double?>("overtime")
+                        .HasColumnType("float");
+
+                    b.Property<double?>("shared_portion")
+                        .HasColumnType("float");
+
+                    b.Property<double?>("transportaion_allowances")
+                        .HasColumnType("float");
+
+                    b.Property<int>("work_days")
+                        .HasColumnType("int");
+
+                    b.HasKey("salaries_history_id");
+
+                    b.ToTable("salaries_history");
                 });
 
             modelBuilder.Entity("CharityProject.Models.HolidayHistory", b =>
@@ -493,6 +531,49 @@ namespace CharityProject.Migrations
                         .IsRequired();
 
                     b.Navigation("holiday");
+                });
+
+            modelBuilder.Entity("CharityProject.Models.Referral", b =>
+                {
+                    b.HasOne("CharityProject.Models.employee", "from_employee")
+                        .WithMany()
+                        .HasForeignKey("from_employee_id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CharityProject.Models.employee", "to_employee")
+                        .WithMany()
+                        .HasForeignKey("to_employee_id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CharityProject.Models.Transaction", "Transaction")
+                        .WithMany("Referrals")
+                        .HasForeignKey("transaction_id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Transaction");
+
+                    b.Navigation("from_employee");
+
+                    b.Navigation("to_employee");
+                });
+
+            modelBuilder.Entity("CharityProject.Models.employee_details", b =>
+                {
+                    b.HasOne("CharityProject.Models.employee", "employee")
+                        .WithMany()
+                        .HasForeignKey("employee_id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("employee");
+                });
+
+            modelBuilder.Entity("CharityProject.Models.Transaction", b =>
+                {
+                    b.Navigation("Referrals");
                 });
 #pragma warning restore 612, 618
         }

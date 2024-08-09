@@ -1,114 +1,117 @@
 ﻿@model CharityProject.Models.Transaction
 
 <div class="modal fade" id="insertTransactionModal" role="dialog">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header flex justify-center items-center">
-                <button type="button" class="close text-danger close-button" data-dismiss="modal" aria-label="Close">
-                </button>
-                <button type="button" class="btn btn-danger" data-dismiss="modal">X</button>
-                <h4 class="modal-title text-center w-full">إنشاء معاملة جديدة</h4>
-            </div>
-            <div class="modal-body align-content-center">
-                <div class="col-md text-right" dir="rtl">
-                    <form asp-action="Create_Transaction" method="post" enctype="multipart/form-data" id="transactionForm">
-                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                        <div class="form-group">
-                            <label asp-for="title" class="control-label">عنوان المعاملة</label>
-                            <input asp-for="title" required class="form-control" />
-                            <span asp-validation-for="title" class="text-danger"></span>
-                        </div>
-                        <div class="col-span-2 form-group sm:col-span-1 mb-4">
-                            <label asp-for="department_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">إلى</label>
-                            <select asp-for="department_id" required class="form-control">
-                                <option value="" disabled selected>اختر القسم الموجه</option>
-                                <option value="1">الموارد البشرية</option>
-                                <option value="2">التنمية المالية</option>
-                                <option value="3">إدارية المستفيدين</option>
-                                <option value="4">الإدارة التنفيذية</option>
-                            </select>
-                            <span asp-validation-for="department_id" class="text-danger"></span>
-                        </div>
-                        <div class="form-group">
-                            <label asp-for="description" class="control-label">وصف المعاملة</label>
-                            <input asp-for="description" class="form-control" />
-                            <span asp-validation-for="description" class="text-danger"></span>
-                        </div>
-                        <div>
-                            <label asp-for="create_date"> تاريخ الانشاء</label>
-                            <input asp-for="create_date" type="date" class="w-full" id="myDateField" />
-                        </div>
-                        <div class="form-group my-3">
-                            <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="files">المرفقات</label>
-                            <input asp-for="files" class="form-control" type="file" accept=".pdf,.xls,.xlsx,.doc,.docx" />
-                            <span asp-validation-for="files" class="text-danger"></span>
-                            <small id="fileError" class="text-danger" style="display:none;">الملفات المسموح بها فقط :PDF, Excel, Word</small>
-                        </div>
-                        <div class="flex justify-between">
-                            <div class="mb-4 p-">
-                                <label for="conf" class="block text-gray-700 font-bold mb-2">
-                                    <i class="fas fa-lock"></i> سرية المعاملة
-                                </label>
-                                <input type="radio" id="conf" name="confidentiality" /> سري <br />
-                                <input type="radio" id="conf" name="confidentiality" /> غير سري
-                            </div>
-                            <div class="mb-4 p-">
-                                <label for="conf" class="block text-gray-700 font-bold mb-2">
-                                    <i class="fas fa-clock text-green-500"></i> أعجلية المعاملة
-                                </label>
-                                <input type="radio" id="conf" name="confidentiality" /> غير عاجلة <br />
-                                <input type="radio" id="conf" name="confidentiality" /> عاجلة <br />
-                                <input type="radio" id="conf" name="confidentiality" /> حالاً
-                            </div>
-                            <div class="mb-4 p-">
-                                <label for="conf" class="block text-gray-700 font-bold mb-2">
-                                    <i class="fas fa-exclamation-circle text-red-500 icon-red"></i> أهمية المعاملة
-                                </label>
-                                <input type="radio" id="conf" name="confidentiality" /> عادي <br />
-                                <input type="radio" id="conf" name="confidentiality" /> هام
-                            </div>
-                        </div>
-                        <div class="form-group flex justify-center mt-4">
-                            <button type="submit" class="bg-gradient-to-r from-green-400 via-green-500 to-green-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 text-white font-bold py-2 px-4">رفع المعاملة</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header flex justify-center items-center">
+				<button type="button" class="close text-danger close-button" data-dismiss="modal" aria-label="Close">
+				</button>
+				<button type="button" class="btn btn-danger" data-dismiss="modal">X</button>
+				<h4 class="modal-title text-center w-full">إنشاء معاملة جديدة</h4>
+			</div>
+			<div class="modal-body align-content-center">
+				<div class="col-md text-right" dir="rtl">
+					<form asp-action="Create_Transaction" method="post" enctype="multipart/form-data" id="transactionForm">
+						<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+						<div class="form-group">
+							<label asp-for="title" class="control-label">عنوان المعاملة</label>
+							<input asp-for="title" required class="form-control" />
+							<span asp-validation-for="title" class="text-danger"></span>
+						</div>
+						<div class="col-span-2 form-group sm:col-span-1 mb-4">
+							<label asp-for="department_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">إلى</label>
+							<select asp-for="department_id"
+									asp-items="@(ViewData["Departments"] as IEnumerable<SelectListItem>)" class="border w-full rounded focus:ring-blue-500 focus:border-blue-500">
+								<option disabled selected>-- أختر القسم --</option>
+							</select>
+							<span asp-validation-for="department_id" class="text-danger"></span>
+						</div>
+						<div class="form-group">
+							<label asp-for="description" class="control-label">وصف المعاملة</label>
+							<input asp-for="description" class="form-control" />
+							<span asp-validation-for="description" class="text-danger"></span>
+						</div>
+						<div>
+							<label asp-for="create_date"> تاريخ الانشاء</label>
+							<input asp-for="create_date" type="date" class="w-full" id="myDateField" />
+						</div>
+						<div class="form-group my-3">
+							<label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="files">المرفقات</label>
+							<input asp-for="files" class="form-control" type="file" accept=".pdf,.xls,.xlsx,.doc,.docx" />
+							<span asp-validation-for="files" class="text-danger"></span>
+							<small id="fileError" class="text-danger" style="display:none;">الملفات المسموح بها فقط :PDF, Excel, Word</small>
+						</div>
+						<div class="flex justify-between">
+							<!-- Confidentiality -->
+							<div class="mb-4">
+								<label class="block text-gray-700 font-bold mb-2">
+									<i class="fas fa-lock"></i> سرية المعاملة
+								</label>
+								<input type="radio" id="confidentiality_secret" name="confidentiality" value="secret" /> سري <br />
+								<input type="radio" id="confidentiality_non_secret" name="confidentiality" value="non_secret" /> غير سري
+							</div>
+
+							<!-- Urgency -->
+							<div class="mb-4">
+								<label class="block text-gray-700 font-bold mb-2">
+									<i class="fas fa-clock text-green-500"></i> أعجلية المعاملة
+								</label>
+								<input type="radio" id="urgency_non_urgent" name="urgency" value="non_urgent" /> غير عاجلة <br />
+								<input type="radio" id="urgency_urgent" name="urgency" value="urgent" /> عاجلة <br />
+								<input type="radio" id="urgency_immediate" name="urgency" value="immediate" /> حالاً
+							</div>
+
+							<!-- Importance -->
+							<div class="mb-4">
+								<label class="block text-gray-700 font-bold mb-2">
+									<i class="fas fa-exclamation-circle text-red-500 icon-red"></i> أهمية المعاملة
+								</label>
+								<input type="radio" id="importance_normal" name="importance" value="normal" /> عادي <br />
+								<input type="radio" id="importance_high" name="importance" value="high" /> هام
+							</div>
+						</div>
+
+						<div class="form-group flex justify-center mt-4">
+							<button type="submit" class="bg-gradient-to-r from-green-400 via-green-500 to-green-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 text-white font-bold py-2 px-4">رفع المعاملة</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
 
 <script>
-    // Get today's date
-    let today = new Date();
+	// Get today's date
+	let today = new Date();
 
-    // Format the date to YYYY-MM-DD (required by input type="date")
-    let dd = String(today.getDate()).padStart(2, '0');
-    let mm = String(today.getMonth() + 1).padStart(2, '0'); // January is 0!
-    let yyyy = today.getFullYear();
+	// Format the date to YYYY-MM-DD (required by input type="date")
+	let dd = String(today.getDate()).padStart(2, '0');
+	let mm = String(today.getMonth() + 1).padStart(2, '0'); // January is 0!
+	let yyyy = today.getFullYear();
 
-    let formattedDate = yyyy + '-' + mm + '-' + dd;
+	let formattedDate = yyyy + '-' + mm + '-' + dd;
 
-    // Set the value of the date input field
-    document.getElementById('myDateField').value = formattedDate;
+	// Set the value of the date input field
+	document.getElementById('myDateField').value = formattedDate;
 
-    document.getElementById('transactionForm').addEventListener('submit', function (e) {
-        var fileInput = document.getElementById('files');
-        var filePath = fileInput.value;
-        var allowedExtensions = /(\.pdf|\.xls|\.xlsx|\.doc|\.docx)$/i;
-        var fileError = document.getElementById('fileError');
+	document.getElementById('transactionForm').addEventListener('submit', function (e) {
+		var fileInput = document.getElementById('files');
+		var filePath = fileInput.value;
+		var allowedExtensions = /(\.pdf|\.xls|\.xlsx|\.doc|\.docx)$/i;
+		var fileError = document.getElementById('fileError');
 
-        if (filePath && !allowedExtensions.exec(filePath)) {
-            fileError.style.display = 'block';
-            e.preventDefault();
-        } else {
-            fileError.style.display = 'none';
-        }
-    });
+		if (filePath && !allowedExtensions.exec(filePath)) {
+			fileError.style.display = 'block';
+			e.preventDefault();
+		} else {
+			fileError.style.display = 'none';
+		}
+	});
 </script>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+	@{
+		await Html.RenderPartialAsync("_ValidationScriptsPartial");
+	}
 }
