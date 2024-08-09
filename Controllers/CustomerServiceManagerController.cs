@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using CharityProject.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Xml.Linq;
-using CharityProject.ViewModel;
+
 using System;
 
 namespace CharityProject.Controllers
@@ -214,7 +214,26 @@ namespace CharityProject.Controllers
 
             return RedirectToAction(nameof(Transactions));
         }
-		[HttpPost]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateHolidayStatus(int holidays_history_id)
+        {
+            var holiday = await _context.HolidayHistories.FindAsync(holidays_history_id);
+            if (holiday == null)
+            {
+                return NotFound();
+            }
+
+            // Update the status to "Closed"
+            holiday.status = "رفضت من المدير المباشر";
+           
+
+            // Save changes to the database
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Transactions));
+        }
+        [HttpPost]
 		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> ApproveTransaction(int transaction_id)
 		{
@@ -233,12 +252,31 @@ namespace CharityProject.Controllers
 
 			return RedirectToAction(nameof(Transactions));
 		}
+        public async Task<IActionResult> ApproveHoliday(int holidays_history_id)
+        {
+            var holiday = await _context.HolidayHistories.FindAsync(holidays_history_id);
+            if (holiday == null)
+            {
+                return NotFound();
+            }
+
+            // Update the status to "Closed"
+            holiday.status = "موافقة المدير المباشر";
+        
+
+            // Save changes to the database
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Transactions));
+        }
 
 
 
-		// Delete Actions --------------------------------------------------------
+
+
+        // Delete Actions --------------------------------------------------------
 
 
 
-	}
+    }
 }
