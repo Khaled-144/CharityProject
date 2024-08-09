@@ -1,4 +1,4 @@
-﻿@model CharityProject.Models.(Department,Transaction)
+﻿@model CharityProject.Models.Transaction
 @{
     ViewData["Title"] = "Transaction Details";
     string fileUrl = Url.Content("~/files/" + Model.files);
@@ -25,7 +25,7 @@
                             <dt class="col-sm-4">الى</dt>
                             <dd class="col-sm-8">4</dd>
                             <dt class="col-sm-4">قسم</dt>
-                            <dd class="col-sm-8">@Html.DisplayFor(model => model.departement_name)</dd>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.department_id)</dd>
                             <dt class="col-sm-4">تاريخ الانشاء</dt>
                             <dd class="col-sm-8">@Html.DisplayFor(model => model.create_date)</dd>
                             <dt class="col-sm-4">تاريخ الانهاء</dt>
