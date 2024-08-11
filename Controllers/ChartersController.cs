@@ -79,7 +79,7 @@ namespace CharityProject.Controllers
         {
             ViewData["Departments"] = _context.Department.Select(d => new SelectListItem
             {
-                Value = d.departement_name,
+                Value = d.departement_id.ToString(),
                 Text = d.departement_name
             }).ToList();
 
@@ -99,17 +99,17 @@ namespace CharityProject.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create1([Bind("charter_id,charter_info,serial_number,creation_date,from_departement_name,status,notes,to_departement_name,to_emp_id,receive_date,end_date")] charter charter)
         {
-          
+
 
 
             _context.Add(charter);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
 
 
 
 
-            
+
 
 
         }
@@ -226,29 +226,29 @@ namespace CharityProject.Controllers
 
 
 
-/*
-        public IActionResult Create_Charter()
-        {
-            return View();
-        }
-*/
+        /*
+                public IActionResult Create_Charter()
+                {
+                    return View();
+                }
+        */
         // POST: Charters/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-  /*           [HttpPost]
-             [ValidateAntiForgeryToken]
-             public async Task<IActionResult> Create_Charter([Bind("charter_info,serial_number,from_departement_name,status,notes,to_departement_name,to_emp_id,receive_date,end_date")] charter charter)
-             {
-                 if (ModelState.IsValid)
-                 {
+        /*           [HttpPost]
+                   [ValidateAntiForgeryToken]
+                   public async Task<IActionResult> Create_Charter([Bind("charter_info,serial_number,from_departement_name,status,notes,to_departement_name,to_emp_id,receive_date,end_date")] charter charter)
+                   {
+                       if (ModelState.IsValid)
+                       {
 
-                charter.creation_date = DateOnly.FromDateTime(DateTime.Now);
-                _context.Add(charter);
-                     await _context.SaveChangesAsync();
-                     return RedirectToAction(nameof(Index));
-                 }
-                 return View(charter);
-             }*/
+                      charter.creation_date = DateOnly.FromDateTime(DateTime.Now);
+                      _context.Add(charter);
+                           await _context.SaveChangesAsync();
+                           return RedirectToAction(nameof(Index));
+                       }
+                       return View(charter);
+                   }*/
         public async Task<IActionResult> UpdateStatus(int charter_id)
         {
             var charter = await _context.charter.FindAsync(charter_id);

@@ -25,35 +25,65 @@
                         </p>
 
                         <!-- Breadcrumb Navigation -->
-                        <div class="mb-1 w-fit rounded bg-zinc-200	">
-                            <ol class="flex items-center w-auto space-x-4 text-sm font-medium text-center text-black dark:text-gray-400">
-                                <li class="flex items-center ">
-                                    <span class="flex items-center @((item.status == "مرسلة") ? "text-blue-600 dark:text-blue-500" : "text-gray-400 dark:text-gray-500")">
-                                        <svg class="w-3.5 h-3.5 mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                                            <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
-                                        </svg>
-                                        مرسلة
-                                    </span>
+                        <div class="my-1 w-fit rounded px-2 py-1 bg-zinc-200">
+                            <ol class="flex items-center  w-auto  text-sm font-medium text-center text-black dark:text-gray-400">
+                                <li class="flex items-center justify-center text-green-600 dark:text-green-500">
+                                    <svg class="w-3.5 h-3.5 ml-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
+                                    </svg>
+                                    مرسلة
                                     <span class="mx-2">/</span>
                                 </li>
-                                <li class="flex items-center">
-                                    <span class="flex items-center @((item.status == "موافق المدير المباشر") ? "text-blue-600 dark:text-blue-500" : "text-gray-400 dark:text-gray-500")">
-                                        <svg class="w-3.5 h-3.5 mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                @if (item.status == "رفضت من المدير المباشر")
+                                {
+                                    <li class="flex items-center text-red-600 dark:text-red-500">
+                                        <svg class="w-3.5 h-3.5 ml-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
                                             <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
                                         </svg>
-                                        موافقة المدير المباشر
-                                    </span>
-                                    <span class="mx-2">/</span>
-                                </li>
-                                <li class="flex items-center">
-                                    <span class="flex items-center @((item.status == "موافقة مدير القسم") ? "text-blue-600 dark:text-blue-500" : "text-gray-400 dark:text-gray-500")">
-                                        <svg class="w-3.5 h-3.5 mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                        رفضت من المدير المباشر
+                                        <span class="mx-2">/</span>
+                                    </li>
+                                    <li class="flex items-center text-gray-400 dark:text-gray-500">
+                                        <svg class="w-3.5 h-3.5 ml-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
                                             <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
                                         </svg>
                                         موافقة مدير القسم
-                                    </span>
-                                </li>
+                                    </li>
+                                }
+                                else if (item.status == "رفضت من مدير القسم")
+                                {
+                                    <li class="flex items-center text-green-600 dark:text-green-500">
+                                        <svg class="w-3.5 h-3.5 ml-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
+                                        </svg>
+                                        موافقة المدير المباشر
+                                        <span class="mx-2">/</span>
+                                    </li>
+                                    <li class="flex items-center text-red-600 dark:text-red-500">
+                                        <svg class="w-3.5 h-3.5 ml-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
+                                        </svg>
+                                        رفضت من مدير القسم
+                                    </li>
+                                }
+                                else
+                                {
+                                    <li class="flex items-center @((item.status == "موافقة المدير المباشر" || item.status == "موافقة مدير القسم") ? "text-green-600 dark:text-green-500" : "text-gray-400 dark:text-gray-500")">
+                                        <svg class="w-3.5 h-3.5 ml-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
+                                        </svg>
+                                        موافقة المدير المباشر
+                                        <span class="mx-2">/</span>
+                                    </li>
+                                    <li class="flex items-center @((item.status == "موافقة مدير القسم") ? "text-green-600 dark:text-green-500" : "text-gray-400 dark:text-gray-500")">
+                                        <svg class="w-3.5 h-3.5 ml-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
+                                        </svg>
+                                        موافقة مدير القسم
+                                    </li>
+                                }
                             </ol>
+
                         </div>
                     </div>
                     <div class="inline-flex items-center text-base font-semibold text-gray-900 ml-3 dark:text-white">
