@@ -9,6 +9,8 @@ using CharityProject.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Xml.Linq;
 using Microsoft.Data.SqlClient;
+using System.Linq;
+using System.Diagnostics.Metrics;
 namespace CharityProject.Controllers
 {
 	public class HRController : Controller
@@ -156,7 +158,9 @@ namespace CharityProject.Controllers
                 .Include(t => t.Referrals)
                 .OrderByDescending(t => t.transaction_id) // Order by transaction_id in descending order
                 .ToListAsync();
-            return PartialView("_getAllTransactions", transactions);
+            return PartialView("_getAllTransactions", transactions);  
+
+
         }
 
         public async Task<IActionResult> GetAllCharters()
@@ -183,7 +187,7 @@ namespace CharityProject.Controllers
 
         public async Task<IActionResult> GetAllLetters()
         {
-            var letters = await _context.Letters
+            var letters = await _context.letters
                 .OrderByDescending(l => l.letters_id) // Order by letters_id in descending order
                 .ToListAsync();
             return PartialView("_getAllLetters", letters);
@@ -192,7 +196,7 @@ namespace CharityProject.Controllers
         // Create Actions  --------------------------------------------------------
 
 
-
+  
 
 
 
@@ -228,32 +232,87 @@ namespace CharityProject.Controllers
 
 
         }
-        // POST: Transactions/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create_Transaction([Bind("create_date,close_date,title,description,files,from_emp_id,to_emp_id,department_id,Confidentiality,Urgency,Importance")] Transaction transaction)
-        {
+		// POST: Transactions/Create
+		// To protect from overposting attacks, enable the specific properties you want to bind to.
+		// For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> Create_Transaction(IFormFile files, [Bind("create_date,close_date,title,description,from_emp_id,to_emp_id,department_id,Confidentiality,Urgency,Importance")] Transaction transaction)
+		{
+			if (files != null && files.Length > 0)
+			{
+				// Validate the file type
+				var allowedExtensions = new[] { ".pdf", ".xls", ".xlsx", ".doc", ".docx" };
+				var extension = Path.GetExtension(files.FileName).ToLower();
 
-            if (transaction.create_date == null)
+				if (!allowedExtensions.Contains(extension))
+				{
+					ModelState.AddModelError("files", "Only PDF, Excel, and Word files are allowed.");
+					return View(transaction); // Return the view with validation error
+				}
+
+				string filename = Path.GetFileName(files.FileName);
+				string path = Path.Combine(Directory.GetCurrentDirectory(),"wwwroot/files");
+				if (!Directory.Exists(path))
+				{
+					Directory.CreateDirectory(path);
+				}
+				string filePath = Path.Combine(path, filename);
+				using (var filestream = new FileStream(filePath, FileMode.Create))
+				{
+					await files.CopyToAsync(filestream);
+				}
+				transaction.files = filename;
+			}
+
+			if (transaction.create_date == null)
+			{
+				transaction.create_date = DateTime.Now;
+			}
+
+			transaction.status = "مرسلة";
+			_context.Add(transaction);
+			await _context.SaveChangesAsync();
+
+			return RedirectToAction(nameof(Transactions));
+		}
+
+
+		[HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create_Holiday(IFormFile files, [Bind("title,description,duration,emp_id,start_date,end_date,files,holiday_id")] HolidayHistory holidayHistory)
+        {
+            if (files != null && files.Length > 0)
             {
-                transaction.create_date = DateTime.Now;
+                // Validate the file type
+                var allowedExtensions = new[] { ".pdf", ".xls", ".xlsx", ".doc", ".docx" };
+                var extension = Path.GetExtension(files.FileName).ToLower();
+
+                if (!allowedExtensions.Contains(extension))
+                {
+                    ModelState.AddModelError("files", "Only PDF, Excel, and Word files are allowed.");
+                    return View(holidayHistory); // Return the view with validation error
+                }
+
+                string filename = Path.GetFileName(files.FileName);
+                string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/files");
+                if (!Directory.Exists(path))
+                {
+                    Directory.CreateDirectory(path);
+                }
+                string filePath = Path.Combine(path, filename);
+                using (var filestream = new FileStream(filePath, FileMode.Create))
+                {
+                    await files.CopyToAsync(filestream);
+                }
+                holidayHistory.files = filename;
             }
 
-            transaction.status = "مرسلة";
-            _context.Add(transaction);
-            await _context.SaveChangesAsync();
-
-            return RedirectToAction(nameof(Transactions));
-
-        }
 
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create_Holiday([Bind("title,description,duration,emp_id,start_date,end_date,files,holiday_id")] HolidayHistory holidayHistory)
-        {
+
+
+
             holidayHistory.creation_date = DateOnly.FromDateTime(DateTime.Now); // Set to current date
             holidayHistory.status = "مرسلة"; // Set default status
             _context.Add(holidayHistory);
@@ -262,10 +321,190 @@ namespace CharityProject.Controllers
         }
 
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create_Letter([Bind("title,description,type,from_emp_id,to_emp_id,files")] Letter letter)
+
+
+        /// <summary>
+        /// /thisssssssssssssssssss is Newwwwwwwwwwwwwww Action
+        /// </summary>
+        /// <returns></returns>
+
+        /*  public IActionResult Create_Letter()
+          {
+              // Any initialization code if needed
+              return View(); // This will look for a view named "Create_Letter" by default
+          }
+
+
+          [HttpPost]
+          [ValidateAntiForgeryToken]
+          public async Task<IActionResult> Create_Letter(IFormFile files, string[] to_departement_name, string[] to_emp_id, [Bind("title,description,type,from_emp_id,Confidentiality,Urgency,Importance")] letter letter)
+          {
+              // Handle file upload
+              if (files != null && files.Length > 0)
+              {
+                  var allowedExtensions = new[] { ".pdf", ".xls", ".xlsx", ".doc", ".docx" };
+                  var extension = Path.GetExtension(files.FileName).ToLower();
+
+                  if (!allowedExtensions.Contains(extension))
+                  {
+                      ModelState.AddModelError("files", "Only PDF, Excel, and Word files are allowed.");
+                      return View(letter);
+                  }
+
+                  string filename = Path.GetFileName(files.FileName);
+                  string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/files");
+                  if (!Directory.Exists(path))
+                  {
+                      Directory.CreateDirectory(path);
+                  }
+                  string filePath = Path.Combine(path, filename);
+                  using (var filestream = new FileStream(filePath, FileMode.Create))
+                  {
+                      await files.CopyToAsync(filestream);
+                  }
+                  letter.files = filename;
+              }
+
+              // Convert selected departments and employees to comma-separated strings
+              if (to_departement_name != null)
+              {
+                  letter.to_departement_name = string.Join(",", to_departement_name);
+              }
+
+             if (to_emp_id != null)
+              {
+                  letter.to_emp_id = string.Join(",", to_emp_id);
+              }
+
+              if (ModelState.IsValid)
+              {
+                  letter.date = DateTime.Now;
+                  letter.departement_id = 3;
+                  _context.Add(letter);
+                  await _context.SaveChangesAsync();
+                  return RedirectToAction(nameof(Index));
+              }
+
+
+              return View(letter);
+          }*/
+
+
+        ///////   Old Code
+        public void Create_Letter()
         {
+            ViewData["Departments"] = _context.Department.Select(d => new SelectListItem
+            {
+                Value = d.departement_name,
+                Text = d.departement_name
+            }).ToList();
+
+            ViewData["Employees"] = _context.employee.Select(e => new SelectListItem
+            {
+                Value = e.employee_id.ToString(),
+                Text = e.name
+            }).ToList();
+
+
+
+
+        }
+
+
+        [HttpPost]
+            [ValidateAntiForgeryToken]
+            public async Task<IActionResult> Create_Letter(IFormFile files, [Bind("title,description,type,from_emp_id,to_emp_id,files,Confidentiality,Urgency,Importance,to_departement_name")] letter letter)
+            {
+
+
+                if (files != null && files.Length > 0)
+                {
+                    // Validate the file type
+                    var allowedExtensions = new[] { ".pdf", ".xls", ".xlsx", ".doc", ".docx" };
+                    var extension = Path.GetExtension(files.FileName).ToLower();
+
+                    if (!allowedExtensions.Contains(extension))
+                    {
+                        ModelState.AddModelError("files", "Only PDF, Excel, and Word files are allowed.");
+                        return View(letter); // Return the view with validation error
+                    }
+
+                    string filename = Path.GetFileName(files.FileName);
+                    string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/files");
+                    if (!Directory.Exists(path))
+                    {
+                        Directory.CreateDirectory(path);
+                    }
+                    string filePath = Path.Combine(path, filename);
+                    using (var filestream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await files.CopyToAsync(filestream);
+                    }
+                    letter.files = filename;
+                }
+                if (ModelState.IsValid)
+                {
+                    letter.date = DateTime.Now; // Set the current date
+                    letter.departement_id = 3;
+                    _context.Add(letter);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
+            return RedirectToAction(nameof(Transactions));
+        }
+
+
+/*        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create_Letter(string title,
+    string description,
+    string type,
+    int from_emp_id,
+    int to_emp_id,
+    string Confidentiality,
+    string Urgency,
+    string Importance,
+    string to_departement_name, IFormFile files)
+        {
+            var letter = new letter
+            {
+                title = title,
+                description = description,
+                type = type,
+                from_emp_id = from_emp_id,
+                to_emp_id = to_emp_id,
+                Confidentiality = Confidentiality,
+                Urgency = Urgency,
+                Importance = Importance,
+                to_departement_name = to_departement_name
+            };
+
+            if (files != null && files.Length > 0)
+            {
+                // Validate the file type
+                var allowedExtensions = new[] { ".pdf", ".xls", ".xlsx", ".doc", ".docx" };
+                var extension = Path.GetExtension(files.FileName).ToLower();
+
+                if (!allowedExtensions.Contains(extension))
+                {
+                    ModelState.AddModelError("files", "Only PDF, Excel, and Word files are allowed.");
+                    return View(letter); // Return the view with validation error
+                }
+
+                string filename = Path.GetFileName(files.FileName);
+                string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/files");
+                if (!Directory.Exists(path))
+                {
+                    Directory.CreateDirectory(path);
+                }
+                string filePath = Path.Combine(path, filename);
+                using (var filestream = new FileStream(filePath, FileMode.Create))
+                {
+                    await files.CopyToAsync(filestream);
+                }
+                letter.files = filename;
+            }
+
             if (ModelState.IsValid)
             {
                 letter.date = DateTime.Now; // Set the current date
@@ -275,7 +514,7 @@ namespace CharityProject.Controllers
                 return RedirectToAction(nameof(Index));
             }
             return View(letter);
-        }
+        }*/
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -291,32 +530,33 @@ namespace CharityProject.Controllers
         }
 
 
-        // Update Actions --------------------------------------------------------
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateTransactionStatus(int transaction_id)
-        {
-            var transaction = await _context.Transactions.FindAsync(transaction_id);
-            if (transaction == null)
-            {
-                return NotFound();
-            }
+		// Update Actions --------------------------------------------------------
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> UpdateTransactionStatus(int transaction_id)
+		{
+			var transaction = await _context.Transactions.FindAsync(transaction_id);
+			if (transaction == null)
+			{
+				return NotFound();
+			}
 
-            // Update the status to "Closed"
-            transaction.status = "منهاة";
-            transaction.close_date = DateTime.Now;
+			// Update the status to "Closed"
+			transaction.status = "منهاة";
+			transaction.close_date = DateTime.Now;
 
-            // Save changes to the database
-            await _context.SaveChangesAsync();
+			// Save changes to the database
+			await _context.SaveChangesAsync();
 
-            return RedirectToAction(nameof(Index));
-        }
-
-
-        // Delete Actions --------------------------------------------------------
+			return RedirectToAction(nameof(Transactions));
+		}
 
 
-        public async Task<IActionResult> EditDevice(int? id)
+
+		// Delete Actions --------------------------------------------------------
+
+
+		public async Task<IActionResult> EditDevice(int? id)
         {
             if (id == null)
             {

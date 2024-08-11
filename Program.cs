@@ -21,6 +21,7 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.Requ
 
 builder.Services.AddSession(options => { options.IdleTimeout = TimeSpan.FromMinutes(10); });
 
+
 var app = builder.Build();
 
 

@@ -1,13 +1,14 @@
-﻿@model CharityProject.Models.Letter
+﻿@model CharityProject.Models.letter
 
 @{
     ViewData["Title"] = "PartialDetails2";
+    string fileUrl = Url.Content("~/files/" + Model.files);
 }
 <div class="modal fade" id="detailModal-@Model.letters_id" role="dialog">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header flex justify-content-center">
-                <h4>معلومات المعاملة  #@Model.letters_id</h4>
+                <h4> معلومات الخطاب   #@Model.letters_id</h4>
             </div>
             <div class="modal-body align-content-center">
                 <div class="col-md text-right my-1" dir="rtl">
@@ -36,8 +37,15 @@
                             <dt class="col-sm-4">
                                 المرفقات
                             </dt>
-                            <dd class="col-sm-18">
-                                @Html.DisplayFor(model => model.files)
+                            <dd class="col-sm-8">
+                                @if (!string.IsNullOrEmpty(Model.files))
+                                {
+                                    <a href="@fileUrl" target="_blank">@Model.files</a>
+                                }
+                                else
+                                {
+                                    <span>لا توجد مرفقات</span>
+                                }
                             </dd>
                         </dl>
                     </div>
@@ -52,6 +60,23 @@
 </div>
 
 
-
+<script>
+    function addReasonToForm(transactionId) {
+        var reason = document.getElementById('endReason-' + transactionId).value;
+        var form = document.getElementById('updateStatusFormConfirm-' + transactionId);
+        var input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'reason';
+        input.value = reason;
+        form.appendChild(input);
+    }
+</script>
+<script>
+    $(document).ready(function () {
+        $("#toggleReferForm-@Model.letters_id").click(function () {
+            $("#referForm-@Model.letters_id").toggle();
+        });
+    });
+</script>
 
 

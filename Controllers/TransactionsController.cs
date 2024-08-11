@@ -39,7 +39,7 @@ namespace CharityProject.Controllers
 
 		public async Task<IActionResult> GetAllLetters()
 		{
-			var letters = await _context.Letters.ToListAsync();
+			var letters = await _context.letters.ToListAsync();
 			return PartialView("_getAllLetters", letters);
 		}
 

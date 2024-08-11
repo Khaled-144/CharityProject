@@ -109,7 +109,7 @@ namespace CharityProject.Controllers
 
         public async Task<IActionResult> GetAllLetters()
         {
-            var letters = await _context.Letters
+            var letters = await _context.letters
                 .OrderByDescending(l => l.letters_id) // Order by letters_id in descending order
                 .ToListAsync();
             return PartialView("_getAllLetters", letters);
@@ -178,7 +178,7 @@ namespace CharityProject.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create_Letter([Bind("title,description,type,from_emp_id,to_emp_id,files")] Letter letter)
+        public async Task<IActionResult> Create_Letter([Bind("title,description,type,from_emp_id,to_emp_id,files")] letter letter)
         {
             if (ModelState.IsValid)
             {

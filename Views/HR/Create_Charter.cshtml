@@ -249,7 +249,7 @@
                             <div class="mb-3 mt-4   flex  items-center ">
                            
 
-                                    <label asp-for="to_departement_name" class="  pl-3 font-bold  text-gray-700">القسم</label>
+                             <label asp-for="to_departement_name" class="  pl-3 font-bold  text-gray-700">القسم</label>
                             <select asp-for="to_departement_name"
                             asp-items="@(ViewData["Departments"] as IEnumerable<SelectListItem>)"
                             class="font-bold border w-44 rounded-md">
@@ -258,7 +258,7 @@
                            
 
                            
-                                    <label asp-for="to_emp_id" class="   pr-5 pl-3 font-bold control-label">الموظف</label>
+                             <label asp-for="to_emp_id" class="   pr-5 pl-3 font-bold control-label">الموظف</label>
                             <select asp-for="to_emp_id"
                             asp-items="@(ViewData["Employees"] as IEnumerable<SelectListItem>)"
                                             class="form-control  rounded-md  w-44">
