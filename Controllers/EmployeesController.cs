@@ -60,7 +60,7 @@ namespace CharityProject.Controllers
 
 
         public async Task<IActionResult> Transactions()
-        {
+        {   
             // Retrieve the current user's ID from the session or context
             int currentUserId = GetEmployeeIdFromSession();
 
@@ -123,8 +123,16 @@ namespace CharityProject.Controllers
                 .OrderByDescending(t => t.transaction_id)
                 .ToListAsync();
 
-			// Fetch departments for the dropdown
-			var departments = await _context.Department.ToListAsync();
+            // Fetch employee names
+            var employeeIds = transactions.SelectMany(t => new[] { t.from_emp_id, t.to_emp_id }).Distinct().ToList();
+            var employees = await _context.employee
+                .Where(e => employeeIds.Contains(e.employee_id))
+                .ToDictionaryAsync(e => e.employee_id, e => e.name);
+
+            ViewBag.EmployeeNames = employees;
+
+            // Fetch departments for the dropdown
+            var departments = await _context.Department.ToListAsync();
 			ViewBag.Departments = new SelectList(departments, "departement_id", "departement_name");
 
             return PartialView("_getAllTransactions", transactions);
