@@ -149,24 +149,26 @@
 
 	function fetchRemainingHolidayBalance() {
 		var holidayTypeId = document.getElementById('holidayType').value;
-		var employeeId = 0; // Replace with the actual employee ID
+		console.log(`Fetching balance for holidayTypeId: ${holidayTypeId}`);
 
-		fetch(`/ControllerName/GetRemainingHolidayBalance?employeeId=${employeeId}&holidayId=${holidayTypeId}`)
+		fetch(`/ControllerName/GetRemainingHolidayBalance?holidayId=${holidayTypeId}`)
 			.then(response => {
+				console.log(`Response status: ${response.status}`);
 				if (!response.ok) {
 					throw new Error('Network response was not ok');
 				}
 				return response.json();
 			})
 			.then(data => {
-				if (data && typeof data === 'number') {
-					var counterInput = document.getElementById('counter');
+				console.log(`Received data: ${data}`);
+				var counterInput = document.getElementById('counter');
+				if (typeof data === 'number' && data >= 0) {
 					document.getElementById('holidayBalance').textContent = `الرصيد المتبقي: ${data}`;
-					counterInput.setAttribute('max', data); // Set the max value based on the balance
+					counterInput.setAttribute('max', data);
 				} else {
 					console.error('Unexpected data format:', data);
 					document.getElementById('holidayBalance').textContent = 'الرصيد المتبقي: غير معروف';
-					document.getElementById('counter').removeAttribute('max');
+					counterInput.removeAttribute('max');
 				}
 			})
 			.catch(error => {
