@@ -13,6 +13,7 @@ namespace CharityProject.Controllers
     {
 
         private readonly ApplicationDbContext _context;
+        private readonly ILogger<EmployeesController> _logger;
 
         public CustomerServiceManagerController(ApplicationDbContext context)
         {
@@ -22,6 +23,32 @@ namespace CharityProject.Controllers
 
 
         // Start of khaled work -----------------------------------------------------
+        private int GetEmployeeIdFromSession()
+        {
+            var employeeIdString = HttpContext.Session.GetString("Id");
+            if (employeeIdString != null)
+            {
+                return int.Parse(employeeIdString);
+
+            }
+
+            return 0;
+        }
+        private async Task<employee_details> GetEmployeeDetailsFromSessionAsync()
+        {
+            var employeeIdString = HttpContext.Session.GetString("Id");
+
+            if (employeeIdString != null && int.TryParse(employeeIdString, out int employeeId))
+            {
+                var employeeDetails = await _context.employee_details
+                    .Include(ed => ed.employee) // To include related employee data
+                    .FirstOrDefaultAsync(ed => ed.employee_id == employeeId);
+
+                return employeeDetails;
+            }
+
+            return null;
+        }
 
         public IActionResult ReferTransaction()
         {
@@ -89,31 +116,100 @@ namespace CharityProject.Controllers
 
         public async Task<IActionResult> Transactions()
         {
-            return View(await _context.Transactions.ToListAsync());
-        }
+            // Retrieve the current user's ID from the session or context
+            int currentUserId = GetEmployeeIdFromSession();
 
-        public async Task<IActionResult> GetAllTransactions()
-        {
+            // Populate the Departments dropdown list
+            ViewData["Departments"] = _context.Department.Select(d => new SelectListItem
+            {
+                Value = d.departement_id.ToString(),
+                Text = d.departement_name
+            }).ToList();
+
+            // Filter transactions based on the current user's ID and include the related Department
             var transactions = await _context.Transactions
-                .Include(t => t.Referrals)
-                .OrderByDescending(t => t.transaction_id) // Order by transaction_id in descending order
+                .Where(t => t.to_emp_id == currentUserId)
+                .Include(t => t.Department) // Include the Department
                 .ToListAsync();
-            return PartialView("_getAllTransactions", transactions);
+
+            // Get the counts for various entities
+            int internalCount = await _context.Transactions
+                .Where(t => t.to_emp_id == currentUserId)
+                .CountAsync();
+
+            int holidaysCount = await _context.HolidayHistories
+                .Where(h => h.emp_id == currentUserId)
+                .CountAsync();
+
+            int lettersCount = await _context.Letters
+                .Where(l => l.to_emp_id == currentUserId || l.to_emp_id == currentUserId)
+                .CountAsync();
+
+            int assetsCount = await _context.charter
+                .Where(c => c.to_emp_id == currentUserId)
+                .CountAsync();
+
+            // Passing the counts to the view using ViewBag
+            ViewBag.InternalCount = internalCount;
+            ViewBag.HolidaysCount = holidaysCount;
+            ViewBag.LettersCount = lettersCount;
+            ViewBag.AssetsCount = assetsCount;
+
+            return View(transactions);
         }
 
-        public async Task<IActionResult> GetAllHolidays()
+		public async Task<IActionResult> GetAllTransactions()
+		{
+			var employeeId = GetEmployeeIdFromSession();
+			var departmentId = int.Parse(HttpContext.Session.GetString("DepartmentId"));
+			var position = HttpContext.Session.GetString("Position");
+
+			// Fetch transactions based on the conditions provided
+			var transactions = await _context.Transactions
+				.Include(t => t.Referrals)
+					.ThenInclude(r => r.from_employee)
+				.Include(t => t.Referrals)
+					.ThenInclude(r => r.to_employee)
+				.Where(t =>
+					(position == "manager" && (t.department_id == departmentId || t.department_id == 5)) || // Transactions for the manager's department or from department 5
+					t.from_emp_id == employeeId || // Transactions sent by the employee
+					t.to_emp_id == employeeId || // Transactions sent to the employee
+					t.Referrals.Any(r => r.to_employee_id == employeeId)) // Transactions referred to the employee
+				.OrderByDescending(t => t.transaction_id)
+				.ToListAsync();
+
+			// Fetch departments for the dropdown
+			var departments = await _context.Department.ToListAsync();
+			ViewBag.Departments = new SelectList(departments, "departement_id", "departement_name");
+
+			return PartialView("_getAllTransactions", transactions);
+		}
+		public async Task<IActionResult> GetAllHolidays()
         {
+            var employeeId = GetEmployeeIdFromSession();
+
+            // Fetch holidays created by the logged-in employee
             var holidays = await _context.HolidayHistories
-                .OrderByDescending(h => h.holidays_history_id) // Replace HolidaysHistoryId with the actual ID column name
+                .Where(h => h.emp_id == employeeId)
+                .OrderByDescending(h => h.holidays_history_id)
                 .ToListAsync();
+
             return PartialView("_getAllHolidays", holidays);
         }
 
         public async Task<IActionResult> GetAllLetters()
         {
+            var employeeDetails = await GetEmployeeDetailsFromSessionAsync();
+            if (employeeDetails == null)
+            {
+                return NotFound(); // Handle the case where employee details are not found
+            }
+
             var letters = await _context.Letters
-                .OrderByDescending(l => l.letters_id) // Order by letters_id in descending order
+                .Where(l => l.to_emp_id == employeeDetails.employee_id || l.departement_id == employeeDetails.departement_id)
+                .OrderByDescending(l => l.letters_id)
                 .ToListAsync();
+
             return PartialView("_getAllLetters", letters);
         }
 
@@ -125,8 +221,13 @@ namespace CharityProject.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create_Transaction(IFormFile files, [Bind("create_date,close_date,title,description,from_emp_id,to_emp_id,department_id")] Transaction transaction)
+        public async Task<IActionResult> Create_Transaction(IFormFile files, [Bind("create_date,close_date,title,description,to_emp_id,department_id")] Transaction transaction)
         {
+            // Retrieve the employee ID from session
+            var employeeId = GetEmployeeIdFromSession();
+
+            transaction.from_emp_id = employeeId;
+
             if (files != null && files.Length > 0)
             {
                 // Validate the file type
@@ -168,8 +269,38 @@ namespace CharityProject.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create_Holiday([Bind("title,description,duration,emp_id,start_date,end_date,files,holiday_id")] HolidayHistory holidayHistory)
+        public async Task<IActionResult> Create_Holiday(IFormFile files, [Bind("title,description,duration,start_date,end_date,holiday_id")] HolidayHistory holidayHistory)
         {
+            // Get the logged-in employee's ID from the session
+            var employeeId = GetEmployeeIdFromSession();
+            holidayHistory.emp_id = employeeId; // Assign the employee ID to the holiday
+
+            if (files != null && files.Length > 0)
+            {
+                // Validate the file type
+                var allowedExtensions = new[] { ".pdf", ".xls", ".xlsx", ".doc", ".docx" };
+                var extension = Path.GetExtension(files.FileName).ToLower();
+
+                if (!allowedExtensions.Contains(extension))
+                {
+                    ModelState.AddModelError("files", "Only PDF, Excel, and Word files are allowed.");
+                    return View(holidayHistory); // Return the view with validation error
+                }
+
+                string filename = Path.GetFileName(files.FileName);
+                string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/files");
+                if (!Directory.Exists(path))
+                {
+                    Directory.CreateDirectory(path);
+                }
+                string filePath = Path.Combine(path, filename);
+                using (var filestream = new FileStream(filePath, FileMode.Create))
+                {
+                    await files.CopyToAsync(filestream);
+                }
+                holidayHistory.files = filename;
+            }
+
             holidayHistory.creation_date = DateOnly.FromDateTime(DateTime.Now); // Set to current date
             holidayHistory.status = "مرسلة"; // Set default status
             _context.Add(holidayHistory);
@@ -180,18 +311,72 @@ namespace CharityProject.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create_Letter([Bind("title,description,type,from_emp_id,to_emp_id,files")] Letter letter)
+        public async Task<IActionResult> Create_Letter(IFormFile files, [Bind("title,description,type,to_emp_id")] Letter letter)
         {
-            if (ModelState.IsValid)
+            var employeeId = GetEmployeeIdFromSession();
+            letter.from_emp_id = employeeId; // Assign the employee ID to the letter
+
+            if (files != null && files.Length > 0)
             {
-                letter.date = DateTime.Now; // Set the current date
-                letter.departement_id = 3;
-                _context.Add(letter);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                // Validate the file type
+                var allowedExtensions = new[] { ".pdf", ".xls", ".xlsx", ".doc", ".docx" };
+                var extension = Path.GetExtension(files.FileName).ToLower();
+
+                if (!allowedExtensions.Contains(extension))
+                {
+                    ModelState.AddModelError("files", "Only PDF, Excel, and Word files are allowed.");
+                    // Return the view with validation error
+                    return View(letter);
+                }
+
+                string filename = Path.GetFileName(files.FileName);
+                string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/files");
+                if (!Directory.Exists(path))
+                {
+                    Directory.CreateDirectory(path);
+                }
+                string filePath = Path.Combine(path, filename);
+                using (var filestream = new FileStream(filePath, FileMode.Create))
+                {
+                    await files.CopyToAsync(filestream);
+                }
+                letter.files = filename;
             }
-            return View(letter);
+
+
+            letter.date = DateTime.Now; // Set the current date
+
+            // Optionally set department_id dynamically based on the user's department
+            // letter.departement_id = /* retrieve from employee details */;
+
+            _context.Add(letter);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Transactions)); // Or any other relevant action
+
+
+            // Return the same view with validation errors
         }
+        public IActionResult GetRemainingHolidayBalance(int employeeId, int holidayId)
+        {
+            // Get the allowed duration for the specified holiday type
+            var holidayType = _context.Holidays
+                .Where(h => h.holiday_id == holidayId)
+                .Select(h => h.allowedDuration)
+                .FirstOrDefault();
+
+            // Calculate the total duration taken for the specified holiday type
+            var totalTakenDuration = _context.HolidayHistories
+                .Where(hh => hh.emp_id == employeeId
+                             && hh.holiday_id == holidayId
+                             && hh.start_date.Year == DateTime.Now.Year)
+                .Sum(hh => hh.duration);
+
+            // Calculate the remaining balance
+            var remainingBalance = holidayType - totalTakenDuration;
+
+            return Json(remainingBalance);
+        }
+
 
 
         // Update Actions --------------------------------------------------------
@@ -215,6 +400,23 @@ namespace CharityProject.Controllers
             return RedirectToAction(nameof(Transactions));
         }
         [HttpPost]
+        public IActionResult ArchiveHoliday(int id)
+        {
+            var holiday = _context.HolidayHistories.FirstOrDefault(h => h.holidays_history_id == id);
+            if (holiday == null)
+            {
+                return Json(new { success = false, message = "Holiday not found." });
+            }
+
+            // Update the status to "مؤرشفة"
+            holiday.status = "مؤرشفة";
+
+            // Save the changes to the database
+            _context.SaveChanges();
+
+            return Json(new { success = true });
+        }
+        [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateHolidayStatus(int holidays_history_id)
         {
@@ -232,6 +434,32 @@ namespace CharityProject.Controllers
             await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Transactions));
+        }
+        [HttpGet]
+        public async Task<IActionResult> GetEmployeesByDepartment(int departmentId)
+        {
+            _logger.LogInformation($"Fetching employees for department ID: {departmentId}");
+
+            var employees = await _context.employee_details
+                .Where(ed => ed.departement_id == departmentId)
+                .Select(ed => new
+                {
+                    employee_id = ed.employee_id,
+                    name = ed.employee.name,
+                    position = ed.position
+                })
+                .GroupBy(e => e.employee_id)
+                .Select(g => g.First())
+                .ToListAsync();
+
+            if (!employees.Any())
+            {
+                _logger.LogWarning($"No employees found for department ID: {departmentId}");
+                return NotFound("No employees found for the given department.");
+            }
+
+            _logger.LogInformation($"Found {employees.Count} employees for department ID: {departmentId}");
+            return Ok(employees);
         }
         [HttpPost]
 		[ValidateAntiForgeryToken]
