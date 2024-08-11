@@ -22,10 +22,25 @@
                             <dd class="col-sm-8">@Html.DisplayFor(model => model.title)</dd>
                             <dt class="col-sm-4">الوصف</dt>
                             <dd class="col-sm-8">@Html.DisplayFor(model => model.description)</dd>
-                            <dt class="col-sm-4">الى</dt>
-                            <dd class="col-sm-8">4</dd>
-                            <dt class="col-sm-4">قسم</dt>
-                            <dd class="col-sm-8">@Html.DisplayFor(model => model.department_id)</dd>
+                            @{
+                                var employeeNames = ViewBag.EmployeeNames as Dictionary<int, string>;
+                            }
+
+                            <dt class="col-sm-4">من الموظف</dt>
+                            <dd class="col-sm-8">
+                                @(employeeNames.TryGetValue(Model.from_emp_id, out var fromName) ? fromName : "غير معروف")
+                            </dd>
+                            @if (Model.to_emp_id != null)
+                            {
+                                <dt class="col-sm-4">الى الموظف</dt>
+                                <dd class="col-sm-8">
+                                    @(employeeNames.TryGetValue(Model.to_emp_id ?? 0, out var toName) ? toName : "غير معروف")
+                                </dd>
+                            }
+                            <dt class="col-sm-4">الى قسم</dt>
+                            <dd class="col-sm-8">
+                                <span id="department-name-@Model.transaction_id"></span>
+                            </dd>
                             <dt class="col-sm-4">تاريخ الانشاء</dt>
                             <dd class="col-sm-8">@Html.DisplayFor(model => model.create_date)</dd>
                             <dt class="col-sm-4">تاريخ الانهاء</dt>
@@ -241,5 +256,24 @@
                 }
             });
         }
+    });
+</script>
+<script>
+    $(document).ready(function () {
+        var departmentId = @Model.department_id;
+        var transactionId = @Model.transaction_id;
+
+        $.ajax({
+            url: '@Url.Action("GetDepartmentName", "Employees")',
+            type: 'GET',
+            data: { departmentId: departmentId },
+            success: function (data) {
+                $('#department-name-' + transactionId).text(data);
+            },
+            error: function (xhr, status, error) {
+                console.error("Error fetching department name:", error);
+                $('#department-name-' + transactionId).text("غير معروف");
+            }
+        });
     });
 </script>
