@@ -98,12 +98,9 @@
 						</div>
 						<div class="col-span-2 form-group sm:col-span-1 mb-4">
 							<label asp-for="department_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">إلى</label>
-							<select asp-for="department_id" required class="form-control">
-								<option value="" disabled selected>اختر القسم الموجه</option>
-								<option value="1">الموارد البشرية</option>
-								<option value="2">التنمية المالية</option>
-								<option value="3">إدارية المستفيدين</option>
-								<option value="4">الإدارة التنفيذية</option>
+							<select asp-for="department_id"
+									asp-items="@(ViewData["Departments"] as IEnumerable<SelectListItem>)" class="border w-full rounded focus:ring-blue-500 focus:border-blue-500">
+								<option disabled selected>-- أختر القسم --</option>
 							</select>
 							<span asp-validation-for="department_id" class="text-danger"></span>
 						</div>

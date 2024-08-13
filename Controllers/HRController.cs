@@ -126,7 +126,32 @@ namespace CharityProject.Controllers
 
         // End of khaled work -----------------------------------------------------
 
+        private int GetEmployeeIdFromSession()
+        {
+            var employeeIdString = HttpContext.Session.GetString("Id");
+            if (employeeIdString != null)
+            {
+                return int.Parse(employeeIdString);
 
+            }
+
+            return 0;
+        }
+        private async Task<employee_details> GetEmployeeDetailsFromSessionAsync()
+        {
+            var employeeIdString = HttpContext.Session.GetString("Id");
+
+            if (employeeIdString != null && int.TryParse(employeeIdString, out int employeeId))
+            {
+                var employeeDetails = await _context.employee_details
+                    .Include(ed => ed.employee) // To include related employee data
+                    .FirstOrDefaultAsync(ed => ed.employee_id == employeeId);
+
+                return employeeDetails;
+            }
+
+            return null;
+        }
 
 
 
@@ -154,11 +179,27 @@ namespace CharityProject.Controllers
 
         public async Task<IActionResult> GetAllTransactions()
         {
+
+
+            var employeeId = GetEmployeeIdFromSession();
+
+            // Fetch transactions sent directly to the employee or referred to the employee
+            // getting the transactions sent to me or referred to me 
             var transactions = await _context.Transactions
                 .Include(t => t.Referrals)
-                .OrderByDescending(t => t.transaction_id) // Order by transaction_id in descending order
+                    .ThenInclude(r => r.from_employee)
+                .Include(t => t.Referrals)
+                    .ThenInclude(r => r.to_employee)
+                .Where(t => t.to_emp_id == employeeId || t.Referrals.Any(r => r.to_employee_id == employeeId) || t.department_id == 1)
+                .OrderByDescending(t => t.transaction_id)
                 .ToListAsync();
-            return PartialView("_getAllTransactions", transactions);  
+
+            // Fetch departments for the dropdown
+            var departments = await _context.Department.ToListAsync();
+            ViewBag.Departments = new SelectList(departments, "departement_id", "departement_name");
+
+            return PartialView("_getAllTransactions", transactions);
+
 
 
         }
@@ -180,7 +221,8 @@ namespace CharityProject.Controllers
         public async Task<IActionResult> GetAllHolidays()
         {
             var holidays = await _context.HolidayHistories
-                .OrderByDescending(h => h.holidays_history_id) // Replace HolidaysHistoryId with the actual ID column name
+                .Where(h=>h.status=="موافقة المدير المباشر")
+                .OrderByDescending(h => h.holidays_history_id ) // Replace HolidaysHistoryId with the actual ID column name
                 .ToListAsync();
             return PartialView("_getAllHolidays", holidays);
         }
@@ -278,10 +320,14 @@ namespace CharityProject.Controllers
 		}
 
 
-		[HttpPost]
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create_Holiday(IFormFile files, [Bind("title,description,duration,emp_id,start_date,end_date,files,holiday_id")] HolidayHistory holidayHistory)
+        public async Task<IActionResult> Create_Holiday(IFormFile files, [Bind("title,description,duration,start_date,end_date,holiday_id")] HolidayHistory holidayHistory)
         {
+            // Get the logged-in employee's ID from the session
+            var employeeId = GetEmployeeIdFromSession();
+            holidayHistory.emp_id = employeeId; // Assign the employee ID to the holiday
+
             if (files != null && files.Length > 0)
             {
                 // Validate the file type
@@ -307,11 +353,6 @@ namespace CharityProject.Controllers
                 }
                 holidayHistory.files = filename;
             }
-
-
-
-
-
 
             holidayHistory.creation_date = DateOnly.FromDateTime(DateTime.Now); // Set to current date
             holidayHistory.status = "مرسلة"; // Set default status
@@ -411,74 +452,15 @@ namespace CharityProject.Controllers
         }
 
 
-        [HttpPost]
-            [ValidateAntiForgeryToken]
-            public async Task<IActionResult> Create_Letter(IFormFile files, [Bind("title,description,type,from_emp_id,to_emp_id,files,Confidentiality,Urgency,Importance,to_departement_name")] letter letter)
-            {
 
-
-                if (files != null && files.Length > 0)
-                {
-                    // Validate the file type
-                    var allowedExtensions = new[] { ".pdf", ".xls", ".xlsx", ".doc", ".docx" };
-                    var extension = Path.GetExtension(files.FileName).ToLower();
-
-                    if (!allowedExtensions.Contains(extension))
-                    {
-                        ModelState.AddModelError("files", "Only PDF, Excel, and Word files are allowed.");
-                        return View(letter); // Return the view with validation error
-                    }
-
-                    string filename = Path.GetFileName(files.FileName);
-                    string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/files");
-                    if (!Directory.Exists(path))
-                    {
-                        Directory.CreateDirectory(path);
-                    }
-                    string filePath = Path.Combine(path, filename);
-                    using (var filestream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await files.CopyToAsync(filestream);
-                    }
-                    letter.files = filename;
-                }
-                if (ModelState.IsValid)
-                {
-                    letter.date = DateTime.Now; // Set the current date
-                    letter.departement_id = 3;
-                    _context.Add(letter);
-                    await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index));
-                }
-            return RedirectToAction(nameof(Transactions));
-        }
-
-
-/*        [HttpPost]
+        /*[HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create_Letter(string title,
-    string description,
-    string type,
-    int from_emp_id,
-    int to_emp_id,
-    string Confidentiality,
-    string Urgency,
-    string Importance,
-    string to_departement_name, IFormFile files)
+        public async Task<IActionResult> Create_Letter(
+    IFormFile files,
+    string[]? to_departement_name,
+    string[]? to_emp_id,
+    [Bind("title,description,type,from_emp_id,files,Confidentiality,Urgency,Importance")] letter letter)
         {
-            var letter = new letter
-            {
-                title = title,
-                description = description,
-                type = type,
-                from_emp_id = from_emp_id,
-                to_emp_id = to_emp_id,
-                Confidentiality = Confidentiality,
-                Urgency = Urgency,
-                Importance = Importance,
-                to_departement_name = to_departement_name
-            };
-
             if (files != null && files.Length > 0)
             {
                 // Validate the file type
@@ -505,16 +487,299 @@ namespace CharityProject.Controllers
                 letter.files = filename;
             }
 
-            if (ModelState.IsValid)
-            {
+
                 letter.date = DateTime.Now; // Set the current date
-                letter.departement_id = 3;
-                _context.Add(letter);
+         letter.from_emp_id = 23;
+         letter.departement_id = 1;
+
+                // If departments are selected, send the letter to the departments
+                if (to_departement_name != null && to_departement_name.Any())
+                {
+                    foreach (var dept in to_departement_name)
+                    {
+                        var newLetter = new letter
+                        {
+                            title = letter.title,
+                            description = letter.description,
+                            type = letter.type,
+                            from_emp_id = letter.from_emp_id,
+                            files = letter.files,
+                            Confidentiality = letter.Confidentiality,
+                            Urgency = letter.Urgency,
+                            Importance = letter.Importance,
+                            date = letter.date,
+                            departement_id = letter.departement_id,
+                            to_departement_name = dept,
+                            to_emp_id = letter.to_emp_id // No employee selected
+                        };
+
+                        _context.Add(newLetter);
+                    }
+                }
+
+                // If employees are selected, send the letter to the employees
+                if (to_emp_id != null && to_emp_id.Any())
+                {
+                    foreach (var emp in to_emp_id)
+                    {
+                        var newLetter = new letter
+                        {
+                            title = letter.title,
+                            description = letter.description,
+                            type = letter.type,
+                            from_emp_id = letter.from_emp_id,
+                            files = letter.files,
+                            Confidentiality = letter.Confidentiality,
+                            Urgency = letter.Urgency,
+                            Importance = letter.Importance,
+                            date = letter.date,
+                            departement_id = letter.departement_id,
+                            to_departement_name = letter.to_departement_name, // No department selected
+                            to_emp_id = int.Parse(emp)
+                        };
+
+                        _context.Add(newLetter);
+                    }
+                }
+
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
+                return RedirectToAction(nameof(Transactions));
+
+
             return View(letter);
-        }*/
+        }
+*/
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create_Letter(
+     IFormFile files,
+     string[]? to_departement_name,
+     string[]? to_emp_id,
+     [Bind("title,description,type,from_emp_id,files,Confidentiality,Urgency,Importance")] letter letter)
+        {
+            if (files != null && files.Length > 0)
+            {
+                // Validate the file type
+                var allowedExtensions = new[] { ".pdf", ".xls", ".xlsx", ".doc", ".docx" };
+                var extension = Path.GetExtension(files.FileName).ToLower();
+
+                if (!allowedExtensions.Contains(extension))
+                {
+                    ModelState.AddModelError("files", "Only PDF, Excel, and Word files are allowed.");
+                    return View(letter); // Return the view with validation error
+                }
+
+                string filename = Path.GetFileName(files.FileName);
+                string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/files");
+                if (!Directory.Exists(path))
+                {
+                    Directory.CreateDirectory(path);
+                }
+                string filePath = Path.Combine(path, filename);
+                using (var filestream = new FileStream(filePath, FileMode.Create))
+                {
+                    await files.CopyToAsync(filestream);
+                }
+                letter.files = filename;
+            }
+
+            letter.date = DateTime.Now; // Set the current date
+            letter.from_emp_id = 23;
+            letter.departement_id = 1;
+
+            List<int> employeeIdsToSendTo = new List<int>();
+
+            // If departments are selected and no specific employees are chosen
+            if (to_departement_name != null && to_departement_name.Any() && (to_emp_id == null || !to_emp_id.Any()))
+            {
+                foreach (var deptName in to_departement_name)
+                {
+                    // Find the department ID by name
+                    var department = await _context.Department.FirstOrDefaultAsync(d => d.departement_name == deptName);
+
+
+                    if (department != null)
+                    {
+                        // Get all active employees in the selected department
+                        var departmentEmployees = _context.employee_details
+                            .Where(ed => ed.departement_id == department.departement_id && ed.active)
+                            .Select(ed => ed.employee_id)
+                            .ToList();
+
+                        foreach (var empId in departmentEmployees)
+                        {
+                            // Create a new letter record for each employee in the department
+                            var newLetter = new letter
+                            {
+                                title = letter.title,
+                                description = letter.description,
+                                type = letter.type,
+                                from_emp_id = letter.from_emp_id,
+                                files = letter.files,
+                                Confidentiality = letter.Confidentiality,
+                                Urgency = letter.Urgency,
+                                Importance = letter.Importance,
+                                date = letter.date,
+                                to_emp_id = empId,
+                                to_departement_name = deptName,
+                               departement_id = letter.departement_id // Store the specific department name for this record
+                            };
+
+                            _context.Add(newLetter);
+                        }
+                    }
+                }
+            }
+
+            // If specific employees are chosen, prioritize them over departments
+            if (to_emp_id != null && to_emp_id.Any())
+            {
+                foreach (var empId in to_emp_id.Select(int.Parse))
+                {
+                    // Find the department(s) for each selected employee
+                    var employee = await _context.employee_details
+                                                 .Include(ed => ed.Department)
+                                                 .FirstOrDefaultAsync(ed => ed.employee_id == empId);
+
+                    if (employee != null)
+                    {
+                        var newLetter = new letter
+                        {
+                            title = letter.title,
+                            description = letter.description,
+                            type = letter.type,
+                            from_emp_id = letter.from_emp_id,
+                            files = letter.files,
+                            Confidentiality = letter.Confidentiality,
+                            Urgency = letter.Urgency,
+                            Importance = letter.Importance,
+                            date = letter.date,
+                            to_emp_id = empId,
+                            to_departement_name = employee.Department.departement_name,
+                             departement_id = letter.departement_id// Store the department name for this employee
+                        };
+
+                        _context.Add(newLetter);
+                    }
+                }
+            }
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Transactions));
+        }
+
+
+
+
+
+
+
+
+
+        /*       [HttpPost]
+                   [ValidateAntiForgeryToken]
+                   public async Task<IActionResult> Create_Letter(IFormFile files, [Bind("title,description,type,from_emp_id,to_emp_id,files,Confidentiality,Urgency,Importance,to_departement_name")] letter letter)
+                   {
+
+
+                       if (files != null && files.Length > 0)
+                       {
+                           // Validate the file type
+                           var allowedExtensions = new[] { ".pdf", ".xls", ".xlsx", ".doc", ".docx" };
+                           var extension = Path.GetExtension(files.FileName).ToLower();
+
+                           if (!allowedExtensions.Contains(extension))
+                           {
+                               ModelState.AddModelError("files", "Only PDF, Excel, and Word files are allowed.");
+                               return View(letter); // Return the view with validation error
+                           }
+
+                           string filename = Path.GetFileName(files.FileName);
+                           string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/files");
+                           if (!Directory.Exists(path))
+                           {
+                               Directory.CreateDirectory(path);
+                           }
+                           string filePath = Path.Combine(path, filename);
+                           using (var filestream = new FileStream(filePath, FileMode.Create))
+                           {
+                               await files.CopyToAsync(filestream);
+                           }
+                           letter.files = filename;
+                       }
+
+
+                           letter.date = DateTime.Now; // Set the current date
+                           letter.departement_id = 3;
+                           _context.Add(letter);
+                           await _context.SaveChangesAsync();
+                           return RedirectToAction(nameof(Transactions));
+
+
+                    }*/
+
+
+        /*        [HttpPost]
+                [ValidateAntiForgeryToken]
+                public async Task<IActionResult> Create_Letter(string title,
+            string description,
+            string type,
+            int from_emp_id,
+            int to_emp_id,
+            string Confidentiality,
+            string Urgency,
+            string Importance,
+            string to_departement_name, IFormFile files)
+                {
+                    var letter = new letter
+                    {
+                        title = title,
+                        description = description,
+                        type = type,
+                        from_emp_id = from_emp_id,
+                        to_emp_id = to_emp_id,
+                        Confidentiality = Confidentiality,
+                        Urgency = Urgency,
+                        Importance = Importance,
+                        to_departement_name = to_departement_name
+                    };
+
+                    if (files != null && files.Length > 0)
+                    {
+                        // Validate the file type
+                        var allowedExtensions = new[] { ".pdf", ".xls", ".xlsx", ".doc", ".docx" };
+                        var extension = Path.GetExtension(files.FileName).ToLower();
+
+                        if (!allowedExtensions.Contains(extension))
+                        {
+                            ModelState.AddModelError("files", "Only PDF, Excel, and Word files are allowed.");
+                            return View(letter); // Return the view with validation error
+                        }
+
+                        string filename = Path.GetFileName(files.FileName);
+                        string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/files");
+                        if (!Directory.Exists(path))
+                        {
+                            Directory.CreateDirectory(path);
+                        }
+                        string filePath = Path.Combine(path, filename);
+                        using (var filestream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await files.CopyToAsync(filestream);
+                        }
+                        letter.files = filename;
+                    }
+
+                    if (ModelState.IsValid)
+                    {
+                        letter.date = DateTime.Now; // Set the current date
+                        letter.departement_id = 3;
+                        _context.Add(letter);
+                        await _context.SaveChangesAsync();
+                        return RedirectToAction(nameof(Index));
+                    }
+                    return View(letter);
+                }*/
 
         [HttpPost]
         [ValidateAntiForgeryToken]

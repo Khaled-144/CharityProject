@@ -27,5 +27,8 @@
 
         [ForeignKey("employee_id")]
         public employee employee { get; set; }
+
+        [ForeignKey("departement_id")]
+        public Department Department { get; set; }
     }
 }

@@ -1,178 +1,245 @@
 ﻿@model CharityProject.Models.Transaction
 
 @{
-	ViewData["Title"] = "Transaction Details";
-	string fileUrl = Url.Content("~/files/" + Model.files);
+    ViewData["Title"] = "Transaction Details";
+    string fileUrl = Url.Content("~/files/" + Model.files);
 }
 
 <div class="modal fade" id="detailModal-@Model.transaction_id" role="dialog">
-	<div class="modal-dialog modal-xl">
-		<div class="modal-content">
-			<div class="modal-header flex justify-content-center">
-				<h4>معلومات المعاملة  #@Model.transaction_id</h4>
-			</div>
-			<div class="modal-body">
-				<div class="row">
-					<!-- Right section for transaction details -->
-					<div class="col-md-5" dir="rtl">
-						<h5>تفاصيل المعاملة</h5>
-						<hr class="w-48 h-1 mx-auto my-2 bg-gray-950 border-2 rounded md:my-10 dark:bg-gray-800">
-						<dl class="row text-right">
-							<dt class="col-sm-4">العنوان</dt>
-							<dd class="col-sm-8">@Html.DisplayFor(model => model.title)</dd>
-							<dt class="col-sm-4">الوصف</dt>
-							<dd class="col-sm-8">@Html.DisplayFor(model => model.description)</dd>
-							<dt class="col-sm-4">الى</dt>
-							<dd class="col-sm-8">4</dd>
-							<dt class="col-sm-4">قسم</dt>
-							<dd class="col-sm-8">@Html.DisplayFor(model => model.department_id)</dd>
-							<dt class="col-sm-4">تاريخ الانشاء</dt>
-							<dd class="col-sm-8">@Html.DisplayFor(model => model.create_date)</dd>
-							<dt class="col-sm-4">تاريخ الانهاء</dt>
-							<dd class="col-sm-8">@Html.DisplayFor(model => model.close_date)</dd>
-							<dt class="col-sm-4">الحالة</dt>
-							<dd class="col-sm-8">@Html.DisplayFor(model => model.status)</dd>
-							<dt class="col-sm-4">@Html.DisplayNameFor(model => model.files)</dt>
-							<dd class="col-sm-8">
-								@if (!string.IsNullOrEmpty(Model.files))
-								{
-									<a href="@fileUrl" target="_blank">@Model.files</a>
-								}
-								else
-								{
-									<span>لا توجد مرفقات</span>
-								}
-							</dd>
-						</dl>
-					</div>
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header flex justify-content-center">
+                <h4>معلومات المعاملة  #@Model.transaction_id</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <!-- Right section for transaction details -->
+                    <div class="col-md-5" dir="rtl">
+                        <h5>تفاصيل المعاملة</h5>
+                        <hr class="w-48 h-1 mx-auto my-2 bg-gray-950 border-2 rounded md:my-10 dark:bg-gray-800">
+                        <dl class="row text-right">
+                            <dt class="col-sm-4">العنوان</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.title)</dd>
+                            <dt class="col-sm-4">الوصف</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.description)</dd>
+                            <dt class="col-sm-4">الى</dt>
+                            <dd class="col-sm-8">4</dd>
+                            <dt class="col-sm-4">قسم</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.department_id)</dd>
+                            <dt class="col-sm-4">تاريخ الانشاء</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.create_date)</dd>
+                            <dt class="col-sm-4">تاريخ الانهاء</dt>
+                            <dd class="col-sm-8">tst</dd>
+                            <dt class="col-sm-4">الحالة</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.status)</dd>
+                            <dt class="col-sm-4">@Html.DisplayNameFor(model => model.files)</dt>
+                            <dd class="col-sm-8">
+                                @if (!string.IsNullOrEmpty(Model.files))
+                                {
+                                    <a href="@fileUrl" target="_blank">@Model.files</a>
+                                }
+                                else
+                                {
+                                    <span>لا توجد مرفقات</span>
+                                }
+                            </dd>
+                        </dl>
+                    </div>
 
-					<!-- Left section for referrals details -->
-					<div class="col-md-7" dir="rtl">
-						<h5>تفاصيل الإحالات</h5>
-						<hr class="w-48 h-1 mx-auto my-2 bg-gray-950 border-2 rounded md:my-10 dark:bg-gray-800">
-						@if (Model.Referrals != null && Model.Referrals.Any())
-						{
-							<div class="border border-gray-300 shadow-sm rounded-lg overflow-hidden">
-								<table class="w-full text-sm leading-5">
-									<thead class="bg-gray-100">
-										<tr>
-											<th class="py-3 px-4 text-right font-medium text-gray-600">تاريخ الإحالة</th>
-											<th class="py-3 px-4 text-right font-medium text-gray-600">من الموظف</th>
-											<th class="py-3 px-4 text-right font-medium text-gray-600">إلى الموظف</th>
-											<th class="py-3 px-4 text-right font-medium text-gray-600">التعليقات</th>
-										</tr>
-									</thead>
-									<tbody>
-										@{
-											var index = 0;
-											foreach (var referral in Model.Referrals.OrderByDescending(r => r.referral_date))
-											{
-												var rowClass = index % 2 == 0 ? "" : "bg-gray-50";
-												<tr class="@rowClass">
-													<td class="py-3 px-4 text-right">@referral.referral_date.ToString("yyyy/MM/dd - HH:mm")</td>
-													<td class="py-3 px-4 text-right">@referral.from_employee_id</td>
-													<td class="py-3 px-4 text-right">@referral.to_employee_id</td>
-													<td class="py-3 px-4 text-right">@referral.comments</td>
-												</tr>
-												index++;
-											}
-										}
-									</tbody>
-								</table>
-							</div>
-						}
-						else
-						{
-							<p>لا توجد إحالات لهذه المعاملة.</p>
-						}
-					</div>
-				</div>
+                    <!-- Left section for referrals details -->
+                    <div class="col-md-7" dir="rtl">
+                        <h5>تفاصيل الإحالات</h5>
+                        <hr class="w-48 h-1 mx-auto my-2 bg-gray-950 border-2 rounded md:my-10 dark:bg-gray-800">
+                        @if (Model.Referrals != null && Model.Referrals.Any())
+                        {
+                            <div class="border border-gray-300 shadow-sm rounded-lg overflow-hidden">
+                                <table class="w-full text-sm leading-5">
+                                    <thead class="bg-gray-100">
+                                        <tr>
+                                            <th class="py-3 px-4 text-right font-medium text-gray-600">تاريخ الإحالة</th>
+                                            <th class="py-3 px-4 text-right font-medium text-gray-600">من الموظف</th>
+                                            <th class="py-3 px-4 text-right font-medium text-gray-600">إلى الموظف</th>
+                                            <th class="py-3 px-4 text-right font-medium text-gray-600">التعليقات</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @{
+                                            var index = 0;
+                                            foreach (var referral in Model.Referrals.OrderByDescending(r => r.referral_date))
+                                            {
+                                                var rowClass = index % 2 == 0 ? "" : "bg-gray-50";
+                                                <tr class="@rowClass">
+                                                    <td class="py-3 px-4 text-right">@referral.referral_date.ToString("yyyy/MM/dd - HH:mm")</td>
+                                                    <td class="py-3 px-4 text-right">
+                                                        @if (referral.from_employee == null)
+                                                        {
+                                                            <span class="text-red-500">موظف غير موجود (ID: @referral.from_employee_id)</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            @referral.from_employee.name
+                                                        }
+                                                    </td>
+                                                    <td class="py-3 px-4 text-right">
+                                                        @if (referral.to_employee == null)
+                                                        {
+                                                            <span class="text-red-500">موظف غير موجود (ID: @referral.to_employee_id)</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            @referral.to_employee.name
+                                                        }
+                                                    </td>
+                                                    <td class="py-3 px-4 text-right">@referral.comments</td>
+                                                </tr>
+                                                index++;
+                                            }
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                        else
+                        {
+                            <p>لا توجد إحالات لهذه المعاملة.</p>
+                        }
+                    </div>
+                </div>
 
-				<div class="row mt-3">
-					<div class="col-12 text-center">
-						@if (Model.status != "منهاة")
-						{
-							<button type="button" class="btn btn-danger ml-8" data-toggle="modal" data-target="#confirmEndModal-@Model.transaction_id">
-								إنهاء المعاملة
-							</button>
-							<button type="button" class="btn btn-primary ml-8" id="toggleReferForm-@Model.transaction_id">
-								إحالة المعاملة
-							</button>
-						}
-						<button type="button" class="btn btn-dark" data-dismiss="modal">إخفاء</button>
-					</div>
-				</div>
+                <div class="row mt-3">
+                    <div class="col-12 text-center flex justify-center ">
+                        @if (Model.status != "منهاة")
+                        {
+                            @using (Html.BeginForm("UpdateStatus", "Transactions", FormMethod.Post, new { id = $"updateStatusForm-{Model.transaction_id}", @class = "d-inline" }))
+                            {
+                                @Html.AntiForgeryToken()
+                                <button type="button" class="btn btn-danger " data-toggle="modal" data-target="#confirmEndModal-@Model.transaction_id">
+                                    إنهاء المعاملة
+                                </button>
+                                @Html.HiddenFor(model => model.transaction_id)
+                            }
+                            <button type="button" class="btn btn-primary mx-4" id="toggleReferForm-@Model.transaction_id">
+                                إحالة المعاملة
+                            </button>
+                        }
+                        <button type="button" class="btn btn-dark" data-dismiss="modal">إخفاء</button>
+                    </div>
 
-				<!-- Referral form (initially hidden) -->
-				<div id="referForm-@Model.transaction_id" class="mt-4" style="display: none;">
-					<h5>إحالة المعاملة #@Model.transaction_id</h5>
-					@using (Html.BeginForm("ReferTransaction", "Employees", FormMethod.Post, new { id = $"referTransactionForm-{Model.transaction_id}" }))
-					{
-						@Html.AntiForgeryToken()
-						@Html.HiddenFor(model => model.transaction_id)
-						<div class="form-group">
-							<label for="to_employee_id">إحالة إلى الموظف:</label>
-							<select name="to_employee_id" id="to_employee_id" class="form-control" required>
-								<option value="">اختر الموظف</option>
-								<!-- You'll need to populate this dropdown with actual employee data -->
-								<option value="1">موظف 1</option>
-								<option value="2">موظف 2</option>
-								<!-- Add more options as needed -->
-							</select>
-						</div>
-						<div class="form-group">
-							<label for="comments">توجيهات الإحالة:</label>
-							<textarea name="comments" id="comments" class="form-control" required></textarea>
-						</div>
-						<button type="submit" class="btn btn-primary">تأكيد الإحالة</button>
-					}
-				</div>
-			</div>
-		</div>
-	</div>
+                </div>
+
+                <!-- Referral form (initially hidden) -->
+                <div id="referForm-@Model.transaction_id" class="mt-4" style="display: none;">
+                    <h5>إحالة المعاملة #@Model.transaction_id</h5>
+                    @using (Html.BeginForm("ReferTransaction", "Employees", FormMethod.Post, new { id = $"referTransactionForm-{Model.transaction_id}" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.HiddenFor(model => model.transaction_id)
+                        <div class="form-group">
+                            <label for="department_id">القسم:</label>
+                            <select id="department_id" name="department_id" class="form-control" required>
+                                <option value="">اختر القسم</option>
+                                @foreach (var dept in ViewBag.Departments)
+                                {
+                                    <option value="@dept.Value">@dept.Text</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="to_employee_id">إحالة إلى الموظف:</label>
+                            <select name="to_employee_id" id="to_employee_id" class="form-control" required>
+                                <option value="">اختر الموظف</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="comments">توجيهات الإحالة:</label>
+                            <textarea name="comments" id="comments" class="form-control" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">تأكيد الإحالة</button>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
 
 <!-- Confirmation Modal -->
 <div class="modal fade" id="confirmEndModal-@Model.transaction_id" tabindex="-1" role="dialog" aria-labelledby="confirmEndLabel" aria-hidden="true">
-	<div class="modal-dialog" role="document">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h5 class="modal-title" id="confirmEndLabel">تأكيد إنهاء المعاملة</h5>
-			</div>
-			<div class="modal-body">
-				<div class="form-group">
-					<label for="endReason">سبب الإنهاء:</label>
-					<textarea id="endReason-@Model.transaction_id" name="endReason" class="form-control mb-14" required></textarea>
-				</div>
-			</div>
-			<div class="modal-footer flex pt-14 justify-center">
-				@using (Html.BeginForm("UpdateTransactionStatus", "HR", FormMethod.Post, new { id = $"updateStatusFormConfirm-{Model.transaction_id}" }))
-				{
-					@Html.AntiForgeryToken()
-					@Html.HiddenFor(model => model.transaction_id)
-					<button type="submit" class="btn btn-danger" onclick="addReasonToForm(@Model.transaction_id)">نعم، إنهاء</button>
-				}
-				<button type="button" class="btn btn-secondary" data-dismiss="modal">الغاء</button>
-			</div>
-		</div>
-	</div>
+
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmEndLabel">تأكيد إنهاء المعاملة</h5>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="endReason">سبب الإنهاء:</label>
+                    <textarea id="endReason-@Model.transaction_id" name="endReason" class="form-control mb-14" required></textarea>
+                </div>
+            </div>
+            <div class="modal-footer flex pt-14 justify-center">
+                @using (Html.BeginForm("UpdateTransactionsStatus", "Employees", FormMethod.Post, new { id = $"updateStatusFormConfirm-{Model.transaction_id}" }))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.HiddenFor(model => model.transaction_id)
+                    <button type="submit" class="btn btn-danger" onclick="addReasonToForm(@Model.transaction_id)">نعم، إنهاء</button>
+                }
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">الغاء</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
-	function addReasonToForm(transactionId) {
-		var reason = document.getElementById('endReason-' + transactionId).value;
-		var form = document.getElementById('updateStatusFormConfirm-' + transactionId);
-		var input = document.createElement('input');
-		input.type = 'hidden';
-		input.name = 'reason';
-		input.value = reason;
-		form.appendChild(input);
-	}
+    function addReasonToForm(transactionId) {
+        var reason = document.getElementById('endReason-' + transactionId).value;
+        var form = document.getElementById('updateStatusFormConfirm-' + transactionId);
+        var input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'reason';
+        input.value = reason;
+        form.appendChild(input);
+    }
 </script>
 <script>
-	$(document).ready(function () {
-		$("#toggleReferForm-@Model.transaction_id").click(function () {
-			$("#referForm-@Model.transaction_id").toggle();
-		});
-	});
+    $(document).ready(function () {
+        $("#toggleReferForm-@Model.transaction_id").click(function () {
+            $("#referForm-@Model.transaction_id").toggle();
+        });
+    });
+</script>
+<script>
+    $("#department_id").change(function () {
+        var departmentId = $(this).val();
+        var employeeDropdown = $("#to_employee_id");
+        employeeDropdown.empty();
+        employeeDropdown.append('<option value="">اختر الموظف</option>');
+
+        if (departmentId) {
+            console.log("Selected department ID:", departmentId);
+            $.ajax({
+                url: '@Url.Action("GetEmployeesByDepartment", "Employees")',
+                type: 'GET',
+                data: { departmentId: departmentId },
+                success: function (data) {
+                    console.log("Received data:", data);
+                    if (data && data.length > 0) {
+                        $.each(data, function (index, item) {
+                            employeeDropdown.append($('<option></option>')
+                                .val(item.employee_id)
+                                .text(item.name + ' - ' + item.position));
+                        });
+                    } else {
+                        employeeDropdown.append($('<option></option>').val('').text('لا يوجد موظفين في هذا القسم'));
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error fetching employees:", error);
+                    console.error("Status:", status);
+                    console.error("Response:", xhr.responseText);
+                    employeeDropdown.append($('<option></option>').val('').text('حدث خطأ أثناء جلب الموظفين'));
+                }
+            });
+        }
+    });
 </script>
