@@ -2,6 +2,7 @@
 {
 	using System;
 	using System.ComponentModel.DataAnnotations;
+    using System.ComponentModel.DataAnnotations.Schema;
 
 	public class Transaction
 	{
@@ -16,6 +17,8 @@
 		public int from_emp_id { get; set; }
 		public int? to_emp_id { get; set; }
 		public int department_id { get; set; }
+        [ForeignKey("department_id")]
+        public virtual Department Department { get; set; }
 
 		public string? Confidentiality { get; set; }
 		public string? Urgency { get; set; }

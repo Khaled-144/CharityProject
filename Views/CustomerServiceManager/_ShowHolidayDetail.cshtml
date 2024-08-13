@@ -8,9 +8,38 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header flex justify-content-center">
-                <h4>معلومات المعاملة  #@Model.holidays_history_id</h4>
+                <h4>معلومات الإجازة  #@Model.holidays_history_id</h4>
             </div>
+
             <div class="modal-body align-content-center">
+                <ol class ="flex items-center p-1 justify-center space-x-4 text-sm font-medium border-1 border-primaryButtons text-center text-gray-500 dark:text-gray-400">
+                    <li class="flex items-center">
+                        <span class="flex items-center @((Model.status == "مرسلة" || Model.status == "موافقة المدير المباشر" || Model.status == "موافقة مدير القسم") ? "text-blue-600 dark:text-blue-500" : "text-gray-400 dark:text-gray-500")">
+                            <svg class="w-3.5 h-3.5 mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
+                            </svg>
+                            مرسلة
+                        </span>
+                        <span class="mx-2">/</span>
+                    </li>
+                    <li class="flex items-center">
+                        <span class="flex items-center @((Model.status == "موافقة المدير المباشر" || Model.status == "موافقة مدير القسم") ? "text-blue-600 dark:text-blue-500" : "text-gray-400 dark:text-gray-500")">
+                            <svg class="w-3.5 h-3.5 mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
+                            </svg>
+                            موافقة المدير المباشر
+                        </span>
+                        <span class="mx-2">/</span>
+                    </li>
+                    <li class="flex items-center">
+                        <span class="flex items-center @((Model.status == "موافقة مدير القسم") ? "text-blue-600 dark:text-blue-500" : "text-gray-400 dark:text-gray-500")">
+                            <svg class="w-3.5 h-3.5 mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
+                            </svg>
+                            موافقة مدير القسم
+                        </span>
+                    </li>
+                </ol>
                 <div class="col-md text-right my-1" dir="rtl">
                     <div>
                         <dl class="row text-center">
@@ -72,11 +101,70 @@
                             </dd>
                         </dl>
                     </div>
+                    <div class="row mt-3">
+                        <div class="col-12 text-center">
+                            @if (Model.status == "مرسلة")
+                            {
+                                <button type="button" class="btn btn-danger ml-8" data-toggle="modal" data-target="#confirmEndModal-@Model.holidays_history_id">
+                                    إنهاء الطلب
+                                </button>
+                                <button type="button" class="btn btn-success ml-8" data-toggle="modal" data-target="#confirmAcceptModal-@Model.holidays_history_id">
+                                  قبول الطلب
+                                </button>
+                                
+                            }
+                            <button type="button" class="btn btn-dark" data-dismiss="modal">إخفاء</button>
+                        </div>
+                    </div>
+                    <div class="modal fade" id="confirmEndModal-@Model.holidays_history_id" tabindex="-1" role="dialog" aria-labelledby="confirmEndLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="confirmEndLabel">تأكيد إنهاء المعاملة</h5>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="form-group">
+                                        <label for="endReason">سبب الإنهاء:</label>
+                                        <textarea id="endReason-@Model.holidays_history_id" name="endReason" class="form-control mb-14" required></textarea>
+                                    </div>
+                                </div>
+                                <div class="modal-footer flex pt-14 justify-center">
+                                    @using (Html.BeginForm("UpdateHolidayStatus", "CustomerServiceManager", FormMethod.Post, new { id = $"updateStatusFormConfirm-{Model.holidays_history_id}" }))
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        @Html.HiddenFor(model => model.holidays_history_id)
+                                        <button type="submit" class="btn btn-danger" onclick="addReasonToForm(@Model.holidays_history_id)">نعم، إنهاء</button>
+                                    }
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">الغاء</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal fade" id="confirmAcceptModal-@Model.holidays_history_id" tabindex="-1" role="dialog" aria-labelledby="confirmEndLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="confirmEndLabel">تأكيد قبول المعاملة</h5>
+                                </div>
+
+                                <div class="modal-footer flex pt-14 justify-center">
+                                    @using (Html.BeginForm("ApproveHoliday", "CustomerServiceManager", FormMethod.Post, new { id = $"updateStatusFormConfirm-{Model.holidays_history_id}" }))
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        @Html.HiddenFor(model => model.holidays_history_id)
+                                        <button type="submit" class="btn btn-primary" onclick="addReasonToForm(@Model.holidays_history_id)">نعم، قبول</button>
+                                    }
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">الغاء</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="flex justify-center">
-                        <button data-dismiss="modal" type="button" class="text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:ring-blue-300 transition duration-300 ease-in-out  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">إخفاء</button>
+                       
 
                     </div>
                 </div>
+                
             </div>
         </div>
     </div>
