@@ -18,8 +18,14 @@ namespace CharityProject.Models
         [Required]
         public int from_employee_id { get; set; }
 
+        [ForeignKey("from_employee_id")]
+        public employee from_employee { get; set; }
+
         [Required]
         public int to_employee_id { get; set; }
+
+        [ForeignKey("to_employee_id")]
+        public employee to_employee { get; set; }
 
         [Required]
         public DateTime referral_date { get; set; }

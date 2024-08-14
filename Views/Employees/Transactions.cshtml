@@ -26,7 +26,7 @@
 <body>
     <div class="flex justify-self-auto justify-between mt-10">
         <div>
-            <button id="dropdownDefaultButton" data-dropdown-toggle="dropdown" class="text-white w-32 bg-primaryButtons hover:bg-emerald-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-xl px-4 py-2.5 text-center inline-flex justify-evenly items-center">
+            <button id="dropdownDefaultButton" data-dropdown-toggle="dropdown" class="text-white w-32 bg-primaryButtons hover:bg-emerald-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-xl px-4 py-2.5 text-center inline-flex justify-evenly items-center transition duration-200 ease-in-out">
                 جديد
                 <svg class="w-2.5 h-2.5 mx-1 mt-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4" />
@@ -66,20 +66,34 @@
 
     <div class="mb-4 border-b border-gray-200 dark:border-gray-700">
         <ul class="flex flex-wrap -mb-px text-xl font-medium text-center" id="default-tab" role="tablist">
-            <li class="me-2" role="presentation">
-                <button class="inline-block p-4 border-b-2 rounded-t-lg active-tab" id="internal-tab" data-content-url="@Url.Action("GetAllTransactions", "Employees")" type="button" role="tab">داخلية </button>
+            <li class="me-2 flex items-center" role="presentation">
+                <button class="inline-block p-4 border-b-2 rounded-t-lg active-tab" id="internal-tab" data-content-url="@Url.Action("GetAllTransactions", "Employees")" type="button" role="tab">
+                    داخلية
+                </button>
+                <span class="text-red-500 text-sm ml-2">(@ViewBag.InternalCount)</span>
             </li>
-            <li class="me-2" role="presentation">
-                <button class="inline-block p-4 border-b-2 rounded-t-lg" id="holidays-tab" data-content-url="@Url.Action("GetAllHolidays", "Employees")" type="button" role="tab">إجازات</button>
+            <li class="me-2 flex items-center" role="presentation">
+                <button class="inline-block p-4 border-b-2 rounded-t-lg" id="holidays-tab" data-content-url="@Url.Action("GetAllHolidays", "Employees")" type="button" role="tab">
+                    إجازات
+                </button>
+                <span class="text-red-500 text-sm ml-2">(@ViewBag.HolidaysCount)</span>
             </li>
-            <li class="me-2" role="presentation">
-                <button class="inline-block p-4 border-b-2 rounded-t-lg" id="letters-tab" data-content-url="@Url.Action("GetAllLetters", "Employees")" type="button" role="tab">خطابات</button>
+            <li class="me-2 flex items-center" role="presentation">
+                <button class="inline-block p-4 border-b-2 rounded-t-lg" id="letters-tab" data-content-url="@Url.Action("GetAllLetters", "Employees")" type="button" role="tab">
+                    خطابات
+                </button>
+                <span class="text-red-500 text-sm ml-2">(@ViewBag.LettersCount)</span>
             </li>
-            <li role="presentation">
-                <button class="inline-block p-4 border-b-2 rounded-t-lg" id="assets-tab" data-content-url="@Url.Action("GetAllAssets", "Assets")" type="button" role="tab">عهده</button>
+            <li class="flex items-center" role="presentation">
+                <button class="inline-block p-4 border-b-2 rounded-t-lg" id="assets-tab" data-content-url="@Url.Action("GetAllAssets", "Assets")" type="button" role="tab">
+                    عهده
+                </button>
+                <span class="text-red-500 text-sm ml-2">(@ViewBag.AssetsCount)</span>
             </li>
         </ul>
     </div>
+
+
     <div id="tab-content-container" class="mt-5">
         <!-- Content will be dynamically loaded here -->
     </div>

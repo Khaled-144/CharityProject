@@ -136,10 +136,11 @@ namespace CharityProject.Controllers
                             {
                                 return RedirectToAction("Index", "Employees");
                             }
-                            else if (position == "manager")
+                            else if (position != "employee" )
                             {
-                                return RedirectToAction("Index", "Employees");
+                                return RedirectToAction("Index", "CustomerServiceManager");
                             }
+                            
                             else
                             {
                                 ViewData["Message"] = "Unknown position";
