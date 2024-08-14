@@ -4,6 +4,8 @@
     Layout = "_Layout";
     ViewData["PageTitle"] = "الارشيف";
     ViewData["Title"] = "صفحة الارشيف";
+    var currentUrl = $"{Context.Request.Scheme}://{Context.Request.Host}{Context.Request.Path}{Context.Request.QueryString}";
+    ViewBag.CurrentUrl = currentUrl;
 }
 
 <!DOCTYPE html>
@@ -57,25 +59,21 @@
                 <button class="inline-block p-4 border-b-2 rounded-t-lg active-tab" id="internal-tab" data-content-url="@Url.Action("GetArchivedTransactions", "Employees")" type="button" role="tab">
                     داخلية
                 </button>
-                <span class="text-red-500 text-sm ml-2">(@ViewBag.InternalCount)</span>
             </li>
             <li class="me-2 flex items-center" role="presentation">
                 <button class="inline-block p-4 border-b-2 rounded-t-lg" id="holidays-tab" data-content-url="@Url.Action("GetArchivedHolidays", "Employees")" type="button" role="tab">
                     إجازات
                 </button>
-                <span class="text-red-500 text-sm ml-2">(@ViewBag.HolidaysCount)</span>
             </li>
             <li class="me-2 flex items-center" role="presentation">
                 <button class="inline-block p-4 border-b-2 rounded-t-lg" id="letters-tab" data-content-url="@Url.Action("GetArchivedLetters", "Employees")" type="button" role="tab">
                     خطابات
                 </button>
-                <span class="text-red-500 text-sm ml-2">(@ViewBag.LettersCount)</span>
             </li>
             <li class="flex items-center" role="presentation">
                 <button class="inline-block p-4 border-b-2 rounded-t-lg" id="assets-tab" data-content-url="@Url.Action("GetAllAssets", "Assets")" type="button" role="tab">
                     عهده
                 </button>
-                <span class="text-red-500 text-sm ml-2">(@ViewBag.AssetsCount)</span>
             </li>
         </ul>
     </div>
