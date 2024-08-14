@@ -48,12 +48,11 @@
                 </ul>
             </div>
         </div>
-
+        <!-- Search and filter -->
         <div class="mx-4">
             <form id="searchForm">
                 <div class="flex justify-evenly">
-                    <input name="id" placeholder="رقم المعاملة" class="form-control mr-2" type="search" aria-label="search" />
-                    <button id="searchButton" class="btn btn-dark" type="submit">بحث</button>
+                    <input name="searchTerm" placeholder="رقم المعاملة أو العنوان" class="form-control mr-2" type="search" aria-label="search" />
                     <select name="sortOrder" id="sortOrder" class="bg-white border border-primaryButtons px-5 text-black text-sm rounded-lg text-center focus:ring-blue-500 focus:border-blue-500 block mr-2">
                         <option selected>فلترة</option>
                         <option value="newest">الاحدث</option>
@@ -135,37 +134,79 @@
 
     <script>
         $(document).ready(function () {
-            function loadTransactions() {
-                $("#loadingIndicator").show(); // Show loading indicator
-                $("#transactionListPlaceholder").hide(); // Hide transaction list
+            var searchTimer;
 
+            function loadTransactions() {
+                $("#loadingIndicator").show();
+                $("#tab-content-container").hide();
+
+                var searchTerm = $("#searchForm input[name='searchTerm']").val();
+                var sortOrder = $("#sortOrder").val();
+                var activeTab = $(".active-tab").attr("id");
+
+                console.log("Searching with term:", searchTerm);
+                console.log("Sort order:", sortOrder);
+                console.log("Active tab:", activeTab);
+                
+                var url;
+                switch (activeTab) {
+                    case "internal-tab":
+                        url = '@Url.Action("SearchTransactions", "Employees")';
+                        break;
+                    case "holidays-tab":
+                        url = '@Url.Action("SearchHolidays", "Employees")';
+                        break;
+                    case "letters-tab":
+                        url = '@Url.Action("SearchLetters", "Employees")';
+                        break;
+                    case "assets-tab":
+                        url = '@Url.Action("SearchAssets", "Employees")';
+                        break;
+                    default:
+                        url = '@Url.Action("SearchTransactions", "Employees")';
+                }
+    
                 $.ajax({
-                    url: '@Url.Action("SearchById", "Transactions")',
+                    url: url,
                     type: 'GET',
-                    data: { id: 0, sortOrder: '' }, // Default values or adjust as needed
+                    data: { searchTerm: searchTerm, sortOrder: sortOrder },
                     success: function (result) {
-                        $("#transactionListPlaceholder").html(result); // Update the div with the partial view
-                        $("#loadingIndicator").hide(); // Hide loading indicator
-                        $("#transactionListPlaceholder").show(); // Show transaction list
+                        console.log("Received data:", result);
+                        $("#tab-content-container").html(result);
+                        $("#loadingIndicator").hide();
+                        $("#tab-content-container").show();
                     },
                     error: function (xhr, status, error) {
-                        console.error(error);
-                        $("#loadingIndicator").hide(); // Hide loading indicator in case of error
-                        $("#transactionListPlaceholder").show(); // Show transaction list even if empty
+                        console.error("Error:", error);
+                        console.error("Status:", status);
+                        console.error("Response:", xhr.responseText);
+                        $("#loadingIndicator").hide();
+                        $("#tab-content-container").show();
+                        $("#tab-content-container").html("<p>Error loading transactions. Please try again.</p>");
                     }
                 });
             }
 
-            // Call the function when the page loads
-            loadTransactions();
-
-            // Attach event handler to search button
-            $("#searchButton").on("click", function (event) {
-                event.preventDefault(); // Prevent form from submitting normally
-                loadTransactions(); // Call the function
+            // Trigger search on input change with a delay
+            $("#searchForm input[name='searchTerm']").on('input', function() {
+                clearTimeout(searchTimer);
+                searchTimer = setTimeout(loadTransactions, 1000); // 1000ms delay
             });
+
+            // Trigger search on sort order change
+            $("#sortOrder").on("change", function () {
+                loadTransactions();
+            });
+
+            // Trigger search on tab change
+            $("#default-tab button").on("click", function () {
+                loadTransactions();
+            });
+
+            // Initial load
+            loadTransactions();
         });
-    </script>
+</script>
 </body>
 
 </html>

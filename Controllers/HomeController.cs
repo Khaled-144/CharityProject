@@ -142,7 +142,7 @@ namespace CharityProject.Controllers
                             }
                             else if (position != "employee" )
                             {
-                                return RedirectToAction("Index", "CustomerServiceManager");
+                                return RedirectToAction("Index", "Employees");
                             }
                             
                             else
