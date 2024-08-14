@@ -1,0 +1,88 @@
+﻿@model List<dynamic>
+
+    <!DOCTYPE html>
+    <html lang="ar" dir="rtl">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="https://cdn.tailwindcss.com"></script>
+        <title>سجلات الرواتب الشهرية</title>
+    </head>
+    <body class="bg-gradient-to-br from-green-50 to-emerald-100 min-h-screen p-8">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-4xl font-bold mb-8 text-center text-emerald-800 shadow-text">سجلات الرواتب الشهرية</h2>
+            <div class="flex flex-col md:flex-row justify-between items-center mb-10 space-y-4 md:space-y-0">
+                <!-- Search Form -->
+                <form asp-action="SearchByYear" method="get" class="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4 rtl:space-x-reverse">
+                    <label for="year" class="text-lg font-semibold text-gray-700">ابحث حسب السنة:</label>
+                    <input type="text" id="year" name="year" placeholder="أدخل السنة" class="border border-emerald-300 rounded-lg p-2 focus:ring-2 focus:ring-emerald-400 focus:border-transparent" />
+                    <button type="submit" class="bg-gradient-to-r from-emerald-500 to-green-600 text-white rounded-lg px-4 py-2 hover:from-emerald-600 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition duration-300 ease-in-out transform hover:scale-105">
+                        بحث
+                    </button>
+                </form>
+                <!-- Add New Entry Button -->
+                <a asp-action="CreateRecord" class="bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-lg px-6 py-3 hover:from-green-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition duration-300 ease-in-out transform hover:scale-105 shadow-lg">
+                    إضافة مسير جديد
+                </a>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                @foreach (var item in Model)
+                {
+                    <div class="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition duration-300 ease-in-out transform hover:-translate-y-1">
+                        <div class="bg-gradient-to-r from-green-500 to-emerald-600 p-4">
+                            <h3 class="text-xl font-bold text-white">@getArabicMonth(item.Month)</h3>
+                        </div>
+                        <div class="p-6">
+                            <p class="text-gray-600 mb-2"><span class="font-semibold">عدد السجلات:</span> @item.Count</p>
+                            <p class="text-gray-600 mb-4"><span class="font-semibold">إجمالي الصرف:</span> @item.Total</p>
+                            <a asp-action="MonthDetails" asp-route-month="@item.Month" class="inline-block bg-gradient-to-r from-emerald-400 to-emerald-500 text-white rounded-lg px-4 py-2 hover:from-emerald-500 hover:to-emerald-600 transition duration-300 ease-in-out transform hover:scale-105">
+                                عرض التفاصيل
+                            </a>
+                        
+                        </div>
+                    </div>
+                  
+                }
+            </div>
+        </div>
+        <style>
+            .shadow-text {
+                text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            }
+        </style>
+    </body>
+</html>
+
+
+@functions {
+    private string getArabicMonth(string monthYear)
+    {
+        var parts = monthYear.Split(' ');
+        if (parts.Length == 2)
+        {
+            string englishMonth = parts[0];
+            string year = parts[1];
+
+            string arabicMonth = englishMonth switch
+            {
+                "January" => "يناير",
+                "February" => "فبراير",
+                "March" => "مارس",
+                "April" => "أبريل",
+                "May" => "مايو",
+                "June" => "يونيو",
+                "July" => "يوليو",
+                "August" => "أغسطس",
+                "September" => "سبتمبر",
+                "October" => "أكتوبر",
+                "November" => "نوفمبر",
+                "December" => "ديسمبر",
+                _ => englishMonth
+            };
+
+            return $"{arabicMonth} {year}";
+        }
+
+        return monthYear;
+    }
+}

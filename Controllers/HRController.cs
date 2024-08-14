@@ -77,6 +77,18 @@ namespace CharityProject.Controllers
             }
             return View(device);
         }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateDevice([Bind("name,quantity")] Devices device)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Add(device);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(ViewDevice));
+            }
+            return View(device);
+        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
