@@ -14,12 +14,17 @@ using System.Diagnostics.Metrics;
 namespace CharityProject.Controllers
 {
 	public class HRController : Controller
+
+
+
 	{
+		private readonly ILogger<EmployeesController> _logger;
 		private readonly ApplicationDbContext _context;
 
-		public HRController(ApplicationDbContext context)
+		public HRController(ApplicationDbContext context, ILogger<EmployeesController> logger)
 		{
 			_context = context;
+			_logger = logger;
 		}
 
         public IActionResult Index()
@@ -113,20 +118,31 @@ namespace CharityProject.Controllers
             return RedirectToAction("Transactions");
         }
 
-        // New method to view referral history
-        public async Task<IActionResult> ReferralHistory(int id)
-        {
-            var referrals = await _context.Referrals
-                .Where(r => r.transaction_id == id)
-                .OrderByDescending(r => r.referral_date)
-                .ToListAsync();
+		// New method to view referral history
+		public async Task<IActionResult> ReferralHistory(int id)
+		{
+			_logger.LogInformation($"Fetching referral history for transaction {id}");
 
-            return View(referrals);
-        }
+			var referrals = await _context.Referrals
+				.Where(r => r.transaction_id == id)
+				.Include(r => r.from_employee)
+				.Include(r => r.to_employee)
+				.OrderByDescending(r => r.referral_date)
+				.ToListAsync();
 
-        // End of khaled work -----------------------------------------------------
+			_logger.LogInformation($"Found {referrals.Count} referrals");
 
-        private int GetEmployeeIdFromSession()
+			foreach (var referral in referrals)
+			{
+				_logger.LogInformation($"Referral {referral.referral_id}: From {referral.from_employee_id} ({referral.from_employee?.name ?? "N/A"}) To {referral.to_employee_id} ({referral.to_employee?.name ?? "N/A"})");
+			}
+
+			return View(referrals);
+		}
+
+		// End of khaled work -----------------------------------------------------
+
+		private int GetEmployeeIdFromSession()
         {
             var employeeIdString = HttpContext.Session.GetString("Id");
             if (employeeIdString != null)
@@ -161,7 +177,8 @@ namespace CharityProject.Controllers
 
         public async Task<IActionResult> Transactions()
         {
-            ViewData["Departments"] = _context.Department.Select(d => new SelectListItem
+			int currentUserId = GetEmployeeIdFromSession();
+			ViewData["Departments"] = _context.Department.Select(d => new SelectListItem
             {
                 Value = d.departement_name,
                 Text = d.departement_name
@@ -172,12 +189,44 @@ namespace CharityProject.Controllers
                 Value = e.employee_id.ToString(),
                 Text = e.name
             }).ToList();
+			// Filter transactions based on the current user's ID
+			var transactions = await _context.Transactions
+				.Where(t => t.to_emp_id == currentUserId)
+				.ToListAsync();
 
+			int internalCount = await _context.Transactions
+				.Where(t => t.to_emp_id == currentUserId)
+				.CountAsync();
+			int holidaysCount = await _context.HolidayHistories
+				.Where(h => h.emp_id == currentUserId)
+				.CountAsync();
+			int lettersCount = await _context.letters
+				.Where(l => l.to_emp_id == currentUserId || l.to_emp_id == currentUserId)
+				.CountAsync();
+			int assetsCount = await _context.charter
+				.Where(c => c.to_emp_id == currentUserId)
+				.CountAsync();
 
-            return View(await _context.Transactions.ToListAsync());
-        }
+			// Passing the counts to the view using ViewBag
+			ViewBag.InternalCount = internalCount;
+			ViewBag.HolidaysCount = holidaysCount;
+			ViewBag.LettersCount = lettersCount;
+			ViewBag.AssetsCount = assetsCount;
 
-        public async Task<IActionResult> GetAllTransactions()
+			return View(transactions);
+		}
+		[HttpGet]
+		public async Task<IActionResult> GetDepartmentName(int departmentId)
+		{
+			var department = await _context.Department.FindAsync(departmentId);
+			if (department != null)
+			{
+				return Content(department.departement_name);
+			}
+			return NotFound();
+		}
+
+		public async Task<IActionResult> GetAllTransactions()
         {
 
 
@@ -1197,10 +1246,86 @@ namespace CharityProject.Controllers
 
 
 
+		[HttpGet]
+		[Route("ControllerName/GetRemainingHolidayBalance")]
+		public IActionResult GetRemainingHolidayBalance(int holidayId)
+		{
+			var employeeId = GetEmployeeIdFromSession(); // Ensure this is returning the correct employee ID
+
+			// Check if holidayId exists
+			var holidayType = _context.Holidays
+				.Where(h => h.holiday_id == holidayId)
+				.Select(h => h.allowedDuration)
+				.FirstOrDefault();
+
+			if (holidayType == 0)
+			{
+				return Json("Holiday type not found");
+			}
+
+			// Check if any records exist
+			var totalTakenDuration = _context.HolidayHistories
+				.Where(hh => hh.emp_id == employeeId
+							 && hh.holiday_id == holidayId
+							 && hh.start_date.Year == DateTime.Now.Year)
+				.Sum(hh => hh.duration);
+
+			var remainingBalance = holidayType - totalTakenDuration;
+
+			return Json(remainingBalance);
+		}
 
 
 
-    }
+		[HttpPost]
+		public IActionResult ArchiveHoliday(int id)
+		{
+			var holiday = _context.HolidayHistories.FirstOrDefault(h => h.holidays_history_id == id);
+			if (holiday == null)
+			{
+				return Json(new { success = false, message = "Holiday not found." });
+			}
+
+			// Update the status to "مؤرشفة"
+			holiday.status = "مؤرشفة";
+
+			// Save the changes to the database
+			_context.SaveChanges();
+
+			return Json(new { success = true });
+		}
+
+		/*[HttpGet]
+		public async Task<IActionResult> GetEmployeesByDepartment(int departmentId)
+		{
+			_logger.LogInformation($"Fetching employees for department ID: {departmentId}");
+
+			var employees = await _context.employee_details
+				.Where(ed => ed.departement_id == departmentId)
+				.Select(ed => new
+				{
+					employee_id = ed.employee_id,
+					name = ed.employee.name,
+					position = ed.position
+				})
+				.GroupBy(e => e.employee_id)
+				.Select(g => g.First())
+				.ToListAsync();
+
+			if (!employees.Any())
+			{
+				_logger.LogWarning($"No employees found for department ID: {departmentId}");
+				return NotFound("No employees found for the given department.");
+			}
+
+			_logger.LogInformation($"Found {employees.Count} employees for department ID: {departmentId}");
+			return Ok(employees);
+		}*/    
+
+
+
+
+	}
 
 
 

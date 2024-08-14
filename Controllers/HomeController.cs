@@ -49,6 +49,10 @@ namespace CharityProject.Controllers
             return View();
         }
 
+        public IActionResult test()
+        {
+            return View();
+        }
         public IActionResult transactions()
         {
             return View();

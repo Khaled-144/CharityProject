@@ -81,7 +81,7 @@ namespace CharityProject.Controllers
             int holidaysCount = await _context.HolidayHistories
                 .Where(h => h.emp_id == currentUserId)
                 .CountAsync();
-            int lettersCount = await _context.Letters
+            int lettersCount = await _context.letters
                 .Where(l => l.to_emp_id == currentUserId || l.to_emp_id == currentUserId)
                 .CountAsync();
             int assetsCount = await _context.charter
@@ -160,7 +160,7 @@ namespace CharityProject.Controllers
                 return NotFound(); // Handle the case where employee details are not found
             }
 
-            var letters = await _context.Letters
+            var letters = await _context.letters
                 .Where(l => l.to_emp_id == employeeDetails.employee_id || l.departement_id == employeeDetails.departement_id)
                 .OrderByDescending(l => l.letters_id)
                 .ToListAsync();
@@ -267,7 +267,7 @@ namespace CharityProject.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create_Letter(IFormFile files, [Bind("title,description,type,to_emp_id")] Letter letter)
+        public async Task<IActionResult> Create_Letter(IFormFile files, [Bind("title,description,type,to_emp_id")] letter letter)
         {
             var employeeId = GetEmployeeIdFromSession();
             letter.from_emp_id = employeeId; // Assign the employee ID to the letter
