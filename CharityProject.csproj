@@ -42,7 +42,6 @@
 
 <ItemGroup>
   <Folder Include="pdfs\Outputs\" />
-  <Folder Include="Views\HR_manger\" />
 </ItemGroup>
 
 <ItemGroup>

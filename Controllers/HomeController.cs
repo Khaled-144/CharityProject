@@ -76,31 +76,17 @@ namespace CharityProject.Controllers
         }
         public IActionResult LoginPage()
         {
-            if (!HttpContext.Request.Cookies.ContainsKey("Name"))
+            if (!HttpContext.Request.Cookies.ContainsKey("Id"))
                 return View();
             else
             {
-                string id = HttpContext.Request.Cookies["Id"].ToString();
-                string name = HttpContext.Request.Cookies["Name"].ToString();
-                string position = HttpContext.Request.Cookies["Position"].ToString();
-                string departmentId = HttpContext.Request.Cookies["DepartmentId"].ToString();
-                string departmentName = HttpContext.Request.Cookies["DepartmentName"].ToString();
+                string id = HttpContext.Request.Cookies["Id"];
+                string pass = HttpContext.Request.Cookies["pass"];
+                ViewData["UserId"] = id;
+                ViewData["Password"] = pass;
 
-                HttpContext.Session.SetString("Id", id);
-                HttpContext.Session.SetString("Name", name);
-                HttpContext.Session.SetString("Position", position);
-                HttpContext.Session.SetString("DepartmentId", departmentId);
-                HttpContext.Session.SetString("DepartmentName", departmentName);
-               
-
-                if (position == "employee")
-                {
-                    return RedirectToAction("EmpHomePage", "Home");
-                }
-                else
-                {
-                    return RedirectToAction("ManagerHomePage", "Home");
-                }
+                return View();
+                
             }
         }
 
@@ -112,7 +98,7 @@ namespace CharityProject.Controllers
             string conStr = builder.Configuration.GetConnectionString("DefaultConnection");
             using (SqlConnection conn = new SqlConnection(conStr))
             {
-                string sql = @"SELECT e.employee_id, e.name, ed.permission_position, ed.departement_id, d.departement_name
+                string sql = @"SELECT e.employee_id,e.password, e.name, ed.permission_position, ed.departement_id, d.departement_name
                            FROM employee e 
                            JOIN employee_details ed ON e.employee_id = ed.employee_details_id 
                            JOIN Department d ON ed.departement_id = d.departement_id
@@ -133,10 +119,20 @@ namespace CharityProject.Controllers
                             string position = reader["permission_position"].ToString();
                             string departmentId = reader["departement_id"].ToString();
                             string departmentName = reader["departement_name"].ToString();
+                            string password = reader["password"].ToString();
+                            
+                            HttpContext.Session.SetString("Id", id);
+                            HttpContext.Session.SetString("Name", name);
+                            HttpContext.Session.SetString("Position", position);
+                            HttpContext.Session.SetString("DepartmentId", departmentId);
+                            HttpContext.Session.SetString("DepartmentName", departmentName);
+                            if (rememberMe)
+                            {
+                                HttpContext.Response.Cookies.Append("Id", id);
+                                HttpContext.Response.Cookies.Append("pass", password);
+                            }
 
-                            SetSessionAndCookies(id, name, position, departmentId, departmentName, rememberMe);
-
-                            if (position == "employee")
+                                if (position == "employee")
                             {
                                 return RedirectToAction("Index", "Employees");
                             }
@@ -160,24 +156,14 @@ namespace CharityProject.Controllers
             }
         }
 
-        private void SetSessionAndCookies(string id, string name, string position, string departmentId, string departmentName, bool rememberMe)
+      
+        public IActionResult Logout()
         {
-            HttpContext.Session.SetString("Id", id);
-            HttpContext.Session.SetString("Name", name);
-            HttpContext.Session.SetString("Position", position);
-            HttpContext.Session.SetString("DepartmentId", departmentId);
-            HttpContext.Session.SetString("DepartmentName", departmentName);
-
-            if (rememberMe)
-            {
-                HttpContext.Response.Cookies.Append("Id", id);
-                HttpContext.Response.Cookies.Append("Name", name);
-                HttpContext.Response.Cookies.Append("Position", position);
-                HttpContext.Response.Cookies.Append("DepartmentId", departmentId);
-                HttpContext.Response.Cookies.Append("DepartmentName", departmentName);
-            }
+           
+            HttpContext.Session.Clear();
+           
+            return RedirectToAction("LoginPage");
         }
-
 
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

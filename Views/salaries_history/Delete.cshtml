@@ -1,0 +1,18 @@
+﻿@model CharityProject.Models.salaries_history
+
+@{
+    ViewData["Title"] = "Delete";
+}
+
+<h1>Delete</h1>
+
+<h3>هل انت متأكد  من حذف سجل هذا الموظف؟</h3>
+<div>
+   
+    
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="salaries_history_id" />
+        <input type="submit" value="Delete" class="btn btn-danger" /> |
+        <a asp-action="Index">Back to List</a>
+    </form>
+</div>

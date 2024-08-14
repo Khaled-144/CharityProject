@@ -1,0 +1,52 @@
+﻿@model CharityProject.Models.Department
+
+<div class="modal fade" id="EditDepartmentModal-@Model.departement_id" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">تعديل القسم</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body text-right">
+                <form asp-action="Edit" asp-route-id="@Model.departement_id" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <input type="hidden" name="departement_id" value="@Model.departement_id" />
+
+                    <div class="form-group">
+                        <label for="departement_name" class="control-label">اسم القسم</label>
+                        <span id="departement_name" class="form-control">@Model.departement_name</span>
+                        <input type="hidden" name="departement_name" value="@Model.departement_name" />
+                        <span asp-validation-for="departement_name" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label">المدير الحالي: @Model.Supervisor?.name</label>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="supervisor_id" class="control-label">اختر مدير جديداً</label>
+                        <select name="supervisor_id" id="supervisor_id" class="form-control">
+                            <option value="" disabled selected>اختر مدير</option>
+                            @foreach (var employee in ViewBag.Employees)
+                            {
+                                @if (employee.employee_id != Model.supervisor_id)
+                                {
+                                    <option value="@employee.employee_id">
+                                        @employee.name
+                                    </option>
+                                }
+                            }
+                        </select>
+                        <span asp-validation-for="supervisor_id" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group d-flex gap-2">
+                        <button type="submit" class="btn btn-success btn-sm">تعديل</button>
+                        <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">الغاء</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
