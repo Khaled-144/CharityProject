@@ -60,7 +60,7 @@ namespace CharityProject.Controllers
 
 
         public async Task<IActionResult> Transactions()
-        {
+        {   
             // Retrieve the current user's ID from the session or context
             int currentUserId = GetEmployeeIdFromSession();
 
@@ -97,9 +97,20 @@ namespace CharityProject.Controllers
             return View(transactions);
         }
 
-        public async Task<IActionResult> GetAllTransactions()
+        [HttpGet]
+        public async Task<IActionResult> GetDepartmentName(int departmentId)
         {
-            var employeeId = GetEmployeeIdFromSession();
+            var department = await _context.Department.FindAsync(departmentId);
+            if (department != null)
+            {
+                return Content(department.departement_name);
+            }
+            return NotFound();
+        }
+
+        public async Task<IActionResult> GetAllTransactions()
+		{
+			var employeeId = GetEmployeeIdFromSession();
 
             // Fetch transactions sent directly to the employee or referred to the employee
             // getting the transactions sent to me or referred to me 
@@ -112,9 +123,17 @@ namespace CharityProject.Controllers
                 .OrderByDescending(t => t.transaction_id)
                 .ToListAsync();
 
+            // Fetch employee names
+            var employeeIds = transactions.SelectMany(t => new[] { t.from_emp_id, t.to_emp_id }).Distinct().ToList();
+            var employees = await _context.employee
+                .Where(e => employeeIds.Contains(e.employee_id))
+                .ToDictionaryAsync(e => e.employee_id, e => e.name);
+
+            ViewBag.EmployeeNames = employees;
+
             // Fetch departments for the dropdown
             var departments = await _context.Department.ToListAsync();
-            ViewBag.Departments = new SelectList(departments, "departement_id", "departement_name");
+			ViewBag.Departments = new SelectList(departments, "departement_id", "departement_name");
 
             return PartialView("_getAllTransactions", transactions);
         }
