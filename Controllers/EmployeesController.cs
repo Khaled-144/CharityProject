@@ -57,10 +57,13 @@ namespace CharityProject.Controllers
         }
 
         // GET Actions -------------------------------------------------------- no details needed ( all used thrugh partial view )
-
+        public async Task<IActionResult> Archive()
+        {
+            return View();
+        }
 
         public async Task<IActionResult> Transactions()
-        {   
+        {
             // Retrieve the current user's ID from the session or context
             int currentUserId = GetEmployeeIdFromSession();
 
@@ -105,12 +108,12 @@ namespace CharityProject.Controllers
             {
                 return Content(department.departement_name);
             }
-            return NotFound();
+            return Ok();
         }
 
         public async Task<IActionResult> GetAllTransactions()
-		{
-			var employeeId = GetEmployeeIdFromSession();
+        {
+            var employeeId = GetEmployeeIdFromSession();
 
             // Fetch transactions sent directly to the employee or referred to the employee
             // getting the transactions sent to me or referred to me 
@@ -133,10 +136,41 @@ namespace CharityProject.Controllers
 
             // Fetch departments for the dropdown
             var departments = await _context.Department.ToListAsync();
-			ViewBag.Departments = new SelectList(departments, "departement_id", "departement_name");
+            ViewBag.Departments = new SelectList(departments, "departement_id", "departement_name");
 
             return PartialView("_getAllTransactions", transactions);
         }
+
+        public async Task<IActionResult> GetArchivedTransactions()
+        {
+            var employeeId = GetEmployeeIdFromSession();
+
+            // Fetch transactions sent directly to the employee or referred to the employee
+            // getting the transactions sent to me or referred to me 
+            var transactions = await _context.Transactions
+                .Include(t => t.Referrals)
+                    .ThenInclude(r => r.from_employee)
+                .Include(t => t.Referrals)
+                    .ThenInclude(r => r.to_employee)
+                .Where(t => t.to_emp_id == employeeId || t.from_emp_id == employeeId || t.Referrals.Any(r => r.to_employee_id == employeeId))
+                .OrderByDescending(t => t.transaction_id)
+                .ToListAsync();
+
+            // Fetch employee names
+            var employeeIds = transactions.SelectMany(t => new[] { t.from_emp_id, t.to_emp_id }).Distinct().ToList();
+            var employees = await _context.employee
+                .Where(e => employeeIds.Contains(e.employee_id))
+                .ToDictionaryAsync(e => e.employee_id, e => e.name);
+
+            ViewBag.EmployeeNames = employees;
+
+            // Fetch departments for the dropdown
+            var departments = await _context.Department.ToListAsync();
+            ViewBag.Departments = new SelectList(departments, "departement_id", "departement_name");
+
+            return PartialView("_getAllArchivedTransactions", transactions);
+        }
+
 
         public async Task<IActionResult> GetAllHolidays()
         {
@@ -151,6 +185,18 @@ namespace CharityProject.Controllers
             return PartialView("_getAllHolidays", holidays);
         }
 
+        public async Task<IActionResult> GetArchivedHolidays()
+        {
+            var employeeId = GetEmployeeIdFromSession();
+
+            // Fetch holidays created by the logged-in employee
+            var holidays = await _context.HolidayHistories
+                .Where(h => h.emp_id == employeeId)
+                .OrderByDescending(h => h.holidays_history_id)
+                .ToListAsync();
+
+            return PartialView("_getAllArchivedHolidays", holidays);
+        }
 
         public async Task<IActionResult> GetAllLetters()
         {
@@ -167,6 +213,23 @@ namespace CharityProject.Controllers
 
             return PartialView("_getAllLetters", letters);
         }
+
+        public async Task<IActionResult> GetArchivedLetters()
+        {
+            var employeeDetails = await GetEmployeeDetailsFromSessionAsync();
+            if (employeeDetails == null)
+            {
+                return NotFound(); // Handle the case where employee details are not found
+            }
+
+            var letters = await _context.Letters
+                .Where(l => l.from_emp_id == employeeDetails.employee_details_id)
+                .OrderByDescending(l => l.letters_id)
+                .ToListAsync();
+
+            return PartialView("_getAllArchivedLetters", letters);
+        }
+
 
         // Create Actions  --------------------------------------------------------
 

@@ -23,9 +23,9 @@
 
                         <!-- Department -->
                         <div class="form-group mb-4">
-                            <label asp-for="department_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">إلى</label>
-                            <select asp-for="department_id" asp-items="@(ViewData["Departments"] as IEnumerable<SelectListItem>)" class="form-control w-full border rounded focus:ring-blue-500 focus:border-blue-500">
-                                <option disabled selected>-- أختر القسم --</option>
+                            <label asp-for="department_id"  class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">إلى</label>
+                            <select asp-for="department_id" required asp-items="@(ViewData["Departments"] as IEnumerable<SelectListItem>)" class="form-control w-full border rounded focus:ring-blue-500 focus:border-blue-500">
+                                <option disabled selected >-- أختر القسم --</option>
                             </select>
                             <span asp-validation-for="department_id" class="text-danger"></span>
                         </div>
@@ -52,15 +52,21 @@
                         </div>
 
                         <!-- Confidentiality, Urgency, and Importance -->
-                        <div class="flex justify-between space-x-4 mb-4">
+                        <div class="flex justify-between space-x-4 mb-4 rtl:space-x-reverse">
                             <!-- Confidentiality -->
                             <div class="w-full">
                                 <label class="block text-gray-700 font-bold mb-2">
                                     <i class="fas fa-lock"></i> سرية المعاملة
                                 </label>
                                 <div class="space-y-2">
-                                    <label><input type="radio" id="confidentiality_secret" name="confidentiality" value="secret" /> سري</label><br />
-                                    <label><input type="radio" id="confidentiality_non_secret" name="confidentiality" value="non_secret" /> غير سري</label>
+                                    <label>
+                                        <input type="radio" id="confidentiality_non_secret" name="confidentiality" value="غير سري" /> غير سري
+                                    </label>
+                                    <br />
+                                    <label>
+                                        <input type="radio" id="confidentiality_secret" name="confidentiality" value="سري" /> سري
+                                    </label>
+
                                 </div>
                             </div>
 
@@ -70,9 +76,15 @@
                                     <i class="fas fa-clock text-green-500"></i> أعجلية المعاملة
                                 </label>
                                 <div class="space-y-2">
-                                    <label><input type="radio" id="urgency_non_urgent" name="urgency" value="non_urgent" /> غير عاجلة</label><br />
-                                    <label><input type="radio" id="urgency_urgent" name="urgency" value="urgent" /> عاجلة</label><br />
-                                    <label><input type="radio" id="urgency_immediate" name="urgency" value="immediate" /> حالاً</label>
+                                    <label>
+                                        <input type="radio" id="urgency_non_urgent" name="urgency" value="غير عاجلة" /> غير عاجلة
+                                    </label><br />
+                                    <label>
+                                        <input type="radio" id="urgency_urgent" name="urgency" value="عاجلة" /> عاجلة
+                                    </label><br />
+                                    <label>
+                                        <input type="radio" id="urgency_immediate" name="urgency" value="حالاً" /> حالاً
+                                    </label>
                                 </div>
                             </div>
 
@@ -82,17 +94,23 @@
                                     <i class="fas fa-exclamation-circle text-red-500"></i> أهمية المعاملة
                                 </label>
                                 <div class="space-y-2">
-                                    <label><input type="radio" id="importance_normal" name="importance" value="normal" /> عادي</label><br />
-                                    <label><input type="radio" id="importance_high" name="importance" value="high" /> هام</label>
+                                    <label>
+                                        <input type="radio" id="importance_normal" name="importance" value="عادي" /> عادي
+                                    </label><br />
+                                    <label>
+                                        <input type="radio" id="importance_high" name="importance" value="هام" /> هام
+                                    </label>
                                 </div>
                             </div>
                         </div>
+
 
                         <!-- Submit Button -->
                         <div class="form-group flex justify-center mt-4">
                             <button type="submit" class="bg-gradient-to-r from-green-400 via-green-500 to-green-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center text-white font-bold">رفع المعاملة</button>
                         </div>
                     </form>
+
 
 				</div>
 			</div>
