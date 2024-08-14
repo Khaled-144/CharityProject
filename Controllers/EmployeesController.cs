@@ -108,7 +108,7 @@ namespace CharityProject.Controllers
                     .ThenInclude(r => r.from_employee)
                 .Include(t => t.Referrals)
                     .ThenInclude(r => r.to_employee)
-                .Where(t => t.to_emp_id == employeeId || t.Referrals.Any(r => r.to_employee_id == employeeId))
+                .Where(t => t.to_emp_id == employeeId || t.from_emp_id == employeeId || t.Referrals.Any(r => r.to_employee_id == employeeId))
                 .OrderByDescending(t => t.transaction_id)
                 .ToListAsync();
 
@@ -157,7 +157,7 @@ namespace CharityProject.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create_Transaction(IFormFile files, [Bind("create_date,close_date,title,description,to_emp_id,department_id")] Transaction transaction)
+        public async Task<IActionResult> Create_Transaction(IFormFile files, [Bind("create_date,close_date,title,description,to_emp_id,department_id,Confidentiality,Urgency,Importance")] Transaction transaction)
         {
             // Retrieve the employee ID from session
             var employeeId = GetEmployeeIdFromSession();
@@ -461,7 +461,6 @@ namespace CharityProject.Controllers
             return Ok(employees);
         }
         // End of khaled work -----------------------------------------------------
-
 
     }
 }
