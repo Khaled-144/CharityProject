@@ -20,6 +20,8 @@ namespace CharityProject.Controllers
         }
         public IActionResult CreateEmployee()
         {
+            var departments = _context.Department.ToList();
+            ViewData["Departments"] = departments;
             return View();
         }
         public IActionResult EditEmployee()
@@ -31,46 +33,35 @@ namespace CharityProject.Controllers
 
             return View();
         }
+      
+
         public IActionResult EmployeeView()
         {
-            var builder = WebApplication.CreateBuilder();
-            string conStr = builder.Configuration.GetConnectionString("DefaultConnection");
-            var employeeList = new List<Dictionary<string, object>>();
-
-            using (SqlConnection conn = new SqlConnection(conStr))
-            {
-                string sql = @"SELECT e.employee_id, e.name, e.username, 
-                       ed.position, ed.permission_position, ed.departement_id,
-                       d.departement_name
-                FROM employee e
-                JOIN employee_details ed ON e.employee_id = ed.employee_details_id
-                LEFT JOIN Department d ON ed.departement_id = d.departement_id";
-                SqlCommand cmd = new SqlCommand(sql, conn);
-                conn.Open();
-                using (SqlDataReader reader = cmd.ExecuteReader())
+            var employeeList = _context.employee
+                .Include(e => e.EmployeeDetails) // Include employee details
+                .ThenInclude(ed => ed.Department) // Include department details from employee details
+                .Select(e => new
                 {
-                    while (reader.Read())
-                    {
-                        employeeList.Add(new Dictionary<string, object>
-                        {
-                            ["employee_id"] = reader["employee_id"],
-                            ["name"] = reader["name"],
-                            ["username"] = reader["username"],
-                            ["position"] = reader["position"],
-                            ["permission_position"] = reader["permission_position"],
-                            ["departement_name"] = reader["departement_name"]
-                        });
-                    }
-                }
-            }
-
+                    e.employee_id,
+                    e.name,
+                    e.username,
+                    Position = e.EmployeeDetails != null ? e.EmployeeDetails.position : "No Position",
+                    PermissionPosition = e.EmployeeDetails != null ? e.EmployeeDetails.permission_position : "No Permission",
+                    DepartmentName = e.EmployeeDetails != null && e.EmployeeDetails.Department != null
+                        ? e.EmployeeDetails.Department.departement_name
+                        : "No Department"
+                })
+                .ToList();
+            var departments = _context.Department.ToList();
+            ViewData["Departments"] = departments;
             ViewData["EmployeeList"] = employeeList;
             return View();
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult InsertEmployee(
+
+      [HttpPost]
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> InsertEmployee(
     string employee_name,
     string employee_username,
     string employee_password,
@@ -88,72 +79,96 @@ namespace CharityProject.Controllers
     string employee_phone_number,
     string employee_gender,
     bool employee_active)
+{
+    var employee = new employee
+    {
+        name = employee_name,
+        username = employee_username,
+        password = employee_password,
+        search_role = employee_search_role
+    };
+
+    using var transaction = await _context.Database.BeginTransactionAsync();
+    try
+    {
+        _context.employee.Add(employee);
+        await _context.SaveChangesAsync();
+
+        var employeeDetails = new employee_details
         {
-            var builder = WebApplication.CreateBuilder();
-            string conStr = builder.Configuration.GetConnectionString("DefaultConnection");
-            using (SqlConnection conn = new SqlConnection(conStr))
+            employee_details_id = employee.employee_id, // Ensuring both IDs are the same
+            employee_id = employee.employee_id,
+            identity_number = int.Parse(employee_identity_number),
+            departement_id = int.Parse(employee_departement_id),
+            position = employee_position,
+            permission_position = employee_permission_position,
+            contract_type = employee_contract_type,
+            national_address = employee_national_address,
+            education_level = employee_education_level,
+            hire_date = employee_hire_date,
+            leave_date = employee_leave_date,
+            email = employee_email,
+            phone_number = employee_phone_number,
+            gender = employee_gender,
+            active = employee_active
+        };
+
+        _context.employee_details.Add(employeeDetails);
+        await _context.SaveChangesAsync();
+
+        // Check if the position contains 'مدير'
+        if (employee_position.Contains("مدير"))
+        {
+            var department = _context.Department.FirstOrDefault(d => d.departement_id == employeeDetails.departement_id);
+            if (department != null)
             {
-                conn.Open();
-                using (SqlTransaction transaction = conn.BeginTransaction())
+                var oldSupervisorId = department.supervisor_id;
+
+                // Extract the part of the position after 'مدير'
+                var positionSuffix = employee_position.Replace("مدير", "").Trim();
+
+                // Check if the department name matches the position suffix
+                if (department.departement_name != positionSuffix)
                 {
-                    using (SqlCommand cmd = new SqlCommand())
-                    {
-                        cmd.Connection = conn;
-                        cmd.Transaction = transaction;
-                        cmd.CommandText = @"
-                    INSERT INTO employee (name, username, password, search_role)
-                    VALUES (@Name, @Username, @Password, @SearchRole);
-                    
-                    INSERT INTO employee_details (
-                        employee_details_id, identity_number, departement_id, position, 
-                        permission_position, contract_type, national_address, education_level, 
-                        hire_date, leave_date, email, phone_number, gender, active
-                    )
-                    VALUES (
-                        SCOPE_IDENTITY(), @IdentityNumber, @DepartmentId, @Position,
-                        @PermissionPosition, @ContractType, @NationalAddress, @EducationLevel,
-                        @HireDate, @LeaveDate, @Email, @PhoneNumber, @Gender, @Active
-                    );";
-                        // Set parameters
-                        cmd.Parameters.AddWithValue("@Name", employee_name);
-                        cmd.Parameters.AddWithValue("@Username", employee_username);
-                        cmd.Parameters.AddWithValue("@Password", employee_password);
-                        cmd.Parameters.AddWithValue("@SearchRole", employee_search_role);
-                        cmd.Parameters.AddWithValue("@IdentityNumber", employee_identity_number);
-                        cmd.Parameters.AddWithValue("@DepartmentId", employee_departement_id);
-                        cmd.Parameters.AddWithValue("@Position", employee_position);
-                        cmd.Parameters.AddWithValue("@PermissionPosition", employee_permission_position);
-                        cmd.Parameters.AddWithValue("@ContractType", employee_contract_type);
-                        cmd.Parameters.AddWithValue("@NationalAddress", employee_national_address);
-                        cmd.Parameters.AddWithValue("@EducationLevel", employee_education_level);
-                        cmd.Parameters.AddWithValue("@HireDate", employee_hire_date);
-                        cmd.Parameters.AddWithValue("@LeaveDate", employee_leave_date);
-                        cmd.Parameters.AddWithValue("@Email", employee_email);
-                        cmd.Parameters.AddWithValue("@PhoneNumber", employee_phone_number);
-                        cmd.Parameters.AddWithValue("@Gender", employee_gender);
-                        cmd.Parameters.AddWithValue("@Active", employee_active);
-                        try
-                        {
-                            cmd.ExecuteNonQuery();
-                            transaction.Commit();
-
-                            return Json(new { success = true, message = "تم إنشاء موظف جديد بنجاح!" });
-
-                        }
-                        catch (Exception ex)
-                        {
-                            transaction.Rollback();
-                            return Json(new { success = false, message = "لم يتم إنشاء الموظف." });
-
-                        }
-
-                    }
-
+                    // Return error if department name does not match
+                    await transaction.RollbackAsync();
+                    return Json(new { success = false, message = "اسم القسم والمنصب غير متوافقين" });
                 }
 
-            }
+                // Check if the old supervisor ID is not the same as the current employee ID
+                if (oldSupervisorId != employee.employee_id)
+                {
+                    // Update the old supervisor's position and permission_position
+                    var oldSupervisor = _context.employee.Include(e => e.EmployeeDetails).FirstOrDefault(e => e.employee_id == oldSupervisorId);
+                    if (oldSupervisor != null)
+                    {
+                        var oldSupervisorDetails = oldSupervisor.EmployeeDetails;
+                        if (oldSupervisorDetails != null)
+                        {
+                            oldSupervisorDetails.position = "موظف";
+                            oldSupervisorDetails.permission_position = "موظف";
+                        }
+                    }
 
+                    // Set the new supervisor
+                    department.supervisor_id = employee.employee_id;
+                }
+            }
         }
+
+        await _context.SaveChangesAsync();
+        await transaction.CommitAsync();
+
+        return Json(new { success = true, message = "تم إنشاء موظف جديد بنجاح!" });
+    }
+    catch (Exception ex)
+    {
+        await transaction.RollbackAsync();
+        return Json(new { success = false, message = "لم يتم إنشاء الموظف." });
+    }
+}
+
+
 
 
 
@@ -161,145 +176,142 @@ namespace CharityProject.Controllers
 
         public IActionResult UpdateEmployee(int id)
         {
-            var builder = WebApplication.CreateBuilder();
-            string conStr = builder.Configuration.GetConnectionString("DefaultConnection");
-            using (SqlConnection conn = new SqlConnection(conStr))
+            var employee = _context.employee
+          .Include(e => e.EmployeeDetails)
+          .FirstOrDefault(e => e.employee_id == id);
+
+            if (employee == null)
             {
-                conn.Open();
-
-                // Fetch employee data
-                string sql = @"SELECT e.*, ed.* 
-                FROM employee e
-                JOIN employee_details ed ON e.employee_id = ed.employee_details_id
-                WHERE e.employee_id = @Id";
-                SqlCommand cmd = new SqlCommand(sql, conn);
-                cmd.Parameters.AddWithValue("@Id", id);
-
-                Dictionary<string, object> employeeData = new Dictionary<string, object>();
-                using (SqlDataReader reader = cmd.ExecuteReader())
-                {
-                    if (reader.Read())
-                    {
-                        employeeData = new Dictionary<string, object>
-                        {
-                            ["employee_id"] = reader["employee_id"],
-                            ["employee_name"] = reader["name"],
-                            ["employee_username"] = reader["username"],
-                            ["employee_password"] = reader["password"],
-                            ["employee_search_role"] = reader["search_role"],
-                            ["employee_identity_number"] = reader["identity_number"],
-                            ["employee_departement_id"] = reader["departement_id"],
-                            ["employee_position"] = reader["position"],
-                            ["employee_permission_position"] = reader["permission_position"],
-                            ["employee_contract_type"] = reader["contract_type"],
-                            ["employee_national_address"] = reader["national_address"],
-                            ["employee_education_level"] = reader["education_level"],
-                            ["employee_hire_date"] = ((DateTime)reader["hire_date"]),
-                            ["employee_leave_date"] = ((DateTime)reader["leave_date"]),
-                            ["employee_email"] = reader["email"],
-                            ["employee_phone_number"] = reader["phone_number"],
-                            ["employee_gender"] = reader["gender"],
-                            ["employee_active"] = reader["active"]
-                        };
-                    }
-                }
-
-                // Fetch departments
-                sql = "SELECT departement_id, departement_name FROM Department";
-                cmd = new SqlCommand(sql, conn);
-                List<Department> departments = new List<Department>();
-                using (SqlDataReader reader = cmd.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        departments.Add(new Department
-                        {
-                            departement_id = reader.GetInt32(0),
-                            departement_name = reader.GetString(1)
-                        });
-                    }
-                }
-
-                ViewData["EmployeeData"] = employeeData;
-                ViewData["Departments"] = departments;
+                return NotFound();
             }
+            var departments = _context.Department.ToList();
+            var employeeData = new
+            {
+                employee.employee_id,
+                employee.name,
+                employee.username,
+                employee.password,
+                employee.search_role,
+                employee.EmployeeDetails.identity_number,
+                employee.EmployeeDetails.departement_id,
+                employee.EmployeeDetails.position,
+                employee.EmployeeDetails.permission_position,
+                employee.EmployeeDetails.contract_type,
+                employee.EmployeeDetails.national_address,
+                employee.EmployeeDetails.education_level,
+                employee.EmployeeDetails.hire_date,
+                employee.EmployeeDetails.leave_date,
+                employee.EmployeeDetails.email,
+                employee.EmployeeDetails.phone_number,
+                employee.EmployeeDetails.gender,
+                employee.EmployeeDetails.active
+            };
+
+            ViewData["EmployeeData"] = employeeData;
+            ViewData["Departments"] = departments;
+
             return View();
         }
 
+
+
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult UpdateEmployee(int employee_id, string employee_name, string employee_username, string employee_password, string employee_search_role, string employee_identity_number, int employee_departement_id, string employee_position, string employee_permission_position, string employee_contract_type, string employee_national_address, string employee_education_level, DateTime employee_hire_date, DateTime employee_leave_date, string employee_email, string employee_phone_number, string employee_gender, bool employee_active)
+        public IActionResult UpdateEmployee(int employee_id, string name, string username, string password, string search_role,
+     int identity_number, int departement_id, string position, string permission_position, string contract_type,
+     string national_address, string education_level, DateTime hire_date, DateTime leave_date, string email,
+     string phone_number, string gender, bool active)
         {
-            var builder = WebApplication.CreateBuilder();
-            string conStr = builder.Configuration.GetConnectionString("DefaultConnection");
-            using (SqlConnection conn = new SqlConnection(conStr))
+            // Find the existing employee
+            var employee = _context.employee
+                .Include(e => e.EmployeeDetails)
+                .Include(e => e.EmployeeDetails.Department) // Include Department to access supervisor_id
+                .FirstOrDefault(e => e.employee_id == employee_id);
+
+            if (employee == null)
             {
-                conn.Open();
-                using (SqlTransaction transaction = conn.BeginTransaction())
-                {
-
-                    using (SqlCommand cmd = new SqlCommand())
-                    {
-                        cmd.Connection = conn;
-                        cmd.Transaction = transaction;
-                        cmd.CommandText = @"
-                UPDATE employee 
-                SET name = @Name, username = @Username, password = @Password, search_role = @SearchRole 
-                WHERE employee_id = @EmployeeId;
-
-                UPDATE employee_details 
-                SET identity_number = @IdentityNumber, departement_id = @DepartmentId, 
-                    position = @Position, permission_position = @PermissionPosition, 
-                    contract_type = @ContractType, national_address = @NationalAddress, 
-                    education_level = @EducationLevel, hire_date = @HireDate, leave_date = @LeaveDate, 
-                    email = @Email, phone_number = @PhoneNumber, gender = @Gender, active = @Active 
-                WHERE employee_details_id = @EmployeeId;";
-
-                        // Set parameters for both updates
-                        cmd.Parameters.AddWithValue("@EmployeeId", employee_id);
-                        cmd.Parameters.AddWithValue("@Name", employee_name);
-                        cmd.Parameters.AddWithValue("@Username", employee_username);
-                        cmd.Parameters.AddWithValue("@Password", employee_password);
-                        cmd.Parameters.AddWithValue("@SearchRole", employee_search_role);
-                        cmd.Parameters.AddWithValue("@IdentityNumber", employee_identity_number);
-                        cmd.Parameters.AddWithValue("@DepartmentId", employee_departement_id);
-                        cmd.Parameters.AddWithValue("@Position", employee_position);
-                        cmd.Parameters.AddWithValue("@PermissionPosition", employee_permission_position);
-                        cmd.Parameters.AddWithValue("@ContractType", employee_contract_type);
-                        cmd.Parameters.AddWithValue("@NationalAddress", employee_national_address);
-                        cmd.Parameters.AddWithValue("@EducationLevel", employee_education_level);
-                        cmd.Parameters.AddWithValue("@HireDate", employee_hire_date);
-                        cmd.Parameters.AddWithValue("@LeaveDate", employee_leave_date);
-                        cmd.Parameters.AddWithValue("@Email", employee_email);
-                        cmd.Parameters.AddWithValue("@PhoneNumber", employee_phone_number);
-                        cmd.Parameters.AddWithValue("@Gender", employee_gender);
-                        cmd.Parameters.AddWithValue("@Active", employee_active);
-
-                        try
-                        {
-                            cmd.ExecuteNonQuery();
-                            transaction.Commit();
-
-                            return Json(new { success = true, message = "تم تعديل موظف جديد بنجاح!" });
-
-                        }
-                        catch (Exception ex)
-                        {
-                            transaction.Rollback();
-                            return Json(new { success = false, message = "لم يتم تعديل الموظف." });
-
-                        }
-
-                    }
-
-                }
-
-
+                return Json(new { success = false, message = "موظف غير موجود." });
             }
 
+            // Update employee properties
+            employee.name = name;
+            employee.username = username;
+            employee.password = password;
+            employee.search_role = search_role;
+
+            // Update employee details
+            var details = employee.EmployeeDetails;
+            details.identity_number = identity_number;
+            details.departement_id = departement_id;
+            details.position = position;
+            details.permission_position = permission_position;
+            details.contract_type = contract_type;
+            details.national_address = national_address;
+            details.education_level = education_level;
+            details.hire_date = hire_date;
+            details.leave_date = leave_date;
+            details.email = email;
+            details.phone_number = phone_number;
+            details.gender = gender;
+            details.active = active;
+
+            // Check if the position contains 'مدير'
+            if (position.Contains("مدير"))
+            {
+                var department = _context.Department.FirstOrDefault(d => d.departement_id == departement_id);
+                if (department != null)
+                {
+                    var oldSupervisorId = department.supervisor_id;
+
+                    // Extract the part of the position after 'مدير'
+                    var positionSuffix = position.Replace("مدير", "").Trim();
+
+                    // Check if the department name matches the position suffix
+                    if (department.departement_name != positionSuffix)
+                    {
+                        // Return error if department name does not match
+                        return Json(new { success = false, message = "اسم القسم والمنصب غير متوافقين" });
+                    }
+
+                    // Check if the old supervisor ID is not the same as the current employee ID
+                    if (oldSupervisorId != employee_id)
+                    {
+                        // Update the old supervisor's position and permission_position
+                        var oldSupervisor = _context.employee.Include(e => e.EmployeeDetails).FirstOrDefault(e => e.employee_id == oldSupervisorId);
+                        if (oldSupervisor != null)
+                        {
+                            var oldSupervisorDetails = oldSupervisor.EmployeeDetails;
+                            if (oldSupervisorDetails != null)
+                            {
+                                oldSupervisorDetails.position = "موظف";
+                                oldSupervisorDetails.permission_position = "موظف";
+                            }
+                        }
+
+                        // Set the new supervisor
+                        department.supervisor_id = employee_id;
+                    }
+                }
+            }
+
+            // Save changes to the database
+            try
+            {
+                _context.SaveChanges();
+                return Json(new { success = true, message = "تم تعديل موظف بنجاح!" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "لم يتم تعديل الموظف.", error = ex.Message });
+            }
         }
+
+
 
     }
 
 }
+
+
 
