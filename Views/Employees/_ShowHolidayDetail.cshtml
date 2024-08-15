@@ -111,57 +111,11 @@
                             </dd>
                         </dl>
                     </div>
-
                     <div class="flex justify-center space-x-2">
                         <button type="button" class="btn btn-dark" data-dismiss="modal">إخفاء</button>
-                        <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#archiveConfirmationModal">أرشفة</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-<!-- Archive Confirmation Modal -->
-<div class="modal fade" id="archiveConfirmationModal" tabindex="-1" aria-labelledby="archiveConfirmationModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="archiveConfirmationModalLabel">تأكيد الأرشفة</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                هل أنت متأكد أنك تريد أرشفة هذه الإجازة؟
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
-                <button type="button" class="btn btn-primary" id="confirmArchive">أرشفة</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-    document.getElementById('confirmArchive').addEventListener('click', function () {
-        var holidayId = @Model.holidays_history_id;
-
-        $.ajax({
-            url: '/Employees/ArchiveHoliday', // Adjust the URL to match your controller action
-            type: 'POST',
-            data: { id: holidayId },
-            success: function (response) {
-                if (response.success) {
-                    // Close the confirmation modal
-                    $('#archiveConfirmationModal').modal('hide');
-                    // Optionally close the detail modal
-                    $('#detailModal-' + holidayId).modal('hide');
-                    // Refresh the page or update the UI
-                    location.reload();
-                }
-            },
-            error: function (xhr, status, error) {
-                console.error(error);
-            }
-        });
-    });
-</script>
