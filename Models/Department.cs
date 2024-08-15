@@ -10,7 +10,7 @@
         public string departement_name { get; set; }
 
         [ForeignKey("employee_id")]
-        public int supervisor_id { get; set; }
+        public int? supervisor_id { get; set; }
 
         [ForeignKey("supervisor_id")]
         public virtual employee Supervisor { get; set; }

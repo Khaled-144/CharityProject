@@ -12,6 +12,8 @@
         public string? search_role { get; set; }
         public virtual employee_details EmployeeDetails { get; set; }
         public List<salaries_history> SalaryHistory { get; set; }
+
+       
     }
 
 }

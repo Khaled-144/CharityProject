@@ -28,10 +28,10 @@
                 إضافة قسم جديد
             </button>
             @await Html.PartialAsync("CreateDep", new Department()) *@
-            @if (TempData["ErrorMessage"] != null)
+            @if (TempData["Message"] != null)
             {
-                <div class="text-red-500">
-                    <p>@TempData["ErrorMessage"]</p>
+                <div class="text-green-500">
+                    <p>@TempData["Message"]</p>
                 </div>
             }
         </div>
