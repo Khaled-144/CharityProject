@@ -1,4 +1,5 @@
-﻿@model IEnumerable<CharityProject.Models.Letter>
+﻿@model IEnumerable<CharityProject.Models.letter>
+
 <div class="p-2 rounded-lg shadow" style="max-height: 750px; overflow-y: auto;">
     <ul class="w-full divide-y divide-gray-200 dark:divide-gray-700">
         @foreach (var item in Model)
@@ -40,7 +41,9 @@
                         </div>
                     </div>
                     <div class="inline-flex items-center text-base font-semibold text-gray-900 ml-3 dark:text-white">
-                        <button type="button" class="btn btn-dark" data-toggle="modal" data-target="@("#detailModal-" + item.letters_id)">عرض</button>
+                        <button type="button" class="btn btn-dark" data-toggle="modal" data-target="@($"#detailModal-{item.letters_id}")">
+                            عرض
+                        </button>
                         @await Html.PartialAsync("_ShowLetterDetail", item)
                     </div>
                 </div>
