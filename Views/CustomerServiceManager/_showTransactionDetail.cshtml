@@ -70,8 +70,26 @@
 												var rowClass = index % 2 == 0 ? "" : "bg-gray-50";
 												<tr class="@rowClass">
 													<td class="py-3 px-4 text-right">@referral.referral_date.ToString("yyyy/MM/dd - HH:mm")</td>
-													<td class="py-3 px-4 text-right">@referral.from_employee_id</td>
-													<td class="py-3 px-4 text-right">@referral.to_employee_id</td>
+													<td class="py-3 px-4 text-right">
+														@if (referral.from_employee == null)
+														{
+															<span class="text-red-500">موظف غير موجود (ID: @referral.from_employee_id)</span>
+														}
+														else
+														{
+															@referral.from_employee.name
+														}
+													</td>
+													<td class="py-3 px-4 text-right">
+														@if (referral.to_employee == null)
+														{
+															<span class="text-red-500">موظف غير موجود (ID: @referral.to_employee_id)</span>
+														}
+														else
+														{
+															@referral.to_employee.name
+														}
+													</td>
 													<td class="py-3 px-4 text-right">@referral.comments</td>
 												</tr>
 												index++;

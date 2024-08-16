@@ -177,22 +177,34 @@ namespace CharityProject.Controllers
 					t.Referrals.Any(r => r.to_employee_id == employeeId)) // Transactions referred to the employee
 				.OrderByDescending(t => t.transaction_id)
 				.ToListAsync();
+            var employeeIds = transactions.SelectMany(t => new[] { t.from_emp_id, t.to_emp_id }).Distinct().ToList();
+            var employees = await _context.employee
+                .Where(e => employeeIds.Contains(e.employee_id))
+                .ToDictionaryAsync(e => e.employee_id, e => e.name);
 
-			// Fetch departments for the dropdown
-			var departments = await _context.Department.ToListAsync();
+            ViewBag.EmployeeNames = employees;
+
+            // Fetch departments for the dropdown
+            var departments = await _context.Department.ToListAsync();
 			ViewBag.Departments = new SelectList(departments, "departement_id", "departement_name");
 
 			return PartialView("_getAllTransactions", transactions);
 		}
-		public async Task<IActionResult> GetAllHolidays()
+        public async Task<IActionResult> GetAllHolidays()
         {
             var employeeId = GetEmployeeIdFromSession();
 
-            // Fetch holidays created by the logged-in employee
+            // Fetch holidays with the status "مرسلة" where the employee's department ID is 5
             var holidays = await _context.HolidayHistories
-                .Where(h => h.emp_id == employeeId)
+                .Where(h => h.status == "مرسلة"  && h.Employee_detail.departement_id == 5)
                 .OrderByDescending(h => h.holidays_history_id)
                 .ToListAsync();
+            var employeeIds = holidays.SelectMany(t => new[] { t.emp_id }).Distinct().ToList();
+            var employees = await _context.employee
+                .Where(e => employeeIds.Contains(e.employee_id))
+                .ToDictionaryAsync(e => e.employee_id, e => e.name);
+
+            ViewBag.EmployeeNames = employees;
 
             return PartialView("_getAllHolidays", holidays);
         }

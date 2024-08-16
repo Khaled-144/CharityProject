@@ -27,5 +27,6 @@
 
         [ForeignKey("employee_id")]
         public employee employee { get; set; }
+        public ICollection<HolidayHistory> HolidayHistories { get; set; }
     }
 }
