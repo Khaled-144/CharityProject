@@ -1,58 +1,123 @@
 ﻿@model IEnumerable<CharityProject.Models.Transaction>
 
-<div class="p-2 rounded-lg shadow" style="max-height: 750px; overflow-y: auto;">
-	<ul class="w-full divide-y divide-gray-200 dark:divide-gray-700">
-		@foreach (var item in Model)
-		{
-			<li class="mb-2 shadow-sm bg-white">
-				<div class="flex items-center space-x-4 rtl:space-x-reverse text-center">
-					<div class="flex-shrink-0 border-2 m-2 ml-3 p-3">
-						<p class="text-blue-600">
-							#@Html.DisplayFor(modelItem => item.transaction_id)
-						</p>
-					</div>
-					<div class="flex-1 min-w-0 text-xl text-right">
-						<div class="flex">
-							<p class="font-medium text-gray-900 truncate dark:text-white px-2">
-								@Html.DisplayFor(modelItem => item.title)
-							</p>
-							<p class="font-medium text-gray-900 truncate dark:text-white">
-								| @Html.DisplayFor(modelItem => item.create_date)
-							</p>
-						</div>
-						<p class="text-gray-500 truncate dark:text-gray-400">
-							@Html.DisplayFor(modelItem => item.description)
-						</p>
-						<!-- Confidentiality, Urgency, Importance -->
-						<div class="flex w-fit mb-1">
-							@{
-								var employeeNames = ViewBag.EmployeeNames as Dictionary<int, string> ?? new Dictionary<int, string>();
-							}
-							<p class="text-base">
-								بواسطة:
-								@(employeeNames.TryGetValue(item.from_emp_id, out var fromName) ? fromName : $"Unknown Employee (ID: {item.from_emp_id})")
-							</p>
-							<div class="flex p-1 bg-gray-100 rounded-md items-center text-sm mr-4">
-								<i class="fas fa-lock text-xs ml-1"></i>
-								<span class="text-gray-700">سري</span>
-							</div>
-							<div class="flex p-1 bg-gray-100 rounded-md items-center text-sm mr-4">
-								<i class="fas fa-clock text-green-500 text-xs ml-1"></i>
-								<span class="text-gray-700">عاجلة</span>
-							</div>
-							<div class="flex p-1 bg-gray-100  rounded-md items-center text-sm mr-4">
-								<i class="fas fa-exclamation-circle text-red-500 text-xs ml-1"></i>
-								<span class="text-gray-700">هام</span>
-							</div>
-						</div>
 
-					</div>
-					<div class="inline-flex items-center text-base font-semibold text-gray-900 ml-3 dark:text-white">
-						<button type="button" class="btn btn-dark" data-toggle="modal" data-target="@("#detailModal-" + item.transaction_id)">عرض</button>
-						@await Html.PartialAsync("_showTransactionDetail", item)
-					</div>
-				</div>
-			</li>
-		}
-	</ul>
+<div class="p-2 rounded-lg shadow" style="max-height: 750px; overflow-y: auto;">
+    <ul class="w-full divide-y divide-gray-200 dark:divide-gray-700">
+        @foreach (var item in Model)
+        {
+            <li class="mb-2 shadow-sm bg-white">
+                <div class="flex items-center space-x-4 rtl:space-x-reverse text-center">
+                    <div class="flex-shrink-0 border-2 m-2 ml-3 p-3">
+                        <p class="text-blue-600">
+                            #@Html.DisplayFor(modelItem => item.transaction_id)
+                        </p>
+                    </div>
+                    <div class="flex-1 min-w-0 text-xl text-right">
+                        <div class="flex">
+                            <p class="font-medium text-gray-900 truncate dark:text-white px-2">
+                                @Html.DisplayFor(modelItem => item.title)
+                            </p>
+                            <p class="font-medium text-gray-900 truncate dark:text-white">
+                                | @Html.DisplayFor(modelItem => item.create_date)
+                            </p>
+                        </div>
+                        <p class="text-gray-500 truncate dark:text-gray-400">
+                            @Html.DisplayFor(modelItem => item.description)
+                        </p>
+
+                        <!-- Confidentiality, Urgency, Importance -->
+                        <div class="flex space-x-4 rtl:space-x-reverse w-fit mb-1">
+
+                            <!-- Employee Name -->
+                            @if (ViewBag.EmployeeNames != null)
+                            {
+                                <p class="text-base ml-4">
+                                    بواسطة:
+                                    @{
+                                        string fromName;
+                                        var employeeNames = ViewBag.EmployeeNames as Dictionary<int, string>;
+                                        if (employeeNames != null && employeeNames.TryGetValue(item.from_emp_id, out fromName))
+                                        {
+                                            @fromName
+                                        }
+                                        else
+                                        {
+                                            <text>Unknown Employee (ID: @item.from_emp_id)</text>
+                                        }
+                                    }
+                                </p>
+                            }
+                            <!-- Confidentiality -->
+                            @if (item.Confidentiality != "غير سري" && item.Confidentiality != null)
+                            {
+                                <div class="flex items-center p-1 bg-gray-100 rounded-md text-sm">
+                                    <i class="fas fa-lock text-xs ml-1"></i>
+                                    <span class="text-gray-700">
+                                        @if (item.Confidentiality == "سري")
+                                        {
+                                            <text>سري</text>
+                                        }
+                                        else
+                                        {
+                                            <text>غير سري</text>
+                                        }
+                                    </span>
+                                </div>
+                            }
+
+                            <!-- Urgency -->
+                            @if (item.Urgency != "غير عاجلة" && item.Urgency != null)
+                            {
+                                <div class="flex items-center p-1 bg-gray-100 rounded-md text-sm">
+                                    <i class="fas fa-clock text-green-500 text-xs ml-1"></i>
+                                    <span class="text-gray-700">
+                                        @if (item.Urgency == "حالاً")
+                                        {
+                                            <text>حالاً</text>
+                                        }
+                                        else if (item.Urgency == "عاجلة")
+                                        {
+                                            <text>عاجلة</text>
+                                        }
+                                        else
+                                        {
+                                            <text>غير عاجلة</text>
+                                        }
+                                    </span>
+                                </div>
+                            }
+
+                            <!-- Importance -->
+                            @if (item.Importance != "عادي" && item.Importance != null)
+                            {
+                                <div class="flex items-center p-1 bg-gray-100 rounded-md text-sm">
+                                    <i class="fas fa-exclamation-circle text-red-500 text-xs ml-1"></i>
+                                    <span class="text-gray-700">
+                                        @if (item.Importance == "هام")
+                                        {
+                                            <text>هام</text>
+                                        }
+                                        else
+                                        {
+                                            <text>عادي</text>
+                                        }
+                                    </span>
+                                </div>
+                            }
+
+
+                        </div>
+                    </div>
+
+                    <!-- View Button -->
+                    <div class="inline-flex items-center ml-3">
+                        <button type="button" class="btn btn-dark" data-toggle="modal" data-target="@("#detailModal-" + item.transaction_id)">
+                            عرض
+                        </button>
+                        @await Html.PartialAsync("_showTransactionDetail", item)
+                    </div>
+                </div>
+            </li>
+        }
+    </ul>
 </div>

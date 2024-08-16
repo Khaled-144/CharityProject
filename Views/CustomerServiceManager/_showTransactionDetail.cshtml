@@ -3,6 +3,7 @@
 @{
 	ViewData["Title"] = "Transaction Details";
 	string fileUrl = Url.Content("~/files/" + Model.files);
+	string currentUrl = Context.Request.Path;
 }
 
 <div class="modal fade" id="detailModal-@Model.transaction_id" role="dialog">
@@ -22,10 +23,25 @@
 							<dd class="col-sm-8">@Html.DisplayFor(model => model.title)</dd>
 							<dt class="col-sm-4">الوصف</dt>
 							<dd class="col-sm-8">@Html.DisplayFor(model => model.description)</dd>
-							<dt class="col-sm-4">الى</dt>
-							<dd class="col-sm-8">4</dd>
-							<dt class="col-sm-4">قسم</dt>
-							<dd class="col-sm-8">@Model.Department.departement_name</dd>
+							@{
+								var employeeNames = ViewBag.EmployeeNames as Dictionary<int, string>;
+							}
+
+							<dt class="col-sm-4">من الموظف</dt>
+							<dd class="col-sm-8">
+								@(employeeNames.TryGetValue(Model.from_emp_id, out var fromName) ? fromName : "غير معروف")
+							</dd>
+							@if (Model.to_emp_id != null)
+							{
+								<dt class="col-sm-4">الى الموظف</dt>
+								<dd class="col-sm-8">
+									@(employeeNames.TryGetValue(Model.to_emp_id ?? 0, out var toName) ? toName : "غير معروف")
+								</dd>
+							}
+							<dt class="col-sm-4">الى قسم</dt>
+							<dd class="col-sm-8">
+								<span id="department-name-@Model.transaction_id"></span>
+							</dd>
 							<dt class="col-sm-4">تاريخ الانشاء</dt>
 							<dd class="col-sm-8">@Html.DisplayFor(model => model.create_date)</dd>
 							<dt class="col-sm-4">تاريخ الانهاء</dt>
@@ -107,38 +123,54 @@
 				</div>
 
 				<div class="row mt-3">
-					<div class="col-12 text-center">
-						@if (Model.status != "منهاة")
+					<div class="col-12 text-center flex justify-center ">
+						@if (!currentUrl.Contains("GetArchivedTransactions"))
 						{
-							<button type="button" class="btn btn-danger ml-8" data-toggle="modal" data-target="#confirmEndModal-@Model.transaction_id">
-								إنهاء المعاملة
-							</button>
-							<button type="button" class="btn btn-primary ml-8" data-toggle="modal" data-target="#confirmAcceptModal-@Model.transaction_id">
-								قبول المعاملة
-							</button>
-							<button type="button" class="btn btn-primary ml-8" id="toggleReferForm-@Model.transaction_id">
-								إحالة المعاملة
-							</button>
+							@if (Model.status != "منهاة")
+							{
+								@using (Html.BeginForm("UpdateStatus", "Transactions", FormMethod.Post, new { id = $"updateStatusForm-{Model.transaction_id}", @class = "d-inline" }))
+								{
+									@Html.AntiForgeryToken()
+									<button type="button" class="btn btn-danger " data-toggle="modal" data-target="#confirmEndModal-@Model.transaction_id">
+										إنهاء المعاملة
+									</button>
+									@Html.HiddenFor(model => model.transaction_id)
+									<button type="button" class="btn btn-primary ml-8" data-toggle="modal" data-target="#confirmAcceptModal-@Model.transaction_id">
+										قبول المعاملة
+									</button>
+								}
+
+								<button type="button" class="btn btn-primary mx-4" id="toggleReferForm-@Model.transaction_id">
+									إحالة المعاملة
+								</button>
+							}
 						}
 						<button type="button" class="btn btn-dark" data-dismiss="modal">إخفاء</button>
 					</div>
+
 				</div>
 
 				<!-- Referral form (initially hidden) -->
 				<div id="referForm-@Model.transaction_id" class="mt-4" style="display: none;">
 					<h5>إحالة المعاملة #@Model.transaction_id</h5>
-					@using (Html.BeginForm("ReferTransaction", "Employees", FormMethod.Post, new { id = $"referTransactionForm-{Model.transaction_id}" }))
+					@using (Html.BeginForm("ReferTransaction", "CustomerServiceManager", FormMethod.Post, new { id = $"referTransactionForm-{Model.transaction_id}" }))
 					{
 						@Html.AntiForgeryToken()
 						@Html.HiddenFor(model => model.transaction_id)
 						<div class="form-group">
+							<label for="department_id">القسم:</label>
+							<select id="department_id" name="department_id" class="form-control" required>
+								<option value="">اختر القسم</option>
+								@foreach (var dept in ViewBag.Departments)
+								{
+									<option value="@dept.Value">@dept.Text</option>
+								}
+							</select>
+						</div>
+						<div class="form-group">
 							<label for="to_employee_id">إحالة إلى الموظف:</label>
 							<select name="to_employee_id" id="to_employee_id" class="form-control" required>
 								<option value="">اختر الموظف</option>
-								<!-- You'll need to populate this dropdown with actual employee data -->
-								<option value="1">موظف 1</option>
-								<option value="2">موظف 2</option>
-								<!-- Add more options as needed -->
 							</select>
 						</div>
 						<div class="form-group">
@@ -153,8 +185,10 @@
 	</div>
 </div>
 
+
 <!-- Confirmation Modal -->
 <div class="modal fade" id="confirmEndModal-@Model.transaction_id" tabindex="-1" role="dialog" aria-labelledby="confirmEndLabel" aria-hidden="true">
+
 	<div class="modal-dialog" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -167,7 +201,7 @@
 				</div>
 			</div>
 			<div class="modal-footer flex pt-14 justify-center">
-				@using (Html.BeginForm("UpdateTransactionStatus", "CustomerServiceManager", FormMethod.Post, new { id = $"updateStatusFormConfirm-{Model.transaction_id}" }))
+				@using (Html.BeginForm("UpdateTransactionsStatus", "CustomerServiceManager", FormMethod.Post, new { id = $"updateStatusFormConfirm-{Model.transaction_id}" }))
 				{
 					@Html.AntiForgeryToken()
 					@Html.HiddenFor(model => model.transaction_id)
@@ -184,7 +218,7 @@
 			<div class="modal-header">
 				<h5 class="modal-title" id="confirmEndLabel">تأكيد قبول المعاملة</h5>
 			</div>
-			
+
 			<div class="modal-footer flex pt-14 justify-center">
 				@using (Html.BeginForm("ApproveTransaction", "CustomerServiceManager", FormMethod.Post, new { id = $"updateStatusFormConfirm-{Model.transaction_id}" }))
 				{
@@ -205,7 +239,7 @@
 		var input = document.createElement('input');
 		input.type = 'hidden';
 		input.name = 'reason';
-		input.value = reason;	
+		input.value = reason;
 		form.appendChild(input);
 	}
 </script>
@@ -213,6 +247,60 @@
 	$(document).ready(function () {
 		$("#toggleReferForm-@Model.transaction_id").click(function () {
 			$("#referForm-@Model.transaction_id").toggle();
+		});
+	});
+</script>
+<script>
+	$("#department_id").change(function () {
+		var departmentId = $(this).val();
+		var employeeDropdown = $("#to_employee_id");
+		employeeDropdown.empty();
+		employeeDropdown.append('<option value="">اختر الموظف</option>');
+
+		if (departmentId) {
+			console.log("Selected department ID:", departmentId);
+			$.ajax({
+				url: '@Url.Action("GetEmployeesByDepartment", "CustomerServiceManager")',
+				type: 'GET',
+				data: { departmentId: departmentId },
+				success: function (data) {
+					console.log("Received data:", data);
+					if (data && data.length > 0) {
+						$.each(data, function (index, item) {
+							employeeDropdown.append($('<option></option>')
+								.val(item.employee_id)
+								.text(item.name + ' - ' + item.position));
+						});
+					} else {
+						employeeDropdown.append($('<option></option>').val('').text('لا يوجد موظفين في هذا القسم'));
+					}
+				},
+				error: function (xhr, status, error) {
+					console.error("Error fetching employees:", error);
+					console.error("Status:", status);
+					console.error("Response:", xhr.responseText);
+					employeeDropdown.append($('<option></option>').val('').text('حدث خطأ أثناء جلب الموظفين'));
+				}
+			});
+		}
+	});
+</script>
+<script>
+	$(document).ready(function () {
+		var departmentId = @Model.department_id;
+		var transactionId = @Model.transaction_id;
+
+		$.ajax({
+			url: '@Url.Action("GetDepartmentName", "CustomerServiceManager")',
+			type: 'GET',
+			data: { departmentId: departmentId },
+			success: function (data) {
+				$('#department-name-' + transactionId).text(data);
+			},
+			error: function (xhr, status, error) {
+				console.error("Error fetching department name:", error);
+				$('#department-name-' + transactionId).text("غير معروف");
+			}
 		});
 	});
 </script>

@@ -52,7 +52,7 @@ namespace CharityProject.Controllers
 
         public IActionResult ReferTransaction()
         {
-            return RedirectToAction("Transactions", "Employees");
+            return RedirectToAction("Transactions", "CustomerServiceManager");
         }
 
         [HttpPost]
@@ -86,9 +86,9 @@ namespace CharityProject.Controllers
             transaction.to_emp_id = to_employee_id;
             await _context.SaveChangesAsync();
 
-            // Redirect to the Transactions page after successful referral
-            return RedirectToAction("Transactions");
-        }
+			// Redirect to the Transactions page after successful referral
+			return RedirectToAction("Transactions", "CustomerServiceManager");
+		}
 
         // New method to view referral history
         public async Task<IActionResult> ReferralHistory(int id)
@@ -129,7 +129,7 @@ namespace CharityProject.Controllers
             // Filter transactions based on the current user's ID and include the related Department
             var transactions = await _context.Transactions
                 .Where(t => t.to_emp_id == currentUserId)
-                .Include(t => t.Department ) // Include the Department
+                .Include(t => t.Department) // Include the Department
                 .ToListAsync();
 
             // Get the counts for various entities
@@ -158,25 +158,25 @@ namespace CharityProject.Controllers
             return View(transactions);
         }
 
-		public async Task<IActionResult> GetAllTransactions()
-		{
-			var employeeId = GetEmployeeIdFromSession();
-			var departmentId = int.Parse(HttpContext.Session.GetString("DepartmentId"));
-			var position = HttpContext.Session.GetString("Position");
+        public async Task<IActionResult> GetAllTransactions()
+        {
+            var employeeId = GetEmployeeIdFromSession();
 
-			// Fetch transactions based on the conditions provided
-			var transactions = await _context.Transactions
-				.Include(t => t.Referrals)
-					.ThenInclude(r => r.from_employee)
-				.Include(t => t.Referrals)
-					.ThenInclude(r => r.to_employee)
-				.Where(t =>
-					(position == "manager" && (t.department_id == departmentId || t.department_id == 5)) || // Transactions for the manager's department or from department 5
-					t.from_emp_id == employeeId || // Transactions sent by the employee
-					t.to_emp_id == employeeId || // Transactions sent to the employee
-					t.Referrals.Any(r => r.to_employee_id == employeeId)) // Transactions referred to the employee
-				.OrderByDescending(t => t.transaction_id)
-				.ToListAsync();
+            // Fetch transactions based on the conditions provided
+            var transactions = await _context.Transactions
+                .Include(t => t.Referrals)
+                    .ThenInclude(r => r.from_employee)
+                .Include(t => t.Referrals)
+                    .ThenInclude(r => r.to_employee)
+                .Where(t => t.status == "مرسلة" && (t.from_emp_id == employeeId || // Transactions sent by the employee
+                    t.to_emp_id == employeeId ||
+                     t.department_id == 5 || // Transactions sent to the employee
+
+                    t.Referrals.Any(r => r.to_employee_id == employeeId))
+                 // Transactions for the manager's department or from department 5
+                 )  // Transactions referred to the employee
+                .OrderByDescending(t => t.transaction_id)
+                .ToListAsync();
             var employeeIds = transactions.SelectMany(t => new[] { t.from_emp_id, t.to_emp_id }).Distinct().ToList();
             var employees = await _context.employee
                 .Where(e => employeeIds.Contains(e.employee_id))
@@ -186,17 +186,17 @@ namespace CharityProject.Controllers
 
             // Fetch departments for the dropdown
             var departments = await _context.Department.ToListAsync();
-			ViewBag.Departments = new SelectList(departments, "departement_id", "departement_name");
+            ViewBag.Departments = new SelectList(departments, "departement_id", "departement_name");
 
-			return PartialView("_getAllTransactions", transactions);
-		}
+            return PartialView("_getAllTransactions", transactions);
+        }
         public async Task<IActionResult> GetAllHolidays()
         {
             var employeeId = GetEmployeeIdFromSession();
 
             // Fetch holidays with the status "مرسلة" where the employee's department ID is 5
             var holidays = await _context.HolidayHistories
-                .Where(h => h.status == "مرسلة"  && h.Employee_detail.departement_id == 5)
+                .Where(h => h.status == "مرسلة" && h.Employee_detail.departement_id == 5)
                 .OrderByDescending(h => h.holidays_history_id)
                 .ToListAsync();
             var employeeIds = holidays.SelectMany(t => new[] { t.emp_id }).Distinct().ToList();
@@ -440,7 +440,7 @@ namespace CharityProject.Controllers
 
             // Update the status to "Closed"
             holiday.status = "رفضت من المدير المباشر";
-           
+
 
             // Save changes to the database
             await _context.SaveChangesAsync();
@@ -474,24 +474,37 @@ namespace CharityProject.Controllers
             return Ok(employees);
         }
         [HttpPost]
-		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> ApproveTransaction(int transaction_id)
-		{
-			var transaction = await _context.Transactions.FindAsync(transaction_id);
-			if (transaction == null)
-			{
-				return NotFound();
-			}
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ApproveTransaction(int transaction_id)
+        {
+            var transaction = await _context.Transactions.FindAsync(transaction_id);
+            if (transaction == null)
+            {
+                return NotFound();
+            }
 
-			// Update the status to "Closed"
-			transaction.status = "موافقة المدير المباشر";
-			transaction.close_date = DateTime.Now;
 
-			// Save changes to the database
-			await _context.SaveChangesAsync();
+            // Update the status to "Closed"
+            transaction.status = "موافقة المدير المباشر";
+            transaction.close_date = DateTime.Now;
 
-			return RedirectToAction(nameof(Transactions));
-		}
+            // Save changes to the database
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Transactions));
+        }
+        [HttpGet]
+        public async Task<IActionResult> GetDepartmentName(int departmentId)
+        {
+            var department = await _context.Department.FindAsync(departmentId);
+            if (department != null)
+            {
+                return Content(department.departement_name);
+            }
+            return Ok();
+        }
+
+        
         public async Task<IActionResult> ApproveHoliday(int holidays_history_id)
         {
             var holiday = await _context.HolidayHistories.FindAsync(holidays_history_id);
