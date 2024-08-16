@@ -8,7 +8,7 @@
     {
         [Key]
         public int employee_details_id { get; set; }
-        public int identity_number { get; set; }
+        public int? identity_number { get; set; }
         public int departement_id { get; set; }
         public string position { get; set; }
         public string permission_position { get; set; }
@@ -23,10 +23,17 @@
         public string gender { get; set; }
         public string? files { get; set; }
 
-       public int employee_id { get; set; }
+        public int employee_id { get; set; }
 
         [ForeignKey("employee_id")]
         public employee employee { get; set; }
-        public ICollection<HolidayHistory> HolidayHistories { get; set; }
+
+        [ForeignKey("departement_id")]
+        public Department Department { get; set; }
+
+
     }
+    
+   
+
 }

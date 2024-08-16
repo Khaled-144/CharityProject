@@ -1,0 +1,150 @@
+﻿@model IEnumerable<CharityProject.Models.Transaction>
+
+@{
+    Layout = "_Layout";
+    ViewData["PageTitle"] = "الارشيف";
+    ViewData["Title"] = "صفحة الارشيف";
+    var currentUrl = $"{Context.Request.Scheme}://{Context.Request.Host}{Context.Request.Path}{Context.Request.QueryString}";
+    ViewBag.CurrentUrl = currentUrl;
+}
+
+<!DOCTYPE html>
+<html lang="ar">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["PageTitle"]</title>
+    <link rel="stylesheet" href="~/css/site.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+    <!-- Add any additional CSS or JS references here -->
+    <style>
+        .active-tab {
+            border-color: #248277;
+            color: #248277;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="flex justify-self-auto justify-between mt-10">
+        <div class="mx-4">
+            <form id="searchForm">
+                <div class="flex justify-evenly">
+                    <input name="id" placeholder="رقم المعاملة" class="form-control mr-2" type="search" aria-label="search" />
+                    <button id="searchButton" class="btn btn-dark" type="submit">بحث</button>
+                    <select name="sortOrder" id="sortOrder" class="bg-white border border-primaryButtons px-5 text-black text-sm rounded-lg text-center focus:ring-blue-500 focus:border-blue-500 block mr-2">
+                        <option selected>فلترة</option>
+                        <option value="newest">الاحدث</option>
+                        <option value="oldest">الاقدم</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="mb-4 border-b border-gray-200 dark:border-gray-700">
+        <ul class="flex flex-wrap -mb-px text-xl font-medium text-center" id="default-tab" role="tablist">
+            <li class="me-2 flex items-center" role="presentation">
+                <button class="inline-block p-4 border-b-2 rounded-t-lg active-tab" id="internal-tab" data-content-url="@Url.Action("GetArchivedTransactions", "Employees")" type="button" role="tab">
+                    داخلية
+                </button>
+            </li>
+            <li class="me-2 flex items-center" role="presentation">
+                <button class="inline-block p-4 border-b-2 rounded-t-lg" id="holidays-tab" data-content-url="@Url.Action("GetArchivedHolidays", "Employees")" type="button" role="tab">
+                    إجازات
+                </button>
+            </li>
+            <li class="me-2 flex items-center" role="presentation">
+                <button class="inline-block p-4 border-b-2 rounded-t-lg" id="letters-tab" data-content-url="@Url.Action("GetArchivedLetters", "Employees")" type="button" role="tab">
+                    خطابات
+                </button>
+            </li>
+            <li class="flex items-center" role="presentation">
+                <button class="inline-block p-4 border-b-2 rounded-t-lg" id="assets-tab" data-content-url="@Url.Action("GetAllAssets", "Assets")" type="button" role="tab">
+                    عهده
+                </button>
+            </li>
+        </ul>
+    </div>
+
+    <div id="tab-content-container" class="mt-5">
+        <!-- Content will be dynamically loaded here -->
+    </div>
+
+    <script src="~/js/site.js"></script>
+    <script>
+        $(document).ready(function () {
+            function loadTabContent(url) {
+                $("#tab-content-container").html('<div class="text-center"><div class="spinner text-center"></div><p>جاري تحميل المحتوى...</p></div>');
+                $.ajax({
+                    url: url,
+                    type: 'GET',
+                    success: function (result) {
+                        $("#tab-content-container").html(result);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(error);
+                        $("#tab-content-container").html('<p class = " text-center ">فشل تحميل المحتوى. حاول مرة أخرى لاحقاً.</p>');
+                    }
+                });
+            }
+
+            $("#default-tab button").on("click", function () {
+                var url = $(this).data("content-url");
+                loadTabContent(url);
+                $("#default-tab button").removeClass("active-tab");
+                $(this).addClass("active-tab");
+            });
+
+            // Load initial tab content
+            $("#internal-tab").trigger("click");
+        });
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            function loadTransactions() {
+                $("#loadingIndicator").show(); // Show loading indicator
+                $("#transactionListPlaceholder").hide(); // Hide transaction list
+
+                $.ajax({
+                    url: '@Url.Action("SearchById", "Transactions")',
+                    type: 'GET',
+                    data: { id: 0, sortOrder: '' }, // Default values or adjust as needed
+                    success: function (result) {
+                        $("#transactionListPlaceholder").html(result); // Update the div with the partial view
+                        $("#loadingIndicator").hide(); // Hide loading indicator
+                        $("#transactionListPlaceholder").show(); // Show transaction list
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(error);
+                        $("#loadingIndicator").hide(); // Hide loading indicator in case of error
+                        $("#transactionListPlaceholder").show(); // Show transaction list even if empty
+                    }
+                });
+            }
+
+            // Call the function when the page loads
+            loadTransactions();
+
+            // Attach event handler to search button
+            $("#searchButton").on("click", function (event) {
+                event.preventDefault(); // Prevent form from submitting normally
+                loadTransactions(); // Call the function
+            });
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,28 @@
+﻿@model CharityProject.Models.salaries_history
+
+<div class="modal fade" id="DeleteSalaryModal-@Model.salaries_history_id" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">تأكيد الحذف</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body text-right">
+                <p>هل أنت متأكد من حذف سجل هذا الموظف؟</p>
+                <p class="text-danger">هذا الإجراء لا يمكن التراجع عنه. يرجى التأكد قبل الحذف.</p>
+                <form asp-action="Delete_Salaries" asp-route-id="@Model.salaries_history_id" method="post">
+                    <input type="hidden" asp-for="salaries_history_id" />
+
+                   
+
+                    <div class="form-group">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                            إلغاء
+                        </button>
+                        <input type="submit" value="تأكيد الحذف" class="btn btn-danger" />
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

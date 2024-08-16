@@ -1,0 +1,254 @@
+﻿@model List<CharityProject.Models.salaries_history>
+
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.js"></script>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <title>سجلات الرواتب</title>
+</head>
+<body class="bg-gradient-to-br from-green-50 to-emerald-100 min-h-screen p-8">
+
+    <div class="max-w-7xl mx-auto">
+        <h2 class="text-4xl font-bold mb-8 text-center text-emerald-800 shadow-text">سجلات الرواتب لـ @ViewBag.Month</h2>
+
+        <div class="flex flex-col md:flex-row justify-between items-center mb-10 space-y-4 md:space-y-0">
+            <!-- Search Form -->
+            <div class="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4 rtl:space-x-reverse">
+                <label for="employeeSearch" class="text-lg font-semibold text-gray-700">ابحث عن اسم الموظف:</label>
+                <input type="text" id="employeeSearch" placeholder="أدخل اسم الموظف" class="border border-emerald-300 rounded-lg p-2 focus:ring-2 focus:ring-emerald-400 focus:border-transparent" />
+                <button id="searchButton" class="bg-gradient-to-r from-emerald-500 to-green-600 text-white rounded-lg px-4 py-2 hover:from-emerald-600 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition duration-300 ease-in-out transform hover:scale-105">
+                    بحث
+                </button>
+            </div>
+
+            <!-- Total Salary Display -->
+            <h4 class="font-bold text-lg">اجمالي الصرف من البنك: <span class="text-emerald-700">@ViewBag.Total SR</span></h4>
+        </div>
+
+        <div class="overflow-x-auto bg-white rounded-lg shadow-md w-full">
+            <table class="min-w-full bg-white border border-gray-300">
+                <thead class="bg-emerald-600 text-white uppercase text-sm leading-normal">
+                    <tr>
+                        <!-- Make columns narrower by reducing the padding -->
+                        <th class="py-2 px-4 text-right">الرقم الوظيفي</th>
+                        <th class="py-2 px-4 text-right">اسم الموظف</th>
+                        <th class="py-2 px-4 text-right">التاريخ</th>
+                        <th class="py-2 px-4 text-right">الراتب الأساسي</th>
+                        <th class="py-2 px-4 text-right">بدل السكن</th>
+                        <th class="py-2 px-4 text-right">بدل النقل</th>
+                        <th class="py-2 px-4 text-right">بدلات أخرى</th>
+                        <th class="py-2 px-4 text-right">العمل الإضافي</th>
+                        <th class="py-2 px-4 text-right">المكافأة</th>
+                        <th class="py-2 px-4 text-right">الإجمالي</th>
+                        <th class="py-2 px-4 text-right">خصم التأخير</th>
+                        <th class="py-2 px-4 text-right">خصم الغياب</th>
+                        <th class="py-2 px-4 text-right">خصومات أخرى</th>
+                        <th class="py-2 px-4 text-right">الدين</th>
+                        <th class="py-2 px-4 text-right">حصة المشترك</th>
+                        <th class="py-2 px-4 text-right">حصة المنشأة</th>
+                        <th class="py-2 px-4 text-right">التأمينات</th>
+                        <th class="py-2 px-4 text-right">أيام العمل</th>
+                        <th class="py-2 px-4 text-right">اجمالي مبلغ الصرف</th>
+                        <th class="py-2 px-4 text-right">بيان الصرف</th>
+                        <th class="py-2 px-4 text-right">ملاحظات</th>
+                        <th class="py-2 px-6 text-right">الاجراءت</th>
+                    </tr>
+                </thead>
+               <tbody id="salaryTable" class="text-gray-700 text-sm font-light">
+                    @{
+                       
+                        decimal totalBaseSalary = 0;
+                        decimal totalHousingAllowances = 0;
+                        decimal totalTransportationAllowances = 0;
+                        decimal totalOtherAllowances = 0;
+                        decimal totalOvertime = 0;
+                        decimal totalBonus = 0;
+                        decimal totalBeforeDiscount = 0;
+                        decimal totalDelayDiscount = 0;
+                        decimal totalAbsenceDiscount = 0;
+                        decimal totalOtherDiscount = 0;
+                        decimal totalDebt = 0;
+                        decimal totalSharedPortion = 0;
+                        decimal totalFacilityPortion = 0;
+                        decimal totalSocialInsurance = 0;
+                        decimal totalWorkDays = 0;
+                        decimal totalAfterDiscount = 0;
+                    }
+
+                    @foreach (var record in Model)
+                    {
+                        <tr class="border-b border-gray-200 hover:bg-emerald-100">
+                            <td class="py-2 px-4 text-right">@record.employee.employee_id</td>
+                            <td class="py-2 px-4 text-right employee-name">@record.employee.name</td>
+                            <td class="py-2 px-4 text-right">@record.date.ToShortDateString()</td>
+                            <td class="py-2 px-4 text-right">@record.base_salary.ToString()</td>
+                            <td class="py-2 px-4 text-right">@((record.housing_allowances ?? 0).ToString())</td>
+                            <td class="py-2 px-4 text-right">@((record.transportaion_allowances ?? 0).ToString())</td>
+                            <td class="py-2 px-4 text-right">@((record.other_allowances ?? 0).ToString())</td>
+                            <td class="py-2 px-4 text-right">@((record.overtime ?? 0).ToString())</td>
+                            <td class="py-2 px-4 text-right">@((record.bonus ?? 0).ToString())</td>
+                            @{
+                                decimal rowTotalBeforeDiscount = Convert.ToDecimal(record.base_salary)
+                                + Convert.ToDecimal(record.housing_allowances ?? 0)
+                                + Convert.ToDecimal(record.transportaion_allowances ?? 0)
+                                + Convert.ToDecimal(record.other_allowances ?? 0)
+                                + Convert.ToDecimal(record.overtime ?? 0)
+                                + Convert.ToDecimal(record.bonus ?? 0);
+                            }
+                            <td class="py-2 px-4 text-right">@rowTotalBeforeDiscount.ToString()</td>
+                            <td class="py-2 px-4 text-right">@((record.delay_discount ?? 0).ToString())</td>
+                            <td class="py-2 px-4 text-right">@((record.absence_discount ?? 0).ToString())</td>
+                            <td class="py-2 px-4 text-right">@((record.other_discount ?? 0).ToString())</td>
+                            <td class="py-2 px-4 text-right">@((record.debt ?? 0).ToString())</td>
+                            <td class="py-2 px-4 text-right">@((record.shared_portion ?? 0).ToString())</td>
+                            <td class="py-2 px-4 text-right">@((record.facility_portion ?? 0).ToString())</td>
+                            @{
+                                decimal rowSocialInsurance = Convert.ToDecimal(record.facility_portion ?? 0) + Convert.ToDecimal(record.shared_portion ?? 0);
+                            }
+                            <td class="py-2 px-4 text-right">@rowSocialInsurance.ToString()</td>
+                            <td class="py-2 px-4 text-right">@record.work_days</td>
+                            @{
+                                decimal rowTotalAfterDiscount = rowTotalBeforeDiscount
+                                - Convert.ToDecimal(record.delay_discount ?? 0)
+                                - Convert.ToDecimal(record.absence_discount ?? 0)
+                                - Convert.ToDecimal(record.other_discount ?? 0)
+                                - Convert.ToDecimal(record.debt ?? 0)
+                                - Convert.ToDecimal(record.shared_portion ?? 0);
+                            }
+                            <td class="py-2 px-4 text-right">@rowTotalAfterDiscount.ToString()</td>
+                            <td class="py-2 px-4 text-right">@record.exchange_statement</td>
+                            <td class="py-2 px-4 text-right">@(!string.IsNullOrEmpty(record.notes) ? record.notes : "لا توجد ملاحظة")</td>
+                            <td class="py-2 px-4 border-b">
+                                <div class="flex flex-col">
+     <a asp-controller="HR"
+        asp-action="Edit_Salaries"
+        asp-route-id="@record.salaries_history_id"
+        class="bg-green-500 hover:bg-green-700 text-white py-1 rounded mb-2 block text-center transform hover:scale-105 transition duration-300">
+         تحديث
+     </a>
+     <button type="button" class="bg-red-500 hover:bg-red-700 text-white py-1 rounded block text-center transform hover:scale-105 transition duration-300" data-toggle="modal" data-target="@("#DeleteSalaryModal-" + record.salaries_history_id)">
+         حذف
+     </button>
+ </div>
+                            </td>
+                        </tr>
+                        @await Html.PartialAsync("DeleteRecord", record)
+
+                        
+                            // Calculate totals
+                                    
+                            totalBaseSalary += Convert.ToDecimal(record.base_salary);
+                            totalHousingAllowances += Convert.ToDecimal(record.housing_allowances ?? 0);
+                            totalTransportationAllowances += Convert.ToDecimal(record.transportaion_allowances ?? 0);
+                            totalOtherAllowances += Convert.ToDecimal(record.other_allowances ?? 0);
+                            totalOvertime += Convert.ToDecimal(record.overtime ?? 0);
+                            totalBonus += Convert.ToDecimal(record.bonus ?? 0);
+                            totalBeforeDiscount += rowTotalBeforeDiscount;
+                            totalDelayDiscount += Convert.ToDecimal(record.delay_discount ?? 0);
+                            totalAbsenceDiscount += Convert.ToDecimal(record.absence_discount ?? 0);
+                            totalOtherDiscount += Convert.ToDecimal(record.other_discount ?? 0);
+                            totalDebt += Convert.ToDecimal(record.debt ?? 0);
+                            totalSharedPortion += Convert.ToDecimal(record.shared_portion ?? 0);
+                            totalFacilityPortion += Convert.ToDecimal(record.facility_portion ?? 0);
+                            totalSocialInsurance += rowSocialInsurance;
+                            totalWorkDays += Convert.ToDecimal(record.work_days);
+                            totalAfterDiscount += rowTotalAfterDiscount;
+                        
+                    }
+
+                    <!-- Total row -->
+                    <tr class="bg-emerald-100 font-bold">
+                        <td class="py-2 px-4 text-right">اجمالي الصرف</td>
+                        <td class="py-2 px-4 text-right">-</td>
+                        <td class="py-2 px-4 text-right">-</td>
+                        <td class="py-2 px-4 text-right">@totalBaseSalary.ToString()</td>
+                        <td class="py-2 px-4 text-right">@totalHousingAllowances.ToString()</td>
+                        <td class="py-2 px-4 text-right">@totalTransportationAllowances.ToString()</td>
+                        <td class="py-2 px-4 text-right">@totalOtherAllowances.ToString()</td>
+                        <td class="py-2 px-4 text-right">@totalOvertime.ToString()</td>
+                        <td class="py-2 px-4 text-right">@totalBonus.ToString()</td>
+                        <td class="py-2 px-4 text-right">@totalBeforeDiscount.ToString()</td>
+                        <td class="py-2 px-4 text-right">@totalDelayDiscount.ToString()</td>
+                        <td class="py-2 px-4 text-right">@totalAbsenceDiscount.ToString()</td>
+                        <td class="py-2 px-4 text-right">@totalOtherDiscount.ToString()</td>
+                        <td class="py-2 px-4 text-right">@totalDebt.ToString()</td>
+                        <td class="py-2 px-4 text-right">@totalSharedPortion.ToString()</td>
+                        <td class="py-2 px-4 text-right">@totalFacilityPortion.ToString()</td>
+                        <td class="py-2 px-4 text-right">@totalSocialInsurance.ToString()</td>
+                        <td class="py-2 px-4 text-right">@totalWorkDays</td>
+                        <td class="py-2 px-4 text-right">@totalAfterDiscount.ToString()</td>
+                        <td class="py-2 px-4 text-right">-</td>
+                        <td class="py-2 px-4 text-right">-</td>
+                        <td class="py-2 px-4 text-right">-</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="pagination" class="flex justify-center mt-4"></div>
+    </div>
+
+   <script>
+     document.addEventListener('DOMContentLoaded', function () {
+         const rowsPerPage = 30;
+         let currentPage = 1;
+         const rows = document.querySelectorAll('#salaryTable tr');
+         const totalPages = Math.ceil(rows.length / rowsPerPage);
+
+         function showPage(page) {
+             rows.forEach((row, index) => {
+                 row.style.display = (index >= (page - 1) * rowsPerPage && index < page * rowsPerPage) ? '' : 'none';
+             });
+             currentPage = page;
+             updatePagination();
+         }
+
+         function updatePagination() {
+             const pagination = document.getElementById('pagination');
+             pagination.innerHTML = '';
+             for (let i = 1; i <= totalPages; i++) {
+                 const button = document.createElement('button');
+                 button.className = `px-4 py-2 border ${i === currentPage ? 'bg-emerald-600 text-white' : 'bg-gray-300 text-gray-700'}`;
+                 button.dataset.page = i;
+                 button.textContent = i;
+                 pagination.appendChild(button);
+             }
+         }
+
+         document.getElementById('pagination').addEventListener('click', function (e) {
+             if (e.target.tagName === 'BUTTON') {
+                 showPage(Number(e.target.dataset.page));
+             }
+         });
+
+         document.getElementById('searchButton').addEventListener('click', function () {
+             const searchValue = document.getElementById('employeeSearch').value.toLowerCase();
+             rows.forEach(row => {
+                 const name = row.querySelector('.employee-name').textContent.toLowerCase();
+                 row.style.display = name.includes(searchValue) ? '' : 'none';
+             });
+         });
+
+         document.getElementById('employeeSearch').addEventListener('keyup', function () {
+             document.getElementById('searchButton').click();
+         });
+
+         showPage(currentPage);
+     });
+ </script>
+
+ <style>
+     .shadow-text {
+         text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+     }
+ </style>
+
+</body>
+</html>

@@ -55,6 +55,18 @@
     <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
   </Content>
+  <Content Update="Views\HR\CreateEmployee.cshtml">
+    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+  </Content>
+  <Content Update="Views\HR\EmployeeView.cshtml">
+    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+  </Content>
+  <Content Update="Views\HR\UpdateEmployee.cshtml">
+    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+  </Content>
 </ItemGroup>
 
 <Target Name="Tailwind" BeforeTargets="Build">

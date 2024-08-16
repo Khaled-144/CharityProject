@@ -22,12 +22,12 @@ namespace CharityProject.Controllers
         // GET: Letters
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Letters.ToListAsync());
+            return View(await _context.letters.ToListAsync());
         }
 
         public async Task<IActionResult> GetAllLetters()
         {
-            var letters = await _context.Letters.ToListAsync();
+            var letters = await _context.letters.ToListAsync();
             return PartialView("_getAllLetters", letters);
         }
 
@@ -39,7 +39,7 @@ namespace CharityProject.Controllers
                 return NotFound();
             }
 
-            var letter = await _context.Letters
+            var letter = await _context.letters
                 .FirstOrDefaultAsync(m => m.letters_id == id);
             if (letter == null)
             {
@@ -60,7 +60,7 @@ namespace CharityProject.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("title,description,type,from_emp_id,to_emp_id,files")] Letter letter)
+        public async Task<IActionResult> Create([Bind("title,description,type,from_emp_id,to_emp_id,files")] letter letter)
         {
             if (ModelState.IsValid)
             {
@@ -81,7 +81,7 @@ namespace CharityProject.Controllers
                 return NotFound();
             }
 
-            var letter = await _context.Letters.FindAsync(id);
+            var letter = await _context.letters.FindAsync(id);
             if (letter == null)
             {
                 return NotFound();
@@ -94,7 +94,7 @@ namespace CharityProject.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("letters_id,title,description,date,from_emp_id,to_emp_id,files,departement_id")] Letter letter)
+        public async Task<IActionResult> Edit(int id, [Bind("letters_id,title,description,date,from_emp_id,to_emp_id,files,departement_id")] letter letter)
         {
             if (id != letter.letters_id)
             {
@@ -132,7 +132,7 @@ namespace CharityProject.Controllers
                 return NotFound();
             }
 
-            var letter = await _context.Letters
+            var letter = await _context.letters
                 .FirstOrDefaultAsync(m => m.letters_id == id);
             if (letter == null)
             {
@@ -147,10 +147,10 @@ namespace CharityProject.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var letter = await _context.Letters.FindAsync(id);
+            var letter = await _context.letters.FindAsync(id);
             if (letter != null)
             {
-                _context.Letters.Remove(letter);
+                _context.letters.Remove(letter);
             }
 
             await _context.SaveChangesAsync();
@@ -159,7 +159,7 @@ namespace CharityProject.Controllers
 
         private bool LetterExists(int id)
         {
-            return _context.Letters.Any(e => e.letters_id == id);
+            return _context.letters.Any(e => e.letters_id == id);
         }
     }
 }

@@ -129,7 +129,7 @@ namespace CharityProject.Controllers
             // Filter transactions based on the current user's ID and include the related Department
             var transactions = await _context.Transactions
                 .Where(t => t.to_emp_id == currentUserId)
-                .Include(t => t.Department) // Include the Department
+                .Include(t => t.Department ) // Include the Department
                 .ToListAsync();
 
             // Get the counts for various entities
@@ -141,7 +141,7 @@ namespace CharityProject.Controllers
                 .Where(h => h.emp_id == currentUserId)
                 .CountAsync();
 
-            int lettersCount = await _context.Letters
+            int lettersCount = await _context.letters
                 .Where(l => l.to_emp_id == currentUserId || l.to_emp_id == currentUserId)
                 .CountAsync();
 
@@ -217,7 +217,7 @@ namespace CharityProject.Controllers
                 return NotFound(); // Handle the case where employee details are not found
             }
 
-            var letters = await _context.Letters
+            var letters = await _context.letters
                 .Where(l => l.to_emp_id == employeeDetails.employee_id || l.departement_id == employeeDetails.departement_id)
                 .OrderByDescending(l => l.letters_id)
                 .ToListAsync();
@@ -323,7 +323,7 @@ namespace CharityProject.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create_Letter(IFormFile files, [Bind("title,description,type,to_emp_id")] Letter letter)
+        public async Task<IActionResult> Create_Letter(IFormFile files, [Bind("title,description,type,to_emp_id")] letter letter)
         {
             var employeeId = GetEmployeeIdFromSession();
             letter.from_emp_id = employeeId; // Assign the employee ID to the letter
