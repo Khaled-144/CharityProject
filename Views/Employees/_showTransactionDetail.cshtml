@@ -228,7 +228,7 @@
 	});
 </script>
 <script>
-	$("#department_id").change(function () {
+	$("#department_id").off('change').on('change', function () {
 		var departmentId = $(this).val();
 		var employeeDropdown = $("#to_employee_id");
 		employeeDropdown.empty();
@@ -242,6 +242,7 @@
 				data: { departmentId: departmentId },
 				success: function (data) {
 					console.log("Received data:", data);
+
 					if (data && data.length > 0) {
 						$.each(data, function (index, item) {
 							employeeDropdown.append($('<option></option>')
@@ -261,6 +262,7 @@
 			});
 		}
 	});
+
 </script>
 <script>
 	$(document).ready(function () {

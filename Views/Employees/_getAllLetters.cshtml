@@ -25,18 +25,63 @@
                         <!-- Confidentiality, Urgency, Importance -->
                         <div class="flex w-fit mb-1">
                             <p class="text-base">@Html.DisplayFor(modelItem => item.from_emp_id)</p>
-                            <div class="flex p-1 bg-gray-100 rounded-md items-center text-sm mr-4">
-                                <i class="fas fa-lock text-xs ml-1"></i>
-                                <span class="text-gray-700">سري</span>
-                            </div>
-                            <div class="flex p-1 bg-gray-100 rounded-md items-center text-sm mr-4">
-                                <i class="fas fa-clock text-green-500 text-xs ml-1"></i>
-                                <span class="text-gray-700">عاجلة</span>
-                            </div>
-                            <div class="flex p-1 bg-gray-100  rounded-md items-center text-sm mr-4">
-                                <i class="fas fa-exclamation-circle text-red-500 text-xs ml-1"></i>
-                                <span class="text-gray-700">هام</span>
-                            </div>
+                            @if (item.Confidentiality != "غير سري" && item.Confidentiality != null)
+                            {
+                                <div class="flex items-center p-1 bg-gray-100 rounded-md text-sm">
+                                    <i class="fas fa-lock text-xs ml-1"></i>
+                                    <span class="text-gray-700">
+                                        @if (item.Confidentiality == "سري")
+                                        {
+                                            <text>سري</text>
+                                        }
+                                        else
+                                        {
+                                            <text>غير سري</text>
+                                        }
+                                    </span>
+                                </div>
+                            }
+
+                            <!-- Urgency -->
+                            @if (item.Urgency != "غير عاجلة" && item.Urgency != null)
+                            {
+                                <div class="flex items-center p-1 bg-gray-100 rounded-md text-sm">
+                                    <i class="fas fa-clock text-green-500 text-xs ml-1"></i>
+                                    <span class="text-gray-700">
+                                        @if (item.Urgency == "حالاً")
+                                        {
+                                            <text>حالاً</text>
+                                        }
+                                        else if (item.Urgency == "عاجلة")
+                                        {
+                                            <text>عاجلة</text>
+                                        }
+                                        else
+                                        {
+                                            <text>غير عاجلة</text>
+                                        }
+                                    </span>
+                                </div>
+                            }
+
+                            <!-- Importance -->
+                            @if (item.Importance != "عادي" && item.Importance != null)
+                            {
+                                <div class="flex items-center p-1 bg-gray-100 rounded-md text-sm">
+                                    <i class="fas fa-exclamation-circle text-red-500 text-xs ml-1"></i>
+                                    <span class="text-gray-700">
+                                        @if (item.Importance == "هام")
+                                        {
+                                            <text>هام</text>
+                                        }
+                                        else
+                                        {
+                                            <text>عادي</text>
+                                        }
+                                    </span>
+                                </div>
+                            }
+
                         </div>
                     </div>
                     <div class="inline-flex items-center text-base font-semibold text-gray-900 ml-3 dark:text-white">
