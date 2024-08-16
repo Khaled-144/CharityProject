@@ -30,6 +30,7 @@
 
         [ForeignKey("departement_id")]
         public Department Department { get; set; }
+        public ICollection<HolidayHistory> HolidayHistories { get; set; }
 
 
     }
