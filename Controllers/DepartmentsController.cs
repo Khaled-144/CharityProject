@@ -212,7 +212,6 @@ namespace CharityProject.Controllers
 
 
 
-
         // GET: Departments/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
