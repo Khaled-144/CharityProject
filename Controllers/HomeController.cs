@@ -49,6 +49,10 @@ namespace CharityProject.Controllers
             return View();
         }
 
+        public IActionResult test()
+        {
+            return View();
+        }
         public IActionResult transactions()
         {
             return View();
@@ -138,7 +142,7 @@ namespace CharityProject.Controllers
                             }
                             else if (position != "ãæÙÝ" )
                             {
-                                return RedirectToAction("Index", "CustomerServiceManager");
+                                return RedirectToAction("Index", "Employees");
                             }
                             
                             else

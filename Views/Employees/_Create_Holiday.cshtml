@@ -66,32 +66,8 @@
 								<input type="file" asp-for="files" id="attachment" name="files" class="border border-gray-400 rounded-md p-2 w-full">
 							</div>
 						</div>
-						<div class="flex justify-evenly">
-							<div class="mb-4">
-								<label for="conf" class="block text-gray-700 font-bold mb-2">
-									<i class="fas fa-lock"></i> سرية الخطاب
-								</label>
-								<input type="radio" id="conf" name="confidentiality" /> سري <br />
-								<input type="radio" id="conf" name="confidentiality" /> غير سري
-							</div>
-							<div class="mb-4 p-">
-								<label for="conf" class="block text-gray-700 font-bold mb-2">
-									<i class="fas fa-clock text-green-600"></i> أعجلية الخطاب
-								</label>
-								<input type="radio" id="conf" name="urgency " /> غير عاجلة <br />
-								<input type="radio" id="conf" name="urgency " /> عاجلة <br />
-								<input type="radio" id="conf" name="urgency " /> حالاً
-							</div>
-							<div class="mb-4 p-">
-								<label for="conf" class="block text-gray-700 font-bold mb-2">
-									<i class="fas fa-exclamation-circle text-red-600"></i> أهمية الخطاب
-								</label>
-								<input type="radio" id="conf" name="importance " /> عادي <br />
-								<input type="radio" id="conf" name="importance " /> هام
-							</div>
-						</div>
 						<div class="flex justify-center ">
-							<button type="submit" class="bg-gradient-to-r from-green-400 via-green-500 to-green-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 text-white font-bold py-2 px-4">رفع الطلب</button>
+							<button type="submit" id="submitButton" class="bg-gradient-to-r from-green-400 via-green-500 to-green-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 text-white font-bold py-2 px-4">رفع الطلب</button>
 						</div>
 					</form>
 				</div>
@@ -124,7 +100,7 @@
 		}
 
 		// Reset counter value
-		counterInput.value = '1';
+		counterInput.value = '0';
 
 		// Display/Hide fields based on holiday type
 		if (holidayType === '4') { // Assuming '4' is for "استئذان"
@@ -151,7 +127,7 @@
 		var holidayTypeId = document.getElementById('holidayType').value;
 		console.log(`Fetching balance for holidayTypeId: ${holidayTypeId}`);
 
-		fetch(`/ControllerName/GetRemainingHolidayBalance?holidayId=${holidayTypeId}`)
+		fetch(`/Employees/GetRemainingHolidayBalance?holidayId=${holidayTypeId}`)
 			.then(response => {
 				console.log(`Response status: ${response.status}`);
 				if (!response.ok) {
@@ -165,6 +141,7 @@
 				if (typeof data === 'number' && data >= 0) {
 					document.getElementById('holidayBalance').textContent = `الرصيد المتبقي: ${data}`;
 					counterInput.setAttribute('max', data);
+					validateForm(); // Validate the form whenever balance is updated
 				} else {
 					console.error('Unexpected data format:', data);
 					document.getElementById('holidayBalance').textContent = 'الرصيد المتبقي: غير معروف';
@@ -177,6 +154,7 @@
 				document.getElementById('counter').removeAttribute('max');
 			});
 	}
+
 	function incrementCounter() {
 		const counterInput = document.getElementById('counter');
 		const max = parseInt(counterInput.getAttribute('max'));
@@ -184,6 +162,7 @@
 		if (max === null || parseInt(counterInput.value) < max) {
 			counterInput.value = parseInt(counterInput.value) + 1;
 			updateEndDate();
+			validateForm(); // Validate the form whenever counter is incremented
 		}
 	}
 
@@ -192,6 +171,7 @@
 		if (parseInt(counterInput.value) > 1) {
 			counterInput.value = parseInt(counterInput.value) - 1;
 			updateEndDate();
+			validateForm(); // Validate the form whenever counter is decremented
 		}
 	}
 
@@ -206,6 +186,7 @@
 			const endDate = new Date(endDateInput.value);
 			const duration = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
 			counterInput.value = duration;
+			validateForm(); // Validate the form whenever duration is updated
 		}
 	}
 
@@ -221,7 +202,30 @@
 			endDateInput.value = startDate.toISOString().split('T')[0];
 		}
 	}
+
+	function validateForm() {
+		const counterInput = document.getElementById('counter');
+		const holidayBalanceText = document.getElementById('holidayBalance').textContent.replace('الرصيد المتبقي: ', '');
+		const holidayBalance = parseInt(holidayBalanceText.match(/\d+/)); // Extract number
+		const submitButton = document.getElementById("submitButton")
+		const duration = parseInt(counterInput.value);
+
+		console.log('Duration:', duration); // Debugging
+		console.log('Holiday Balance:', holidayBalance); // Debugging
+
+		if (duration <= 0 || holidayBalance <= 0 || isNaN(holidayBalance)) {
+			submitButton.disabled = true;
+			submitButton.classList.add('bg-gray-400');
+			submitButton.classList.remove('bg-gradient-to-r', 'from-green-400', 'via-green-500', 'to-green-600');
+		} else {
+			submitButton.disabled = false;
+			submitButton.classList.remove('bg-gray-400');
+			submitButton.classList.add('bg-gradient-to-r', 'from-green-400', 'via-green-500', 'to-green-600');
+		}
+	}
+
 </script>
+
 @section Scripts {
 	@{
 		await Html.RenderPartialAsync("_ValidationScriptsPartial");

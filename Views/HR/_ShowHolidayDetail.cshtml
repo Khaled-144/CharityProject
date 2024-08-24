@@ -1,0 +1,116 @@
+﻿@model CharityProject.Models.HolidayHistory
+
+
+@{
+    ViewData["Title"] = "_showTransactionDetail";
+    string fileUrl = Url.Content("~/files/" + Model.files);
+}
+<div class="modal fade" id="detailModal-@Model.holidays_history_id" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header flex justify-content-center">
+                <h4>معلومات الاجازة  #@Model.holidays_history_id</h4>
+            </div>
+            <div class="modal-body align-content-center">
+                <div class="col-md text-right my-1" dir="rtl">
+                    <div>
+                        <dl class="row text-center">
+                            <dt class="col-sm-4 mb-2">
+                                العنوان
+                            </dt>
+                            <dd class="col-sm-8 mb-3">
+                                @Html.DisplayFor(model => model.title)
+                            </dd>
+
+                            <dt class="col-sm-4 mb-2">
+                                المدة
+                            </dt>
+                            <dd class="col-sm-8 mb-3">
+                                @Html.DisplayFor(model => model.duration)
+                            </dd>
+                            <dt class="col-sm-4 mb-2">
+                                التوجيهات
+                            </dt>
+                            <dd class="col-sm-8 mb-3">
+                                @Html.DisplayFor(model => model.description)
+                            </dd>
+
+                            <dt class="col-sm-4 mb-2">
+                                تاريخ البدء
+                            </dt>
+                            <dd class="col-sm-8 mb-3">
+                                @Html.DisplayFor(model => model.start_date)
+                            </dd>
+
+                            <dt class="col-sm-4 mb-2">
+                                النوع
+                            </dt>
+                            <dd class="col-sm-8 mb-3">
+                                @Html.DisplayFor(model => model.holiday.type)
+                            </dd>
+
+                            <dt class="col-sm-4 mb-2">
+                                تاريخ الانتهاء
+                            </dt>
+                            <dd class="col-sm-8 mb-3">
+                                @Html.DisplayFor(model => model.end_date)
+
+                            </dd>
+
+                            <dt class="col-sm-4 mb-2">
+                                الحالة
+                            </dt>
+                            <dd class="col-sm-8 mb-3">
+                                @Html.DisplayFor(model => model.status)
+                            </dd>
+
+                            <dt class="col-sm-4 mb-2">
+                                الملفات
+                            </dt>
+                            <dd class="col-sm-8">
+                                @if (!string.IsNullOrEmpty(Model.files))
+                                {
+                                    <a href="@fileUrl" target="_blank">@Model.files</a>
+                                }
+                                else
+                                {
+                                    <span>لا توجد مرفقات</span>
+                                }
+                            </dd>
+                        </dl>
+                    </div>
+                    <div class="flex justify-center">
+                        <button data-dismiss="modal" type="button" class="text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:ring-blue-300 transition duration-300 ease-in-out  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">إخفاء</button>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<script>
+    function addReasonToForm(transactionId) {
+        var reason = document.getElementById('endReason-' + transactionId).value;
+        var form = document.getElementById('updateStatusFormConfirm-' + transactionId);
+        var input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'reason';
+        input.value = reason;
+        form.appendChild(input);
+    }
+</script>
+<script>
+    $(document).ready(function () {
+        $("#toggleReferForm-@Model.holiday_id").click(function () {
+            $("#referForm-@Model.holiday_id").toggle();
+        });
+    });
+</script>
+
+
+
+

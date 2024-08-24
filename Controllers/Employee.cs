@@ -24,7 +24,7 @@ namespace CharityProject.Controllers
             ViewData["Departments"] = departments;
             return View();
         }
-        public IActionResult EditEmployee()
+  /*      public IActionResult EditEmployee()
         {
             return View();
         }
@@ -33,7 +33,7 @@ namespace CharityProject.Controllers
 
             return View();
         }
-      
+      */
 
         public IActionResult EmployeeView()
         {

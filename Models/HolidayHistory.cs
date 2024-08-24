@@ -1,5 +1,6 @@
 ﻿namespace CharityProject.Models
 {
+    using CharityProject.Controllers;
     using System;
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
@@ -14,6 +15,9 @@
         public string? description { get; set; }
         public int duration { get; set; }
         public int emp_id { get; set; }
+        [ForeignKey("emp_id")]
+        public employee_details Employee_detail { get; set; }
+
         public DateOnly creation_date { get; set; }
         public DateTime start_date { get; set; }
         public DateTime end_date { get; set; }

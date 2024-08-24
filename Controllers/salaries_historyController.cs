@@ -20,7 +20,7 @@ namespace CharityProject.Controllers
         }
 
         // GET: salaries_history
-        public ActionResult Index()
+        public ActionResult _GetAllSalaries()
         {
             var salaries_history = _context.SalaryHistories
                 .GroupBy(sr => new { sr.date.Year, sr.date.Month })
@@ -238,7 +238,7 @@ namespace CharityProject.Controllers
         }
 
         // GET: salaries_history/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit_Salaries(int? id)
         {
             if (id == null)
             {
@@ -265,7 +265,7 @@ namespace CharityProject.Controllers
         // POST: salaries_history/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(
+        public async Task<IActionResult> Edit_Salaries(
             DateTime date,
             double base_salary,
             double? housing_allowances,
@@ -348,7 +348,7 @@ namespace CharityProject.Controllers
         }
 
         // POST: salaries_history/Delete/5
-        [HttpPost, ActionName("Delete")]
+        [HttpPost, ActionName("Delete_Salaries")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
