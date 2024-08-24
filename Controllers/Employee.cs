@@ -219,9 +219,9 @@ public async Task<IActionResult> InsertEmployee(
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult UpdateEmployee(int employee_id, string name, string username, string password, string search_role,
-     int identity_number, int departement_id, string position, string permission_position, string contract_type,
-     string national_address, string education_level, DateTime hire_date, DateTime leave_date, string email,
-     string phone_number, string gender, bool active)
+ int identity_number, int departement_id, string position, string permission_position, string contract_type,
+ string national_address, string education_level, DateTime hire_date, DateTime leave_date, string email,
+ string phone_number, string gender, bool active)
         {
             // Find the existing employee
             var employee = _context.employee
@@ -233,6 +233,9 @@ public async Task<IActionResult> InsertEmployee(
             {
                 return Json(new { success = false, message = "موظف غير موجود." });
             }
+
+            // Store the previous position to check if the employee was a manager
+            var previousPosition = employee.EmployeeDetails.position;
 
             // Update employee properties
             employee.name = name;
@@ -256,6 +259,9 @@ public async Task<IActionResult> InsertEmployee(
             details.gender = gender;
             details.active = active;
 
+            // Initialize the success message
+            string successMessage = "تم تعديل موظف بنجاح!";
+
             // Check if the position contains 'مدير'
             if (position.Contains("مدير"))
             {
@@ -270,7 +276,6 @@ public async Task<IActionResult> InsertEmployee(
                     // Check if the department name matches the position suffix
                     if (department.departement_name != positionSuffix)
                     {
-                        // Return error if department name does not match
                         return Json(new { success = false, message = "اسم القسم والمنصب غير متوافقين" });
                     }
 
@@ -295,17 +300,31 @@ public async Task<IActionResult> InsertEmployee(
                 }
             }
 
-            // Save changes to the database
+            // If the employee was a manager and is now set to مدير or موظف
+            if (previousPosition.Contains("مدير"))
+            {
+                var oldDepartment = _context.Department.FirstOrDefault(d => d.supervisor_id == employee_id);
+                if (oldDepartment != null)
+                {
+                    oldDepartment.supervisor_id = null;
+
+                    // Append the additional message about the department being vacant
+                    successMessage += " القسم السابق الذي كان يديره هذا المدير الآن شاغر بلا مدير.";
+                }
+            }
+
+            // Save changes to the database and return the JSON response with the final success message
             try
             {
                 _context.SaveChanges();
-                return Json(new { success = true, message = "تم تعديل موظف بنجاح!" });
+                return Json(new { success = true, message = successMessage });
             }
             catch (Exception ex)
             {
                 return Json(new { success = false, message = "لم يتم تعديل الموظف.", error = ex.Message });
             }
         }
+
 
 
 

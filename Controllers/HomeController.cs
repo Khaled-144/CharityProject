@@ -132,11 +132,11 @@ namespace CharityProject.Controllers
                                 HttpContext.Response.Cookies.Append("pass", password);
                             }
 
-                                if (position == "employee")
+                                if (position == "ãæÙÝ")
                             {
                                 return RedirectToAction("Index", "Employees");
                             }
-                            else if (position != "employee" )
+                            else if (position != "ãæÙÝ" )
                             {
                                 return RedirectToAction("Index", "CustomerServiceManager");
                             }

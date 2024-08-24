@@ -117,17 +117,6 @@ namespace CharityProject.Controllers
 
             try
             {
-                // Check if the selected supervisor is already a manager in another department
-                var existingManager = await _context.Department
-                    .FirstOrDefaultAsync(d => d.supervisor_id == department.supervisor_id && d.departement_id != department.departement_id);
-
-                if (existingManager != null)
-                {
-                    // Supervisor is already a manager in another department, show an error message
-                    TempData["ErrorMessage"] = "عذرا لايمكن اضافة هذا الموظف كمدير لهذا القسم لانه بالفعل مدير لقسم اخر.";
-                    return RedirectToAction(nameof(Index));
-                }
-
                 // Retrieve the current department with the existing supervisor
                 var existingDepartment = await _context.Department
                     .Include(d => d.Supervisor)
@@ -138,37 +127,75 @@ namespace CharityProject.Controllers
                     return NotFound();
                 }
 
-                // Update the old manager's position to "موظف"
-                if (existingDepartment.Supervisor != null)
-                {
-                    var oldManagerDetails = await _context.employee_details
-                        .FirstOrDefaultAsync(e => e.employee_id == existingDepartment.Supervisor.employee_id);
+                string previousDepartmentMessage = null;
+                bool wasPreviouslyManager = false;
 
-                    if (oldManagerDetails != null)
+                // Update the old supervisor's details
+                if (existingDepartment.supervisor_id != null && existingDepartment.supervisor_id != department.supervisor_id)
+                {
+                    var oldSupervisor = await _context.employee_details
+                        .FirstOrDefaultAsync(e => e.employee_id == existingDepartment.supervisor_id);
+                    if (oldSupervisor != null)
                     {
-                        oldManagerDetails.position = "موظف"; // Set old manager's position
-                        oldManagerDetails.permission_position = "موظف"; // Reset permission_position if needed
-                        _context.Update(oldManagerDetails);
+                        oldSupervisor.position = "موظف"; // Set old supervisor's position to 'Employee'
+                        oldSupervisor.permission_position = "موظف"; // Reset permission_position
+                        _context.Update(oldSupervisor);
+                    }
+                }
+
+                // Check if the new supervisor is already a manager in another department
+                if (department.supervisor_id != null)
+                {
+                    var existingManagerDepartment = await _context.Department
+                        .FirstOrDefaultAsync(d => d.supervisor_id == department.supervisor_id && d.departement_id != department.departement_id);
+                    if (existingManagerDepartment != null)
+                    {
+                        wasPreviouslyManager = true;
+                        // Update the old manager's details
+                        var oldManager = await _context.employee_details
+                            .FirstOrDefaultAsync(e => e.employee_id == department.supervisor_id);
+                        if (oldManager != null)
+                        {
+                            oldManager.position = "موظف"; // Set old manager's position to 'Employee'
+                            oldManager.permission_position = "موظف"; // Reset permission_position
+                            _context.Update(oldManager);
+                        }
+                        // Clear the old manager's supervisor_id from their previous department
+                        existingManagerDepartment.supervisor_id = null;
+                        _context.Update(existingManagerDepartment);
+                        previousDepartmentMessage = "القسم الذي كان يديره هذا المدير الآن شاغر بلا مدير.";
                     }
                 }
 
                 // Update the new manager's details
-                var newEmployeeDetails = await _context.employee_details
+                var newManager = await _context.employee_details
                     .FirstOrDefaultAsync(e => e.employee_id == department.supervisor_id);
-
-                if (newEmployeeDetails != null)
+                if (newManager != null)
                 {
-                    newEmployeeDetails.position = $"مدير {department.departement_name}"; // Set new manager's position
-                    newEmployeeDetails.permission_position = $"مدير {department.departement_name}"; // Update new manager's permission_position
-                    newEmployeeDetails.departement_id = department.departement_id; // Set department_id for new manager
-                    _context.Update(newEmployeeDetails);
+                    newManager.position = $"مدير {department.departement_name}"; // Set new manager's position
+                    newManager.permission_position = $"مدير {department.departement_name}"; // Update new manager's permission_position
+                    newManager.departement_id = department.departement_id; // Set department_id for new manager
+                    _context.Update(newManager);
                 }
 
                 // Update the department's supervisor
                 existingDepartment.supervisor_id = department.supervisor_id;
+                existingDepartment.departement_name = department.departement_name;
                 _context.Update(existingDepartment);
 
                 await _context.SaveChangesAsync();
+
+                // Set TempData message
+                if (wasPreviouslyManager)
+                {
+                    TempData["Message"] = previousDepartmentMessage;
+                }
+                else
+                {
+                    TempData["Message"] = "تم تحديث المدير بنجاح!";
+                }
+
+                return RedirectToAction(nameof(Index));
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -181,8 +208,8 @@ namespace CharityProject.Controllers
                     throw;
                 }
             }
-            return RedirectToAction(nameof(Index));
         }
+
 
 
 
