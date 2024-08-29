@@ -34,7 +34,42 @@ namespace CharityProject.Controllers
 
 
 
-		public IActionResult ManageSalaries(int selectedMonth, int selectedYear)
+        public async Task<IActionResult> UpdateStatus_approval(int holiday_id)
+        {
+            var holiday = await _context.HolidayHistories.FindAsync(holiday_id);
+            if (holiday == null)
+            {
+                return Json(new { success = false, message = "طلب الإجازة غير موجود" });
+            }
+
+            // Update the status to "موافقة مدير القسم"
+            holiday.status = "موافقة مدير القسم";
+
+            // Save changes to the database
+            await _context.SaveChangesAsync();
+
+            return Json(new { success = true, message = "تمت الموافقة على الإجازة" });
+        }
+
+        public async Task<IActionResult> UpdateStatus_rejection(int holiday_id)
+        {
+            var holiday = await _context.HolidayHistories.FindAsync(holiday_id);
+            if (holiday == null)
+            {
+                return Json(new { success = false, message = "طلب الإجازة غير موجود" });
+            }
+
+            // Update the status to "عدم موافقة مدير القسم"
+            holiday.status = "رفضت من مدير القسم";
+
+            // Save changes to the database
+            await _context.SaveChangesAsync();
+
+            return Json(new { success = true, message = "تم رفض الإجازة" });
+        }
+
+
+        public IActionResult ManageSalaries(int selectedMonth, int selectedYear)
 		{
 			// If no month/year is selected, default to the current month and year
 			if (selectedMonth == 0) selectedMonth = DateTime.Now.Month;
@@ -176,7 +211,7 @@ namespace CharityProject.Controllers
         // GET Actions -------------------------------------------------------- no details needed ( all used thrugh partial view )
 
         public async Task<IActionResult> Transactions()
-        {
+        {  var employeeDetails = await GetEmployeeDetailsFromSessionAsync();
 			int currentUserId = GetEmployeeIdFromSession();
 			ViewData["Departments"] = _context.Department.Select(d => new SelectListItem
             {
@@ -195,16 +230,22 @@ namespace CharityProject.Controllers
 				.ToListAsync();
 
 			int internalCount = await _context.Transactions
-				.Where(t => t.to_emp_id == currentUserId)
-				.CountAsync();
+                 .Where(t => t.status == "موافقة المدير المباشر" && ( // Transactions sent by the employee
+                    t.to_emp_id == currentUserId ||
+                     t.department_id == 1 || // Transactions sent to the employee
+
+                    t.Referrals.Any(r => r.to_employee_id == currentUserId))
+                 // Transactions for the manager's department or from department 5
+                 )  //
+                .CountAsync();
 			int holidaysCount = await _context.HolidayHistories
-				.Where(h => h.emp_id == currentUserId)
-				.CountAsync();
+                 .Where(h => h.status == "موافقة المدير المباشر" || (h.status == "مرسلة" && h.Employee_detail.departement_id == 1))
+                .CountAsync();
 			int lettersCount = await _context.letters
-				.Where(l => l.to_emp_id == currentUserId || l.to_emp_id == currentUserId)
-				.CountAsync();
+                 .Where(l => l.to_emp_id == employeeDetails.employee_id || l.departement_id == employeeDetails.departement_id || l.to_emp_id == 0)
+                .CountAsync();
 			int assetsCount = await _context.charter
-				.Where(c => c.to_emp_id == currentUserId)
+				.Where(c => c.to_emp_id == currentUserId || c.status != "مسلمة")
 				.CountAsync();
 
 			// Passing the counts to the view using ViewBag
@@ -239,13 +280,24 @@ namespace CharityProject.Controllers
                     .ThenInclude(r => r.from_employee)
                 .Include(t => t.Referrals)
                     .ThenInclude(r => r.to_employee)
-                .Where(t => t.to_emp_id == employeeId || t.Referrals.Any(r => r.to_employee_id == employeeId) || t.department_id == 1)
+               .Where(t => t.status == "موافقة المدير المباشر" && ( // Transactions sent by the employee
+                    t.to_emp_id == employeeId ||
+                     t.department_id == 1 || // Transactions sent to the employee
+
+                    t.Referrals.Any(r => r.to_employee_id == employeeId))
+                 // Transactions for the manager's department or from department 5
+                 )  // T
                 .OrderByDescending(t => t.transaction_id)
                 .ToListAsync();
 
             // Fetch departments for the dropdown
             var departments = await _context.Department.ToListAsync();
             ViewBag.Departments = new SelectList(departments, "departement_id", "departement_name");
+            if (transactions.Count == 0)
+            {
+                // Render the _NothingNew partial view if no transactions
+                return PartialView("_NothingNew");
+            }
 
             return PartialView("_getAllTransactions", transactions);
 
@@ -260,27 +312,47 @@ namespace CharityProject.Controllers
 
 
             var charter = await _context.charter
-
+                .Where(c=>c.status != "مسلمة")
                 .OrderByDescending(t => t.charter_id) // Order by transaction_id in descending order
                 .ToListAsync();
+            if (charter.Count == 0)
+            {
+                // Render the _NothingNew partial view if no transactions
+                return PartialView("_NothingNew");
+            }
             return PartialView("_GetAllCharters", charter);
         }
 
 
         public async Task<IActionResult> GetAllHolidays()
+
         {
+          
             var holidays = await _context.HolidayHistories
-                .Where(h=>h.status=="موافقة المدير المباشر")
+               .Where(h => h.status == "موافقة المدير المباشر" || (h.status == "مرسلة" && h.Employee_detail.departement_id == 1))
                 .OrderByDescending(h => h.holidays_history_id ) // Replace HolidaysHistoryId with the actual ID column name
                 .ToListAsync();
+            if (holidays.Count == 0)
+            {
+                // Render the _NothingNew partial view if no transactions
+                return PartialView("_NothingNew");
+            }
             return PartialView("_getAllHolidays", holidays);
         }
 
         public async Task<IActionResult> GetAllLetters()
         {
+            var employeeDetails = await GetEmployeeDetailsFromSessionAsync();
             var letters = await _context.letters
+                  .Where(l => l.to_emp_id == employeeDetails.employee_id || l.departement_id == employeeDetails.departement_id|| l.to_emp_id==0  )
                 .OrderByDescending(l => l.letters_id) // Order by letters_id in descending order
                 .ToListAsync();
+            if (letters.Count == 0)
+            {
+                // Render the _NothingNew partial view if no transactions
+                return PartialView("_NothingNew");
+            }
+
             return PartialView("_getAllLetters", letters);
         }
 
@@ -1009,23 +1081,24 @@ namespace CharityProject.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> InsertEmployee(
-      string employee_name,
-      string employee_username,
-      string employee_password,
-      string employee_search_role,
-      string employee_identity_number,
-      string employee_departement_id,
-      string employee_position,
-      string employee_permission_position,
-      string employee_contract_type,
-      string employee_national_address,
-      string employee_education_level,
-      DateTime employee_hire_date,
-      DateTime employee_leave_date,
-      string employee_email,
-      string employee_phone_number,
-      string employee_gender,
-      bool employee_active)
+     IFormFile employee_files,
+     string employee_name,
+     string employee_username,
+     string employee_password,
+     string employee_search_role,
+     string employee_identity_number,
+     string employee_departement_id,
+     string employee_position,
+     string employee_permission_position,
+     string employee_contract_type,
+     string employee_national_address,
+     string employee_education_level,
+     DateTime employee_hire_date,
+     DateTime employee_leave_date,
+     string employee_email,
+     string employee_phone_number,
+     string employee_gender,
+     bool employee_active)
         {
             var employee = new employee
             {
@@ -1043,8 +1116,8 @@ namespace CharityProject.Controllers
 
                 var employeeDetails = new employee_details
                 {
-                    employee_details_id = employee.employee_id, // Ensuring both IDs are the same
-                    employee_id = employee.employee_id,
+                    employee_details_id = employee.employee_id,
+                    employee_id = employee.employee_id, // Ensuring both IDs are the same
                     identity_number = int.Parse(employee_identity_number),
                     departement_id = int.Parse(employee_departement_id),
                     position = employee_position,
@@ -1057,8 +1130,34 @@ namespace CharityProject.Controllers
                     email = employee_email,
                     phone_number = employee_phone_number,
                     gender = employee_gender,
-                    active = employee_active
+                    active = employee_active,
+
                 };
+
+                if (employee_files != null && employee_files.Length > 0)
+                {
+                    var allowedExtensions = new[] { ".pdf", ".xls", ".xlsx", ".doc", ".docx" };
+                    var extension = Path.GetExtension(employee_files.FileName).ToLower();
+
+                    if (!allowedExtensions.Contains(extension))
+                    {
+                        ModelState.AddModelError("files", "Only PDF, Excel, and Word files are allowed.");
+                        return Json(new { success = false, message = "الملف الذي تم تحميله غير صالح. يرجى تحميل ملف PDF أو Excel أو Word." });
+                    }
+
+                    string filename = Path.GetFileName(employee_files.FileName);
+                    string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/files");
+                    if (!Directory.Exists(path))
+                    {
+                        Directory.CreateDirectory(path);
+                    }
+                    string filePath = Path.Combine(path, filename);
+                    using (var filestream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await employee_files.CopyToAsync(filestream);
+                    }
+                    employeeDetails.files = filename;
+                }
 
                 _context.employee_details.Add(employeeDetails);
                 await _context.SaveChangesAsync();
@@ -1077,7 +1176,6 @@ namespace CharityProject.Controllers
                         // Check if the department name matches the position suffix
                         if (department.departement_name != positionSuffix)
                         {
-                            // Return error if department name does not match
                             await transaction.RollbackAsync();
                             return Json(new { success = false, message = "اسم القسم والمنصب غير متوافقين" });
                         }
@@ -1114,8 +1212,6 @@ namespace CharityProject.Controllers
                 return Json(new { success = false, message = "لم يتم إنشاء الموظف." });
             }
         }
-
-
 
 
 
@@ -1165,11 +1261,13 @@ namespace CharityProject.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult UpdateEmployee(int employee_id, string name, string username, string password, string search_role,
+        public async Task<IActionResult> UpdateEmployee(IFormFile employee_files, int employee_id, string name, string username, string password, string search_role,
 int identity_number, int departement_id, string position, string permission_position, string contract_type,
 string national_address, string education_level, DateTime hire_date, DateTime leave_date, string email,
 string phone_number, string gender, bool active)
         {
+
+
             // Find the existing employee
             var employee = _context.employee
                 .Include(e => e.EmployeeDetails)
@@ -1205,6 +1303,32 @@ string phone_number, string gender, bool active)
             details.phone_number = phone_number;
             details.gender = gender;
             details.active = active;
+
+
+            if (employee_files != null && employee_files.Length > 0)
+            {
+                var allowedExtensions = new[] { ".pdf", ".xls", ".xlsx", ".doc", ".docx" };
+                var extension = Path.GetExtension(employee_files.FileName).ToLower();
+
+                if (!allowedExtensions.Contains(extension))
+                {
+                    ModelState.AddModelError("files", "Only PDF, Excel, and Word files are allowed.");
+                    return Json(new { success = false, message = "الملف الذي تم تحميله غير صالح. يرجى تحميل ملف PDF أو Excel أو Word." });
+                }
+
+                string filename = Path.GetFileName(employee_files.FileName);
+                string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/files");
+                if (!Directory.Exists(path))
+                {
+                    Directory.CreateDirectory(path);
+                }
+                string filePath = Path.Combine(path, filename);
+                using (var filestream = new FileStream(filePath, FileMode.Create))
+                {
+                    await employee_files.CopyToAsync(filestream);
+                }
+                details.files = filename;
+            }
 
             // Initialize the success message
             string successMessage = "تم تعديل موظف بنجاح!";

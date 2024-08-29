@@ -28,6 +28,7 @@
 
         @{
             var departments = (List<Department>)ViewData["Departments"];
+         
         }
 
         <div class="glass-effect p-8 mb-10 fade-in">
@@ -74,7 +75,7 @@
                                 <td class="py-4 px-6 border-b">@employee.PermissionPosition</td>
                                 <td class="py-4 px-6 border-b">@employee.DepartmentName</td>
                                 <td class="py-4 px-6 border-b">
-                                    <form asp-controller="Employee" asp-action="UpdateEmployee" method="get">
+                                    <form asp-controller="HR" asp-action="UpdateEmployee" method="get">
                                         <input type="hidden" name="id" value="@employee.employee_id" />
                                         <button type="submit" class="bg-gradient-to-r from-green-500 to-green-600 text-white py-2 px-4 rounded hover:from-green-600 hover:to-green-700 transition duration-300 ease-in-out transform hover:scale-105">
                                             تحديث

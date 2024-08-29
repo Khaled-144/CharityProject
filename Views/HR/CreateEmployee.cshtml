@@ -18,6 +18,7 @@
             @{
                
                 var departments = (List<Department>)ViewData["Departments"];
+       
             }
             <div class="mb-6">
                 <h2 class="text-xl font-semibold mb-4">معلومات الموظف</h2>
@@ -122,10 +123,13 @@
                 </div>
             </div>
 
-            <div class="mb-6">
-                <label for="employee_files" class="block text-gray-700 text-sm font-bold mb-2">الملفات</label>
-                <input id="employee_files" name="employee_files" type="file" multiple class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+            <div class="form-group mb-4">
+                <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="employee_files">المرفقات</label>
+                <input id="employee_files" name="employee_files" class="form-control w-full border rounded focus:ring-blue-500 focus:border-blue-500" type="file" accept=".pdf,.xls,.xlsx,.doc,.docx" />
+                <span for="employee_files" class="text-danger"></span>
+                <small id="fileError" class="text-danger" style="display:none;">الملفات المسموح بها فقط :PDF, Excel, Word</small>
             </div>
+
 
             <div class="flex items-center justify-between">
                 <div class="flex items-center">
@@ -144,41 +148,55 @@
     </div>
 </body>
 <script>
-        $(document).on('submit', '#employeeForm', function (e) {
-            e.preventDefault();
-            $.ajax({
-                url: '@Url.Action("InsertEmployee", "Employee")',
-                type: 'POST',
-                data: $(this).serialize(),
-                success: function (response) {
-                    if (response.success) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'نجاح',
-                            html: '<div class="text-4xl">&#10003;</div><div>تم إنشاء موظف جديد بنجاح</div>',
-                            showConfirmButton: false,
-                            timer: 2000
-                        });
-                        $('#employeeForm')[0].reset();
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'خطأ!',
-                            text: response.message,
-                            confirmButtonText: 'حسناً'
-                        });
-                    }
-                },
-                error: function () {
+     
+
+
+
+    $(document).on('submit', '#employeeForm', function (e) {
+        e.preventDefault();
+
+        // Create FormData object to handle files
+        var formData = new FormData(this);
+
+        $.ajax({
+            url: '@Url.Action("InsertEmployee", "HR")',
+            type: 'POST',
+            data: formData,
+            processData: false,  // Prevent jQuery from automatically processing data
+            contentType: false,  // Prevent jQuery from setting the content type
+            success: function (response) {
+                if (response.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'نجاح',
+                        text: response.message,
+                        showConfirmButton: false,
+                        timer: 5000
+                    }).then(function () {
+                        window.location.href = '@Url.Action("EmployeeView", "HR")';
+                    });
+                } else {
                     Swal.fire({
                         icon: 'error',
                         title: 'خطأ!',
-                        text: 'حدث خطأ في الاتصال بالخادم.',
+                        text: response.message,
                         confirmButtonText: 'حسناً'
                     });
                 }
-            });
+            },
+            error: function () {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'خطأ!',
+                    text: 'حدث خطأ في الاتصال بالخادم.',
+                    confirmButtonText: 'حسناً'
+                });
+            }
         });
+    });
+
+
+
 
    
     // Get today's date
