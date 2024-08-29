@@ -75,8 +75,28 @@ namespace CharityProject.Controllers
         }
 
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
+            int currentUserId = GetEmployeeIdFromSession();
+
+            // Count transactions based on their status
+            int newTransactionsCount = await _context.Transactions
+                .Where(t => t.to_emp_id == currentUserId && t.status == "مرسلة") // New transactions
+                .CountAsync();
+
+            int ongoingTransactionsCount = await _context.Transactions
+                .Where(t => t.to_emp_id == currentUserId && t.status != "منهاة") // Ongoing transactions
+                .CountAsync();
+
+            int completedTransactionsCount = await _context.Transactions
+                .Where(t => t.to_emp_id == currentUserId && t.status == "منهاة") // Completed transactions
+                .CountAsync();
+
+            // Passing the counts to the view using ViewBag
+            ViewBag.NewTransactionsCount = newTransactionsCount;
+            ViewBag.OngoingTransactionsCount = ongoingTransactionsCount;
+            ViewBag.CompletedTransactionsCount = completedTransactionsCount;
+
             return View();
         }
 
