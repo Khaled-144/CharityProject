@@ -59,13 +59,11 @@
                                     <button type="button" class="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition duration-300 ease-in-out transform hover:scale-105 mr-2" data-toggle="modal" data-target="@("#EditDepartmentModal-" + item.departement_id)">
                                         تعديل
                                     </button>
-                                    <button type="button" class="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600 transition duration-300 ease-in-out transform hover:scale-105" data-toggle="modal" data-target="@("#DeleteDepartmentModal-" + item.departement_id)">
-                                        حذف
-                                    </button>
+                                
                                 </td>
                                
                                 @await Html.PartialAsync("EditDep", item)
-                                @await Html.PartialAsync("DeleteDep", item)
+                              
                             </tr>
                            
                         }

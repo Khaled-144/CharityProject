@@ -126,7 +126,7 @@
         });
     </script>
 
- @*    <script>
+     <script>
         $(document).ready(function () {
             var searchTimer;
 
@@ -166,7 +166,12 @@
                     data: { searchTerm: searchTerm, sortOrder: sortOrder },
                     success: function (result) {
                         console.log("Received data:", result);
-                        $("#tab-content-container").html(result);
+                        if (result.trim() === "") {
+                            // If the result is empty, load the _NothingNew tab
+                            $("#tab-content-container").load('@Url.Action("_NothingNew", "Employees")');
+                        } else {
+                            $("#tab-content-container").html(result);
+                        }
                         $("#loadingIndicator").hide();
                         $("#tab-content-container").show();
                     },
@@ -200,7 +205,7 @@
             // Initial load
             loadTransactions();
         });
-</script> *@
+</script>
 </body>
 
 </html>
