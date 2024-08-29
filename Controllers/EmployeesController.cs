@@ -79,23 +79,29 @@ namespace CharityProject.Controllers
         {
             int currentUserId = GetEmployeeIdFromSession();
 
-            // Count transactions based on their status
-            int newTransactionsCount = await _context.Transactions
-                .Where(t => t.to_emp_id == currentUserId && t.status == "مرسلة") // New transactions
+            // Count transactions based on their status, ensuring no duplicates
+            var newTransactions = await _context.Transactions
+                .Where(t => t.status == "مرسلة" && (t.to_emp_id == currentUserId || t.Referrals.Any(r => r.to_employee_id == currentUserId)))
+                .GroupBy(t => t.transaction_id)
+                .Select(g => g.FirstOrDefault())
                 .CountAsync();
 
-            int ongoingTransactionsCount = await _context.Transactions
-                .Where(t => t.to_emp_id == currentUserId && t.status != "منهاة") // Ongoing transactions
+            var ongoingTransactions = await _context.Transactions
+                .Where(t => t.status != "منهاة" && (t.to_emp_id == currentUserId || t.Referrals.Any(r => r.to_employee_id == currentUserId)))
+                .GroupBy(t => t.transaction_id)
+                .Select(g => g.FirstOrDefault())
                 .CountAsync();
 
-            int completedTransactionsCount = await _context.Transactions
-                .Where(t => t.to_emp_id == currentUserId && t.status == "منهاة") // Completed transactions
+            var completedTransactions = await _context.Transactions
+                .Where(t => t.status == "منهاة" && (t.to_emp_id == currentUserId || t.Referrals.Any(r => r.to_employee_id == currentUserId)))
+                .GroupBy(t => t.transaction_id)
+                .Select(g => g.FirstOrDefault())
                 .CountAsync();
 
             // Passing the counts to the view using ViewBag
-            ViewBag.NewTransactionsCount = newTransactionsCount;
-            ViewBag.OngoingTransactionsCount = ongoingTransactionsCount;
-            ViewBag.CompletedTransactionsCount = completedTransactionsCount;
+            ViewBag.NewTransactionsCount = newTransactions;
+            ViewBag.OngoingTransactionsCount = ongoingTransactions;
+            ViewBag.CompletedTransactionsCount = completedTransactions;
 
             return View();
         }
