@@ -270,7 +270,7 @@ namespace CharityProject.Controllers
         public async Task<IActionResult> GetAllHolidays()
         {
             var holidays = await _context.HolidayHistories
-                .Where(h=>h.status=="موافقة المدير المباشر")
+                .Where(h=>h.status=="موافقة المدير المباشر"||(h.status == "مرسلة" && h.Employee_detail.departement_id == 5))
                 .OrderByDescending(h => h.holidays_history_id ) // Replace HolidaysHistoryId with the actual ID column name
                 .ToListAsync();
             return PartialView("_getAllHolidays", holidays);
@@ -996,7 +996,8 @@ namespace CharityProject.Controllers
                     PermissionPosition = e.EmployeeDetails != null ? e.EmployeeDetails.permission_position : "No Permission",
                     DepartmentName = e.EmployeeDetails != null && e.EmployeeDetails.Department != null
                         ? e.EmployeeDetails.Department.departement_name
-                        : "No Department"
+                        : "No Department",
+                    Files = e.EmployeeDetails != null ? e.EmployeeDetails.files : null // Include files information
                 })
                 .ToList();
             var departments = _context.Department.ToList();
@@ -1004,6 +1005,33 @@ namespace CharityProject.Controllers
             ViewData["EmployeeList"] = employeeList;
             return View();
         }
+
+        public IActionResult DownloadFile(int employeeId)
+        {
+            var employeeDetails = _context.employee_details
+                .FirstOrDefault(ed => ed.employee_id == employeeId);
+
+            if (employeeDetails == null || string.IsNullOrEmpty(employeeDetails.files))
+            {
+                return NotFound("File not found");
+            }
+
+            // Combine the path with wwwroot to get the full file path
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/files", employeeDetails.files);
+
+            if (System.IO.File.Exists(filePath))
+            {
+                var fileBytes = System.IO.File.ReadAllBytes(filePath);
+                var fileName = Path.GetFileName(filePath);
+                var mimeType = "application/octet-stream";
+                return File(fileBytes, mimeType, fileName);
+            }
+            else
+            {
+                return NotFound("File not found on the server");
+            }
+        }
+
 
 
         [HttpPost]
@@ -1272,7 +1300,39 @@ string phone_number, string gender, bool active)
             }
         }
 
+        public async Task<IActionResult> UpdateStatus_approval(int holiday_id)
+        {
+            var holiday = await _context.HolidayHistories.FindAsync(holiday_id);
+            if (holiday == null)
+            {
+                return Json(new { success = false, message = "طلب الإجازة غير موجود" });
+            }
 
+            // Update the status to "موافقة مدير القسم"
+            holiday.status = "موافقة مدير القسم";
+
+            // Save changes to the database
+            await _context.SaveChangesAsync();
+
+            return Json(new { success = true, message = "تمت الموافقة على الإجازة" });
+        }
+
+        public async Task<IActionResult> UpdateStatus_rejection(int holiday_id)
+        {
+            var holiday = await _context.HolidayHistories.FindAsync(holiday_id);
+            if (holiday == null)
+            {
+                return Json(new { success = false, message = "طلب الإجازة غير موجود" });
+            }
+
+            // Update the status to "عدم موافقة مدير القسم"
+            holiday.status = "رفضت من مدير القسم";
+
+            // Save changes to the database
+            await _context.SaveChangesAsync();
+
+            return Json(new { success = true, message = "تم رفض الإجازة" });
+        }
 
 
 
