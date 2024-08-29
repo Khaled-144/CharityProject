@@ -1,11 +1,12 @@
 ﻿@model CharityProject.Models.HolidayHistory
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 @{
     ViewData["Title"] = "_showTransactionDetail";
     string fileUrl = Url.Content("~/files/" + Model.files);
 }
-<div class="modal fade" id="detailModal-@Model.holidays_history_id" role="dialog">
+<div class="modal fade" id="detailModalHR-@Model.holidays_history_id" role="dialog">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header flex justify-content-center">
@@ -79,9 +80,21 @@
                             </dd>
                         </dl>
                     </div>
-                    <div class="flex justify-center">
-                        <button data-dismiss="modal" type="button" class="text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:ring-blue-300 transition duration-300 ease-in-out  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">إخفاء</button>
+                    <div class="flex  items-center justify-content-evenly">
+                        <!-- Approval Button -->
+                        <button type="button" class="text-white bg-green-500 hover:bg-green-600 focus:ring-4 focus:ring-green-300 transition duration-300 ease-in-out font-medium rounded-md text-sm px-4 py-2" data-toggle="modal" data-target="#confirmApprovalModal-@Model.holidays_history_id">
+                            موافقة 
+                        </button>
 
+                        <!-- Rejection Button -->
+                        <button type="button" class="text-white bg-red-500 hover:bg-red-600 focus:ring-4 focus:ring-red-300 transition duration-300 ease-in-out font-medium rounded-md text-sm px-4 py-2" data-toggle="modal" data-target="#confirmRejectionModal-@Model.holidays_history_id">
+                            رفض  
+                        </button>
+
+                        <!-- Dismiss Button -->
+                        <button data-dismiss="modal" type="button" class="text-white bg-gray-500 hover:bg-gray-600 focus:ring-4 focus:ring-gray-300 transition duration-300 ease-in-out font-medium rounded-md text-sm px-4 py-2">
+                            إخفاء
+                        </button>
                     </div>
                 </div>
             </div>
@@ -89,9 +102,99 @@
     </div>
 </div>
 
+<!-- Approval Confirmation Modal -->
+<div class="modal fade" id="confirmApprovalModal-@Model.holidays_history_id" tabindex="-1" role="dialog" aria-labelledby="confirmApprovalLabel-@Model.holidays_history_id" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmApprovalLabel-@Model.holidays_history_id">تأكيد الموافقة</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                هل أنت متأكد أنك تريد الموافقة على هذه الاجازة؟
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">إلغاء</button>
+                <button type="button" class="btn btn-success" onclick="submitApprovalForm(@Model.holidays_history_id)">تأكيد</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Rejection Confirmation Modal -->
+<div class="modal fade" id="confirmRejectionModal-@Model.holidays_history_id" tabindex="-1" role="dialog" aria-labelledby="confirmRejectionLabel-@Model.holidays_history_id" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmRejectionLabel-@Model.holidays_history_id">تأكيد الرفض</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                هل أنت متأكد أنك تريد رفض هذه الاجازة؟
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">إلغاء</button>
+                <button type="button" class="btn btn-danger" onclick="submitRejectionForm(@Model.holidays_history_id)">تأكيد</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 
+<script>
+    function submitApprovalForm(holidays_history_id) {
+        $.ajax({
+            url: '/HR/UpdateStatus_approval',
+            type: 'POST',
+            data: {
+                holiday_id: holidays_history_id
+            },
+            success: function (response) {
+                if (response.success) {
+                    Swal.fire('نجاح', response.message, 'success').then(() => {
+                        window.location.href = '/HR/Transactions'; // Redirect to Transactions page
+                    });
+                } else {
+                    Swal.fire('خطأ', response.message, 'error');
+                }
+            },
+            error: function () {
+                Swal.fire('خطأ', 'حدث خطأ أثناء معالجة طلبك.', 'error');
+            }
+        });
+    }
+
+    function submitRejectionForm(holidays_history_id) {
+        $.ajax({
+            url: '/HR/UpdateStatus_rejection',
+            type: 'POST',
+            data: {
+                holiday_id: holidays_history_id
+            },
+            success: function (response) {
+                if (response.success) {
+                    Swal.fire('نجاح', response.message, 'success').then(() => {
+                        window.location.href = '/HR/Transactions'; // Redirect to Transactions page
+                    });
+                } else {
+                    Swal.fire('خطأ', response.message, 'error');
+                }
+            },
+            error: function () {
+                Swal.fire('خطأ', 'حدث خطأ أثناء معالجة طلبك.', 'error');
+            }
+        });
+    }
+</script>
+
+
+
+@* 
 <script>
     function addReasonToForm(transactionId) {
         var reason = document.getElementById('endReason-' + transactionId).value;
@@ -110,7 +213,7 @@
         });
     });
 </script>
-
+ *@
 
 
 
