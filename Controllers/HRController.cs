@@ -153,6 +153,7 @@ namespace CharityProject.Controllers
             return RedirectToAction("Transactions");
         }
 
+
 		// New method to view referral history
 		public async Task<IActionResult> ReferralHistory(int id)
 		{
@@ -230,7 +231,7 @@ namespace CharityProject.Controllers
 				.ToListAsync();
 
 			int internalCount = await _context.Transactions
-                 .Where(t => t.status == "موافقة المدير المباشر" && ( // Transactions sent by the employee
+                  .Where(t => (t.status == "موافقة المدير المباشر" || t.status == "مرسلة") && ( // Transactions sent by the employee
                     t.to_emp_id == currentUserId ||
                      t.department_id == 1 || // Transactions sent to the employee
 
@@ -280,7 +281,9 @@ namespace CharityProject.Controllers
                     .ThenInclude(r => r.from_employee)
                 .Include(t => t.Referrals)
                     .ThenInclude(r => r.to_employee)
-               .Where(t => t.status == "موافقة المدير المباشر" && ( // Transactions sent by the employee
+
+                    
+               .Where(t => (t.status == "موافقة المدير المباشر" || t.status == "مرسلة") && ( // Transactions sent by the employee
                     t.to_emp_id == employeeId ||
                      t.department_id == 1 || // Transactions sent to the employee
 

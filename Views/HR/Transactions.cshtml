@@ -76,7 +76,7 @@
             </li>
             <li class="me-2" role="presentation">
                 <button class="inline-block p-4 border-b-2 rounded-t-lg" id="holidays-tab" data-content-url="@Url.Action("GetAllHolidays", "HR")" type="button" role="tab">إجازات</button>
-                <span class="text-red-500 text-sm ml-2">(@ViewBag.InternalCount)</span>
+                <span class="text-red-500 text-sm ml-2">(@ViewBag.HolidaysCount)</span>
             </li>
             <li class="me-2" role="presentation">
                 <button class="inline-block p-4 border-b-2 rounded-t-lg" id="letters-tab" data-content-url="@Url.Action("GetAllLetters", "HR")" type="button" role="tab">خطابات</button>
@@ -84,7 +84,7 @@
             </li>
             <li role="presentation">
                 <button class="inline-block p-4 border-b-2 rounded-t-lg" id="assets-tab" data-content-url="@Url.Action("GetAllCharters", "HR")" type="button" role="tab">عهده</button>
-                <span class="text-red-500 text-sm ml-2">(@ViewBag.InternalCount)</span>
+                <span class="text-red-500 text-sm ml-2">(@ViewBag.AssetsCount)</span>
             </li>
         </ul>
     </div>

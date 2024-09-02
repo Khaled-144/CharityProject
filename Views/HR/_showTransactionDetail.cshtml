@@ -3,6 +3,8 @@
 @{
     ViewData["Title"] = "Transaction Details";
     string fileUrl = Url.Content("~/files/" + Model.files);
+   
+    string currentUrl = Context.Request.Path;
 }
 
 <div class="modal fade" id="detailModal-@Model.transaction_id" role="dialog">
@@ -22,8 +24,9 @@
                             <dd class="col-sm-8">@Html.DisplayFor(model => model.title)</dd>
                             <dt class="col-sm-4">الوصف</dt>
                             <dd class="col-sm-8">@Html.DisplayFor(model => model.description)</dd>
+
                             <dt class="col-sm-4">الى</dt>
-                            <dd class="col-sm-8">4</dd>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.to_emp_id)</dd>
                             <dt class="col-sm-4">قسم</dt>
                             <dd class="col-sm-8">@Html.DisplayFor(model => model.department_id)</dd>
                             <dt class="col-sm-4">تاريخ الانشاء</dt>
