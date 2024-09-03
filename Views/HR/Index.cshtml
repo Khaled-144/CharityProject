@@ -263,7 +263,7 @@
             </div>
         </div>
     </nav>
-
+    <!-- Main content area -->
     <main class="container mx-auto py-8">
         <div class="bg-white rounded-lg shadow-lg p-6 mb-8 animate__animated animate__fadeIn">
             <h1 class="text-3xl font-bold mb-4 text-black">
@@ -273,44 +273,26 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div class="stat-card bg-gradient-to-tr from-blue-200 to-blue-600 p-4 rounded-lg shadow-md">
                     <h3 class="text-lg font-semibold mb-2 text-white">معاملات جديدة</h3>
-                    <p class="text-3xl font-bold text-white" id="newTransactions">0</p>
+                    <p class="text-3xl font-bold text-white" id="newTransactions">@ViewBag.NewTransactionsCount</p>
                 </div>
                 <div class="stat-card bg-gradient-to-tr from-yellow-200 to-yellow-600 p-4 rounded-lg shadow-md">
                     <h3 class="text-lg font-semibold mb-2 text-white">معاملات قيد الإنجاز</h3>
-                    <p class="text-3xl font-bold text-white" id="inProgressTransactions">0</p>
+                    <p class="text-3xl font-bold text-white" id="inProgressTransactions">@ViewBag.OngoingTransactionsCount</p>
                 </div>
                 <div class="stat-card bg-gradient-to-tr from-green-200 to-green-600 p-4 rounded-lg shadow-md">
                     <h3 class="text-lg font-semibold mb-2 text-white">معاملات مكتملة</h3>
-                    <p class="text-3xl font-bold text-white" id="completedTransactions">0</p>
+                    <p class="text-3xl font-bold text-white" id="completedTransactions">@ViewBag.CompletedTransactionsCount</p>
                 </div>
             </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow-lg p-6 animate__animated animate__fadeIn animate__delay-1s">
-            <h2 class="text-2xl font-bold mb-4 text-black">إحصائيات وتحليلات</h2>
-            <div class="flex flex-wrap -mx-2">
-                <div class="w-full md:w-1/2 px-2 mb-4">
-                    <h3 class="text-xl font-semibold mb-2 text-black">إحصائيات الموظفين</h3>
-                    <canvas id="employeeStatsChart" class="w-full h-64"></canvas>
-                </div>
-                <div class="w-full md:w-1/2 px-2 mb-4">
-                    <h3 class="text-xl font-semibold mb-2 text-black">نسبة الحضور</h3>
-                    <canvas id="attendanceChart" class="w-full h-64"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-white rounded-lg shadow-lg p-6 mt-8 animate__animated animate__fadeIn animate__delay-2s">
+        <!-- هذي نربطها مع الاشعارات اذا سويناها، بخليها كومنت حاليا -->
+        <!-- <div class="bg-white rounded-lg shadow-lg p-6 mt-8 animate__animated animate__fadeIn animate__delay-2s">
             <h2 class="text-2xl font-bold mb-4 text-black">آخر النشاطات</h2>
             <ul class="space-y-4" id="activityFeed">
-                <!-- Activity items will be dynamically added here -->
+                // Activity items will be dynamically added here
             </ul>
-        </div>
-
-        <div class="bg-white rounded-lg shadow-lg p-6 mt-8 animate__animated animate__fadeIn animate__delay-3s">
-            <h2 class="text-2xl font-bold mb-4 text-black">الأداء الشهري</h2>
-            <div id="performanceGraph" class="w-full h-64"></div>
-        </div>
+        </div> -->
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
@@ -339,6 +321,7 @@
             let current = start;
             const increment = end > start ? 1 : -1;
             const stepTime = Math.abs(Math.floor(duration / range));
+            if (range === 0) return; // Prevent animation if start and end are the same
             const timer = setInterval(() => {
                 current += increment;
                 obj.innerHTML = current;
@@ -348,120 +331,39 @@
             }, stepTime);
         };
 
-        animateValue("newTransactions", 0, 5, 1000);
-        animateValue("inProgressTransactions", 0, 12, 1000);
-        animateValue("completedTransactions", 0, 8, 1000);
+        // Ensure the values are valid before animating
+        const newTransactionsCount = @ViewBag.NewTransactionsCount;
+        const ongoingTransactionsCount = @ViewBag.OngoingTransactionsCount;
+        const completedTransactionsCount = @ViewBag.CompletedTransactionsCount;
 
-        // Employee Statistics Chart
-        const ctx1 = document.getElementById('employeeStatsChart').getContext('2d');
-        new Chart(ctx1, {
-            type: 'bar',
-            data: {
-                labels: ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو'],
-                datasets: [{
-                    label: 'عدد الموظفين',
-                    data: [65, 59, 80, 81, 56, 55, 40],
-                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                },
-                animation: {
-                    duration: 2000,
-                    easing: 'easeOutBounce'
-                }
-            }
-        });
+        animateValue("newTransactions", 0, newTransactionsCount, 1000);
+        animateValue("inProgressTransactions", 0, ongoingTransactionsCount, 1000);
+        animateValue("completedTransactions", 0, completedTransactionsCount, 1000);
 
-        // Attendance Chart
-        const ctx2 = document.getElementById('attendanceChart').getContext('2d');
-        new Chart(ctx2, {
-            type: 'line',
-            data: {
-                labels: ['الأسبوع 1', 'الأسبوع 2', 'الأسبوع 3', 'الأسبوع 4'],
-                datasets: [{
-                    label: 'نسبة الحضور',
-                    data: [75, 85, 90, 80],
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 2,
-                    fill: true
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 100
-                    }
-                },
-                animation: {
-                    duration: 2000,
-                    easing: 'easeInOutQuart'
-                }
-            }
-        });
-
+        // مرتبطة بمنطقة آخر النشاطات
         // Dynamic Activity Feed
-        const activityFeed = document.getElementById('activityFeed');
-        const activities = [
-            { text: 'تم إنشاء معاملة جديدة', time: 'منذ 5 دقائق', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01' },
-            { text: 'تم إكمال معاملة', time: 'منذ ساعة واحدة', icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' },
-            { text: 'تم تحديث بيانات الموظف', time: 'منذ 3 ساعات', icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' }
-        ];
+        // const activityFeed = document.getElementById('activityFeed');
+        // const activities = [
+        //     { text: 'تم إنشاء معاملة جديدة', time: 'منذ 5 دقائق', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01' },
+        //     { text: 'تم إكمال معاملة', time: 'منذ ساعة واحدة', icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' },
+        //     { text: 'تم تحديث بيانات الموظف', time: 'منذ 3 ساعات', icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' }
+        // ];
 
-        activities.forEach(activity => {
-            const li = document.createElement('li');
-            li.className = 'flex items-center p-3 bg-gray-50 rounded-lg animate__animated animate__fadeInUp';
-            li.innerHTML = `
-                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center text-white">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${activity.icon}"></path></svg>
-                        </div>
-                        <div class="mr-4">
-                            <p class="text-sm font-medium text-gray-900">${activity.text}</p>
-                            <p class="text-sm text-gray-500">${activity.time}</p>
-                        </div>
-                    `;
-            activityFeed.appendChild(li);
-        });
+        // activities.forEach(activity => {
+        //     const li = document.createElement('li');
+        //     li.className = 'flex items-center p-3 bg-gray-50 rounded-lg animate__animated animate__fadeInUp';
+        //     li.innerHTML = `
+        //                 <div class="flex-shrink-0 h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center text-white">
+        //                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${activity.icon}"></path></svg>
+        //                 </div>
+        //                 <div class="mr-4">
+        //                     <p class="text-sm font-medium text-gray-900">${activity.text}</p>
+        //                     <p class="text-sm text-gray-500">${activity.time}</p>
+        //                 </div>
+        //             `;
+        //     activityFeed.appendChild(li);
+        // });
 
-        // Performance Graph
-        var options = {
-            series: [{
-                name: 'الأداء',
-                data: [31, 40, 28, 51, 42, 109, 100]
-            }],
-            chart: {
-                height: 350,
-                type: 'area'
-            },
-            dataLabels: {
-                enabled: false
-            },
-            stroke: {
-                curve: 'smooth'
-            },
-            xaxis: {
-                type: 'datetime',
-                categories: ["2018-09-19T00:00:00.000Z", "2018-09-19T01:30:00.000Z", "2018-09-19T02:30:00.000Z", "2018-09-19T03:30:00.000Z", "2018-09-19T04:30:00.000Z", "2018-09-19T05:30:00.000Z", "2018-09-19T06:30:00.000Z"]
-            },
-            tooltip: {
-                x: {
-                    format: 'dd/MM/yy HH:mm'
-                },
-            },
-        };
-
-        var chart = new ApexCharts(document.querySelector("#performanceGraph"), options);
-        chart.render();
     </script>
 </body>
 </html>

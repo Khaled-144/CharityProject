@@ -78,7 +78,7 @@ namespace CharityProject.Controllers
         public async Task<IActionResult> Index()
         {
             int currentUserId = GetEmployeeIdFromSession();
-
+            
             // Count transactions based on their status, ensuring no duplicates
             var newTransactions = await _context.Transactions
                 .Where(t => t.status == "مرسلة" && (t.to_emp_id == currentUserId || t.Referrals.Any(r => r.to_employee_id == currentUserId)))
