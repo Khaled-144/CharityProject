@@ -1,4 +1,4 @@
-using CharityProject.Data;
+﻿using CharityProject.Data;
 using CharityProject.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis.Elfie.Diagnostics;
@@ -19,8 +19,46 @@ namespace CharityProject.Controllers
             _context = context;
         }
 
-        public IActionResult Index()
+        private int GetEmployeeIdFromSession()
         {
+            var employeeIdString = HttpContext.Session.GetString("Id");
+            if (employeeIdString != null)
+            {
+                return int.Parse(employeeIdString);
+
+            }
+
+            return 0;
+        }
+
+        public async Task<IActionResult> Index()
+        {
+            int currentUserId = GetEmployeeIdFromSession();
+
+            // Count transactions based on their status, ensuring no duplicates
+            var newTransactions = await _context.Transactions
+                .Where(t => t.status == "مرسلة" && (t.to_emp_id == currentUserId || t.Referrals.Any(r => r.to_employee_id == currentUserId)))
+                .GroupBy(t => t.transaction_id)
+                .Select(g => g.FirstOrDefault())
+                .CountAsync();
+
+            var ongoingTransactions = await _context.Transactions
+                .Where(t => t.status != "منهاة" && (t.to_emp_id == currentUserId || t.Referrals.Any(r => r.to_employee_id == currentUserId)))
+                .GroupBy(t => t.transaction_id)
+                .Select(g => g.FirstOrDefault())
+                .CountAsync();
+
+            var completedTransactions = await _context.Transactions
+                .Where(t => t.status == "منهاة" && (t.to_emp_id == currentUserId || t.Referrals.Any(r => r.to_employee_id == currentUserId)))
+                .GroupBy(t => t.transaction_id)
+                .Select(g => g.FirstOrDefault())
+                .CountAsync();
+
+            // Passing the counts to the view using ViewBag
+            ViewBag.NewTransactionsCount = newTransactions;
+            ViewBag.OngoingTransactionsCount = ongoingTransactions;
+            ViewBag.CompletedTransactionsCount = completedTransactions;
+
             return View();
         }
 
@@ -136,11 +174,11 @@ namespace CharityProject.Controllers
                                 HttpContext.Response.Cookies.Append("pass", password);
                             }
 
-                                if (position == "����")
+                                if (position == "ãæÙÝ")
                             {
                                 return RedirectToAction("Index", "Employees");
                             }
-                            else if (position != "����" )
+                            else if (position != "ãæÙÝ" )
                             {
                                 return RedirectToAction("Index", "Employees");
                             }
