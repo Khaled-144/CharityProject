@@ -94,75 +94,78 @@ namespace CharityProject.Controllers
             }
         }
 
-        [HttpPost, ActionName("LoginPage")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> LoginPage(string userid, string pass, bool rememberMe)
-        {
-            var builder = WebApplication.CreateBuilder();
-            string conStr = builder.Configuration.GetConnectionString("DefaultConnection");
-            using (SqlConnection conn = new SqlConnection(conStr))
+    
+
+            [HttpPost]
+            [ValidateAntiForgeryToken]
+            public async Task<IActionResult> LoginPage(string userid, string pass, bool rememberMe)
             {
-                string sql = @"SELECT e.employee_id,e.password, e.name, ed.permission_position, ed.departement_id, d.departement_name
-                           FROM employee e 
-                           JOIN employee_details ed ON e.employee_id = ed.employee_details_id 
-                           JOIN Department d ON ed.departement_id = d.departement_id
-                           WHERE e.employee_id = @UserId AND e.password = @Password";
+                var user = await _context.employee
+                    .Include(e => e.EmployeeDetails)
+                        .ThenInclude(ed => ed.Department)
+                    .FirstOrDefaultAsync(e => e.employee_id.ToString() == userid && e.password == pass);
 
-                using (SqlCommand comm = new SqlCommand(sql, conn))
+                if (user != null)
                 {
-                    comm.Parameters.AddWithValue("@UserId", userid);
-                    comm.Parameters.AddWithValue("@Password", pass);
+                    string id = user.employee_id.ToString();
+                    string name = user.name;
+                    string permission_position = user.EmployeeDetails.permission_position;
+                    string position = user.EmployeeDetails.position;
+                    string departmentId = user.EmployeeDetails.departement_id.ToString();
+                    string departmentName = user.EmployeeDetails.Department.departement_name;
 
-                    conn.Open();
-                    using (SqlDataReader reader = await comm.ExecuteReaderAsync())
+                    HttpContext.Session.SetString("Id", id);
+                    HttpContext.Session.SetString("Name", name);
+                    HttpContext.Session.SetString("Position", position);
+                    HttpContext.Session.SetString("Permission_position", permission_position);
+                    HttpContext.Session.SetString("DepartmentId", departmentId);
+                    HttpContext.Session.SetString("DepartmentName", departmentName);
+
+                    if (rememberMe)
                     {
-                        if (await reader.ReadAsync())
-                        {
-                            string id = reader["employee_id"].ToString();
-                            string name = reader["name"].ToString();
-                            string position = reader["permission_position"].ToString();
-                            string departmentId = reader["departement_id"].ToString();
-                            string departmentName = reader["departement_name"].ToString();
-                            string password = reader["password"].ToString();
-                            
-                            HttpContext.Session.SetString("Id", id);
-                            HttpContext.Session.SetString("Name", name);
-                            HttpContext.Session.SetString("Position", position);
-                            HttpContext.Session.SetString("DepartmentId", departmentId);
-                            HttpContext.Session.SetString("DepartmentName", departmentName);
-                            if (rememberMe)
-                            {
-                                HttpContext.Response.Cookies.Append("Id", id);
-                                HttpContext.Response.Cookies.Append("pass", password);
-                            }
+                        Response.Cookies.Append("Id", id);
+                        Response.Cookies.Append("pass", user.password);
+                    }
 
-                                if (position == "„ÊŸ›")
-                            {
-                                return RedirectToAction("Index", "Employees");
-                            }
-                            else if (position != "„ÊŸ›" )
-                            {
-                                return RedirectToAction("Index", "Employees");
-                            }
-                            
-                            else
-                            {
-                                ViewData["Message"] = "Unknown position";
-                                return View();
-                            }
-                        }
-                        else
-                        {
-                            ViewData["Message"] = "Wrong username or password";
-                            return View();
-                        }
+                   else if (permission_position == "„ÊŸ›"|| permission_position =="”ﬂ—Ì — «·„œÌ— «· ‰›Ì–Ì")
+                    {
+                        return RedirectToAction("Index", "Employees");
+                    }
+
+               else if (permission_position == "„œÌ— «·„Ê«—œ «·»‘—Ì… Ê«·„«·Ì…")
+                {
+                    return RedirectToAction("Index", "HR");
+                }
+
+                else if (permission_position == "„œÌ— «· ‰„Ì… «·„«·Ì… Ê«·«” œ«„…")
+                {
+                    return RedirectToAction("Index", "FinancialSustainabilityDevelopmentManager");
+                }
+                else if (permission_position == "„œÌ— Œœ„… «·„” ›ÌœÌ‰")
+                {
+                    return RedirectToAction("Index", "customerServiceManager");
+                }
+                else if (permission_position == "«·„œÌ— «· ‰›Ì–Ì")
+                {
+                    return RedirectToAction("Index", "CEO");
+                }
+
+                else
+                    {
+                        ViewData["Message"] = "Unknown position";
+                        return View();
                     }
                 }
+                else
+                    ViewData["Message"] = "Wrong username or password";
+                    return View();
+                
             }
-        }
+        
+    
 
-      
-        public IActionResult Logout()
+
+    public IActionResult Logout()
         {
            
             HttpContext.Session.Clear();

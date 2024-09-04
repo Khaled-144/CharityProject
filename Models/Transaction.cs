@@ -19,10 +19,13 @@
         public int department_id { get; set; }
         [ForeignKey("department_id")]
         public virtual Department Department { get; set; }
+        [ForeignKey("from_emp_id")]
+        public virtual employee_details Employee_detail { get; set; }
 
         public string? Confidentiality { get; set; }
         public string? Urgency { get; set; }
         public string? Importance { get; set; }
+      
 
         // New property for referrals
         //public virtual ICollection<Referral> Referrals { get; set; }

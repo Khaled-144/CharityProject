@@ -15,7 +15,7 @@
 
                     <div class="form-group">
                         <label for="departement_name" class="control-label">اسم القسم</label>
-                        <span id="departement_name" class="form-control">@Model.departement_name</span>
+                        <span id="departement_name-@Model.departement_id" class="form-control">@Model.departement_name</span>
                         <input type="hidden" name="departement_name" value="@Model.departement_name" />
                         <span asp-validation-for="departement_name" class="text-danger"></span>
                     </div>
@@ -25,8 +25,8 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="supervisor_id" class="control-label">اختر مدير جديداً</label>
-                        <select name="supervisor_id" id="supervisor_id" class="form-control">
+                        <label for="supervisor_id-@Model.departement_id" class="control-label">اختر مدير جديداً</label>
+                        <select name="supervisor_id" id="supervisor_id-@Model.departement_id" class="form-control">
                             <option value="" disabled selected>اختر مدير</option>
                             @foreach (var employee in ViewBag.Employees)
                             {
@@ -42,7 +42,7 @@
                     </div>
 
                     <div class="form-group d-flex gap-2">
-                        <button type="submit" class="btn btn-success btn-sm">تعديل</button>
+                        <button type="submit" id="editBtn-@Model.departement_id" class="btn btn-success btn-sm" disabled>تعديل</button>
                         <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">الغاء</button>
                     </div>
                 </form>
@@ -50,3 +50,19 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var modals = document.querySelectorAll('[id^="EditDepartmentModal-"]');
+
+        modals.forEach(function (modal) {
+            var departementId = modal.id.split('-')[1];
+            var supervisorSelect = document.getElementById('supervisor_id-' + departementId);
+            var editBtn = document.getElementById('editBtn-' + departementId);
+
+            supervisorSelect.addEventListener('change', function () {
+                editBtn.disabled = !supervisorSelect.value;
+            });
+        });
+    });
+</script>
