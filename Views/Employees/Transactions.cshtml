@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<CharityProject.Models.Transaction>
 
 @{
-    Layout = "_Layout";
+    Layout = "_Layout_Employees";
     ViewData["PageTitle"] = "المعاملات";
     ViewData["Title"] = "صفحة المعاملات";
 }
@@ -126,7 +126,7 @@
         });
     </script>
 
-     <script>
+    <script>
         $(document).ready(function () {
             var searchTimer;
 
@@ -205,7 +205,7 @@
             // Initial load
             loadTransactions();
         });
-</script>
+    </script>
 </body>
 
 </html>
