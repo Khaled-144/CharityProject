@@ -11,6 +11,7 @@ using System.Xml.Linq;
 using Microsoft.Data.SqlClient;
 using System.Linq;
 using System.Diagnostics.Metrics;
+using Microsoft.CodeAnalysis.Elfie.Diagnostics;
 namespace CharityProject.Controllers
 {
 	public class HRController : Controller
@@ -27,8 +28,34 @@ namespace CharityProject.Controllers
 			_logger = logger;
 		}
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
+            int currentUserId = GetEmployeeIdFromSession();
+            
+            // Count transactions based on their status, ensuring no duplicates
+            var newTransactions = await _context.Transactions
+                .Where(t => t.status == "مرسلة" && (t.to_emp_id == currentUserId || t.Referrals.Any(r => r.to_employee_id == currentUserId)))
+                .GroupBy(t => t.transaction_id)
+                .Select(g => g.FirstOrDefault())
+                .CountAsync();
+
+            var ongoingTransactions = await _context.Transactions
+                .Where(t => t.status != "منهاة" && (t.to_emp_id == currentUserId || t.Referrals.Any(r => r.to_employee_id == currentUserId)))
+                .GroupBy(t => t.transaction_id)
+                .Select(g => g.FirstOrDefault())
+                .CountAsync();
+
+            var completedTransactions = await _context.Transactions
+                .Where(t => t.status == "منهاة" && (t.to_emp_id == currentUserId || t.Referrals.Any(r => r.to_employee_id == currentUserId)))
+                .GroupBy(t => t.transaction_id)
+                .Select(g => g.FirstOrDefault())
+                .CountAsync();
+
+            // Passing the counts to the view using ViewBag
+            ViewBag.NewTransactionsCount = newTransactions;
+            ViewBag.OngoingTransactionsCount = ongoingTransactions;
+            ViewBag.CompletedTransactionsCount = completedTransactions;
+
             return View();
         }
 
@@ -211,13 +238,17 @@ namespace CharityProject.Controllers
         // GET Actions -------------------------------------------------------- no details needed ( all used thrugh partial view )
 
         public async Task<IActionResult> Transactions()
-        {  var employeeDetails = await GetEmployeeDetailsFromSessionAsync();
-			int currentUserId = GetEmployeeIdFromSession();
-			ViewData["Departments"] = _context.Department.Select(d => new SelectListItem
-            {
-                Value = d.departement_name,
-                Text = d.departement_name
-            }).ToList();
+        {
+            var employeeDetails = await GetEmployeeDetailsFromSessionAsync();
+            int currentUserId = GetEmployeeIdFromSession();
+            var hrManager = _context.employee_details
+      .FirstOrDefault(e => e.position == "مدير الموارد البشرية والمالية");
+          
+            ViewData["Departments"] = _context.Department.Select(d => new SelectListItem
+{
+          Value = d.departement_id.ToString(), // Use the department ID as the value
+    Text = d.departement_name            // Use the department name as the text
+}).ToList();
 
             ViewData["Employees"] = _context.employee.Select(e => new SelectListItem
             {
@@ -230,16 +261,17 @@ namespace CharityProject.Controllers
 				.ToListAsync();
 
 			int internalCount = await _context.Transactions
-                 .Where(t => t.status == "موافقة المدير المباشر" && ( // Transactions sent by the employee
-                    t.to_emp_id == currentUserId ||
-                     t.department_id == 1 || // Transactions sent to the employee
-
-                    t.Referrals.Any(r => r.to_employee_id == currentUserId))
-                 // Transactions for the manager's department or from department 5
-                 )  //
+                .Include(t => t.Referrals)
+                    .ThenInclude(r => r.from_employee)
+                .Include(t => t.Referrals)
+                    .ThenInclude(r => r.to_employee)
+                 .Where(t => (t.status == "مرسلة" && t.Employee_detail.departement_id == employeeDetails.departement_id) || (t.status == "مرسلة" && t.to_emp_id == currentUserId) || // Transactions sent to the employee
+                    t.Referrals.Any(r => r.to_employee_id == currentUserId || r.to_employee_id == hrManager.employee_details_id)
+                
+                 )  
                 .CountAsync();
 			int holidaysCount = await _context.HolidayHistories
-                 .Where(h => h.status == "موافقة المدير المباشر" || (h.status == "مرسلة" && h.Employee_detail.departement_id == 1))
+                 .Where(h => h.status == "موافقة المدير المباشر" || (h.status == "مرسلة" && h.Employee_detail.departement_id == employeeDetails.departement_id))
                 .CountAsync();
 			int lettersCount = await _context.letters
                  .Where(l => l.to_emp_id == employeeDetails.employee_id || l.departement_id == employeeDetails.departement_id || l.to_emp_id == 0)
@@ -268,44 +300,43 @@ namespace CharityProject.Controllers
 		}
 
 		public async Task<IActionResult> GetAllTransactions()
-        {
+		{
+			var employeeId = GetEmployeeIdFromSession();
+			var emplyee_Details = await GetEmployeeDetailsFromSessionAsync();
+            var hrManager = _context.employee_details
+        .FirstOrDefault(e => e.position == "مدير الموارد البشرية والمالية");
 
-
-            var employeeId = GetEmployeeIdFromSession();
-
-            // Fetch transactions sent directly to the employee or referred to the employee
-            // getting the transactions sent to me or referred to me 
+            // Fetch transactions based on the conditions provided
             var transactions = await _context.Transactions
-                .Include(t => t.Referrals)
-                    .ThenInclude(r => r.from_employee)
-                .Include(t => t.Referrals)
-                    .ThenInclude(r => r.to_employee)
-               .Where(t => t.status == "موافقة المدير المباشر" && ( // Transactions sent by the employee
-                    t.to_emp_id == employeeId ||
-                     t.department_id == 1 || // Transactions sent to the employee
+				.Include(t => t.Referrals)
+					.ThenInclude(r => r.from_employee)
+				.Include(t => t.Referrals)
+					.ThenInclude(r => r.to_employee)
+				.Where(t => (t.status == "مرسلة" && t.Employee_detail.departement_id == emplyee_Details.departement_id) ||(t.status=="مرسلة"&&t.to_emp_id==employeeId)|| // Transactions sent to the employee
+					t.Referrals.Any(r => r.to_employee_id == employeeId||r.to_employee_id == hrManager.employee_details_id)
+				 // Transactions for the manager's department or from department 5
+				 )  // Transactions referred to the employee
+				.OrderByDescending(t => t.transaction_id)
+				.ToListAsync();
+			var employeeIds = transactions.SelectMany(t => new[] { t.from_emp_id, t.to_emp_id }).Distinct().ToList();
+			var employees = await _context.employee
+				.Where(e => employeeIds.Contains(e.employee_id))
+				.ToDictionaryAsync(e => e.employee_id, e => e.name);
 
-                    t.Referrals.Any(r => r.to_employee_id == employeeId))
-                 // Transactions for the manager's department or from department 5
-                 )  // T
-                .OrderByDescending(t => t.transaction_id)
-                .ToListAsync();
+			ViewBag.EmployeeNames = employees;
 
-            // Fetch departments for the dropdown
-            var departments = await _context.Department.ToListAsync();
-            ViewBag.Departments = new SelectList(departments, "departement_id", "departement_name");
-            if (transactions.Count == 0)
-            {
-                // Render the _NothingNew partial view if no transactions
-                return PartialView("_NothingNew");
-            }
+			// Fetch departments for the dropdown
+			var departments = await _context.Department.ToListAsync();
+			ViewBag.Departments = new SelectList(departments, "departement_id", "departement_name");
+			if (transactions.Count == 0)
+			{
+				// Render the _NothingNew partial view if no transactions
+				return PartialView("_NothingNew");
+			}
+			return PartialView("_getAllTransactions", transactions);
+		}
 
-            return PartialView("_getAllTransactions", transactions);
-
-
-
-        }
-
-        public async Task<IActionResult> GetAllCharters()
+		public async Task<IActionResult> GetAllCharters()
         {
 
 
@@ -324,23 +355,26 @@ namespace CharityProject.Controllers
         }
 
 
-        public async Task<IActionResult> GetAllHolidays()
+		public async Task<IActionResult> GetAllHolidays()
+		{
+			var emplyee_Details = await GetEmployeeDetailsFromSessionAsync();
+			var holidays = await _context.HolidayHistories
+				.Include(h => h.holiday)  // Eager load the Holiday entity
+				.Where(h => h.status == "موافقة المدير المباشر" ||
+							(h.status == "مرسلة" && h.Employee_detail.departement_id == emplyee_Details.departement_id))
+				.OrderByDescending(h => h.holidays_history_id)
+				.ToListAsync();
 
-        {
-          
-            var holidays = await _context.HolidayHistories
-               .Where(h => h.status == "موافقة المدير المباشر" || (h.status == "مرسلة" && h.Employee_detail.departement_id == 1))
-                .OrderByDescending(h => h.holidays_history_id ) // Replace HolidaysHistoryId with the actual ID column name
-                .ToListAsync();
-            if (holidays.Count == 0)
-            {
-                // Render the _NothingNew partial view if no transactions
-                return PartialView("_NothingNew");
-            }
-            return PartialView("_getAllHolidays", holidays);
-        }
+			if (holidays.Count == 0)
+			{
+				// Render the _NothingNew partial view if no transactions
+				return PartialView("_NothingNew");
+			}
+			return PartialView("_getAllHolidays", holidays);
+		}
 
-        public async Task<IActionResult> GetAllLetters()
+
+		public async Task<IActionResult> GetAllLetters()
         {
             var employeeDetails = await GetEmployeeDetailsFromSessionAsync();
             var letters = await _context.letters
@@ -402,43 +436,47 @@ namespace CharityProject.Controllers
 		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> Create_Transaction(IFormFile files, [Bind("create_date,close_date,title,description,from_emp_id,to_emp_id,department_id,Confidentiality,Urgency,Importance")] Transaction transaction)
 		{
-			if (files != null && files.Length > 0)
-			{
-				// Validate the file type
-				var allowedExtensions = new[] { ".pdf", ".xls", ".xlsx", ".doc", ".docx" };
-				var extension = Path.GetExtension(files.FileName).ToLower();
+            var employeeId = GetEmployeeIdFromSession();
 
-				if (!allowedExtensions.Contains(extension))
-				{
-					ModelState.AddModelError("files", "Only PDF, Excel, and Word files are allowed.");
-					return View(transaction); // Return the view with validation error
-				}
+            transaction.from_emp_id = employeeId;
 
-				string filename = Path.GetFileName(files.FileName);
-				string path = Path.Combine(Directory.GetCurrentDirectory(),"wwwroot/files");
-				if (!Directory.Exists(path))
-				{
-					Directory.CreateDirectory(path);
-				}
-				string filePath = Path.Combine(path, filename);
-				using (var filestream = new FileStream(filePath, FileMode.Create))
-				{
-					await files.CopyToAsync(filestream);
-				}
-				transaction.files = filename;
-			}
+            if (files != null && files.Length > 0)
+            {
+                // Validate the file type
+                var allowedExtensions = new[] { ".pdf", ".xls", ".xlsx", ".doc", ".docx" };
+                var extension = Path.GetExtension(files.FileName).ToLower();
 
-			if (transaction.create_date == null)
-			{
-				transaction.create_date = DateTime.Now;
-			}
+                if (!allowedExtensions.Contains(extension))
+                {
+                    ModelState.AddModelError("files", "Only PDF, Excel, and Word files are allowed.");
+                    return View(transaction); // Return the view with validation error
+                }
 
-			transaction.status = "مرسلة";
-			_context.Add(transaction);
-			await _context.SaveChangesAsync();
+                string filename = Path.GetFileName(files.FileName);
+                string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/files");
+                if (!Directory.Exists(path))
+                {
+                    Directory.CreateDirectory(path);
+                }
+                string filePath = Path.Combine(path, filename);
+                using (var filestream = new FileStream(filePath, FileMode.Create))
+                {
+                    await files.CopyToAsync(filestream);
+                }
+                transaction.files = filename;
+            }
 
-			return RedirectToAction(nameof(Transactions));
-		}
+            if (transaction.create_date == null)
+            {
+                transaction.create_date = DateTime.Now;
+            }
+
+            transaction.status = "مرسلة";
+            _context.Add(transaction);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Transactions));
+        }
 
 
         [HttpPost]
@@ -1054,11 +1092,39 @@ namespace CharityProject.Controllers
 
             return View();
         }
-        public IActionResult EmployeeView()
+		public IActionResult EmployeeView()
+		{
+			var employeeList = _context.employee
+				.Include(e => e.EmployeeDetails) // Include employee details
+				.ThenInclude(ed => ed.Department) // Include department details from employee details
+				.Select(e => new
+				{
+					e.employee_id,
+					e.name,
+					e.username,
+					Position = e.EmployeeDetails != null ? e.EmployeeDetails.position : "No Position",
+					PermissionPosition = e.EmployeeDetails != null ? e.EmployeeDetails.permission_position : "No Permission",
+					DepartmentName = e.EmployeeDetails != null && e.EmployeeDetails.Department != null
+						? e.EmployeeDetails.Department.departement_name
+						: "No Department",
+					Files = e.EmployeeDetails != null ? e.EmployeeDetails.files : null // Include files information
+				})
+				.ToList();
+			var departments = _context.Department.ToList();
+			ViewData["Departments"] = departments;
+			ViewData["EmployeeList"] = employeeList;
+			return View();
+		}
+
+        public async Task<IActionResult> ManageEmpPer()
         {
-            var employeeList = _context.employee
-                .Include(e => e.EmployeeDetails) // Include employee details
-                .ThenInclude(ed => ed.Department) // Include department details from employee details
+            var currentEmployee = await GetEmployeeDetailsFromSessionAsync();
+            
+
+            var employeeList = await _context.employee
+                .Include(e => e.EmployeeDetails)
+                .ThenInclude(ed => ed.Department)
+                .Where(e => e.EmployeeDetails.Department.departement_id == currentEmployee.departement_id)
                 .Select(e => new
                 {
                     e.employee_id,
@@ -1070,15 +1136,96 @@ namespace CharityProject.Controllers
                         ? e.EmployeeDetails.Department.departement_name
                         : "No Department"
                 })
-                .ToList();
-            var departments = _context.Department.ToList();
+                .ToListAsync();
+
+            var departments = await _context.Department.ToListAsync();
             ViewData["Departments"] = departments;
             ViewData["EmployeeList"] = employeeList;
             return View();
         }
-
-
         [HttpPost]
+        public IActionResult UpdatePermission(int id, string permissionPosition)
+        {
+            try
+            {
+                // Find the employee by ID
+                var employee = _context.employee_details.FirstOrDefault(e => e.employee_details_id== id);
+
+                if (employee == null)
+                {
+                    return Json(new { success = false, message = "الموظف غير موجود." });
+                }
+
+                // Update the employee's permission position
+                employee.permission_position = permissionPosition;
+
+                // Save the changes to the database
+                _context.SaveChanges();
+
+                // Return a success response
+                return Json(new { success = true, message = "تم تحديث صلاحيات الموظف بنجاح." });
+            }
+            catch (Exception ex)
+            {
+                // Handle the error and return a failure response
+                return Json(new { success = false, message = "حدث خطأ أثناء تحديث صلاحيات الموظف." });
+            }
+        }
+
+        public IActionResult DownloadFile(int employeeId)
+		{
+			var employeeDetails = _context.employee_details
+				.FirstOrDefault(ed => ed.employee_id == employeeId);
+
+			if (employeeDetails == null || string.IsNullOrEmpty(employeeDetails.files))
+			{
+				return NotFound("File not found");
+			}
+
+			// Combine the path with wwwroot to get the full file path
+			var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/files", employeeDetails.files);
+
+			if (System.IO.File.Exists(filePath))
+			{
+				var fileBytes = System.IO.File.ReadAllBytes(filePath);
+				var fileName = Path.GetFileName(filePath);
+				var mimeType = "application/octet-stream";
+				return File(fileBytes, mimeType, fileName);
+			}
+			else
+			{
+				return NotFound("File not found on the server");
+			}
+		}
+
+		public IActionResult DownloadFile_HY(int holidayId)
+		{
+			var holiday = _context.HolidayHistories
+				.FirstOrDefault(h=> h.holidays_history_id == holidayId);
+
+			if (holiday == null || string.IsNullOrEmpty(holiday.files))
+			{
+				return NotFound("File not found");
+			}
+
+			// Combine the path with wwwroot to get the full file path
+			var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/files", holiday.files);
+
+			if (System.IO.File.Exists(filePath))
+			{
+				var fileBytes = System.IO.File.ReadAllBytes(filePath);
+				var fileName = Path.GetFileName(filePath);
+				var mimeType = "application/octet-stream";
+				return File(fileBytes, mimeType, fileName);
+			}
+			else
+			{
+				return NotFound("File not found on the server");
+			}
+		}
+
+
+		[HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> InsertEmployee(
      IFormFile employee_files,
@@ -1161,24 +1308,29 @@ namespace CharityProject.Controllers
 
                 _context.employee_details.Add(employeeDetails);
                 await _context.SaveChangesAsync();
-
+                var department = _context.Department.FirstOrDefault(d => d.departement_id == employeeDetails.departement_id);
+                if (employee_position == "السكرتير" && department.departement_name != "الادارة التنفيذية")
+                {
+                    return Json(new { success = false, message = "اسم القسم والمنصب غير متوافقين" });
+                }
                 // Check if the position contains 'مدير'
                 if (employee_position.Contains("مدير"))
                 {
-                    var department = _context.Department.FirstOrDefault(d => d.departement_id == employeeDetails.departement_id);
+                  
                     if (department != null)
                     {
                         var oldSupervisorId = department.supervisor_id;
 
                         // Extract the part of the position after 'مدير'
                         var positionSuffix = employee_position.Replace("مدير", "").Trim();
-
+                       
                         // Check if the department name matches the position suffix
                         if (department.departement_name != positionSuffix)
                         {
                             await transaction.RollbackAsync();
                             return Json(new { success = false, message = "اسم القسم والمنصب غير متوافقين" });
                         }
+                        //---------------------------
 
                         // Check if the old supervisor ID is not the same as the current employee ID
                         if (oldSupervisorId != employee.employee_id)
@@ -1194,13 +1346,51 @@ namespace CharityProject.Controllers
                                     oldSupervisorDetails.permission_position = "موظف";
                                 }
                             }
+                            if (employee_permission_position.Contains("مدير"))
+                            {
 
-                            // Set the new supervisor
-                            department.supervisor_id = employee.employee_id;
+                                // Set the new supervisor
+                                department.supervisor_id = employee.employee_id;
+                            }
                         }
                     }
                 }
 
+                if (employee_permission_position.Trim() != "المدير التنفيذي" && employee_permission_position.Contains("مدير"))
+                {
+                    if (department != null)
+                    {
+                        var permissionPositionSuffix = employee_permission_position.Replace("مدير", "").Trim();
+                        if (department.departement_name != permissionPositionSuffix)
+                        {
+                            return Json(new { success = false, message = "لا يمكن اعطاء صلاحيات الادارة الخاصة بهذا القسم لموظف خارج القسم" });
+                        }
+                    }
+                }
+
+
+                if (employee_permission_position == "المدير التنفيذي")
+                {
+                    if (department != null)
+                    {
+
+                        if (department.departement_name != "الادارة التنفيذية")
+                        {
+                            return Json(new { success = false, message = "لا يمكن اعطاء صلاحيات الادارة الخاصة بهذا القسم لموظف خارج القسم" });
+                        }
+                    }
+                }
+                if (employee_permission_position == "السكرتير")
+                {
+                    if (department != null)
+                    {
+
+                        if (department.departement_name != "الادارة التنفيذية")
+                        {
+                            return Json(new { success = false, message = "لا يمكن اعطاء صلاحيات السكرتير لموظف خارج قسم الادارة التنفيذية" });
+                        }
+                    }
+                }
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
@@ -1261,17 +1451,31 @@ namespace CharityProject.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateEmployee(IFormFile employee_files, int employee_id, string name, string username, string password, string search_role,
-int identity_number, int departement_id, string position, string permission_position, string contract_type,
-string national_address, string education_level, DateTime hire_date, DateTime leave_date, string email,
-string phone_number, string gender, bool active)
+        public async Task<IActionResult> UpdateEmployee(
+        IFormFile employee_files,
+        int employee_id,
+        string name,
+        string username,
+        string password,
+        string search_role,
+        int identity_number,
+        int departement_id,
+        string position,
+        string permission_position,
+        string contract_type,
+        string national_address,
+        string education_level,
+        DateTime hire_date,
+        DateTime leave_date,
+        string email,
+        string phone_number,
+        string gender,
+        bool active)
         {
-
-
             // Find the existing employee
             var employee = _context.employee
                 .Include(e => e.EmployeeDetails)
-                .Include(e => e.EmployeeDetails.Department) // Include Department to access supervisor_id
+                .ThenInclude(d => d.Department) // Include Department to access supervisor_id
                 .FirstOrDefault(e => e.employee_id == employee_id);
 
             if (employee == null)
@@ -1304,7 +1508,7 @@ string phone_number, string gender, bool active)
             details.gender = gender;
             details.active = active;
 
-
+            // Handle file upload
             if (employee_files != null && employee_files.Length > 0)
             {
                 var allowedExtensions = new[] { ".pdf", ".xls", ".xlsx", ".doc", ".docx" };
@@ -1312,57 +1516,62 @@ string phone_number, string gender, bool active)
 
                 if (!allowedExtensions.Contains(extension))
                 {
-                    ModelState.AddModelError("files", "Only PDF, Excel, and Word files are allowed.");
                     return Json(new { success = false, message = "الملف الذي تم تحميله غير صالح. يرجى تحميل ملف PDF أو Excel أو Word." });
                 }
 
                 string filename = Path.GetFileName(employee_files.FileName);
                 string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/files");
+
                 if (!Directory.Exists(path))
                 {
                     Directory.CreateDirectory(path);
                 }
+
                 string filePath = Path.Combine(path, filename);
                 using (var filestream = new FileStream(filePath, FileMode.Create))
                 {
                     await employee_files.CopyToAsync(filestream);
                 }
+
                 details.files = filename;
             }
 
             // Initialize the success message
             string successMessage = "تم تعديل موظف بنجاح!";
-
+            var department = _context.Department.FirstOrDefault(d => d.departement_id == departement_id);
+            if ( position == "السكرتير" && department.departement_name != "الادارة التنفيذية")
+            {
+                return Json(new { success = false, message = "اسم القسم والمنصب غير متوافقين" });
+            }
             // Check if the position contains 'مدير'
             if (position.Contains("مدير"))
             {
-                var department = _context.Department.FirstOrDefault(d => d.departement_id == departement_id);
                 if (department != null)
                 {
                     var oldSupervisorId = department.supervisor_id;
 
-                    // Extract the part of the position after 'مدير'
-                    var positionSuffix = position.Replace("مدير", "").Trim();
+                    // Check if the position is "المدير التنفيذي" and the department name is not "الإدارة التنفيذية"
+                  
 
-                    // Check if the department name matches the position suffix
-                    if (department.departement_name != positionSuffix)
+
+                    // Validate department name and position suffix
+                    var positionSuffix = position.Replace("مدير", "").Trim();
+                    if (department.departement_name != positionSuffix&& department.departement_name!= "الادارة التنفيذية")
                     {
                         return Json(new { success = false, message = "اسم القسم والمنصب غير متوافقين" });
                     }
 
-                    // Check if the old supervisor ID is not the same as the current employee ID
+                    // Update the old supervisor if needed
                     if (oldSupervisorId != employee_id)
                     {
-                        // Update the old supervisor's position and permission_position
-                        var oldSupervisor = _context.employee.Include(e => e.EmployeeDetails).FirstOrDefault(e => e.employee_id == oldSupervisorId);
+                        var oldSupervisor = _context.employee
+                            .Include(e => e.EmployeeDetails)
+                            .FirstOrDefault(e => e.employee_id == oldSupervisorId);
+
                         if (oldSupervisor != null)
                         {
-                            var oldSupervisorDetails = oldSupervisor.EmployeeDetails;
-                            if (oldSupervisorDetails != null)
-                            {
-                                oldSupervisorDetails.position = "موظف";
-                                oldSupervisorDetails.permission_position = "موظف";
-                            }
+                            oldSupervisor.EmployeeDetails.position = "موظف";
+                            oldSupervisor.EmployeeDetails.permission_position = "موظف";
                         }
 
                         // Set the new supervisor
@@ -1371,15 +1580,50 @@ string phone_number, string gender, bool active)
                 }
             }
 
-            // If the employee was a manager and is now set to مدير or موظف
-            if (previousPosition.Contains("مدير"))
+            // Validate permission_position
+            if (permission_position.Trim() != "المدير التنفيذي" && permission_position.Contains("مدير"))
+            {
+                if (department != null)
+                {
+                    var permissionPositionSuffix = permission_position.Replace("مدير", "").Trim();
+                    if (department.departement_name != permissionPositionSuffix)
+                    {
+                        return Json(new { success = false, message = "لا يمكن اعطاء صلاحيات الادارة الخاصة بهذا القسم لموظف خارج القسم" });
+                    }
+                }
+            }
+
+
+            if (permission_position == "المدير التنفيذي")
+            {
+                if (department != null)
+                {
+                   
+                    if (department.departement_name != "الادارة التنفيذية")
+                    {
+                        return Json(new { success = false, message = "لا يمكن اعطاء صلاحيات الادارة الخاصة بهذا القسم لموظف خارج القسم" });
+                    }
+                }
+            }
+            if (permission_position == "السكرتير")
+            {
+                if (department != null)
+                {
+
+                    if (department.departement_name != "الادارة التنفيذية")
+                    {
+                        return Json(new { success = false, message = "لا يمكن اعطاء صلاحيات السكرتير لموظف خارج قسم الادارة التنفيذية" });
+                    }
+                }
+            }
+
+            // Handle if the employee was a manager and is now set to 'مدير' or 'موظف'
+            if (previousPosition.Contains("مدير")&& previousPosition!=position)
             {
                 var oldDepartment = _context.Department.FirstOrDefault(d => d.supervisor_id == employee_id);
                 if (oldDepartment != null)
                 {
                     oldDepartment.supervisor_id = null;
-
-                    // Append the additional message about the department being vacant
                     successMessage += " القسم السابق الذي كان يديره هذا المدير الآن شاغر بلا مدير.";
                 }
             }
@@ -1395,6 +1639,7 @@ string phone_number, string gender, bool active)
                 return Json(new { success = false, message = "لم يتم تعديل الموظف.", error = ex.Message });
             }
         }
+
 
 
 

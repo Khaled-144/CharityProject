@@ -84,7 +84,8 @@ namespace CharityProject.Controllers
 
             _context.Referrals.Add(referral);
             transaction.to_emp_id = to_employee_id;
-            await _context.SaveChangesAsync();
+            transaction.status = "تحت الإجراء";
+		   await _context.SaveChangesAsync();
 
 			// Redirect to the Transactions page after successful referral
 			return RedirectToAction("Transactions", "CustomerServiceManager");
@@ -107,8 +108,34 @@ namespace CharityProject.Controllers
 
 
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
+            int currentUserId = GetEmployeeIdFromSession();
+
+            // Count transactions based on their status, ensuring no duplicates
+            var newTransactions = await _context.Transactions
+                .Where(t => t.status == "مرسلة" && (t.to_emp_id == currentUserId || t.Referrals.Any(r => r.to_employee_id == currentUserId)))
+                .GroupBy(t => t.transaction_id)
+                .Select(g => g.FirstOrDefault())
+                .CountAsync();
+
+            var ongoingTransactions = await _context.Transactions
+                .Where(t => t.status != "منهاة" && (t.to_emp_id == currentUserId || t.Referrals.Any(r => r.to_employee_id == currentUserId)))
+                .GroupBy(t => t.transaction_id)
+                .Select(g => g.FirstOrDefault())
+                .CountAsync();
+
+            var completedTransactions = await _context.Transactions
+                .Where(t => t.status == "منهاة" && (t.to_emp_id == currentUserId || t.Referrals.Any(r => r.to_employee_id == currentUserId)))
+                .GroupBy(t => t.transaction_id)
+                .Select(g => g.FirstOrDefault())
+                .CountAsync();
+
+            // Passing the counts to the view using ViewBag
+            ViewBag.NewTransactionsCount = newTransactions;
+            ViewBag.OngoingTransactionsCount = ongoingTransactions;
+            ViewBag.CompletedTransactionsCount = completedTransactions;
+
             return View();
         }
 
@@ -161,18 +188,16 @@ namespace CharityProject.Controllers
         public async Task<IActionResult> GetAllTransactions()
         {
             var employeeId = GetEmployeeIdFromSession();
-
+            var emplyee_Details = await GetEmployeeDetailsFromSessionAsync();
+            
             // Fetch transactions based on the conditions provided
             var transactions = await _context.Transactions
                 .Include(t => t.Referrals)
                     .ThenInclude(r => r.from_employee)
                 .Include(t => t.Referrals)
                     .ThenInclude(r => r.to_employee)
-                .Where(t => t.status == "مرسلة" && (t.from_emp_id == employeeId || // Transactions sent by the employee
-                    t.to_emp_id == employeeId ||
-                     t.department_id == 5 || // Transactions sent to the employee
-
-                    t.Referrals.Any(r => r.to_employee_id == employeeId))
+                .Where(t =>(t.status=="مرسلة"&&t.Employee_detail.departement_id == emplyee_Details.departement_id)|| // Transactions sent to the employee
+                    t.Referrals.Any(r => r.to_employee_id == employeeId)
                  // Transactions for the manager's department or from department 5
                  )  // Transactions referred to the employee
                 .OrderByDescending(t => t.transaction_id)

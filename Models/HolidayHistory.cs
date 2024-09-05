@@ -25,7 +25,7 @@
         public string? status { get; set; }
 
         [ForeignKey("holiday_id")]
-        public Holiday holiday { get; set; }
+        public virtual Holiday holiday { get; set; }
 
     }
 

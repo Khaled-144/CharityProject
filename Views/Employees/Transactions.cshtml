@@ -1,4 +1,12 @@
-﻿<!DOCTYPE html>
+﻿@model IEnumerable<CharityProject.Models.Transaction>
+
+@{
+    Layout = "_Layout_Employees";
+    ViewData["PageTitle"] = "المعاملات";
+    ViewData["Title"] = "صفحة المعاملات";
+}
+
+<!DOCTYPE html>
 <html lang="ar">
 <head>
 	<meta charset="UTF-8">
@@ -106,9 +114,90 @@
 				$(this).addClass("active-tab");
 			});
 
-			// Load initial tab content
-			$("#external-tab").trigger("click");
-		});
-	</script>
+            // Load initial tab content
+            $("#internal-tab").trigger("click");
+        });
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            var searchTimer;
+
+            function loadTransactions() {
+                $("#loadingIndicator").show();
+                $("#tab-content-container").hide();
+
+                var searchTerm = $("#searchForm input[name='searchTerm']").val();
+                var sortOrder = $("#sortOrder").val();
+                var activeTab = $(".active-tab").attr("id");
+
+                console.log("Searching with term:", searchTerm);
+                console.log("Sort order:", sortOrder);
+                console.log("Active tab:", activeTab);
+                
+                var url;
+                switch (activeTab) {
+                    case "internal-tab":
+                        url = '@Url.Action("SearchTransactions", "Employees")';
+                        break;
+                    case "holidays-tab":
+                        url = '@Url.Action("SearchHolidays", "Employees")';
+                        break;
+                    case "letters-tab":
+                        url = '@Url.Action("SearchLetters", "Employees")';
+                        break;
+                    case "assets-tab":
+                        url = '@Url.Action("SearchAssets", "Employees")';
+                        break;
+                    default:
+                        url = '@Url.Action("SearchTransactions", "Employees")';
+                }
+    
+                $.ajax({
+                    url: url,
+                    type: 'GET',
+                    data: { searchTerm: searchTerm, sortOrder: sortOrder },
+                    success: function (result) {
+                        console.log("Received data:", result);
+                        if (result.trim() === "") {
+                            // If the result is empty, load the _NothingNew tab
+                            $("#tab-content-container").load('@Url.Action("_NothingNew", "Employees")');
+                        } else {
+                            $("#tab-content-container").html(result);
+                        }
+                        $("#loadingIndicator").hide();
+                        $("#tab-content-container").show();
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Error:", error);
+                        console.error("Status:", status);
+                        console.error("Response:", xhr.responseText);
+                        $("#loadingIndicator").hide();
+                        $("#tab-content-container").show();
+                        $("#tab-content-container").html("<p>Error loading transactions. Please try again.</p>");
+                    }
+                });
+            }
+
+            // Trigger search on input change with a delay
+            $("#searchForm input[name='searchTerm']").on('input', function() {
+                clearTimeout(searchTimer);
+                searchTimer = setTimeout(loadTransactions, 1000); // 1000ms delay
+            });
+
+            // Trigger search on sort order change
+            $("#sortOrder").on("change", function () {
+                loadTransactions();
+            });
+
+            // Trigger search on tab change
+            $("#default-tab button").on("click", function () {
+                loadTransactions();
+            });
+
+            // Initial load
+            loadTransactions();
+        });
+    </script>
 </body>
 </html>
