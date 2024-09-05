@@ -13,10 +13,10 @@
         public string communication { get; set; }
         public string case_status { get; set; }
         public string sending_party { get; set; }
-        public DateTime receiving_date { get; set; }
-        public DateTime sending_date { get; set; }
+        public DateOnly receiving_date { get; set; }
+        public DateOnly sending_date { get; set; }
         public int sending_number { get; set; }
         public int receiving_number { get; set; }
     }
-    
+
 }

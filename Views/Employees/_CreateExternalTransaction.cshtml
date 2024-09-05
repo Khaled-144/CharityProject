@@ -1,0 +1,128 @@
+﻿@model CharityProject.Models.ExternalTransaction
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>External Transactions Form</title>
+	<script src="https://cdn.tailwindcss.com"></script>
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.6.5/flowbite.min.css" rel="stylesheet" />
+
+</head>
+<body>
+	<div class="text-right modal fade " id="insertExternalModal" role="dialog">
+		<div class="max-w-3x4 mx-auto bg-white rounded-lg shadow-md p-6 modal-dialog modal-xl modal-content">
+			<h2 class="text-2xl font-bold mb-6 text-center text-gray-800">نموذج المعاملات الخارجية</h2>
+			<form asp-action="CreateExternalTransaction" method="post">
+				<div class="grid md:grid-cols-2 md:gap-6">
+					<div class="mb-6">
+						<label for="name" class="block mb-2 text-sm font-medium text-gray-900">الاسم</label>
+						<input type="text" id="name" asp-for="name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
+					</div>
+					<div class="mb-6">
+						<label for="identity_number" class="block mb-2 text-sm font-medium text-gray-900">رقم الهوية</label>
+						<input type="text" id="identity_number" asp-for="identity_number" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
+					</div>
+				</div>
+
+				<div class="grid md:grid-cols-2 md:gap-6">
+					<div class="mb-6">
+						<label for="status" class="block mb-2 text-sm font-medium text-gray-900">الحالة</label>
+						<select id="status" asp-for="status" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+							<option selected disabled></option>
+							<option value="غير مؤهل سكني"> غير مؤهل سكني</option>
+							<option value="تم تسجيله بالمنصة">تم تسجيله بالمنصة</option>
+							<option value="تم دعمه وحدة من جهة أخرى">تم دعمه وحدة من جهة أخرى</option>
+							<option value="غير مؤهل بالضمان الاجتماعي">غير مؤهل بالضمان الاجتماعي</option>
+							<option value="خارج المدينة">خارج المدينة</option>
+						</select>
+					</div>
+					<div class="mb-6">
+						<label for="communication" class="block mb-2 text-sm font-medium text-gray-900">التواصل</label>
+						<select id="communication" asp-for="communication" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+							<option selected disabled></option>
+							<option value="تم التواصل">تم التواصل</option>
+							<option value=" لم يتم التواصل">لم يتم التواصل</option>
+						</select>
+					</div>
+				</div>
+
+				<div class="mb-6">
+					<label for="case_status" class="block mb-2 text-sm font-medium text-gray-900">دراسة/ارسال الحالة</label>
+					<select id="case_status" asp-for="case_status" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+						<option selected disabled></option>
+						<option value="تم دراسة الحالة">تم دراسة الحالة</option>
+						<option value="تم ارسال الحالة">تم ارسال الحالة للجهة</option>
+
+					</select>
+				</div>
+
+				<div class="mb-6">
+					<label for="sending_party" class="block mb-2 text-sm font-medium text-gray-900">الجهة المحالة</label>
+					<select id="sending_party" asp-for="sending_party" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+						<option selected disabled></option>
+						<option value="مركز التنمية الاجتماعية">مركز التنمية الاجتماعية</option>
+						<option value="مدير ادارة تنمية المجتمع">مدير ادارة تنمية المجتمع</option>
+						<option value="مجلس الجمعيات">مجلس الجمعيات</option>
+						<option value="وزارة الشؤون البلدية والقروية والاسكان">وزارة الشؤون البلدية والقروية والاسكان</option>
+					</select>
+				</div>
+
+				<div class="grid md:grid-cols-2 md:gap-6">
+					<div class="mb-6">
+						<label for="receiving_date" class="block mb-2 text-sm font-medium text-gray-900">تاريخ الوارد</label>
+						<input type="date" id="receiving_date" asp-for="receiving_date" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+					</div>
+					<div class="mb-6">
+						<label for="sending_date" class="block mb-2 text-sm font-medium text-gray-900">تاريخ الصادر</label>
+						<input type="date" id="sending_date" asp-for="sending_date" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 " value=" @DateTime.Now.ToString("yyyy-MM-dd")">
+					</div>
+				</div>
+				<div class="grid md:grid-cols-2 md:gap-6">
+					<div class="mb-6">
+						<label for="receiving_number" class="block mb-2 text-sm font-medium text-gray-900">رقم الوارد</label>
+						<input type="text" id="receiving_number" asp-for="receiving_number" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+					</div>
+					<div class="mb-6">
+						<label for="sending_number" class="block mb-2 text-sm font-medium text-gray-900">رقم الصادر</label>
+						<span id="sending_number" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5">
+					</div>
+				</div>
+				<div class="flex items-center justify-center">
+					<button type="submit" class="bg-gradient-to-r from-green-400 via-green-500 to-green-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 text-white font-bold py-2 px-4">حفظ</button>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<script>
+		function fetchNextSendingNumber() {
+			fetch('/Employees/GetNextReceivingNumber') // Ensure this matches your route
+				.then(response => {
+					if (!response.ok) {
+						throw new Error('Network response was not ok');
+					}
+					return response.json();
+				})
+				.then(data => {
+					// Set the text content of the span to the parsed integer value
+					document.getElementById('sending_number').textContent = parseInt(data, 10); // Base 10 for decimal
+				})
+				.catch(error => {
+					console.error('There was a problem with the fetch operation:', error);
+				});
+		}
+
+		document.addEventListener('DOMContentLoaded', function () {
+			// Set the default value of the receiving_date input field to today's date
+			const today = new Date().toISOString().split('T')[0];
+			document.getElementById('receiving_date').value = today;
+			document.getElementById('sending_date').value = today;
+
+			fetchNextSendingNumber();
+		});
+	</script>
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.6.5/flowbite.min.js"></script>
+</body>
+</html>
