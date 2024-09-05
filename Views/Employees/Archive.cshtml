@@ -1,7 +1,24 @@
 ﻿@model IEnumerable<CharityProject.Models.Transaction>
 
 @{
-    Layout = "_Layout_Employees";
+    if (Context.Session.GetString("Permission_position") == "مدير الموارد البشرية والمالية")
+    {
+        Layout = "_Layout_HR";
+
+    }
+    else if (Context.Session.GetString("Permission_position") == "مدير خدمة المستفيدين" || Context.Session.GetString("Permission_position") == "مدير التنمية المالية والاستدامة")
+    {
+        Layout = "_Layout_Managers";
+    }
+    else if (Context.Session.GetString("Permission_position") == "موظف")
+    {
+        Layout = "_Layout_Employees";
+    }
+    else
+    {
+        Layout = "_Layout";
+    }
+
     ViewData["PageTitle"] = "الارشيف";
     ViewData["Title"] = "صفحة الارشيف";
     var currentUrl = $"{Context.Request.Scheme}://{Context.Request.Host}{Context.Request.Path}{Context.Request.QueryString}";
@@ -38,11 +55,11 @@
 
 <body>
     <div class="flex justify-self-auto justify-between mt-10">
+        <!-- Search and filter -->
         <div class="mx-4">
             <form id="searchForm">
                 <div class="flex justify-evenly">
-                    <input name="id" placeholder="رقم المعاملة" class="form-control mr-2" type="search" aria-label="search" />
-                    <button id="searchButton" class="btn btn-dark" type="submit">بحث</button>
+                    <input name="searchTerm" placeholder="رقم المعاملة أو العنوان" class="form-control mr-2" type="search" aria-label="search" />
                     <select name="sortOrder" id="sortOrder" class="bg-white border border-primaryButtons px-5 text-black text-sm rounded-lg text-center focus:ring-blue-500 focus:border-blue-500 block mr-2">
                         <option selected>فلترة</option>
                         <option value="newest">الاحدث</option>
@@ -71,7 +88,7 @@
                 </button>
             </li>
             <li class="flex items-center" role="presentation">
-                <button class="inline-block p-4 border-b-2 rounded-t-lg" id="assets-tab" data-content-url="@Url.Action("GetAllAssets", "Assets")" type="button" role="tab">
+                <button class="inline-block p-4 border-b-2 rounded-t-lg" id="assets-tab" data-content-url="@Url.Action("GetAllAssets", "Employees")" type="button" role="tab">
                     عهده
                 </button>
             </li>
@@ -114,35 +131,82 @@
 
     <script>
         $(document).ready(function () {
+            var searchTimer;
+
             function loadTransactions() {
-                $("#loadingIndicator").show(); // Show loading indicator
-                $("#transactionListPlaceholder").hide(); // Hide transaction list
+                $("#loadingIndicator").show();
+                $("#tab-content-container").hide();
+
+                var searchTerm = $("#searchForm input[name='searchTerm']").val();
+                var sortOrder = $("#sortOrder").val();
+                var activeTab = $(".active-tab").attr("id");
+
+                console.log("Searching with term:", searchTerm);
+                console.log("Sort order:", sortOrder);
+                console.log("Active tab:", activeTab);
+
+                var url;
+                switch (activeTab) {
+                    case "internal-tab":
+                        url = '@Url.Action("SearchTransactions", "Employees")';
+                        break;
+                    case "holidays-tab":
+                        url = '@Url.Action("SearchHolidays", "Employees")';
+                        break;
+                    case "letters-tab":
+                        url = '@Url.Action("SearchLetters", "Employees")';
+                        break;
+                    case "assets-tab":
+                        url = '@Url.Action("SearchAssets", "Employees")';
+                        break;
+                    default:
+                        url = '@Url.Action("SearchTransactions", "Employees")';
+                }
 
                 $.ajax({
-                    url: '@Url.Action("SearchById", "Transactions")',
+                    url: url,
                     type: 'GET',
-                    data: { id: 0, sortOrder: '' }, // Default values or adjust as needed
+                    data: { searchTerm: searchTerm, sortOrder: sortOrder },
                     success: function (result) {
-                        $("#transactionListPlaceholder").html(result); // Update the div with the partial view
-                        $("#loadingIndicator").hide(); // Hide loading indicator
-                        $("#transactionListPlaceholder").show(); // Show transaction list
+                        console.log("Received data:", result);
+                        if (result.trim() === "") {
+                            // If the result is empty, load the _NothingNew tab
+                            $("#tab-content-container").load('@Url.Action("_NothingNew", "Employees")');
+                        } else {
+                            $("#tab-content-container").html(result);
+                        }
+                        $("#loadingIndicator").hide();
+                        $("#tab-content-container").show();
                     },
                     error: function (xhr, status, error) {
-                        console.error(error);
-                        $("#loadingIndicator").hide(); // Hide loading indicator in case of error
-                        $("#transactionListPlaceholder").show(); // Show transaction list even if empty
+                        console.error("Error:", error);
+                        console.error("Status:", status);
+                        console.error("Response:", xhr.responseText);
+                        $("#loadingIndicator").hide();
+                        $("#tab-content-container").show();
+                        $("#tab-content-container").html("<p>Error loading transactions. Please try again.</p>");
                     }
                 });
             }
 
-            // Call the function when the page loads
-            loadTransactions();
-
-            // Attach event handler to search button
-            $("#searchButton").on("click", function (event) {
-                event.preventDefault(); // Prevent form from submitting normally
-                loadTransactions(); // Call the function
+            // Trigger search on input change with a delay
+            $("#searchForm input[name='searchTerm']").on('input', function () {
+                clearTimeout(searchTimer);
+                searchTimer = setTimeout(loadTransactions, 1000); // 1000ms delay
             });
+
+            // Trigger search on sort order change
+            $("#sortOrder").on("change", function () {
+                loadTransactions();
+            });
+
+            // Trigger search on tab change
+            $("#default-tab button").on("click", function () {
+                loadTransactions();
+            });
+
+            // Initial load
+            loadTransactions();
         });
     </script>
 </body>
