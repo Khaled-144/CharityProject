@@ -288,6 +288,43 @@
 
 </script>
 <script>
+	$("#department_id").off('change').on('change', function () {
+		var departmentId = $(this).val();
+		var employeeDropdown = $("#to_employee_id");
+		employeeDropdown.empty();
+		employeeDropdown.append('<option value="">اختر الموظف</option>');
+
+		if (departmentId) {
+			console.log("Selected department ID:", departmentId);
+			$.ajax({
+				url: '@Url.Action("GetEmployeesByDepartment", "Employees")',
+				type: 'GET',
+				data: { departmentId: departmentId },
+				success: function (data) {
+					console.log("Received data:", data);
+
+					if (data && data.length > 0) {
+						$.each(data, function (index, item) {
+							employeeDropdown.append($('<option></option>')
+								.val(item.employee_id)
+								.text(item.name + ' - ' + item.position));
+						});
+					} else {
+						employeeDropdown.append($('<option></option>').val('').text('لا يوجد موظفين في هذا القسم'));
+					}
+				},
+				error: function (xhr, status, error) {
+					console.error("Error fetching employees:", error);
+					console.error("Status:", status);
+					console.error("Response:", xhr.responseText);
+					employeeDropdown.append($('<option></option>').val('').text('حدث خطأ أثناء جلب الموظفين'));
+				}
+			});
+		}
+	});
+
+</script>
+<script>
 	$(document).ready(function () {
 		var departmentId = @Model.department_id;
 		var transactionId = @Model.transaction_id;

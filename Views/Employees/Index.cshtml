@@ -9,8 +9,59 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/countup.js/2.0.8/countUp.min.js"></script>
+    <style>
+        /* Custom cursor styles */
+        .custom-cursor {
+            cursor: none;
+        }
+
+        .cursor-dot,
+        .cursor-outline {
+            pointer-events: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+        }
+
+    /*         .cursor-dot img,
+            .cursor-outline img {
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+            } */
+
+        .cursor-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #3498db;
+        }
+
+        .cursor-outline {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #3498db;
+        }
+        /* Hover effect for cards */
+        .stat-card {
+            transition: all 0.3s ease;
+        }
+
+            .stat-card:hover {
+                transform: translateY(-10px);
+                box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+            }
+    </style>
 </head>
-<body class="bg-gray-100 font-sans">
+<body class="bg-gray-100 font-sans custom-cursor">
+    <div class="cursor-dot"></div>
+    <div class="cursor-outline"></div>
     <nav class="bg-tealBlue text-white p-4 shadow-md">
         <div class="container mx-auto">
             <div class="flex justify-between items-center">
@@ -54,31 +105,105 @@
     </nav>
     <!-- Main content area -->
     <main class="container mx-auto py-8">
-        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8 animate__animated animate__fadeIn">
             <h1 class="text-3xl font-bold mb-4 text-black">
-                مرحباً،                             @Context.Session.GetString("Name")
+                مرحباً، @Context.Session.GetString("Name")
             </h1>
             <p class="text-xl mb-6 text-black">هذه نظرة عامة على نشاطك الأخير</p>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="bg-gradient-to-tr from-blue-200 to-blue-600 p-4 rounded-lg shadow-md">
+                <div class="stat-card bg-gradient-to-tr from-blue-200 to-blue-600 p-4 rounded-lg shadow-md">
                     <h3 class="text-lg font-semibold mb-2 text-white">معاملات جديدة</h3>
-                    <p class="text-3xl font-bold text-white">5</p>
+                    <p class="text-3xl font-bold text-white" id="newTransactions">@ViewBag.NewTransactionsCount</p>
                 </div>
-                <div class="bg-gradient-to-tr from-yellow-200 to-yellow-600 p-4 rounded-lg shadow-md">
+                <div class="stat-card bg-gradient-to-tr from-yellow-200 to-yellow-600 p-4 rounded-lg shadow-md">
                     <h3 class="text-lg font-semibold mb-2 text-white">معاملات قيد الإنجاز</h3>
-                    <p class="text-3xl font-bold text-white">12</p>
+                    <p class="text-3xl font-bold text-white" id="inProgressTransactions">@ViewBag.OngoingTransactionsCount</p>
                 </div>
-                <div class="bg-gradient-to-tr from-green-200 to-green-600 p-4 rounded-lg shadow-md">
+                <div class="stat-card bg-gradient-to-tr from-green-200 to-green-600 p-4 rounded-lg shadow-md">
                     <h3 class="text-lg font-semibold mb-2 text-white">معاملات مكتملة</h3>
-                    <p class="text-3xl font-bold text-white">8</p>
+                    <p class="text-3xl font-bold text-white" id="completedTransactions">@ViewBag.CompletedTransactionsCount</p>
                 </div>
             </div>
         </div>
-        <!-- Additional dashboard content -->
-        <div class="bg-white rounded-lg shadow-lg p-6">
+
+        <!-- هذي نربطها مع الاشعارات اذا سويناها، بخليها كومنت حاليا -->
+        <!-- <div class="bg-white rounded-lg shadow-lg p-6 mt-8 animate__animated animate__fadeIn animate__delay-2s">
             <h2 class="text-2xl font-bold mb-4 text-black">آخر النشاطات</h2>
-            <p class="text-black">هنا يمكنك إضافة المزيد من المحتوى للوحة التحكم، مثل قائمة النشاطات الأخيرة أو الرسوم البيانية أو أي معلومات أخرى ذات صلة.</p>
-        </div>
+            <ul class="space-y-4" id="activityFeed">
+                // Activity items will be dynamically added here
+            </ul>
+        </div> -->
     </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script>
+        // Custom cursor
+        const cursorDot = document.querySelector(".cursor-dot");
+        const cursorOutline = document.querySelector(".cursor-outline");
+
+        window.addEventListener("mousemove", (e) => {
+            const posX = e.clientX;
+            const posY = e.clientY;
+
+            cursorDot.style.left = `${posX}px`;
+            cursorDot.style.top = `${posY}px`;
+            cursorOutline.style.left = `${posX}px`;
+            cursorOutline.style.top = `${posY}px`;
+
+            cursorDot.style.opacity = "1";
+            cursorOutline.style.opacity = "1";
+        });
+
+        // Animated counters
+        const animateValue = (id, start, end, duration) => {
+            const obj = document.getElementById(id);
+            const range = end - start;
+            let current = start;
+            const increment = end > start ? 1 : -1;
+            const stepTime = Math.abs(Math.floor(duration / range));
+            if (range === 0) return; // Prevent animation if start and end are the same
+            const timer = setInterval(() => {
+                current += increment;
+                obj.innerHTML = current;
+                if (current == end) {
+                    clearInterval(timer);
+                }
+            }, stepTime);
+        };
+
+        // Ensure the values are valid before animating
+        const newTransactionsCount = @ViewBag.NewTransactionsCount;
+        const ongoingTransactionsCount = @ViewBag.OngoingTransactionsCount;
+        const completedTransactionsCount = @ViewBag.CompletedTransactionsCount;
+
+        animateValue("newTransactions", 0, newTransactionsCount, 1000);
+        animateValue("inProgressTransactions", 0, ongoingTransactionsCount, 1000);
+        animateValue("completedTransactions", 0, completedTransactionsCount, 1000);
+
+        // مرتبطة بمنطقة آخر النشاطات
+        // Dynamic Activity Feed
+        // const activityFeed = document.getElementById('activityFeed');
+        // const activities = [
+        //     { text: 'تم إنشاء معاملة جديدة', time: 'منذ 5 دقائق', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01' },
+        //     { text: 'تم إكمال معاملة', time: 'منذ ساعة واحدة', icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' },
+        //     { text: 'تم تحديث بيانات الموظف', time: 'منذ 3 ساعات', icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' }
+        // ];
+
+        // activities.forEach(activity => {
+        //     const li = document.createElement('li');
+        //     li.className = 'flex items-center p-3 bg-gray-50 rounded-lg animate__animated animate__fadeInUp';
+        //     li.innerHTML = `
+        //                 <div class="flex-shrink-0 h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center text-white">
+        //                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${activity.icon}"></path></svg>
+        //                 </div>
+        //                 <div class="mr-4">
+        //                     <p class="text-sm font-medium text-gray-900">${activity.text}</p>
+        //                     <p class="text-sm text-gray-500">${activity.time}</p>
+        //                 </div>
+        //             `;
+        //     activityFeed.appendChild(li);
+        // });
+
+    </script>
 </body>
 </html>

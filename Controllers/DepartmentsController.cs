@@ -172,10 +172,20 @@ namespace CharityProject.Controllers
                     .FirstOrDefaultAsync(e => e.employee_id == department.supervisor_id);
                 if (newManager != null)
                 {
-                    newManager.position = $"مدير {department.departement_name}"; // Set new manager's position
-                    newManager.permission_position = $"مدير {department.departement_name}"; // Update new manager's permission_position
-                    newManager.departement_id = department.departement_id; // Set department_id for new manager
+                    if (department.departement_name != "الادارة التنفيذية")
+                    {
+                        newManager.position = $"مدير {department.departement_name}"; // Set new manager's position
+                        newManager.permission_position = $"مدير {department.departement_name}"; // Update new manager's permission_position
+                        newManager.departement_id = department.departement_id; // Set department_id for new manager
+                    }
+                    else
+                    {
+                        newManager.position = "المدير التنفيذي"; // Set new manager's position
+                        newManager.permission_position = "المدير التنفيذي"; ; // Update new manager's permission_position
+                        newManager.departement_id = department.departement_id; // Set department_id for new manager
+                    }
                     _context.Update(newManager);
+
                 }
 
                 // Update the department's supervisor
@@ -209,6 +219,8 @@ namespace CharityProject.Controllers
                 }
             }
         }
+
+
 
         // GET: Departments/Delete/5
         public async Task<IActionResult> Delete(int? id)

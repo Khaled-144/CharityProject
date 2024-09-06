@@ -15,8 +15,13 @@
         <p style="color:green">@ViewData["message"]</p>
         <form asp-action="UpdateEmployee" method="post" enctype="multipart/form-data" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4" id="employeeForm">
             @{
+             
+
+
+
                 var employeeData = (dynamic)ViewData["EmployeeData"];
                 var departments = (List<Department>)ViewData["Departments"];
+    
             }
 
             <input type="hidden" id="employee_id" name="employee_id" value="@employeeData.employee_id" />
@@ -69,7 +74,8 @@
                             <option value="مدير الموارد البشرية والمالية">مدير الموارد البشرية والمالية</option>
                             <option value="مدير التنمية المالية والاستدامة">مدير التنمية المالية والاستدامة</option>
                             <option value="مدير خدمة المستفيدين">مدير خدمة المستفيدين</option>
-                            <option value="سكريتر المدير التنفيذي">سكريتر المدير التنفيذي</option>
+                            <option value="السكرتير">السكرتير</option>
+                            <option value=" المدير التنفيذي">المدير التنفيذي</option>
                         </select>
                     </div>
                     <div>
@@ -80,7 +86,8 @@
                             <option value="مدير الموارد البشرية والمالية">مدير الموارد البشرية والمالية</option>
                             <option value="مدير التنمية المالية والاستدامة">مدير التنمية المالية والاستدامة</option>
                             <option value="مدير خدمة المستفيدين">مدير خدمة المستفيدين</option>
-                            <option value="سكريتر المدير التنفيذي">سكريتر المدير التنفيذي</option>
+                            <option value="السكرتير">السكرتير</option>
+                            <option value=" المدير التنفيذي">المدير التنفيذي</option>
                         </select>
                     </div>
 
@@ -124,10 +131,17 @@
                 </div>
             </div>
 
-            <div class="mb-6">
+         @*    <div class="mb-6">
                 <label for="employee_files" class="block text-gray-700 text-sm font-bold mb-2">الملفات</label>
-                <input id="employee_files" name="employee_files" type="file" multiple class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+                <input  id="employee_files" name="employee_files" type="file" multiple class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+            </div> *@
+            <div class="form-group mb-4">
+                <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="employee_files">المرفقات</label>
+                <input id="employee_files" name="employee_files" class="form-control w-full border rounded focus:ring-blue-500 focus:border-blue-500" type="file" accept=".pdf,.xls,.xlsx,.doc,.docx" />
+                <span for="employee_files" class="text-danger"></span>
+                <small id="fileError" class="text-danger" style="display:none;">الملفات المسموح بها فقط :PDF, Excel, Word</small>
             </div>
+      
 
             <div class="flex items-center justify-between">
                 <div class="flex items-center">
@@ -147,10 +161,16 @@
     <script>
         $(document).on('submit', '#employeeForm', function (e) {
             e.preventDefault();
+
+            // Create FormData object to handle files
+            var formData = new FormData(this);
+
             $.ajax({
-                url: '@Url.Action("UpdateEmployee", "Employee")',
+                url: '@Url.Action("UpdateEmployee", "HR")',
                 type: 'POST',
-                data: $(this).serialize(),
+                data: formData,
+                processData: false,  // Prevent jQuery from automatically processing data
+                contentType: false,  // Prevent jQuery from setting the content type
                 success: function (response) {
                     if (response.success) {
                         Swal.fire({
@@ -160,7 +180,7 @@
                             showConfirmButton: false,
                             timer: 5000
                         }).then(function () {
-                            window.location.href = '@Url.Action("EmployeeView", "Employee")';
+                            window.location.href = '@Url.Action("EmployeeView", "HR")';
                         });
                     } else {
                         Swal.fire({

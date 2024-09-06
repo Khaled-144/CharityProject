@@ -156,9 +156,9 @@
                         Swal.fire({
                             icon: 'success',
                             title: 'نجاح',
-                            html: '<div class="text-4xl">&#10003;</div><div>تم تحديث الموظف بنجاح</div>',
+                            html: '<div class="text-4xl">&#10003;</div><div>' + response.message + '</div>',
                             showConfirmButton: false,
-                            timer: 2000
+                            timer: 5000
                         }).then(function () {
                             window.location.href = '@Url.Action("EmployeeView", "Employee")';
                         });

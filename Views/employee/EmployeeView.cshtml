@@ -26,6 +26,13 @@
     <div class="max-w-7xl mx-auto">
         <h2 class="text-5xl font-bold mb-12 text-center text-emerald-800 shadow-text fade-in">قائمة الموظفين</h2>
 
+        @if (ViewData["Message"] != null)
+        {
+            <div class="text-center text-lg font-semibold text-emerald-800 mb-8 fade-in">
+                @ViewData["Message"]
+            </div>
+        }
+
         @{
             var departments = (List<Department>)ViewData["Departments"];
         }

@@ -84,7 +84,8 @@ namespace CharityProject.Controllers
 
             _context.Referrals.Add(referral);
             transaction.to_emp_id = to_employee_id;
-            await _context.SaveChangesAsync();
+            transaction.status = "تحت الإجراء";
+		   await _context.SaveChangesAsync();
 
 			// Redirect to the Transactions page after successful referral
 			return RedirectToAction("Transactions", "CustomerServiceManager");
@@ -107,8 +108,34 @@ namespace CharityProject.Controllers
 
 
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
+            int currentUserId = GetEmployeeIdFromSession();
+
+            // Count transactions based on their status, ensuring no duplicates
+            var newTransactions = await _context.Transactions
+                .Where(t => t.status == "مرسلة" && (t.to_emp_id == currentUserId || t.Referrals.Any(r => r.to_employee_id == currentUserId)))
+                .GroupBy(t => t.transaction_id)
+                .Select(g => g.FirstOrDefault())
+                .CountAsync();
+
+            var ongoingTransactions = await _context.Transactions
+                .Where(t => t.status != "منهاة" && (t.to_emp_id == currentUserId || t.Referrals.Any(r => r.to_employee_id == currentUserId)))
+                .GroupBy(t => t.transaction_id)
+                .Select(g => g.FirstOrDefault())
+                .CountAsync();
+
+            var completedTransactions = await _context.Transactions
+                .Where(t => t.status == "منهاة" && (t.to_emp_id == currentUserId || t.Referrals.Any(r => r.to_employee_id == currentUserId)))
+                .GroupBy(t => t.transaction_id)
+                .Select(g => g.FirstOrDefault())
+                .CountAsync();
+
+            // Passing the counts to the view using ViewBag
+            ViewBag.NewTransactionsCount = newTransactions;
+            ViewBag.OngoingTransactionsCount = ongoingTransactions;
+            ViewBag.CompletedTransactionsCount = completedTransactions;
+
             return View();
         }
 
@@ -161,18 +188,16 @@ namespace CharityProject.Controllers
         public async Task<IActionResult> GetAllTransactions()
         {
             var employeeId = GetEmployeeIdFromSession();
-
+            var emplyee_Details = await GetEmployeeDetailsFromSessionAsync();
+            
             // Fetch transactions based on the conditions provided
             var transactions = await _context.Transactions
                 .Include(t => t.Referrals)
                     .ThenInclude(r => r.from_employee)
                 .Include(t => t.Referrals)
                     .ThenInclude(r => r.to_employee)
-                .Where(t => t.status == "مرسلة" && (t.from_emp_id == employeeId || // Transactions sent by the employee
-                    t.to_emp_id == employeeId ||
-                     t.department_id == 5 || // Transactions sent to the employee
-
-                    t.Referrals.Any(r => r.to_employee_id == employeeId && r.from_employee_id == employeeId))
+                .Where(t =>(t.status=="مرسلة"&&t.Employee_detail.departement_id == emplyee_Details.departement_id)|| // Transactions sent to the employee
+                    t.Referrals.Any(r => r.to_employee_id == employeeId)
                  // Transactions for the manager's department or from department 5
                  )  // Transactions referred to the employee
                 .OrderByDescending(t => t.transaction_id)
@@ -447,32 +472,33 @@ namespace CharityProject.Controllers
 
             return RedirectToAction(nameof(Transactions));
         }
-		[HttpGet]
-		public async Task<IActionResult> GetEmployeesByDepartment(int departmentId)
-		{
+        [HttpGet]
+        public async Task<IActionResult> GetEmployeesByDepartment(int departmentId)
+        {
+            _logger.LogInformation($"Fetching employees for department ID: {departmentId}");
 
-			var employees = await _context.employee_details
-				.Where(ed => ed.departement_id == departmentId)
-				.Select(ed => new
-				{
-					employee_id = ed.employee_id,
-					name = ed.employee.name,
-					position = ed.position
-				})
-				.GroupBy(e => e.employee_id)
-				.Select(g => g.First())
-				.ToListAsync();
+            var employees = await _context.employee_details
+                .Where(ed => ed.departement_id == departmentId)
+                .Select(ed => new
+                {
+                    employee_id = ed.employee_id,
+                    name = ed.employee.name,
+                    position = ed.position
+                })
+                .GroupBy(e => e.employee_id)
+                .Select(g => g.First())
+                .ToListAsync();
 
-			if (!employees.Any())
-			{
-				return NotFound("No employees found for the given department.");
-			}
+            if (!employees.Any())
+            {
+                _logger.LogWarning($"No employees found for department ID: {departmentId}");
+                return NotFound("No employees found for the given department.");
+            }
 
-			_logger.LogInformation($"Found {employees.Count} employees for department ID: {departmentId}");
-			return Ok(employees);
-		}
-
-		[HttpPost]
+            _logger.LogInformation($"Found {employees.Count} employees for department ID: {departmentId}");
+            return Ok(employees);
+        }
+        [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ApproveTransaction(int transaction_id)
         {
@@ -492,19 +518,19 @@ namespace CharityProject.Controllers
 
             return RedirectToAction(nameof(Transactions));
         }
-		[HttpGet]
-		public async Task<IActionResult> GetDepartmentName(int departmentId)
-		{
-			var department = await _context.Department.FindAsync(departmentId);
-			if (department != null)
-			{
-				return Content(department.departement_name);
-			}
-			return Ok();
-		}
+        [HttpGet]
+        public async Task<IActionResult> GetDepartmentName(int departmentId)
+        {
+            var department = await _context.Department.FindAsync(departmentId);
+            if (department != null)
+            {
+                return Content(department.departement_name);
+            }
+            return Ok();
+        }
 
-
-		public async Task<IActionResult> ApproveHoliday(int holidays_history_id)
+        
+        public async Task<IActionResult> ApproveHoliday(int holidays_history_id)
         {
             var holiday = await _context.HolidayHistories.FindAsync(holidays_history_id);
             if (holiday == null)

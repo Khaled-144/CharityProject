@@ -1,4 +1,4 @@
-using CharityProject.Data;
+﻿using CharityProject.Data;
 using CharityProject.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis.Elfie.Diagnostics;
@@ -19,12 +19,50 @@ namespace CharityProject.Controllers
             _context = context;
         }
 
-        public IActionResult Index()
+        
+
+        private int GetEmployeeIdFromSession()
         {
-            return View();
+            var employeeIdString = HttpContext.Session.GetString("Id");
+            if (employeeIdString != null)
+            {
+                return int.Parse(employeeIdString);
+
+            }
+
+            return 0;
         }
 
+        public async Task<IActionResult> Index()
+        {
+            int currentUserId = GetEmployeeIdFromSession();
 
+            // Count transactions based on their status, ensuring no duplicates
+            var newTransactions = await _context.Transactions
+                .Where(t => t.status == "مرسلة" && (t.to_emp_id == currentUserId || t.Referrals.Any(r => r.to_employee_id == currentUserId)))
+                .GroupBy(t => t.transaction_id)
+                .Select(g => g.FirstOrDefault())
+                .CountAsync();
+
+            var ongoingTransactions = await _context.Transactions
+                .Where(t => t.status != "منهاة" && (t.to_emp_id == currentUserId || t.Referrals.Any(r => r.to_employee_id == currentUserId)))
+                .GroupBy(t => t.transaction_id)
+                .Select(g => g.FirstOrDefault())
+                .CountAsync();
+
+            var completedTransactions = await _context.Transactions
+                .Where(t => t.status == "منهاة" && (t.to_emp_id == currentUserId || t.Referrals.Any(r => r.to_employee_id == currentUserId)))
+                .GroupBy(t => t.transaction_id)
+                .Select(g => g.FirstOrDefault())
+                .CountAsync();
+
+            // Passing the counts to the view using ViewBag
+            ViewBag.NewTransactionsCount = newTransactions;
+            ViewBag.OngoingTransactionsCount = ongoingTransactions;
+            ViewBag.CompletedTransactionsCount = completedTransactions;
+
+            return View();
+        }
 
         public async Task<IActionResult> getHolidays()
         {
@@ -33,7 +71,7 @@ namespace CharityProject.Controllers
                     Problem("Entity set 'ApplicationDbContext.HolidayHistories' is null.");
         }
 
-      
+
 
         public IActionResult Letters()
         {
@@ -90,83 +128,86 @@ namespace CharityProject.Controllers
                 ViewData["Password"] = pass;
 
                 return View();
-                
+
             }
         }
 
-        [HttpPost, ActionName("LoginPage")]
+
+
+        [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> LoginPage(string userid, string pass, bool rememberMe)
         {
-            var builder = WebApplication.CreateBuilder();
-            string conStr = builder.Configuration.GetConnectionString("DefaultConnection");
-            using (SqlConnection conn = new SqlConnection(conStr))
+            var user = await _context.employee
+                .Include(e => e.EmployeeDetails)
+                    .ThenInclude(ed => ed.Department)
+                .FirstOrDefaultAsync(e => e.employee_id.ToString() == userid && e.password == pass);
+
+            if (user != null)
             {
-                string sql = @"SELECT e.employee_id,e.password, e.name, ed.permission_position, ed.departement_id, d.departement_name
-                           FROM employee e 
-                           JOIN employee_details ed ON e.employee_id = ed.employee_details_id 
-                           JOIN Department d ON ed.departement_id = d.departement_id
-                           WHERE e.employee_id = @UserId AND e.password = @Password";
+                string id = user.employee_id.ToString();
+                string name = user.name;
+                string permission_position = user.EmployeeDetails.permission_position;
+                string position = user.EmployeeDetails.position;
+                string departmentId = user.EmployeeDetails.departement_id.ToString();
+                string departmentName = user.EmployeeDetails.Department.departement_name;
 
-                using (SqlCommand comm = new SqlCommand(sql, conn))
+                HttpContext.Session.SetString("Id", id);
+                HttpContext.Session.SetString("Name", name);
+                HttpContext.Session.SetString("Position", position);
+                HttpContext.Session.SetString("Permission_position", permission_position);
+                HttpContext.Session.SetString("DepartmentId", departmentId);
+                HttpContext.Session.SetString("DepartmentName", departmentName);
+
+                if (rememberMe)
                 {
-                    comm.Parameters.AddWithValue("@UserId", userid);
-                    comm.Parameters.AddWithValue("@Password", pass);
+                    Response.Cookies.Append("Id", id);
+                    Response.Cookies.Append("pass", user.password);
+                }
 
-                    conn.Open();
-                    using (SqlDataReader reader = await comm.ExecuteReaderAsync())
-                    {
-                        if (await reader.ReadAsync())
-                        {
-                            string id = reader["employee_id"].ToString();
-                            string name = reader["name"].ToString();
-                            string position = reader["permission_position"].ToString();
-                            string departmentId = reader["departement_id"].ToString();
-                            string departmentName = reader["departement_name"].ToString();
-                            string password = reader["password"].ToString();
-                            
-                            HttpContext.Session.SetString("Id", id);
-                            HttpContext.Session.SetString("Name", name);
-                            HttpContext.Session.SetString("Position", position);
-                            HttpContext.Session.SetString("DepartmentId", departmentId);
-                            HttpContext.Session.SetString("DepartmentName", departmentName);
-                            if (rememberMe)
-                            {
-                                HttpContext.Response.Cookies.Append("Id", id);
-                                HttpContext.Response.Cookies.Append("pass", password);
-                            }
+                else if (permission_position == "موظف" || permission_position == "سكريتر المدير التنفيذي")
+                {
+                    return RedirectToAction("Index", "Employees");
+                }
 
-                                if (position == "employee")
-                            {
-                                return RedirectToAction("Index", "Employees");
-                            }
-                            else if (position != "employee" )
-                            {
-                                return RedirectToAction("Index", "Employees");
-                            }
-                            
-                            else
-                            {
-                                ViewData["Message"] = "Unknown position";
-                                return View();
-                            }
-                        }
-                        else
-                        {
-                            ViewData["Message"] = "Wrong username or password";
-                            return View();
-                        }
-                    }
+                else if (permission_position == "مدير الموارد البشرية والمالية")
+                {
+                    return RedirectToAction("Index", "HR");
+                }
+
+                else if (permission_position == "مدير التنمية المالية والاستدامة")
+                {
+                    return RedirectToAction("Index", "FinancialSustainabilityDevelopmentManager");
+                }
+                else if (permission_position == "مدير خدمة المستفيدين")
+                {
+                    return RedirectToAction("Index", "customerServiceManager");
+                }
+                else if (permission_position == "المدير التنفيذي")
+                {
+                    return RedirectToAction("Index", "CEO");
+                }
+
+                else
+                {
+                    ViewData["Message"] = "Unknown position";
+                    return View();
                 }
             }
+            else
+                ViewData["Message"] = "Wrong username or password";
+            return View();
+
         }
 
-      
+
+
+
         public IActionResult Logout()
         {
-           
+
             HttpContext.Session.Clear();
-           
+
             return RedirectToAction("LoginPage");
         }
 

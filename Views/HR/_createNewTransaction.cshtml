@@ -99,11 +99,13 @@
 						<div class="col-span-2 form-group sm:col-span-1 mb-4">
 							<label asp-for="department_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">إلى</label>
 							<select asp-for="department_id"
-									asp-items="@(ViewData["Departments"] as IEnumerable<SelectListItem>)" class="border w-full rounded focus:ring-blue-500 focus:border-blue-500">
+									asp-items="@(ViewData["Departments"] as IEnumerable<SelectListItem>)"
+									class="border w-full rounded focus:ring-blue-500 focus:border-blue-500">
 								<option disabled selected>-- أختر القسم --</option>
 							</select>
 							<span asp-validation-for="department_id" class="text-danger"></span>
 						</div>
+
 						<div class="form-group">
 							<label asp-for="description" class="control-label">وصف المعاملة</label>
 							<input asp-for="description" class="form-control" />

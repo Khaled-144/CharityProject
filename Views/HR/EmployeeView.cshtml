@@ -6,14 +6,16 @@
     <title>قائمة الموظفين</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
         .fade-in {
             animation: fadeIn 0.5s ease-in-out;
         }
-
         .shadow-text {
             text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
         }
-
         .glass-effect {
             background: rgba(255, 255, 255, 0.2);
             backdrop-filter: blur(10px);
@@ -22,7 +24,7 @@
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-green-100 via-emerald-200 to-teal-300 min-h-screen p-8 font-sans">
+<body class="bg-gradient-to-br from-emerald-100 via-teal-200 to-cyan-300 min-h-screen p-8 font-sans">
     <div class="max-w-7xl mx-auto">
         <h2 class="text-5xl font-bold mb-12 text-center text-emerald-800 shadow-text fade-in">قائمة الموظفين</h2>
 
@@ -30,20 +32,20 @@
             var departments = (List<Department>)ViewData["Departments"];
         }
 
-        <div class="glass-effect p-8 mb-10 fade-in">
+        <div class="glass-effect p-8 mb-10 fade-in shadow-lg">
             <form id="searchForm" onsubmit="return false;" class="mb-6">
                 <div class="flex flex-col md:flex-row justify-between space-y-4 md:space-y-0 md:space-x-reverse md:space-x-4">
-                    <a asp-action="CreateEmployee" class="w-full md:w-auto bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-lg px-6 py-3 hover:from-green-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition duration-300 ease-in-out transform hover:scale-105 shadow-lg order-1 md:order-3">
+                    <a asp-action="CreateEmployee" class="w-full md:w-auto bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold rounded-lg px-6 py-3 hover:from-emerald-600 hover:to-teal-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-opacity-50 transition duration-300 ease-in-out transform hover:scale-105 shadow-lg order-1 md:order-3">
                         إضافة موظف
                     </a>
-                    <select id="departmentFilter" class="w-full md:w-1/4 px-4 py-2 rounded-lg border-2 border-emerald-300 focus:outline-none focus:border-emerald-500 transition duration-300 order-3 md:order-2" onchange="filterEmployees()">
+                    <select id="departmentFilter" class="w-full md:w-1/4 px-4 py-3 rounded-lg border-2 border-emerald-300 focus:outline-none focus:border-emerald-500 transition duration-300 order-3 md:order-2 bg-white" onchange="filterEmployees()">
                         <option value="all" selected>كل الأقسام</option>
                         @foreach (var department in departments)
                         {
                             <option value="@department.departement_name">@department.departement_name</option>
                         }
                     </select>
-                    <input id="employeeSearch" name="name" placeholder="بحث عن اسم الموظف" class="w-full md:w-1/2 px-4 py-2 rounded-lg border-2 border-emerald-300 focus:outline-none focus:border-emerald-500 transition duration-300 order-2 md:order-1" type="search" aria-label="search" onkeyup="filterEmployees()" />
+                    <input id="employeeSearch" name="name" placeholder="بحث عن اسم الموظف" class="w-full md:w-1/2 px-4 py-3 rounded-lg border-2 border-emerald-300 focus:outline-none focus:border-emerald-500 transition duration-300 order-2 md:order-1" type="search" aria-label="search" onkeyup="filterEmployees()" />
                 </div>
             </form>
         </div>
@@ -51,16 +53,17 @@
         @if (ViewData["EmployeeList"] != null)
         {
             <div class="overflow-x-auto fade-in">
-                <table id="employeeTable" class="w-full bg-white rounded-lg shadow-lg overflow-hidden">
+                <table id="employeeTable" class="w-full bg-white rounded-lg shadow-xl overflow-hidden">
                     <thead>
-                        <tr class="bg-gradient-to-r from-green-500 to-emerald-600 text-white">
-                            <th class="py-4 px-6">الرقم الوظيفي</th>
-                            <th class="py-4 px-6">الاسم</th>
-                            <th class="py-4 px-6">اسم المستخدم</th>
-                            <th class="py-4 px-6">المنصب</th>
-                            <th class="py-4 px-6">الصلاحيات</th>
-                            <th class="py-4 px-6">اسم القسم</th>
-                            <th class="py-4 px-6">الاجراءت</th>
+                        <tr class="bg-gradient-to-r from-emerald-500 to-teal-600 text-white">
+                            <th class="py-4 px-6 text-right">الرقم الوظيفي</th>
+                            <th class="py-4 px-6 text-right">الاسم</th>
+                            <th class="py-4 px-6 text-right">اسم المستخدم</th>
+                            <th class="py-4 px-6 text-right">المنصب</th>
+                            <th class="py-4 px-6 text-right">الصلاحيات</th>
+                            <th class="py-4 px-6 text-right">اسم القسم</th>
+                            <th class="py-4 px-6 text-right">الملفات</th>
+                            <th class="py-4 px-6 text-right">الاجراءات</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -74,9 +77,21 @@
                                 <td class="py-4 px-6 border-b">@employee.PermissionPosition</td>
                                 <td class="py-4 px-6 border-b">@employee.DepartmentName</td>
                                 <td class="py-4 px-6 border-b">
-                                    <form asp-controller="Employee" asp-action="UpdateEmployee" method="get">
+                                    @if (!string.IsNullOrEmpty(employee.Files))
+                                    {
+                                        <a href="@Url.Action("DownloadFile", "HR", new { employeeId = employee.employee_id })" class="bg-gradient-to-r from-blue-500 to-blue-600 text-white py-2 px-4 rounded-lg hover:from-blue-600 hover:to-blue-700 transition duration-300 ease-in-out transform hover:scale-105 inline-block">
+                                          تحميل
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-gray-500">لا يوجد ملف</span>
+                                    }
+                                </td>
+                                <td class="py-4 px-6 border-b">
+                                    <form asp-controller="HR" asp-action="UpdateEmployee" method="get">
                                         <input type="hidden" name="id" value="@employee.employee_id" />
-                                        <button type="submit" class="bg-gradient-to-r from-green-500 to-green-600 text-white py-2 px-4 rounded hover:from-green-600 hover:to-green-700 transition duration-300 ease-in-out transform hover:scale-105">
+                                        <button type="submit" class="bg-gradient-to-r from-emerald-500 to-teal-600 text-white py-2 px-4 rounded-lg hover:from-emerald-600 hover:to-teal-700 transition duration-300 ease-in-out transform hover:scale-105">
                                             تحديث
                                         </button>
                                     </form>
@@ -89,11 +104,11 @@
         }
         else
         {
-            <p class="text-gray-700 text-center mt-4 text-xl fade-in">لا توجد بيانات لعرضها.</p>
+            <p class="text-gray-700 text-center mt-4 text-xl fade-in bg-white p-8 rounded-lg shadow-lg">لا توجد بيانات لعرضها.</p>
         }
 
         <div class="mt-10 text-center fade-in">
-            <a href="@Url.Action("Index", "Home")" class="text-emerald-600 hover:text-emerald-800 text-lg font-semibold transition duration-300">العودة إلى الصفحة الرئيسية</a>
+            <a href="@Url.Action("Index", "Home")" class="text-emerald-600 hover:text-emerald-800 text-lg font-semibold transition duration-300 bg-white px-6 py-3 rounded-lg shadow-md hover:shadow-lg">العودة إلى الصفحة الرئيسية</a>
         </div>
     </div>
 
