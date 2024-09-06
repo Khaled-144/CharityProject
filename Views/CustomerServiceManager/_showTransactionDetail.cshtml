@@ -251,7 +251,7 @@
 	});
 </script>
 <script>
-	$("#department_id").change(function () {
+	$("#department_id").off('change').on('change', function () {
 		var departmentId = $(this).val();
 		var employeeDropdown = $("#to_employee_id");
 		employeeDropdown.empty();
@@ -260,11 +260,12 @@
 		if (departmentId) {
 			console.log("Selected department ID:", departmentId);
 			$.ajax({
-				url: '@Url.Action("GetEmployeesByDepartment", "CustomerServiceManager")',
+				url: '@Url.Action("GetEmployeesByDepartment", "Employees")',
 				type: 'GET',
 				data: { departmentId: departmentId },
 				success: function (data) {
 					console.log("Received data:", data);
+
 					if (data && data.length > 0) {
 						$.each(data, function (index, item) {
 							employeeDropdown.append($('<option></option>')
@@ -284,6 +285,7 @@
 			});
 		}
 	});
+
 </script>
 <script>
 	$(document).ready(function () {
@@ -291,7 +293,7 @@
 		var transactionId = @Model.transaction_id;
 
 		$.ajax({
-			url: '@Url.Action("GetDepartmentName", "CustomerServiceManager")',
+			url: '@Url.Action("GetDepartmentName", "Employees")',
 			type: 'GET',
 			data: { departmentId: departmentId },
 			success: function (data) {

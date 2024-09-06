@@ -172,7 +172,7 @@ namespace CharityProject.Controllers
                     t.to_emp_id == employeeId ||
                      t.department_id == 5 || // Transactions sent to the employee
 
-                    t.Referrals.Any(r => r.to_employee_id == employeeId))
+                    t.Referrals.Any(r => r.to_employee_id == employeeId && r.from_employee_id == employeeId))
                  // Transactions for the manager's department or from department 5
                  )  // Transactions referred to the employee
                 .OrderByDescending(t => t.transaction_id)
@@ -447,33 +447,32 @@ namespace CharityProject.Controllers
 
             return RedirectToAction(nameof(Transactions));
         }
-        [HttpGet]
-        public async Task<IActionResult> GetEmployeesByDepartment(int departmentId)
-        {
-            _logger.LogInformation($"Fetching employees for department ID: {departmentId}");
+		[HttpGet]
+		public async Task<IActionResult> GetEmployeesByDepartment(int departmentId)
+		{
 
-            var employees = await _context.employee_details
-                .Where(ed => ed.departement_id == departmentId)
-                .Select(ed => new
-                {
-                    employee_id = ed.employee_id,
-                    name = ed.employee.name,
-                    position = ed.position
-                })
-                .GroupBy(e => e.employee_id)
-                .Select(g => g.First())
-                .ToListAsync();
+			var employees = await _context.employee_details
+				.Where(ed => ed.departement_id == departmentId)
+				.Select(ed => new
+				{
+					employee_id = ed.employee_id,
+					name = ed.employee.name,
+					position = ed.position
+				})
+				.GroupBy(e => e.employee_id)
+				.Select(g => g.First())
+				.ToListAsync();
 
-            if (!employees.Any())
-            {
-                _logger.LogWarning($"No employees found for department ID: {departmentId}");
-                return NotFound("No employees found for the given department.");
-            }
+			if (!employees.Any())
+			{
+				return NotFound("No employees found for the given department.");
+			}
 
-            _logger.LogInformation($"Found {employees.Count} employees for department ID: {departmentId}");
-            return Ok(employees);
-        }
-        [HttpPost]
+			_logger.LogInformation($"Found {employees.Count} employees for department ID: {departmentId}");
+			return Ok(employees);
+		}
+
+		[HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ApproveTransaction(int transaction_id)
         {
@@ -493,19 +492,19 @@ namespace CharityProject.Controllers
 
             return RedirectToAction(nameof(Transactions));
         }
-        [HttpGet]
-        public async Task<IActionResult> GetDepartmentName(int departmentId)
-        {
-            var department = await _context.Department.FindAsync(departmentId);
-            if (department != null)
-            {
-                return Content(department.departement_name);
-            }
-            return Ok();
-        }
+		[HttpGet]
+		public async Task<IActionResult> GetDepartmentName(int departmentId)
+		{
+			var department = await _context.Department.FindAsync(departmentId);
+			if (department != null)
+			{
+				return Content(department.departement_name);
+			}
+			return Ok();
+		}
 
-        
-        public async Task<IActionResult> ApproveHoliday(int holidays_history_id)
+
+		public async Task<IActionResult> ApproveHoliday(int holidays_history_id)
         {
             var holiday = await _context.HolidayHistories.FindAsync(holidays_history_id);
             if (holiday == null)
