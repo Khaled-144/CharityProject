@@ -23,10 +23,10 @@
                                 @Html.DisplayFor(model => model.from_departement_name)
                             </dd>
                             <dt class="col-sm-4 mb-2">
-                               إلى الموظف رقم
+                               إلى الموظف 
                             </dt>
                             <dd class="col-sm-8 mb-3">
-                                @Html.DisplayFor(model => model.to_emp_id)
+                                @Html.DisplayFor(model => model.employee.name)
                             </dd>
 
                             <dt class="col-sm-4 mb-2">
@@ -43,7 +43,7 @@
                             </dd>
 
                             <dt class="col-sm-4 mb-2">
-                                تاريخ البدء
+                                تاريخ الاستلام
                             </dt>
                             <dd class="col-sm-8 mb-3">
                                 @Html.DisplayFor(model => model.receive_date)

@@ -202,9 +202,9 @@ namespace CharityProject.Controllers
 			return View(referrals);
 		}
 
-		// End of khaled work -----------------------------------------------------
-
-		private int GetEmployeeIdFromSession()
+        // End of khaled work -----------------------------------------------------
+       
+        private int GetEmployeeIdFromSession()
         {
             var employeeIdString = HttpContext.Session.GetString("Id");
             if (employeeIdString != null)
@@ -255,22 +255,29 @@ namespace CharityProject.Controllers
                 Value = e.employee_id.ToString(),
                 Text = e.name
             }).ToList();
-			// Filter transactions based on the current user's ID
-			var transactions = await _context.Transactions
-				.Where(t => t.to_emp_id == currentUserId)
-				.ToListAsync();
+            // Filter transactions based on the current user's ID
 
-			int internalCount = await _context.Transactions
+
+            int internalCount = await _context.Transactions
                 .Include(t => t.Referrals)
                     .ThenInclude(r => r.from_employee)
                 .Include(t => t.Referrals)
                     .ThenInclude(r => r.to_employee)
-                 .Where(t => (t.status == "مرسلة" && t.Employee_detail.departement_id == employeeDetails.departement_id) || (t.status == "مرسلة" && t.to_emp_id == currentUserId) || // Transactions sent to the employee
-                    t.Referrals.Any(r => r.to_employee_id == currentUserId || r.to_employee_id == hrManager.employee_details_id)
-                
-                 )  
-                .CountAsync();
-			int holidaysCount = await _context.HolidayHistories
+                .Where(t =>
+    (t.status == "مرسلة" && t.Employee_detail.departement_id == employeeDetails.departement_id) ||
+    (t.status == "مرسلة" && (t.to_emp_id == currentUserId||t.to_emp_id==hrManager.employee_id)) || // Transactions sent to the employee
+    (t.Referrals.Any() && // Ensure there are referrals
+        (
+            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == currentUserId ||
+            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == hrManager.employee_id
+        ) &&
+        (
+            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == currentUserId ||
+            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == hrManager.employee_id
+        )
+
+     )).CountAsync();
+            int holidaysCount = await _context.HolidayHistories
                  .Where(h => h.status == "موافقة المدير المباشر" || (h.status == "مرسلة" && h.Employee_detail.departement_id == employeeDetails.departement_id))
                 .CountAsync();
 			int lettersCount = await _context.letters
@@ -286,7 +293,7 @@ namespace CharityProject.Controllers
 			ViewBag.LettersCount = lettersCount;
 			ViewBag.AssetsCount = assetsCount;
 
-			return View(transactions);
+			return View();
 		}
 		[HttpGet]
 		public async Task<IActionResult> GetDepartmentName(int departmentId)
@@ -312,11 +319,22 @@ namespace CharityProject.Controllers
 					.ThenInclude(r => r.from_employee)
 				.Include(t => t.Referrals)
 					.ThenInclude(r => r.to_employee)
-				.Where(t => (t.status == "مرسلة" && t.Employee_detail.departement_id == emplyee_Details.departement_id) ||(t.status=="مرسلة"&&t.to_emp_id==employeeId)|| // Transactions sent to the employee
-					t.Referrals.Any(r => r.to_employee_id == employeeId||r.to_employee_id == hrManager.employee_details_id)
-				 // Transactions for the manager's department or from department 5
-				 )  // Transactions referred to the employee
-				.OrderByDescending(t => t.transaction_id)
+                .Where(t =>
+    (t.status == "مرسلة" && t.Employee_detail.departement_id == emplyee_Details.departement_id) ||
+    (t.status == "مرسلة" && (t.to_emp_id == employeeId || t.to_emp_id == hrManager.employee_id)) || // Transactions sent to the employee
+    (t.Referrals.Any() && // Ensure there are referrals
+        (
+            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == employeeId ||
+            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == hrManager.employee_id
+        ) &&
+        (
+            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == employeeId ||
+            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == hrManager.employee_id
+        )
+    )
+)
+
+                .OrderByDescending(t => t.transaction_id)
 				.ToListAsync();
 			var employeeIds = transactions.SelectMany(t => new[] { t.from_emp_id, t.to_emp_id }).Distinct().ToList();
 			var employees = await _context.employee
@@ -340,9 +358,8 @@ namespace CharityProject.Controllers
         {
 
 
-
-
             var charter = await _context.charter
+                .Include(c=>c.employee)
                 .Where(c=>c.status != "مسلمة")
                 .OrderByDescending(t => t.charter_id) // Order by transaction_id in descending order
                 .ToListAsync();
@@ -393,7 +410,7 @@ namespace CharityProject.Controllers
         // Create Actions  --------------------------------------------------------
 
 
-  
+
 
 
 
@@ -401,28 +418,55 @@ namespace CharityProject.Controllers
         {
             ViewData["Departments"] = _context.Department.Select(d => new SelectListItem
             {
-                Value = d.departement_name,
+                Value = d.departement_id.ToString(),
                 Text = d.departement_name
             }).ToList();
 
-            ViewData["Employees"] = _context.employee.Select(e => new SelectListItem
-            {
-                Value = e.employee_id.ToString(),
-                Text = e.name
-            }).ToList();
-
+            // Initial load, employees list will be empty until a department is selected.
+            ViewData["Employees"] = new List<SelectListItem>();
         }
+
+        // New action to get employees by department
+        [HttpGet]
+        public async Task<IActionResult> GetEmployeesByDepartment(int departmentId)
+        {
+            _logger.LogInformation($"Fetching employees for department ID: {departmentId}");
+
+            var employees = await _context.employee_details
+                .Where(ed => ed.departement_id == departmentId)
+                .Select(ed => new
+                {
+                    employee_id = ed.employee_id,
+                    name = ed.employee.name,
+                    position = ed.position
+                })
+                .GroupBy(e => e.employee_id)
+                .Select(g => g.First())
+                .ToListAsync();
+
+            if (!employees.Any())
+            {
+                _logger.LogWarning($"No employees found for department ID: {departmentId}");
+                return NotFound("No employees found for the given department.");
+            }
+
+            _logger.LogInformation($"Found {employees.Count} employees for department ID: {departmentId}");
+            return Ok(employees);
+        }
+
+
 
         // POST: Charters/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create_Charter([Bind("charter_id,charter_info,serial_number,creation_date,from_departement_name,status,notes,to_departement_name,to_emp_id,receive_date,end_date")] charter charter)
+        public async Task<IActionResult> Create_Charter([Bind("charter_id,charter_info,serial_number,creation_date,notes,to_departement_name,to_emp_id,receive_date,end_date")] charter charter)
         {
 
 
-
+            charter.status = "غير مسلمة";
+            charter.from_departement_name = "الموارد البشرية والمالية";
             _context.Add(charter);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Transactions));
@@ -1369,7 +1413,7 @@ namespace CharityProject.Controllers
                 }
 
 
-                if (employee_permission_position == "المدير التنفيذي")
+                if (employee_permission_position.Trim() == "المدير التنفيذي")
                 {
                     if (department != null)
                     {
@@ -1594,7 +1638,7 @@ namespace CharityProject.Controllers
             }
 
 
-            if (permission_position == "المدير التنفيذي")
+            if (permission_position.Trim() == "المدير التنفيذي")
             {
                 if (department != null)
                 {
@@ -1646,7 +1690,7 @@ namespace CharityProject.Controllers
 
 
         [HttpGet]
-		[Route("ControllerName/GetRemainingHolidayBalance")]
+		[Route("HR/GetRemainingHolidayBalance")]
 		public IActionResult GetRemainingHolidayBalance(int holidayId)
 		{
 			var employeeId = GetEmployeeIdFromSession(); // Ensure this is returning the correct employee ID
