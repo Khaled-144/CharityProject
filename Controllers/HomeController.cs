@@ -217,5 +217,37 @@ namespace CharityProject.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+
+
+        /// <summary>
+        /// ////PasssssssssssssssssssWorrrd
+        /// </summary>
+        /// <returns></returns>
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResetPassword(string userid, string newPassword)
+        {
+            // Fetch the user by their employee ID
+            var user = await _context.employee.FirstOrDefaultAsync(e => e.employee_id.ToString() == userid);
+
+            if (user != null)
+            {
+                // Update the user's password
+                user.password = newPassword;
+                _context.Update(user);
+                await _context.SaveChangesAsync();
+
+                ViewData["Message"] = "تم تغيير كلمة المرور بنجاح";
+                return RedirectToAction("LoginPage");
+            }
+
+            ViewData["Message"] = "المستخدم غير موجود";
+            return View("ForgotPassword");
+        }
     }
 }
