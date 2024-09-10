@@ -1,0 +1,32 @@
+﻿
+
+<div class="modal fade" id="editPerModal" tabindex="-1" role="dialog" aria-labelledby="editPerModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editPerModalLabel">تعديل صلاحيات الموظف</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form asp-action="UpdatePermission" method="post">
+                    <input type="hidden" name="id" value="@Model.employee_id" />
+                    <div class="form-group">
+                        <label for="permissionPosition">الصلاحيات:</label>
+                        <select class="form-control" id="permissionPosition" name="permissionPosition">
+                            <option disabled slected >موظف</option>
+                            <option value="موظف">موظف</option>
+                            <option value="مدير الموارد البشرية والمالية" >مدير</option>
+                           
+                        </select>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">إغلاق</button>
+                        <button type="submit" class="btn btn-primary">حفظ التغييرات</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

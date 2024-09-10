@@ -41,7 +41,7 @@
                 <div class="py-4 overflow-y-auto">
                     <ul class="space-y-2 font-medium">
                         <li>
-                            <a asp-controller="HR" asp-action="Index" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-black hover:bg-gray-100 dark:hover:bg-gray-700 group">
+                            <a asp-controller="CustomerServiceManager" asp-action="Index" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-black hover:bg-gray-100 dark:hover:bg-gray-700 group">
                                 <svg class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 21">
                                     <path d="M16.975 11H10V4.025a1 1 0 0 0-1.066-.998 8.5 8.5 0 1 0 9.039 9.039.999.999 0 0 0-1-1.066h.002Z" />
                                     <path d="M12.5 0c-.157 0-.311.01-.565.027A1 1 0 0 0 11 1.02V10h8.975a1 1 0 0 0 1-.935c.013-.188.028-.374.028-.565A8.51 8.51 0 0 0 12.5 0Z" />
@@ -50,7 +50,7 @@
                             </a>
                         </li>
                         <li>
-                            <a asp-controller="HR" asp-action="Transactions" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-black hover:bg-gray-100 dark:hover:bg-gray-700 group">
+                            <a asp-controller="CustomerServiceManager" asp-action="Transactions" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-black hover:bg-gray-100 dark:hover:bg-gray-700 group">
                                 <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
                                     <path fill-rule="evenodd" d="M6.912 3a3 3 0 0 0-2.868 2.118l-2.411 7.838a3 3 0 0 0-.133.882V18a3 3 0 0 0 3 3h15a3 3 0 0 0 3-3v-4.162c0-.299-.045-.596-.133-.882l-2.412-7.838A3 3 0 0 0 17.088 3H6.912Zm13.823 9.75-2.213-7.191A1.5 1.5 0 0 0 17.088 4.5H6.912a1.5 1.5 0 0 0-1.434 1.059L3.265 12.75H6.11a3 3 0 0 1 2.684 1.658l.256.513a1.5 1.5 0 0 0 1.342.829h3.218a1.5 1.5 0 0 0 1.342-.83l.256-.512a3 3 0 0 1 2.684-1.658h2.844Z" clip-rule="evenodd" />
                                 </svg>
@@ -74,18 +74,6 @@
                             </a>
                         </li>
                         <li>
-                            <a asp-controller="HR" asp-action="ViewDevice" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-black hover:bg-gray-100 dark:hover:bg-gray-700 group">
-                                <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30">
-                                    <g transform="translate(0,30) scale(0.1,-0.1)" fill="#000000" stroke="none">
-                                        <path d="M27 253 c-4 -3 -7 -43 -7 -89 0 -54 -4 -84 -12 -86 -21 -7 3 -28 33 -28 22 0 29 5 29 20 0 11 -7 20 -15 20 -12 0 -15 15 -15 75 l0 75 105 0 c63 0 105 4 105 10 0 11 -212 14 -223 3z" />
-                                        <path d="M167 214 c-16 -16 -4 -20 53 -16 l60 4 0 -66 c0 -70 -1 -71 -57 -69 -7 1 -13 -6 -13 -14 0 -11 11 -13 43 -11 l42 3 0 85 0 85 -60 3 c-34 2 -64 0 -68 -4z" />
-                                        <path d="M94 157 c-3 -8 -4 -39 -2 -68 l3 -54 45 0 45 0 0 65 0 65 -43 3 c-29 2 -44 -1 -48 -11z m76 -56 c0 -50 -13 -67 -45 -55 -11 4 -15 21 -15 55 0 48 1 49 30 49 29 0 30 -1 30 -49z" />
-                                    </g>
-                                </svg>
-                                <span class="ms-3 whitespace-nowrap">حصر الاجهزة</span>
-                            </a>
-                        </li>
-                        <li>
                             <a asp-controller="HR" asp-action="EmployeeView" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-black hover:bg-gray-100 dark:hover:bg-gray-700 group">
                                 <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="50.000000pt" height="50.000000pt" viewBox="0 0 50.000000 50.000000" preserveAspectRatio="xMidYMid meet">
                                     <g transform="translate(0.000000,50.000000) scale(0.100000,-0.100000)" fill="#000000" stroke="none">
@@ -103,23 +91,6 @@
                                     </g>
                                 </svg>
                                 <span class="ms-3 whitespace-nowrap">الأقسام</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a asp-controller="HR" asp-action="_GetAllSalaries" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-black hover:bg-gray-100 dark:hover:bg-gray-700 group">
-                                <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                                     width="60.000000pt" height="60.000000pt" viewBox="0 0 60.000000 60.000000"
-                                     preserveAspectRatio="xMidYMid meet">
-                                    <g transform="translate(0.000000,60.000000) scale(0.100000,-0.100000)"
-                                       fill="#000000" stroke="none">
-                                        <path d="M120 535 c-7 -9 -10 -25 -6 -41 8 -30 20 -24 21 9 0 21 5 22 89 25 49 2 93 -1 98 -6 6 -6 3 -24 -6 -46 l-15 -36 -91 0 c-69 0 -91 -3 -88 -12 3 -7 -12 -34 -33 -60 -49 -63 -82 -151 -76 -202 3 -21 0 -47 -6 -57 -9 -14 -9 -24 -1 -37 10 -15 32 -17 173 -20 105 -2 161 1 161 8 0 6 -56 10 -155 10 -134 0 -156 2 -162 16 -4 10 0 20 10 25 13 8 14 15 5 40 -19 54 15 146 84 224 l40 45 68 0 68 0 41 -47 c41 -46 41 -46 22 -67 -30 -34 -41 -62 -41 -108 0 -150 196 -191 266 -56 31 60 6 139 -58 178 -35 21 -88 27 -88 10 0 -5 14 -10 30 -10 42 0 99 -54 106 -101 12 -76 -45 -139 -126 -139 -34 0 -48 6 -76 34 -30 30 -34 40 -34 86 0 44 4 56 30 82 17 16 30 33 30 38 0 5 -15 28 -33 52 -19 24 -32 49 -29 56 2 7 -1 12 -7 12 -6 0 -4 14 5 35 11 26 12 41 4 55 -10 18 -21 20 -109 20 -75 0 -101 -4 -111 -15z" />
-                                        <path d="M92 285 c-13 -28 -17 -83 -5 -71 7 7 33 76 33 89 0 17 -18 5 -28 -18z" />
-                                        <path d="M433 262 c-34 -38 -26 -65 22 -74 32 -5 25 -33 -7 -31 -33 2 -34 -1 -8 -27 l21 -21 19 23 c29 35 25 57 -15 74 -19 8 -35 18 -35 23 0 15 32 22 47 10 25 -21 27 0 2 24 l-24 24 -22 -25z" />
-                                        <path d="M115 130 c-4 -6 12 -10 40 -10 28 0 44 4 40 10 -3 6 -21 10 -40 10 -19 0 -37 -4 -40 -10z" />
-                                        <path d="M225 130 c-3 -5 -1 -10 4 -10 6 0 11 5 11 10 0 6 -2 10 -4 10 -3 0 -8 -4 -11 -10z" />
-                                    </g>
-                                </svg>
-                                <span class="ms-3 whitespace-nowrap">الرواتب</span>
                             </a>
                         </li>
                     </ul>

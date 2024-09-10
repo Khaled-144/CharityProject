@@ -78,7 +78,7 @@ namespace CharityProject.Controllers
         public async Task<IActionResult> Index()
         {
             int currentUserId = GetEmployeeIdFromSession();
-
+            
             // Count transactions based on their status, ensuring no duplicates
             var newTransactions = await _context.Transactions
                 .Where(t => t.status == "مرسلة" && (t.to_emp_id == currentUserId || t.Referrals.Any(r => r.to_employee_id == currentUserId)))
@@ -109,6 +109,55 @@ namespace CharityProject.Controllers
         public async Task<IActionResult> Archive() { return View(); }
 
         //-----------------------------------------------------------------------------{ Transactions Actions }-----------------------------------------------
+        public async Task<IActionResult> Transactions()
+        {
+            // Retrieve the current user's ID from the session or context
+            int currentUserId = GetEmployeeIdFromSession();
+
+            ViewData["Departments"] = _context.Department.Select(d => new SelectListItem
+            {
+                Value = d.departement_id.ToString(),
+                Text = d.departement_name
+            }).ToList();
+
+            // Filter transactions based on the current user's ID
+            var transactions = await _context.Transactions
+                .Where(t => t.to_emp_id == currentUserId)
+                .ToListAsync();
+
+            int internalCount = await _context.Transactions
+                .Include(t => t.Referrals)
+                    .ThenInclude(r => r.from_employee)
+                .Include(t => t.Referrals)
+                    .ThenInclude(r => r.to_employee)
+                .Where(t => t.status != "منهاة" &&
+                    (t.to_emp_id == currentUserId ||
+                     t.Referrals.Any(r => r.to_employee_id == currentUserId && r.from_employee_id == currentUserId))
+                )
+                .CountAsync();
+
+            int holidaysCount = await _context.HolidayHistories
+                .Where(h => h.emp_id == currentUserId)
+                .CountAsync();
+            int externalCount = await _context.ExternalTransactions
+               .CountAsync();
+            int lettersCount = await _context.letters
+                .Where(l => l.to_emp_id == currentUserId || l.to_emp_id == currentUserId)
+                .CountAsync();
+            int assetsCount = await _context.charter
+                .Where(c => c.to_emp_id == currentUserId)
+                .CountAsync();
+
+            // Passing the counts to the view using ViewBag
+            ViewBag.InternalCount = internalCount;
+            ViewBag.HolidaysCount = holidaysCount;
+            ViewBag.LettersCount = lettersCount;
+            ViewBag.ExternalCount = externalCount;
+            ViewBag.AssetsCount = assetsCount;
+
+            return View(transactions);
+        }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -157,52 +206,76 @@ namespace CharityProject.Controllers
             return RedirectToAction(nameof(Transactions));
         }
 
+        [HttpGet]
+        [Route("Employees/GetNextReceivingNumber")]
 
-        public async Task<IActionResult> Transactions()
+        public JsonResult GetNextReceivingNumber()
         {
-            // Retrieve the current user's ID from the session or context
-            int currentUserId = GetEmployeeIdFromSession();
+            var lastTransaction = _context.ExternalTransactions.OrderByDescending(t => t.external_transactions_id).FirstOrDefault();
+            int nextReceivingNumber = (lastTransaction != null) ? lastTransaction.external_transactions_id + 1 : 1;
 
-            ViewData["Departments"] = _context.Department.Select(d => new SelectListItem
-            {
-                Value = d.departement_id.ToString(),
-                Text = d.departement_name
-            }).ToList();
-
-            // Filter transactions based on the current user's ID
-            var transactions = await _context.Transactions
-                .Where(t => t.to_emp_id == currentUserId)
-                .ToListAsync();
-
-            int internalCount = await _context.Transactions
-                .Include(t => t.Referrals)
-                    .ThenInclude(r => r.from_employee)
-                .Include(t => t.Referrals)
-                    .ThenInclude(r => r.to_employee)
-                .Where(t => t.status != "منهاة" &&
-                    (t.to_emp_id == currentUserId ||
-                     t.Referrals.Any(r => r.to_employee_id == currentUserId && r.from_employee_id == currentUserId))
-                )
-                .CountAsync();
-
-            int holidaysCount = await _context.HolidayHistories
-                .Where(h => h.emp_id == currentUserId)
-                .CountAsync();
-            int lettersCount = await _context.letters
-                .Where(l => l.to_emp_id == currentUserId || l.to_emp_id == currentUserId)
-                .CountAsync();
-            int assetsCount = await _context.charter
-                .Where(c => c.to_emp_id == currentUserId)
-                .CountAsync();
-
-            // Passing the counts to the view using ViewBag
-            ViewBag.InternalCount = internalCount;
-            ViewBag.HolidaysCount = holidaysCount;
-            ViewBag.LettersCount = lettersCount;
-            ViewBag.AssetsCount = assetsCount;
-
-            return View(transactions);
+            return Json(nextReceivingNumber);
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateExternalTransaction([Bind("name,identity_number,status,communication,case_status,sending_party,receiving_date,sending_number,sending_date,receiving_number")] ExternalTransaction transaction)
+        {
+
+            // Add the transaction to the context
+            _context.Add(transaction);
+
+            // Save changes to the database
+            await _context.SaveChangesAsync();
+
+            // Redirect to a confirmation page or another action
+            return RedirectToAction(nameof(Transactions)); // Change "Index" to the appropriate action or page
+        }
+
+        [HttpGet]
+        // Action method to retrieve all external transactions
+        public async Task<IActionResult> GetAllExternalTransactions()
+        {
+            // Retrieve all external transactions from the database
+            var transactions = await _context.ExternalTransactions.ToListAsync();
+            if (transactions.Count == 0)
+            {
+                // Render the _NothingNew partial view if no transactions
+                return PartialView("_NothingNew");
+            }
+            // Return the view with the list of transactions
+            return PartialView("_getAllExternalTransactios", transactions);
+        }
+
+        [HttpPost]
+        public IActionResult UpdateExternalTransaction(ExternalTransaction model)
+        {
+            var transaction = _context.ExternalTransactions
+                .FirstOrDefault(t => t.external_transactions_id == model.external_transactions_id);
+
+            if (transaction != null)
+            {
+                transaction.name = model.name;
+                transaction.identity_number = model.identity_number;
+                transaction.status = model.status;
+                transaction.communication = model.communication;
+                transaction.case_status = model.case_status;
+                transaction.sending_party = model.sending_party;
+                transaction.receiving_date = model.receiving_date;
+                transaction.sending_date = model.sending_date;
+                transaction.receiving_number = model.receiving_number;
+
+                // Save changes to the database
+                _context.SaveChanges();
+
+                return RedirectToAction(nameof(Transactions));
+            }
+            else
+            {
+                return RedirectToAction(nameof(Transactions));
+            }
+        }
+
 
         [HttpGet]
         public async Task<IActionResult> GetDepartmentName(int departmentId)
@@ -225,7 +298,7 @@ namespace CharityProject.Controllers
                     .ThenInclude(r => r.from_employee)
                 .Include(t => t.Referrals)
                     .ThenInclude(r => r.to_employee)
-                .Where(t => t.status != "منهاة" && (t.to_emp_id == employeeId || t.Referrals.Any(r => r.to_employee_id == employeeId && r.from_employee_id == employeeId)))
+                .Where(t => (t.status == "مرسلة" && t.to_emp_id == employeeId) || (t.Referrals.Any(r => r.to_employee_id == employeeId && r.from_employee_id == employeeId)))
                 .OrderByDescending(t => t.transaction_id)
                 .ToListAsync();
 
@@ -576,8 +649,6 @@ namespace CharityProject.Controllers
             // Render the _getAllLetters partial view if there are letters
             return PartialView("_getAllLetters", letters);
         }
-
-
 
         public async Task<IActionResult> GetArchivedLetters()
         {

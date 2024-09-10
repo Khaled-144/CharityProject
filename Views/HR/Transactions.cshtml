@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<CharityProject.Models.Transaction>
 
 @{
-    Layout = "_Layout";
+    Layout = "_Layout_HR";
     ViewData["PageTitle"] = "المعاملات";
     ViewData["Title"] = "صفحة المعاملات";
 }
@@ -45,15 +45,29 @@
                     <li>
                         <button type="button" data-toggle="modal" data-target="#insertLetterModal" id="modal-toggle-button" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">خطاب</button>
                     </li>
-
                     <li>
                         <button type="button" data-toggle="modal" data-target="#insertChartersModal" id="modal-toggle-button" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">عهدة</button>
                     </li>
                 </ul>
             </div>
         </div>
-
+        <!-- Search and filter -->
         <div class="mx-4">
+            <form id="searchForm">
+                <div class="flex justify-evenly">
+                    <input name="searchTerm" placeholder="رقم المعاملة أو العنوان" class="form-control mr-2" type="search" aria-label="search" />
+                    <select name="sortOrder" id="sortOrder" class="bg-white border border-primaryButtons px-5 text-black text-sm rounded-lg text-center focus:ring-blue-500 focus:border-blue-500 block mr-2">
+                        <option selected>فلترة</option>
+                        <option value="newest">الاحدث</option>
+                        <option value="oldest">الاقدم</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- كود مين هذا ؟؟ -->
+        <!-- <div class="mx-4">
             <form id="searchForm">
                 <div class="flex justify-evenly">
                     <input name="id" placeholder="رقم المعاملة" class="form-control mr-2" type="search" aria-label="search" />
@@ -66,7 +80,7 @@
                 </div>
             </form>
         </div>
-    </div>
+    </div> -->
 
     <div class="mb-4 border-b border-gray-200 dark:border-gray-700">
         <ul class="flex flex-wrap -mb-px text-xl font-medium text-center" id="default-tab" role="tablist">
@@ -128,7 +142,8 @@
         });
     </script>
 
-    <script>
+    <!-- كود مين هذا ؟؟ -->
+    @*<script>
         $(document).ready(function () {
             function loadTransactions() {
                 $("#loadingIndicator").show(); // Show loading indicator
@@ -160,10 +175,10 @@
                 loadTransactions(); // Call the function
             });
         });
-    </script>
+    </script>*@
 
 
-  @*   <script>
+   <script>
         $(document).ready(function () {
             var searchTimer;
 
@@ -178,7 +193,7 @@
                 console.log("Searching with term:", searchTerm);
                 console.log("Sort order:", sortOrder);
                 console.log("Active tab:", activeTab);
-
+                
                 var url;
                 switch (activeTab) {
                     case "internal-tab":
@@ -196,14 +211,19 @@
                     default:
                         url = '@Url.Action("SearchTransactions", "Employees")';
                 }
-
+    
                 $.ajax({
                     url: url,
                     type: 'GET',
                     data: { searchTerm: searchTerm, sortOrder: sortOrder },
                     success: function (result) {
                         console.log("Received data:", result);
-                        $("#tab-content-container").html(result);
+                        if (result.trim() === "") {
+                            // If the result is empty, load the _NothingNew tab
+                            $("#tab-content-container").load('@Url.Action("_NothingNew", "Employees")');
+                        } else {
+                            $("#tab-content-container").html(result);
+                        }
                         $("#loadingIndicator").hide();
                         $("#tab-content-container").show();
                     },
@@ -219,7 +239,7 @@
             }
 
             // Trigger search on input change with a delay
-            $("#searchForm input[name='searchTerm']").on('input', function () {
+            $("#searchForm input[name='searchTerm']").on('input', function() {
                 clearTimeout(searchTimer);
                 searchTimer = setTimeout(loadTransactions, 1000); // 1000ms delay
             });
@@ -237,7 +257,7 @@
             // Initial load
             loadTransactions();
         });
-    </script> *@
+    </script>
 </body>
 
 </html>

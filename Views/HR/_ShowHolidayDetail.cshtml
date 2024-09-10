@@ -71,16 +71,20 @@
                             <dd class="col-sm-8">
                                 @if (!string.IsNullOrEmpty(Model.files))
                                 {
-                                    <a href="@fileUrl" target="_blank">@Model.files</a>
+                                    <a href="@Url.Action("DownloadFile_HY", "HR", new { holidayId=Model.holidays_history_id })" class="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-3 py-1.5 rounded-sm hover:from-blue-600 hover:to-blue-700 transition duration-300 ease-in-out transform hover:scale-105 text-xs">
+                                        تحميل
+                                    </a>
+
                                 }
                                 else
                                 {
-                                    <span>لا توجد مرفقات</span>
+                                    <span class="text-gray-500">لا يوجد ملف</span>
                                 }
+                                </td>
                             </dd>
                         </dl>
                     </div>
-                    <div class="flex  items-center justify-content-evenly">
+                    <div class="flex  items-center justify-content-evenly mt-2">
                         <!-- Approval Button -->
                         <button type="button" class="text-white bg-green-500 hover:bg-green-600 focus:ring-4 focus:ring-green-300 transition duration-300 ease-in-out font-medium rounded-md text-sm px-4 py-2" data-toggle="modal" data-target="#confirmApprovalModal-@Model.holidays_history_id">
                             موافقة 
@@ -136,7 +140,7 @@
             <div class="modal-body">
                 هل أنت متأكد أنك تريد رفض هذه الاجازة؟
             </div>
-            <div class="modal-footer  items-center flex justify-content-center">
+            <div class="modal-footer items-center flex justify-content-center">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">إلغاء</button>
                 <button type="button" class="btn btn-danger" onclick="submitRejectionForm(@Model.holidays_history_id)">تأكيد</button>
             </div>
