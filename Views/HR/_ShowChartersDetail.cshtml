@@ -53,7 +53,7 @@
                     </div>
                     <div class="flex mt-5 justify-center">
                         @* Check if the status is not "Closed" to show the button *@
-                        @if (Model.status !="تم الإقرار")
+                        @if (Model.status !="مستلمة")
                         {
                             @* Use a form to submit the status update *@
                             @using (Html.BeginForm("UpdateStatus", "Charters", FormMethod.Post, new { id = $"updateStatusForm-{Model.charter_id}" }))

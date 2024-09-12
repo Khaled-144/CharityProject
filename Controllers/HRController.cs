@@ -265,7 +265,7 @@ namespace CharityProject.Controllers
                 .Include(t => t.Referrals)
                     .ThenInclude(r => r.to_employee)
                 .Where(t =>
-    (t.status == "مرسلة" && t.Employee_detail.departement_id == employeeDetails.departement_id) ||
+    (t.status == "مرسلة" && t.Employee_detail.departement_id == employeeDetails.departement_id && t.Employee_detail.employee_id != employeeDetails.employee_id) ||
     (t.status == "مرسلة" && (t.to_emp_id == currentUserId||t.to_emp_id==hrManager.employee_id)) || // Transactions sent to the employee
     (t.Referrals.Any() && // Ensure there are referrals
         (
@@ -310,7 +310,7 @@ namespace CharityProject.Controllers
 		public async Task<IActionResult> GetAllTransactions()
 		{
 			var employeeId = GetEmployeeIdFromSession();
-			var emplyee_Details = await GetEmployeeDetailsFromSessionAsync();
+			var employeeDetails = await GetEmployeeDetailsFromSessionAsync();
             var hrManager = _context.employee_details
         .FirstOrDefault(e => e.position == "مدير الموارد البشرية والمالية");
 
@@ -321,8 +321,9 @@ namespace CharityProject.Controllers
 				.Include(t => t.Referrals)
 					.ThenInclude(r => r.to_employee)
                 .Where(t =>
-    (t.status == "مرسلة" && t.Employee_detail.departement_id == emplyee_Details.departement_id) ||
-    (t.status == "مرسلة" && (t.to_emp_id == employeeId || t.to_emp_id == hrManager.employee_id)) || // Transactions sent to the employee
+     (t.status == "مرسلة" && t.Employee_detail.departement_id == employeeDetails.departement_id && t.Employee_detail.employee_id != employeeDetails.employee_id && t.Employee_detail.permission_position == "موظف") ||
+    (t.status ==  "مرسلة" && (t.to_emp_id == employeeId || t.to_emp_id == hrManager.employee_id) && t.Employee_detail.permission_position != "موظف")
+    || (t.status == "مرسلة" && t.department_id == employeeDetails.departement_id && t.Employee_detail.permission_position!="موظف" && t.Employee_detail.employee_id!= employeeDetails.employee_id) ||// Transactions sent to the employee
     (t.Referrals.Any() && // Ensure there are referrals
         (
             t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == employeeId ||
@@ -794,21 +795,43 @@ namespace CharityProject.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create_Letter(
-     IFormFile files,
-     int[]? to_departement_name, // Changed to int[] to store department IDs
-     string[]? to_emp_id,
-     [Bind("title,description,type,from_emp_id,date,files,Confidentiality,Urgency,Importance")] letter letter)
+      IFormFile files,
+      int[]? to_departement_name,
+      string[]? to_emp_id,
+      [Bind("title,description,type,from_emp_id,date,files,Confidentiality,Urgency,Importance")] letter letter)
         {
             var employee_details = await GetEmployeeDetailsFromSessionAsync();
             if (files != null && files.Length > 0)
             {
-                // File handling code remains the same
-                // ...
+                // Validate the file type
+                var allowedExtensions = new[] { ".pdf", ".xls", ".xlsx", ".doc", ".docx" };
+                var extension = Path.GetExtension(files.FileName).ToLower();
+
+                if (!allowedExtensions.Contains(extension))
+                {
+                    ModelState.AddModelError("files", "Only PDF, Excel, and Word files are allowed.");
+                    return View(letter); // Return the view with validation error
+                }
+
+                string filename = Path.GetFileName(files.FileName);
+                string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/files");
+                if (!Directory.Exists(path))
+                {
+                    Directory.CreateDirectory(path);
+                }
+                string filePath = Path.Combine(path, filename);
+                using (var filestream = new FileStream(filePath, FileMode.Create))
+                {
+                    await files.CopyToAsync(filestream);
+                }
+                letter.files = filename;
             }
 
             letter.date = DateTime.Now;
             letter.from_emp_id = employee_details.employee_id;
             letter.departement_id = employee_details.departement_id;
+
+            bool letterCreated = false;
 
             // If departments are selected
             if (to_departement_name != null && to_departement_name.Any())
@@ -843,10 +866,11 @@ namespace CharityProject.Controllers
                                 date = letter.date,
                                 to_emp_id = 0,
                                 to_departement_name = department.departement_name,
-                               departement_id=letter.departement_id
+                                departement_id = letter.departement_id
                             };
 
                             _context.Add(newLetter);
+                            letterCreated = true;
                         }
                         else
                         {
@@ -867,10 +891,10 @@ namespace CharityProject.Controllers
                                     to_emp_id = empId,
                                     to_departement_name = department.departement_name,
                                     departement_id = letter.departement_id
-
                                 };
 
                                 _context.Add(newLetter);
+                                letterCreated = true;
                             }
                         }
                     }
@@ -903,18 +927,42 @@ namespace CharityProject.Controllers
                             to_emp_id = empId,
                             to_departement_name = employee.Department.departement_name,
                             departement_id = letter.departement_id
-
                         };
 
                         _context.Add(newLetter);
+                        letterCreated = true;
                     }
                 }
+            }
+
+            // If no departments or employees are chosen, create a letter for all departments
+            if (!letterCreated)
+            {
+              
+                
+                    var newLetter = new letter
+                    {
+                        title = letter.title,
+                        description = letter.description,
+                        type = letter.type,
+                        from_emp_id = letter.from_emp_id,
+                        files = letter.files,
+                        Confidentiality = letter.Confidentiality,
+                        Urgency = letter.Urgency,
+                        Importance = letter.Importance,
+                        date = letter.date,
+                        to_emp_id = 0,
+                        to_departement_name = "الادارة التنفيذية",
+                        departement_id = letter.departement_id
+                    };
+
+                    _context.Add(newLetter);
+               
             }
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Transactions));
         }
-
 
 
 
