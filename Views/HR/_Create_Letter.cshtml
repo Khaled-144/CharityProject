@@ -1,240 +1,4 @@
-﻿@*  @model CharityProject.Models.letter
-
-
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Form with Conditional Employee Div</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-
-
-
-    <script>
-        function toggleElements() {
-            const choice = document.getElementById('choice').value;
-            const general = document.getElementById('h');
-            const custom = document.getElementById('m');
-            if (choice === 'عام') {
-                general.style.display = 'block';
-                custom.style.display = 'none';
-            } else if (choice === 'مخصص') {
-                general.style.display = 'block';
-                custom.style.display = 'block';
-            } else {
-                general.style.display = 'none';
-                custom.style.display = 'none';
-            }
-        }
-    </script>
-
-    <style>
-        .general, .custom {
-            display: none;
-        }
-
-    </style>
-
-</head>
-<div class="modal fade" id="insertLetterModal" role="dialog">
-    <div class="modal-dialog modal-xl">
-        <div class="modal-content">
-
-
-            <div class="modal-header flex justify-center items-center">
-                <button type="button" class="close text-danger close-button" data-dismiss="modal" aria-label="Close">
-                    <button type="button" class="btn btn-danger" data-dismiss="modal">X</button>
-                </button>
-
-                <h4 class="modal-title text-center w-full">إنشاء خطاب جديد</h4>
-            </div>
-            <div class="modal-body align-content-center">
-                <div class="col-md text-right" dir="rtl">
-                    <form asp-action="Create_Letter" method="post" enctype="multipart/form-data">
-                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
-                        <div class="mb-4 form-group">
-                            <label asp-for="title" for="title" class="block text-sm font-medium text-gray-700">موضوع الخطاب</label>
-                            <input asp-for="title" required type="text" id="title" name="title" class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500">
-                        </div>
-
-                        <div class=" mb-4 flex-container form-group ">
-                            <div class="flex-item form-group">
-                                <label asp-for="date" for="date" class="text-sm pr-20   font-medium text-gray-700"> التاريخ</label>
-                                <input type="date" id="date" name="date" class="border rounded-md">
-                                <label asp-for="type" for="type" class="mr-4 text-sm    pr-20 font-medium text-gray-700">نوع الخطاب</label>
-                                <select asp-for="type" required id="type" name="type" class="mt-1 p-2 w-25 ml-2  border rounded-md focus:ring-blue-500 focus:border-blue-500">
-                                    <option value="" disabled selected>اختر نوع الخطاب</option>
-                                    <option value="عام">عام</option>
-                                    <option value="تظلم">تظلم</option>
-                                </select>
-                            </div>
-                        </div>
-
-
-
-
-
-                         <div class="flex px-5 items-center  form-group">
-                            <div class="flex form-group">
-                                <label for="choice" class="text-sm  pl-2 font-medium text-gray-700"> موجه الى   </label>
-                                <select id="choice" required name="choice" onchange="toggleElements()" class="  border rounded-md w-28 focus:ring-blue-500 focus:border-blue-500">
-                                    <option value="" disabled selected>اختر </option>
-                                    <option value="مخصص">مخصص</option>
-                                    <option value="عام">عام</option>
-                                </select>
-                            </div> 
-
-
-
-
-
-
-
-
-                        <div class="mb-3 mt-4 flex items-center">
-                            <div id="h" class="general px-5 flex">
-                                <label asp-for="to_departement_name" class="pl-3 font-bold text-gray-700">القسم</label>
-                                <div class="relative">
-                                    <button id="departmentDropdownButton" data-dropdown-toggle="departmentDropdown" class="text-gray-800 bg-gray-200 hover:bg-gray-300 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-gray-600" type="button">
-                                      --اختر القسم--
-                                        <svg class="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
-                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4" />
-                                        </svg>
-                                    </button>
-
-                                    <!-- Dropdown menu -->
-                                    <div id="departmentDropdown" class="z-10 hidden w-48 bg-white rounded-lg shadow dark:bg-gray-700">
-                                        <ul class="p-3 space-y-1 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="departmentDropdownButton">
-                                            @foreach (var item in ViewData["Departments"] as IEnumerable<SelectListItem>)
-                                            {
-                                                <li>
-                                                    <div class="flex items-center p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-600">
-                                                        <input id="dept-@item.Value" name="to_departement_name" type="checkbox" value="@item.Value" class="w-4 h-4 text-gray-600 bg-gray-100 border-gray-300 rounded focus:ring-gray-500 dark:focus:ring-gray-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500">
-                                                        <label for="dept-@item.Value" class="w-full ms-2 text-sm font-medium text-gray-900 rounded dark:text-gray-300">@item.Text</label>
-                                                    </div>
-                                                </li>
-                                            }
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div id="m" class="custom px-5 flex">
-                                <label asp-for="to_emp_id" class="pr-5 pl-3 font-bold control-label">الموظف</label>
-                                <div class="relative">
-                                    <button id="employeeDropdownButton" data-dropdown-toggle="employeeDropdown" class="text-gray-800 bg-gray-200 hover:bg-gray-300 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-gray-600" type="button">
-                                        --اختر الموظف--
-                                        <svg class="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
-                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4" />
-                                        </svg>
-                                    </button>
-
-                                    <!-- Dropdown menu -->
-                                    <div id="employeeDropdown" class="z-10 hidden w-48 bg-white rounded-lg shadow dark:bg-gray-700">
-                                        <ul class="p-3 space-y-1 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="employeeDropdownButton">
-                                            @foreach (var item in ViewData["Employees"] as IEnumerable<SelectListItem>)
-                                            {
-                                                <li>
-                                                    <div class="flex items-center p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-600">
-                                                        <input id="emp-@item.Value" name="to_emp_id" type="checkbox" value="@item.Value" class="w-4 h-4 text-gray-600 bg-gray-100 border-gray-300 rounded focus:ring-gray-500 dark:focus:ring-gray-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500">
-                                                        <label for="emp-@item.Value" class="w-full ms-2 text-sm font-medium text-gray-900 rounded dark:text-gray-300">@item.Text</label>
-                                                    </div>
-                                                </li>
-                                            }
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-       
-
-
-
-
-
-
-
-
-
-
-
-
- 
-                        
-                        <div class="mb-4 form-group">
-                            <label asp-for="description" for="description" class="block text-sm  font-medium text-gray-700">الملاحظات</label>
-                            <textarea asp-for="description" id="description" name="description" class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500"></textarea>
-                        </div>
-
-                        <div class="mb-4 form-group">
-                            <label asp-for="files" for="files" class="block text-sm font-medium text-gray-700">المرفقات</label>
-                            <input asp-for="files" type="file" id="files" name="files" class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500">
-                        </div>
-                        <div class="flex justify-between">
-                            <div class="mb-4 p-">
-                                <label for="Confidentiality" class="block text-gray-700 font-bold mb-2">
-                                    <i class="fas fa-lock"></i> سرية المعاملة
-                                </label>
-                                <input type="radio" asp-for="Confidentiality" name="Confidentiality" value="سري" /> سري <br />
-                                <input type="radio" asp-for="Confidentiality" name="Confidentiality" value="غير سري" /> غير سري
-                            </div>
-                            <div class="mb-4 p-">
-                                <label for="Urgency" class="block text-gray-700 font-bold mb-2">
-                                    <i class="fas fa-clock text-green-500"></i> أعجلية المعاملة
-                                </label>
-                                <input type="radio" asp-for="Urgency" name="Urgency" value="غير عاجلة" /> غير عاجلة <br />
-                                <input type="radio" asp-for="Urgency" name="Urgency" value="عاجلة" /> عاجلة <br />
-                                <input type="radio" asp-for="Urgency" name="Urgency" value="حالاً" /> حالاً
-                            </div>
-                            <div class="mb-4 p-">
-                                <label for="Importance" class="block text-gray-700 font-bold mb-2">
-                                    <i class="fas fa-exclamation-circle text-red-500 icon-red"></i> أهمية المعاملة
-                                </label>
-                                <input type="radio" asp-for="Importance" name="Importance" value="عادي" /> عادي <br />
-                                <input type="radio" asp-for="Importance" name="Importance" value="هام" /> هام
-                            </div>
-                        </div>
-
-                        <div class="flex justify-center form-group">
-                            <button type="submit" class="bg-gradient-to-r from-green-400 via-green-500 to-green-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 text-white  py-2 px-4">رفع الخطاب</button>
-                        </div>
-                    </form>
-                </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-}
-<script>
-    document.querySelectorAll('[data-dropdown-toggle]').forEach(button => {
-        button.addEventListener('click', function () {
-            const dropdown = document.getElementById(button.getAttribute('data-dropdown-toggle'));
-            dropdown.classList.toggle('hidden');
-        });
-    });
-</script>
-
- *@  
-
-
-     @model CharityProject.Models.letter
-
+﻿@model CharityProject.Models.letter
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -252,183 +16,262 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-    <!-- Custom Script for Toggle -->
-    <script>
-        function toggleElements() {
-            const choice = document.getElementById('choice').value;
-            const general = document.getElementById('h');
-            const custom = document.getElementById('m');
-            if (choice === 'عام') {
-                general.style.display = 'block';
-                custom.style.display = 'none';
-            } else if (choice === 'مخصص') {
-                general.style.display = 'block';
-                custom.style.display = 'block';
-            } else {
-                general.style.display = 'none';
-                custom.style.display = 'none';
-            }
-        }
-    </script>
-
     <style>
-        .general, .custom {
+        .custom {
             display: none;
+        }
+
+        .dropdown-arrow {
+            transition: transform 0.3s ease;
+        }
+
+            .dropdown-arrow.rotated {
+                transform: rotate(180deg);
+            }
+
+        .dropdown-button {
+            width: 200px;
+            height: 38px;
+        }
+
+        .recipient-choice {
+            width: 120px;
+        }
+
+        .dropdown-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: space-between;
         }
     </style>
 </head>
 <body>
-
     <div class="modal fade" id="insertLetterModal" role="dialog">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
-
-                <div class="modal-header flex justify-center items-center">
-                    <button type="button" class="close text-danger close-button" data-dismiss="modal" aria-label="Close">
-                        <button type="button" class="btn btn-danger" data-dismiss="modal">X</button>
-                    </button>
-                    <h4 class="modal-title text-center w-full">إنشاء خطاب جديد</h4>
+                <!-- Modal Header -->
+                <div class="modal-header flex justify-between items-center">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">X</button>
+                    <h4 class="modal-title w-full text-center">إنشاء خطاب جديد</h4>
+                   
                 </div>
-
-                <div class="modal-body align-content-center">
+               
+                <!-- Modal Body -->
+                <div class="modal-body">
                     <div class="col-md text-right" dir="rtl">
                         <form asp-action="Create_Letter" method="post" enctype="multipart/form-data">
-
                             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-                            <div class="mb-4 form-group">
-                                <label asp-for="title" for="title" class="block text-sm font-medium text-gray-700">موضوع الخطاب</label>
+                            <!-- Title -->
+                            <div class="mb-3">
+                                <label asp-for="title" class="block text-sm font-medium text-gray-700">موضوع الخطاب</label>
                                 <input asp-for="title" required type="text" id="title" name="title" class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500">
                             </div>
 
-                         
-                            <div class="mb-4 flex-container form-group">
-                                <div class="flex-item form-group">
-                                    <label asp-for="date" for="date" class="text-sm pr-20 font-medium text-gray-700">التاريخ</label>
-                                    <input type="date" id="date" name="date" class="border rounded-md">
-
-                                    <label asp-for="type" for="type" class="mr-4 text-sm pr-20 font-medium text-gray-700">نوع الخطاب</label>
-                                    <select asp-for="type" required id="type" name="type" class="mt-1 p-2 w-25 ml-2 border rounded-md focus:ring-blue-500 focus:border-blue-500">
-                                        <option value="" disabled selected>اختر نوع الخطاب</option>
-                                        <option value="عام">عام</option>
+                            <!-- Date and Type -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+                                <div>
+                                    <label asp-for="date" class="block text-sm font-medium text-gray-700 text-right">التاريخ</label>
+                                    <input type="date" asp-for="date" id="date" name="date" class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label asp-for="type" class="block text-sm font-medium text-gray-700 text-right">نوع الخطاب</label>
+                                    <select asp-for="type" required id="type" name="type" class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <option value="عام" selected>عام</option>
+                                        <option value="مخصص">مخصص</option>
                                         <option value="تظلم">تظلم</option>
                                     </select>
                                 </div>
                             </div>
-            
 
-                         
-                            <div class="mb-3 mt-4 flex items-center">
-                                <div class="flex form-group">
-                                    <label for="choice" class="text-sm pl-2 font-medium text-gray-700">موجه الى</label>
-                                    <select id="choice" required name="choice" onchange="toggleElements()" class="border rounded-md w-28 focus:ring-blue-500 focus:border-blue-500">
-                                        <option value="" disabled selected>اختر</option>
-                                        <option value="عام">عام</option>
-                                        <option value="مخصص">مخصص</option>
-                                      
-                                    </select>
-                                </div>
-                                <div id="h" class="general px-5 flex">
-                                    <label asp-for="to_departement_name" class="pl-3 font-bold text-gray-700">القسم</label>
-                                    <div class="relative">
-                                        <button id="departmentDropdownButton" data-dropdown-toggle="departmentDropdown" class="text-gray-800 bg-gray-200 hover:bg-gray-300 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-gray-600" type="button">
-                                            --اختر القسم--
-                                            <svg class="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
-                                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4" />
-                                            </svg>
-                                        </button>
-
-                                        <!-- Dropdown menu -->
-                                        <div id="departmentDropdown" class="z-10 hidden w-48 bg-white rounded-lg shadow dark:bg-gray-700">
-                                            <ul class="p-3 space-y-1 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="departmentDropdownButton">
-                                                @foreach (var item in ViewData["Departments"] as IEnumerable<SelectListItem>)
-                                                {
-                                                    <li>
-                                                        <div class="flex items-center p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-600">
-                                                            <input id="dept-@item.Value" name="to_departement_name" type="checkbox" value="@item.Value" class="w-4 h-4 text-gray-600 bg-gray-100 border-gray-300 rounded focus:ring-gray-500 dark:focus:ring-gray-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500">
-                                                            <label for="dept-@item.Value" class="w-full ms-2 text-sm font-medium text-gray-900 rounded dark:text-gray-300">@item.Text</label>
-                                                        </div>
-                                                    </li>
-                                                }
-                                            </ul>
-                                        </div>
+                            <!-- Department and Employee Dropdowns -->
+                            <div id="dropdownContainer" class="dropdown-container flex flex-col md:flex-row gap-4">
+                                <!-- Department Dropdown -->
+                                <div id="departmentDropdownContainer" class="relative flex-1">
+                                    <label for="departmentDropdownButton" class="block font-bold text-gray-700 mb-1">القسم</label>
+                                    <button id="departmentDropdownButton" type="button" class="w-full p-2 text-left text-gray-800 bg-gray-200 hover:bg-gray-300 focus:ring-2 focus:ring-gray-300 focus:outline-none font-medium rounded-lg text-sm flex items-center justify-between">
+                                        <span>--اختر القسم--</span>
+                                        <svg class="w-4 h-4 transition-transform duration-200 dropdown-arrow" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4" />
+                                        </svg>
+                                    </button>
+                                    <div id="departmentDropdown" class="hidden absolute z-10 w-full mt-1 bg-white rounded-lg shadow-lg">
+                                        <ul class="py-2 max-h-60 overflow-y-auto">
+                                            @foreach (var item in ViewData["Departments"] as IEnumerable<SelectListItem>)
+                                            {
+                                                <li class="px-3 py-1">
+                                                    <label class="flex items-center hover:bg-gray-100 p-2 rounded cursor-pointer">
+                                                        <input id="dept-@item.Value" name="to_departement_name" type="checkbox" value="@item.Value" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
+                                                        <span class="ml-2 text-sm text-gray-900">@item.Text</span>
+                                                    </label>
+                                                </li>
+                                            }
+                                        </ul>
                                     </div>
                                 </div>
 
-                                <div id="m" class="custom px-5 flex">
-                                    <label asp-for="to_emp_id" class="pr-5 pl-3 font-bold control-label">الموظف</label>
-                                    <div class="relative">
-                                        <button id="employeeDropdownButton" data-dropdown-toggle="employeeDropdown" class="text-gray-800 bg-gray-200 hover:bg-gray-300 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-gray-600" type="button">
-                                            --اختر الموظف--
-                                            <svg class="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
-                                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4" />
-                                            </svg>
-                                        </button>
-
-                                     
-                                        <div id="employeeDropdown" class="z-10 hidden w-48 bg-white rounded-lg shadow dark:bg-gray-700">
-                                            <ul class="p-3 space-y-1 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="employeeDropdownButton">
-                                                @foreach (var item in ViewData["Employees"] as IEnumerable<SelectListItem>)
-                                                {
-                                                    <li>
-                                                        <div class="flex items-center p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-600">
-                                                            <input id="emp-@item.Value" name="to_emp_id" type="checkbox" value="@item.Value" class="w-4 h-4 text-gray-600 bg-gray-100 border-gray-300 rounded focus:ring-gray-500 dark:focus:ring-gray-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500">
-                                                            <label for="emp-@item.Value" class="w-full ms-2 text-sm font-medium text-gray-900 rounded dark:text-gray-300">@item.Text</label>
-                                                        </div>
-                                                    </li>
-                                                }
-                                            </ul>
-                                        </div>
+                                <!-- Employee Dropdown -->
+                                <div id="employeeDropdownContainer" class="relative flex-1">
+                                    <label for="employeeDropdownButton" class="block font-bold text-gray-700 mb-1">الموظف</label>
+                                    <button id="employeeDropdownButton" type="button" class="w-full p-2 text-left text-gray-800 bg-gray-200 hover:bg-gray-300 focus:ring-2 focus:ring-gray-300 focus:outline-none font-medium rounded-lg text-sm flex items-center justify-between">
+                                        <span>--اختر الموظف--</span>
+                                        <svg class="w-4 h-4 transition-transform duration-200 dropdown-arrow" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4" />
+                                        </svg>
+                                    </button>
+                                    <div id="employeeDropdown" class="hidden absolute z-10 w-full mt-1 bg-white rounded-lg shadow-lg">
+                                        <ul id="employeeList" class="py-2 max-h-60 overflow-y-auto">
+                                            <!-- Employee list will be populated dynamically -->
+                                        </ul>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="mb-4 form-group">
-                                <label asp-for="description" for="description" class="block text-sm  font-medium text-gray-700">الملاحظات</label>
+                            <!-- Notes -->
+                            <div class="mb-3">
+                                <label asp-for="description" class="block text-sm font-medium text-gray-700">الملاحظات</label>
                                 <textarea asp-for="description" id="description" name="description" class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500"></textarea>
                             </div>
 
-                            <div class="mb-4 form-group">
-                                <label asp-for="files" for="files" class="block text-sm font-medium text-gray-700">المرفقات</label>
+                            <!-- Attachments -->
+                            <div class="mb-3">
+                                <label asp-for="files" class="block text-sm font-medium text-gray-700">المرفقات</label>
                                 <input asp-for="files" type="file" id="files" name="files" class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500">
                             </div>
-         
-                            <div class="flex justify-between mt-2">
-                                <div class="mb-4 ">
+
+                            <!-- Confidentiality, Urgency, Importance -->
+                            <div class="flex justify-between">
+                                <div class="mb-4 p-">
                                     <label for="Confidentiality" class="block text-gray-700 font-bold mb-2">
-                                        <i class="fas fa-lock"></i> سرية المعاملة
+                                        <i class="fas fa-lock"></i> سرية الخطاب
                                     </label>
                                     <input type="radio" asp-for="Confidentiality" name="Confidentiality" value="سري" /> سري <br />
                                     <input type="radio" asp-for="Confidentiality" name="Confidentiality" value="غير سري" /> غير سري
                                 </div>
                                 <div class="mb-4 p-">
                                     <label for="Urgency" class="block text-gray-700 font-bold mb-2">
-                                        <i class="fas fa-clock text-green-500"></i> أعجلية المعاملة
+                                        <i class="fas fa-clock text-green-500"></i> أعجلية الخطاب
                                     </label>
-                                    <input type="radio" asp-for="Urgency" name="Urgency" value="غير عاجلة" /> غير عاجلة <br />
-                                    <input type="radio" asp-for="Urgency" name="Urgency" value="عاجلة" /> عاجلة <br />
+                                    <input type="radio" asp-for="Urgency" name="Urgency" value="غير عاجلة" /> غير عاجل <br />
+                                    <input type="radio" asp-for="Urgency" name="Urgency" value="عاجلة" /> عاجل <br />
                                     <input type="radio" asp-for="Urgency" name="Urgency" value="حالاً" /> حالاً
                                 </div>
                                 <div class="mb-4 p-">
                                     <label for="Importance" class="block text-gray-700 font-bold mb-2">
-                                        <i class="fas fa-exclamation-circle text-red-500 icon-red"></i> أهمية المعاملة
+                                        <i class="fas fa-exclamation-circle text-red-500 icon-red"></i> أهمية الخطاب
                                     </label>
                                     <input type="radio" asp-for="Importance" name="Importance" value="عادي" /> عادي <br />
                                     <input type="radio" asp-for="Importance" name="Importance" value="هام" /> هام
                                 </div>
                             </div>
 
-                            <div class="flex justify-center form-group">
-                                <button class="bg-primaryButtons hover:bg-emerald-800 focus:ring-4 focus:outline-none focus:ring-emerald-300 dark:focus:ring-emerald-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 text-white font-bold py-2 px-4">رفع الخطاب</button>
+                            <!-- Submit Button -->
+                            <div class="flex justify-center">
+                                <button type="submit" class="bg-gradient-to-r from-green-400 via-green-500 to-green-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center text-white">رفع الخطاب</button>
                             </div>
                         </form>
                     </div>
                 </div>
-
-              
             </div>
         </div>
     </div>
 
 </body>
+
+
+<script>
+    document.getElementById('type').addEventListener('change', function () {
+        this.blur();
+        toggleElements();
+    });
+
+    // Set the date input to today's date
+    document.addEventListener('DOMContentLoaded', function () {
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('date').value = today;
+        toggleElements(); // Call this to set initial state
+    });
+
+    function toggleElements() {
+        const selectedType = document.getElementById('type').value;
+        const departmentDropdownContainer = document.getElementById('departmentDropdownContainer');
+        const employeeDropdownContainer = document.getElementById('employeeDropdownContainer');
+        const dropdownContainer = document.getElementById('dropdownContainer');
+
+        if (selectedType === 'عام') {
+            departmentDropdownContainer.style.display = 'block';
+            employeeDropdownContainer.style.display = 'none';
+            dropdownContainer.style.justifyContent = 'flex-start';
+        } else if (selectedType === 'مخصص') {
+            departmentDropdownContainer.style.display = 'block';
+            employeeDropdownContainer.style.display = 'block';
+            dropdownContainer.style.justifyContent = 'space-between';
+        } else if (selectedType === 'تظلم') {
+            departmentDropdownContainer.style.display = 'none';
+            employeeDropdownContainer.style.display = 'none';
+        }
+    }
+
+    // Toggle department dropdown
+    document.getElementById('departmentDropdownButton').addEventListener('click', function () {
+        document.getElementById('departmentDropdown').classList.toggle('hidden');
+        this.querySelector('.dropdown-arrow').classList.toggle('rotated');
+    });
+
+    // Toggle employee dropdown
+    document.getElementById('employeeDropdownButton').addEventListener('click', function () {
+        document.getElementById('employeeDropdown').classList.toggle('hidden');
+        this.querySelector('.dropdown-arrow').classList.toggle('rotated');
+    });
+
+    // Fetch employees dynamically based on selected departments
+    document.querySelectorAll('input[name="to_departement_name"]').forEach(checkbox => {
+        checkbox.addEventListener('change', fetchEmployees);
+    });
+
+    function fetchEmployees() {
+        const selectedDepartments = Array.from(document.querySelectorAll('input[name="to_departement_name"]:checked')).map(cb => cb.value);
+
+        if (selectedDepartments.length === 0) {
+            document.getElementById('employeeList').innerHTML = '';
+            return;
+        }
+
+        fetch('/HR/GetEmployeesByDepartmentName?departmentNames=' + selectedDepartments.join('&departmentNames='), {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+            .then(response => response.json())
+            .then(data => displayEmployees(data))
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('employeeList').innerHTML = 'لا يوجد موظفين.';
+            });
+    }
+
+    function displayEmployees(employees) {
+        const employeeList = document.getElementById('employeeList');
+        if (employees.length === 0) {
+            employeeList.innerHTML = 'لايوجد موظفين';
+            return;
+        }
+
+        let html = '';
+        employees.forEach(employee => {
+            html += `
+                        <li>
+                            <div class="flex items-center p-2 rounded hover:bg-gray-100">
+                                <input id="emp-${employee.employee_id}" name="to_emp_id" type="checkbox" value="${employee.employee_id}" class="w-4 h-4 text-gray-600 bg-gray-100 border-gray-300 rounded focus:ring-gray-500">
+                                <label for="emp-${employee.employee_id}" class="w-full ms-2 text-sm font-medium text-gray-900">${employee.name} (${employee.position})</label>
+                            </div>
+                        </li>
+                    `;
+        });
+
+        employeeList.innerHTML = html;
+    }
+</script>
 </html>
