@@ -410,31 +410,40 @@ namespace CharityProject.Controllers
 
             // Return the same view with validation errors
         }
-        public IActionResult GetRemainingHolidayBalance(int employeeId, int holidayId)
-        {
-            // Get the allowed duration for the specified holiday type
-            var holidayType = _context.Holidays
-                .Where(h => h.holiday_id == holidayId)
-                .Select(h => h.allowedDuration)
-                .FirstOrDefault();
 
-            // Calculate the total duration taken for the specified holiday type
-            var totalTakenDuration = _context.HolidayHistories
-                .Where(hh => hh.emp_id == employeeId
-                             && hh.holiday_id == holidayId
-                             && hh.start_date.Year == DateTime.Now.Year)
-                .Sum(hh => hh.duration);
+		[HttpGet]
+		[Route("CustomerServiceManager/GetRemainingHolidayBalance")]
+		public IActionResult GetRemainingHolidayBalance(int holidayId)
+		{
+			var employeeId = GetEmployeeIdFromSession(); // Ensure this is returning the correct employee ID
 
-            // Calculate the remaining balance
-            var remainingBalance = holidayType - totalTakenDuration;
+			// Check if holidayId exists
+			var holidayType = _context.Holidays
+				.Where(h => h.holiday_id == holidayId)
+				.Select(h => h.allowedDuration)
+				.FirstOrDefault();
 
-            return Json(remainingBalance);
-        }
+			if (holidayType == 0)
+			{
+				return Json("Holiday type not found");
+			}
+
+			// Check if any records exist
+			var totalTakenDuration = _context.HolidayHistories
+				.Where(hh => hh.emp_id == employeeId
+							 && hh.holiday_id == holidayId
+							 && hh.start_date.Year == DateTime.Now.Year)
+				.Sum(hh => hh.duration);
+
+			var remainingBalance = holidayType - totalTakenDuration;
+
+			return Json(remainingBalance);
+		}
 
 
 
-        // Update Actions --------------------------------------------------------
-        [HttpPost]
+		// Update Actions --------------------------------------------------------
+		[HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateTransactionStatus(int transaction_id)
         {
