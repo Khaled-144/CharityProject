@@ -4,6 +4,8 @@
 	Layout = "_Layout_Employees";
 	ViewData["PageTitle"] = "المعاملات";
 	ViewData["Title"] = "صفحة المعاملات";
+	var permission = Context.Session.GetString("Permission_position");
+
 }
 
 <!DOCTYPE html>
@@ -37,7 +39,10 @@
 			<div id="dropdown" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700">
 				<ul class="py-2 text-base text-black dark:text-gray-200" aria-labelledby="dropdownDefaultButton">
 					<li><button data-toggle="modal" data-target="#insertTransactionModal" id="modal-toggle-button" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600">داخلية</button></li>
+					@if (permission == "السكرتير") { 
+
 					<li><button data-toggle="modal" data-target="#insertExternalModal" id="modal-toggle-button" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600">خارجية</button></li>
+					}
 					<li><button data-toggle="modal" data-target="#insertHolidayModal" id="modal-toggle-button" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600">إجازة</button></li>
 					<li><button type="button" data-toggle="modal" data-target="#insertLetterModal" id="modal-toggle-button" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600">خطاب</button></li>
 				</ul>
@@ -61,7 +66,6 @@
 
 	</div>
 
-
 	<!-- Tab navigation -->
 	<div class="mb-4 border-b border-gray-200 dark:border-gray-700">
 		<ul class="flex flex-wrap -mb-px text-xl font-medium text-center" id="default-tab" role="tablist">
@@ -69,16 +73,19 @@
 				<button class="inline-block p-4 border-b-2 rounded-t-lg active-tab" id="internal-tab" data-content-url="@Url.Action("GetAllTransactions", "Employees")" type="button" role="tab">داخلية</button>
 				<span class="text-red-500 text-sm ml-2">(@ViewBag.InternalCount)</span>
 			</li>
-			<li class="me-2 flex items-center" role="presentation">
-				<button class="inline-block p-4 border-b-2 rounded-t-lg" id="letters-tab" data-content-url="@Url.Action("GetAllExternalTransactions", "Employees")" type="button" role="tab">خارجية</button>
+			@if (permission == "السكرتير")
+			{
+				<li class="me-2 flex items-center" role="presentation">
+					<button class="inline-block p-4 border-b-2 rounded-t-lg" id="letters-tab" data-content-url="@Url.Action("GetAllExternalTransactions", "Employees")" type="button" role="tab">خارجية</button>
 				<span class="text-red-500 text-sm ml-2">(@ViewBag.ExternalCount)</span>
 			</li>
+			}
 			<li class="me-2 flex items-center" role="presentation">
 				<button class="inline-block p-4 border-b-2 rounded-t-lg" id="letters-tab" data-content-url="@Url.Action("GetAllLetters", "Employees")" type="button" role="tab">خطابات</button>
 				<span class="text-red-500 text-sm ml-2">(@ViewBag.LettersCount)</span>
 			</li>
 			<li class="flex items-center" role="presentation">
-				<button class="inline-block p-4 border-b-2 rounded-t-lg" id="assets-tab" data-content-url="@Url.Action("GetAllAssets", "Assets")" type="button" role="tab">عهده</button>
+				<button class="inline-block p-4 border-b-2 rounded-t-lg" id="assets-tab" data-content-url="@Url.Action("GetAllCharters", "Employees")" type="button" role="tab">عهده</button>
 				<span class="text-red-500 text-sm ml-2">(@ViewBag.AssetsCount)</span>
 			</li>
 		</ul>
@@ -88,7 +95,6 @@
 	<div id="tab-content-container" class="">
 		<!-- Content will be dynamically loaded here -->
 	</div>
-
 
 	@await Html.PartialAsync("_CreateNewTransaction", new Transaction())
 	@await Html.PartialAsync("_CreateExternalTransaction", new ExternalTransaction())
