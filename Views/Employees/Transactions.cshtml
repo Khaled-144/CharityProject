@@ -1,9 +1,9 @@
 ﻿@model IEnumerable<CharityProject.Models.Transaction>
 
 @{
-    Layout = "_Layout_Employees";
-    ViewData["PageTitle"] = "المعاملات";
-    ViewData["Title"] = "صفحة المعاملات";
+	Layout = "_Layout_Employees";
+	ViewData["PageTitle"] = "المعاملات";
+	ViewData["Title"] = "صفحة المعاملات";
 }
 
 <!DOCTYPE html>
@@ -22,8 +22,10 @@
 </head>
 <body>
 	<!-- Tab and search UI -->
-	<div class="flex justify-self-auto justify-between mt-10">
-		<div>
+	<div class="flex justify-between mt-10">
+
+		<!-- Right Side: Dropdown Button -->
+		<div class="flex items-center">
 			<button id="dropdownDefaultButton" data-dropdown-toggle="dropdown" class="text-white w-32 bg-primaryButtons hover:bg-emerald-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-xl px-4 py-2.5 text-center inline-flex justify-evenly items-center transition duration-200 ease-in-out">
 				جديد
 				<svg class="w-2.5 h-2.5 mx-1 mt-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
@@ -42,20 +44,23 @@
 			</div>
 		</div>
 
-		<!-- Search and filter -->
-		<div class="mx-4">
-			<form id="searchForm">
-				<div class="flex justify-evenly">
-					<input name="searchTerm" placeholder="رقم المعاملة أو العنوان" class="form-control mr-2" type="search" aria-label="search" />
-					<select name="sortOrder" id="sortOrder" class="bg-white border border-primaryButtons px-5 text-black text-sm rounded-lg text-center focus:ring-blue-500 focus:border-blue-500 block mr-2">
-						<option selected>فلترة</option>
-						<option value="newest">الاحدث</option>
-						<option value="oldest">الاقدم</option>
-					</select>
-				</div>
+		<!-- Left Side: Search Form -->
+		<div class="flex items-center space-x-2">
+			<form id="searchForm" class="flex items-center">
+				<input name="id" placeholder="رقم المعاملة" class="form-control mr-2" type="search" aria-label="search" />
+				<button id="searchButton" class="btn btn-dark" type="submit">بحث</button>
+				<select name="sortOrder" id="sortOrder" class="bg-white border border-primaryButtons px-5 text-black text-sm rounded-lg text-center focus:ring-blue-500 focus:border-blue-500 block ml-2">
+					<option selected>فلترة</option>
+					<option value="newest">الاحدث</option>
+					<option value="oldest">الاقدم</option>
+				</select>
 			</form>
+
 		</div>
+
+
 	</div>
+
 
 	<!-- Tab navigation -->
 	<div class="mb-4 border-b border-gray-200 dark:border-gray-700">
@@ -80,9 +85,10 @@
 	</div>
 
 	<!-- Tab content -->
-	<div id="tab-content-container" class="mt-5">
+	<div id="tab-content-container" class="">
 		<!-- Content will be dynamically loaded here -->
 	</div>
+
 
 	@await Html.PartialAsync("_CreateNewTransaction", new Transaction())
 	@await Html.PartialAsync("_CreateExternalTransaction", new ExternalTransaction())
@@ -92,112 +98,46 @@
 	<script src="~/js/site.js"></script>
 	<script>
 		$(document).ready(function () {
-			function loadTabContent(url) {
+			let selectedTab = 'internal'; // Default tab type
+
+			function loadTabContent(url, searchTerm, sortOrder) {
 				$("#tab-content-container").html('<div class="text-center"><div class="spinner text-center"></div><p>جاري تحميل المحتوى...</p></div>');
 				$.ajax({
 					url: url,
 					type: 'GET',
+					data: { searchTerm: searchTerm, sortOrder: sortOrder },
 					success: function (result) {
 						$("#tab-content-container").html(result);
 					},
 					error: function (xhr, status, error) {
-						console.error(error);
+						console.error(`Error loading content from ${url}: ${error}`);
 						$("#tab-content-container").html('<p class="text-center">فشل تحميل المحتوى. حاول مرة أخرى لاحقاً.</p>');
 					}
 				});
 			}
 
+			// Handle tab clicks
 			$("#default-tab button").on("click", function () {
+				selectedTab = $(this).attr('id').replace('-tab', ''); // Update selectedTab with the clicked tab id
 				var url = $(this).data("content-url");
-				loadTabContent(url);
+				loadTabContent(url, $('#searchForm input[name="id"]').val(), $('#sortOrder').val());
 				$("#default-tab button").removeClass("active-tab");
 				$(this).addClass("active-tab");
 			});
 
-            // Load initial tab content
-            $("#internal-tab").trigger("click");
-        });
-    </script>
+			// Handle form submissions for searching
+			$("#searchForm").on("submit", function (e) {
+				e.preventDefault();
+				var searchTerm = $(this).find('input[name="id"]').val();
+				var sortOrder = $('#sortOrder').val();
+				var url = $('#' + selectedTab + '-tab').data("content-url");
+				loadTabContent(url, searchTerm, sortOrder);
+			});
 
-    <script>
-        $(document).ready(function () {
-            var searchTimer;
+			// Load initial tab content
+			$("#internal-tab").trigger("click");
+		});
+	</script>
 
-            function loadTransactions() {
-                $("#loadingIndicator").show();
-                $("#tab-content-container").hide();
-
-                var searchTerm = $("#searchForm input[name='searchTerm']").val();
-                var sortOrder = $("#sortOrder").val();
-                var activeTab = $(".active-tab").attr("id");
-
-                console.log("Searching with term:", searchTerm);
-                console.log("Sort order:", sortOrder);
-                console.log("Active tab:", activeTab);
-                
-                var url;
-                switch (activeTab) {
-                    case "internal-tab":
-                        url = '@Url.Action("SearchTransactions", "Employees")';
-                        break;
-                    case "holidays-tab":
-                        url = '@Url.Action("SearchHolidays", "Employees")';
-                        break;
-                    case "letters-tab":
-                        url = '@Url.Action("SearchLetters", "Employees")';
-                        break;
-                    case "assets-tab":
-                        url = '@Url.Action("SearchAssets", "Employees")';
-                        break;
-                    default:
-                        url = '@Url.Action("SearchTransactions", "Employees")';
-                }
-    
-                $.ajax({
-                    url: url,
-                    type: 'GET',
-                    data: { searchTerm: searchTerm, sortOrder: sortOrder },
-                    success: function (result) {
-                        console.log("Received data:", result);
-                        if (result.trim() === "") {
-                            // If the result is empty, load the _NothingNew tab
-                            $("#tab-content-container").load('@Url.Action("_NothingNew", "Employees")');
-                        } else {
-                            $("#tab-content-container").html(result);
-                        }
-                        $("#loadingIndicator").hide();
-                        $("#tab-content-container").show();
-                    },
-                    error: function (xhr, status, error) {
-                        console.error("Error:", error);
-                        console.error("Status:", status);
-                        console.error("Response:", xhr.responseText);
-                        $("#loadingIndicator").hide();
-                        $("#tab-content-container").show();
-                        $("#tab-content-container").html("<p>Error loading transactions. Please try again.</p>");
-                    }
-                });
-            }
-
-            // Trigger search on input change with a delay
-            $("#searchForm input[name='searchTerm']").on('input', function() {
-                clearTimeout(searchTimer);
-                searchTimer = setTimeout(loadTransactions, 1000); // 1000ms delay
-            });
-
-            // Trigger search on sort order change
-            $("#sortOrder").on("change", function () {
-                loadTransactions();
-            });
-
-            // Trigger search on tab change
-            $("#default-tab button").on("click", function () {
-                loadTransactions();
-            });
-
-            // Initial load
-            loadTransactions();
-        });
-    </script>
 </body>
 </html>
