@@ -1,5 +1,22 @@
 ﻿@{
-    Layout = "_Layout";
+    if (Context.Session.GetString("Permission_position") == "مدير الموارد البشرية والمالية")
+    {
+        Layout = "_Layout_HR";
+
+    }
+    else if (Context.Session.GetString("Permission_position") == "مدير خدمة المستفيدين" || Context.Session.GetString("Permission_position") == "مدير التنمية المالية والاستدامة")
+    {
+        Layout = "_Layout_Managers";
+    }
+    else if (Context.Session.GetString("Permission_position") == "موظف")
+    {
+        Layout = "_Layout_Employees";
+    }
+    else
+    {
+        Layout = "_Layout";
+    }
+
     ViewData["PageTitle"] = "خدمات أخرى";
     ViewData["Title"] = "صفحة الخدمات الأخرى";
 }

@@ -1,178 +1,248 @@
 ﻿@model CharityProject.Models.Transaction
 
-<div class="modal fade" id="insertTransactionModal" role="dialog">
-	<div class="modal-dialog">
-		<div class="modal-content">
-			<div class="modal-header flex justify-center items-center">
-				<button type="button" class="close text-danger close-button" data-dismiss="modal" aria-label="Close">
-				</button>
-				<button type="button" class="btn btn-danger" data-dismiss="modal">X</button>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>معاملة جديدة</title>
 
-				<h4 class="modal-title text-center w-full">إنشاء معاملة جديدة</h4>
-			</div>
-			<div class="modal-body align-content-center">
-				<div class="col-md text-right" dir="rtl">
-				@* 	<form asp-action="Create_Transaction" method="post" enctype="multipart/form-data">
-						<div asp-validation-summary="ModelOnly" class="text-danger"></div>
-						<div class="form-group">
-							<label asp-for="title" class="control-label">عنوان المعاملة</label>
-							<input asp-for="title" required class="form-control" />
-							<span asp-validation-for="title" class="text-danger"></span>
-						</div>
-						<div class="col-span-2 form-group sm:col-span-1 mb-4">
-							<label asp-for="department_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">إلى</label>
-							<select asp-for="department_id" required class="form-control">
-								<option value="" disabled selected>اختر القسم الموجه</option>
-								<option value="1">الموارد البشرية</option>
-								<option value="2">التنمية المالية</option>
-								<option value="3">إدارية المستفيدين</option>
-								<option value="4">الإدارة التنفيذية</option>
-							</select>
-							<span asp-validation-for="department_id" class="text-danger"></span>
-						</div>
-						<div class="form-group">
-							<label asp-for="description" class="control-label">وصف المعاملة</label>
-							<input asp-for="description" class="form-control" />
-							<span asp-validation-for="description" class="text-danger"></span>
-						</div>
-						<div>
-							<label asp-for="create_date"> تاريخ الانشاء</label>
-							<input asp-for="create_date" type="date" class="w-full" id="myDateField" />
-						</div>
-						<div class="form-group my-3">
-							<label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="files">المرفقات</label>
-							<input asp-for="files" class="form-control" type="file" />
-							<span asp-validation-for="files" class="text-danger"></span>
-						</div>
+    <!-- Stylesheets -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
 
+    <!-- Scripts -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-						<div class="flex justify-between">
-							<div class="mb-4 p-">
-								<label for="Confidentiality" class="block text-gray-700 font-bold mb-2">
-									<i class="fas fa-lock"></i> سرية المعاملة
-								</label>
-								<input type="radio"    asp-for="Confidentiality"    name="xx1"   value="سري "   /> سري <br />
-								<input type="radio"  asp-for="Confidentiality"  name="xx1" value="غير سري " /> غير سري
-							</div>
-							<div class="mb-4 p-">
-								<label for="confs" class="block text-gray-700 font-bold mb-2">     
-									<i class="fas fa-clock text-green-500"></i> أعجلية المعاملة
-								</label>
-								<input type="radio" id="conf1" name="mm2"  asp-for="Urgency"  value="غير عاجلة" /> غير عاجلة <br />
-								<input type="radio" id="conf2" name="mm2"  asp-for="Urgency"  value="عاجلة" /> عاجلة <br />
-								<input type="radio" id="conf3" name="mm2"  asp-for="Urgency"  value="حالاً" /> حالاً
-							</div>
-							<div class="mb-4 p-">
-								<label for="conf3" class="block text-gray-700 font-bold mb-2">
-									<i class="fas fa-exclamation-circle text-red-500 icon-red"></i> أهمية المعاملة
-								</label>
-								<input type="radio" id="conf1" name="sm3"    asp-for="Importance"  value="عادي"  /> عادي <br />
-								<input type="radio" id="conf2" name="sm3"  asp-for="Importance"    value="هام"  /> هام
-							</div> 
+    <style>
+        .warning {
+            color: red;
+            display: none;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="modal fade" id="insertTransactionModal" role="dialog">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <!-- Modal Header -->
+                <div class="modal-header flex justify-between items-center">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">X</button>
+                    <h4 class="modal-title w-full font-bold text-center">إنشاء معاملة جديدة</h4>
+                </div>
 
-						
-						</div> 
+                <!-- Modal Body -->
+                <div class="modal-body">
+                    <div class="col-md text-right" dir="rtl">
+                        <form id="transactionForm" asp-action="Create_Transaction" method="post" enctype="multipart/form-data">
+                            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
+                            <!-- Title -->
+                            <div class="mb-3">
+                                <label asp-for="title" class="block text-sm font-medium font-bold text-gray-700">عنوان المعاملة</label>
+                                <input asp-for="title" required type="text" id="title" name="title" class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500">
+                            </div>
 
+                            <!-- Date and To -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+                                <div>
+                                    <label asp-for="create_date" class="block text-sm font-bold text-gray-700 text-right">تاريخ الإنشاء</label>
+                                    <input type="date" asp-for="create_date" id="create_date" name="create_date" class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 text-right">إلى</label>
+                                    <select required id="type-tran" name="type-tran" class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <option value="قسم" selected>قسم</option>
+                                        <option value="موظف">موظف</option>
+                                    </select>
+                                </div>
+                            </div>
 
-						
-				
-					
-						<div class="form-group flex justify-center mt-4">
-							<button type="submit" class="bg-gradient-to-r from-green-400 via-green-500 to-green-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 text-white font-bold py-2 px-4">رفع المعاملة</button>
-						</div>
-					</form> *@   
+                            <!-- Department and Employee Selects -->
+                            <div id="dropdownContainer" class="dropdown-container flex flex-col md:flex-row gap-4">
+                                <!-- Department Select -->
+                                <div id="departmentDropdownContainer" class="relative flex-1">
+                                    <label for="departmentSelect" class="block font-bold text-gray-700 mb-1">القسم</label>
+                                    <select asp-for="department_id" name="department_id" id="departmentSelect" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <option value="" disabled selected>--اختر القسم--</option>
+                                        @foreach (var item in ViewData["Departments"] as IEnumerable<SelectListItem>)
+                                        {
+                                            <option value="@item.Value">@item.Text</option>
+                                        }
+                                    </select>
+                                    <div id="departmentWarning" class="warning">الرجاء اختيار قسم واحد</div>
+                                </div>
 
+                                <!-- Employee Select -->
+                                <div id="employeeDropdownContainer" class="relative flex-1" style="display:none;">
+                                    <label for="employeeSelect" class="block font-bold text-gray-700 mb-1">الموظف</label>
+                                    <select asp-for="to_emp_id" name="to_emp_id" id="employeeSelect" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <option value="" disabled selected>--اختر الموظف--</option>
+                                    </select>
+                                    <div id="employeeWarning" class="warning">الرجاء اختيار موظف واحد</div>
+                                </div>
+                            </div>
 
+                            <!-- Description -->
+                            <div class="mb-3">
+                                <label asp-for="description" class="block text-sm font-bold text-gray-700">وصف المعاملة</label>
+                                <textarea asp-for="description" id="description" name="description" class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="files" class="block text-sm font-bold text-gray-700">المرفقات</label>
+                                <input asp-for="files" type="file" id="files" name="files" class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500">
+                            </div>
 
+                            <!-- Confidentiality, Urgency, Importance -->
+                            <div class="flex justify-between">
+                                <div class="mb-4">
+                                    <label for="Confidentiality" class="block text-gray-700 font-bold mb-2">
+                                        <i class="fas fa-lock"></i> سرية المعاملة
+                                    </label>
+                                    <input type="radio" asp-for="Confidentiality" name="Confidentiality" value="سري" /> سري <br />
+                                    <input type="radio" asp-for="Confidentiality" name="Confidentiality" value="غير سري" /> غير سري
+                                </div>
+                                <div class="mb-4">
+                                    <label for="Urgency" class="block text-gray-700 font-bold mb-2">
+                                        <i class="fas fa-clock text-green-500"></i> أعجلية المعاملة
+                                    </label>
+                                    <input type="radio" asp-for="Urgency" name="Urgency" value="غير عاجلة" /> غير عاجلة <br />
+                                    <input type="radio" asp-for="Urgency" name="Urgency" value="عاجلة" /> عاجلة <br />
+                                    <input type="radio" asp-for="Urgency" name="Urgency" value="حالاً" /> حالاً
+                                </div>
+                                <div class="mb-4">
+                                    <label for="Importance" class="block text-gray-700 font-bold mb-2">
+                                        <i class="fas fa-exclamation-circle text-red-500"></i> أهمية المعاملة
+                                    </label>
+                                    <input type="radio" asp-for="Importance" name="Importance" value="عادي" /> عادي <br />
+                                    <input type="radio" asp-for="Importance" name="Importance" value="هام" /> هام
+                                </div>
+                            </div>
 
+                            <!-- Submit Button -->
+                            <div class="flex justify-center">
+                                <button type="submit" class="bg-gradient-to-r from-green-400 via-green-500 to-green-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center text-white">رفع المعاملة</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
+    <script>
+        function toggleTransactionElements() {
+            const selectedType = document.getElementById('type-tran').value;
+            const employeeDropdownContainer = document.getElementById('employeeDropdownContainer');
+            const departmentDropdownContainer = document.getElementById('departmentDropdownContainer');
 
+            if (selectedType === 'قسم') {
+                employeeDropdownContainer.style.display = 'none';
+                departmentDropdownContainer.style.display = 'block';
+            } else if (selectedType === 'موظف') {
+                employeeDropdownContainer.style.display = 'block';
+                departmentDropdownContainer.style.display = 'block';
+            }
+        }
 
-					<form asp-action="Create_Transaction" method="post" enctype="multipart/form-data">
-						<div asp-validation-summary="ModelOnly" class="text-danger"></div>
-						<div class="form-group">
-							<label asp-for="title" class="control-label">عنوان المعاملة</label>
-							<input asp-for="title" required class="form-control" />
-							<span asp-validation-for="title" class="text-danger"></span>
-						</div>
-						<div class="col-span-2 form-group sm:col-span-1 mb-4">
-							<label asp-for="department_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">إلى</label>
-							<select asp-for="department_id"
-									asp-items="@(ViewData["Departments"] as IEnumerable<SelectListItem>)"
-									class="border w-full rounded focus:ring-blue-500 focus:border-blue-500">
-								<option disabled selected>-- أختر القسم --</option>
-							</select>
-							<span asp-validation-for="department_id" class="text-danger"></span>
-						</div>
+        document.addEventListener('DOMContentLoaded', function () {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('create_date').value = today;
 
-						<div class="form-group">
-							<label asp-for="description" class="control-label">وصف المعاملة</label>
-							<input asp-for="description" class="form-control" />
-							<span asp-validation-for="description" class="text-danger"></span>
-						</div>
-						<div>
-							<label asp-for="create_date"> تاريخ الانشاء</label>
-							<input asp-for="create_date" type="date" class="w-full" id="myDateField" />
-						</div>
-						<div class="form-group my-3">
-							<label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="files">المرفقات</label>
-							<input asp-for="files" class="form-control" type="file" />
-							<span asp-validation-for="files" class="text-danger"></span>
-						</div>
+            // Call toggleTransactionElements() when the page loads
+            toggleTransactionElements();
 
-						<div class="flex justify-between">
-							<div class="mb-4 p-">
-								<label for="Confidentiality" class="block text-gray-700 font-bold mb-2">
-									<i class="fas fa-lock"></i> سرية المعاملة
-								</label>
-								<input type="radio" asp-for="Confidentiality" name="Confidentiality" value="سري" /> سري <br />
-								<input type="radio" asp-for="Confidentiality" name="Confidentiality" value="غير سري" /> غير سري
-							</div>
-							<div class="mb-4 p-">
-								<label for="Urgency" class="block text-gray-700 font-bold mb-2">
-									<i class="fas fa-clock text-green-500"></i> أعجلية المعاملة
-								</label>
-								<input type="radio" asp-for="Urgency" name="Urgency" value="غير عاجلة" /> غير عاجلة <br />
-								<input type="radio" asp-for="Urgency" name="Urgency" value="عاجلة" /> عاجلة <br />
-								<input type="radio" asp-for="Urgency" name="Urgency" value="حالاً" /> حالاً
-							</div>
-							<div class="mb-4 p-">
-								<label for="Importance" class="block text-gray-700 font-bold mb-2">
-									<i class="fas fa-exclamation-circle text-red-500 icon-red"></i> أهمية المعاملة
-								</label>
-								<input type="radio" asp-for="Importance" name="Importance" value="عادي" /> عادي <br />
-								<input type="radio" asp-for="Importance" name="Importance" value="هام" /> هام
-							</div>
-						</div>
+            // Add event listener for type-tran change
+            document.getElementById('type-tran').addEventListener('change', toggleTransactionElements);
 
-						<div class="form-group flex justify-center mt-4">
-							<button type="submit" class="bg-gradient-to-r from-green-400 via-green-500 to-green-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 text-white font-bold py-2 px-4">رفع المعاملة</button>
-						</div>
-					</form>
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
+            // Add form submission validation
+            document.getElementById('transactionForm').addEventListener('submit', function (event) {
+                const selectedType = document.getElementById('type-tran').value;
+                const selectedDepartment = document.getElementById('departmentSelect').value;
+                const selectedEmployee = document.getElementById('employeeSelect').value;
 
-<script>
-	// Get today's date
-	let today = new Date();
+                let valid = true;
 
-	// Format the date to YYYY-MM-DD (required by input type="date")
-	let dd = String(today.getDate()).padStart(2, '0');
-	let mm = String(today.getMonth() + 1).padStart(2, '0'); // January is 0!
-	let yyyy = today.getFullYear();
+                // Reset warnings
+                document.getElementById('departmentWarning').style.display = 'none';
+                document.getElementById('employeeWarning').style.display = 'none';
 
-	let formattedDate = yyyy + '-' + mm + '-' + dd;
+                // If "قسم" is selected but no department is chosen
+                if (selectedType === 'قسم' && !selectedDepartment) {
+                    document.getElementById('departmentWarning').textContent = 'الرجاء اختيار قسم واحد';
+                    document.getElementById('departmentWarning').style.display = 'block';
+                    valid = false;
+                }
 
-	// Set the value of the date input field
-	document.getElementById('myDateField').value = formattedDate;
-</script>
+                // If "موظف" is selected but no department or employee is chosen
+                if (selectedType === 'موظف') {
+                    if (!selectedDepartment) {
+                        document.getElementById('departmentWarning').textContent = 'الرجاء اختيار قسم واحد';
+                        document.getElementById('departmentWarning').style.display = 'block';
+                        valid = false;
+                    }
 
-@section Scripts {
-	@{
-		await Html.RenderPartialAsync("_ValidationScriptsPartial");
-	}
-}
+                    if (!selectedEmployee) {
+                        document.getElementById('employeeWarning').textContent = 'الرجاء اختيار موظف واحد';
+                        document.getElementById('employeeWarning').style.display = 'block';
+                        valid = false;
+                    }
+                }
+
+                // Prevent form submission if validation fails
+                if (!valid) {
+                    event.preventDefault();
+                }
+            });
+        });
+
+        document.getElementById('departmentSelect').addEventListener('change', function () {
+            let departmentId = this.value;
+            let employeeSelect = document.getElementById('employeeSelect');
+
+            // Clear the employee dropdown before populating
+            employeeSelect.innerHTML = '';
+
+            if (departmentId) {
+                fetch('/HR/GetEmployeesByDepartment?departmentId=' + departmentId)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.length > 0) {
+                            // Add the default "choose employee" option
+                            let defaultOption = document.createElement('option');
+                            defaultOption.value = '';
+                            defaultOption.textContent = '-- اختر الموظف --';
+                            employeeSelect.appendChild(defaultOption);
+
+                            // Populate the employee dropdown with returned data
+                            data.forEach(employee => {
+                                let option = document.createElement('option');
+                                option.value = employee.employee_id; // Set the value to employee_id
+                                option.textContent = employee.name + ' - (' + employee.position + ')'; // Set the text to name and position
+                                employeeSelect.appendChild(option);
+                            });
+                        } 
+                    })
+                    .catch(error => {
+                        console.error('خطاء في استرجاع الموظفين:', error);
+                        // Optionally, you can add a fallback message here if there's an error
+                        let errorOption = document.createElement('option');
+                        errorOption.value = '';
+                        errorOption.textContent = 'لايوجد موظفين في هذا القسم';
+                        employeeSelect.appendChild(errorOption);
+                    });
+            } else {
+                // If no department is selected, reset the employee dropdown
+                let defaultOption = document.createElement('option');
+                defaultOption.value = '';
+                defaultOption.textContent = '-- اختر الموظف --';
+                employeeSelect.appendChild(defaultOption);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,5 +1,9 @@
 ﻿@model CharityProject.Models.salaries_history
-
+@{
+    Layout = "_Layout_HR";
+    ViewData["PageTitle"] = "إضافة سجل راتب جديد";
+    ViewData["Title"] = "صفحة إضافة سجل راتب جديد";
+}
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -133,8 +137,8 @@
                 </div>
 
                 <div class="flex ">
-                    <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">إضافة</button>
-                    <a asp-action="Index" asp-controller="salaries_history" class="ml-4 bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 mr-5 rounded focus:outline-none focus:shadow-outline">إلغاء</a>
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">إضافة</button>
+                    <a asp-action="_GetAllSalaries" asp-controller="HR" class="ml-4 bg-dark text-white font-bold py-2 px-4 mr-5 rounded">إلغاء</a>
 
                 </div>
             </form>

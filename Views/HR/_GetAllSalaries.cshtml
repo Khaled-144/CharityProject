@@ -1,5 +1,26 @@
 ﻿@model List<dynamic>
+@{
+    if (Context.Session.GetString("Permission_position") == "مدير الموارد البشرية والمالية")
+    {
+        Layout = "_Layout_HR";
 
+    }
+    else if (Context.Session.GetString("Permission_position") == "مدير خدمة المستفيدين" || Context.Session.GetString("Permission_position") == "مدير التنمية المالية والاستدامة")
+    {
+        Layout = "_Layout_Managers";
+    }
+    else if (Context.Session.GetString("Permission_position") == "موظف")
+    {
+        Layout = "_Layout_Employees";
+    }
+    else
+    {
+        Layout = "_Layout";
+    }
+
+    ViewData["PageTitle"] = "سجلات الرواتب الشهرية";
+    ViewData["Title"] = "صفحة سجلات الرواتب الشهرية";
+}
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -10,18 +31,18 @@
 </head>
 <body class="bg-gradient-to-br from-green-50 to-emerald-100 min-h-screen p-8">
     <div class="max-w-7xl mx-auto">
-        <h2 class="text-4xl font-bold mb-8 text-center text-emerald-800 shadow-text">سجلات الرواتب الشهرية</h2>
+        <h2 class="p-4 text-5xl font-bold mb-12 text-center text-black shadow-text fade-in">سجلات الرواتب الشهرية</h2>
         <div class="flex flex-col md:flex-row justify-between items-center mb-10 space-y-4 md:space-y-0">
             <!-- Search Form -->
             <form asp-action="SearchByYear" method="get" class="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4 rtl:space-x-reverse">
-                <label for="year" class="text-lg font-semibold text-gray-700">ابحث حسب السنة:</label>
-                <input type="text" id="year" name="year" placeholder="أدخل السنة" class="border border-emerald-300 rounded-lg p-2 focus:ring-2 focus:ring-emerald-400 focus:border-transparent" />
-                <button type="submit" class="bg-gradient-to-r from-emerald-500 to-green-600 text-white rounded-lg px-4 py-2 hover:from-emerald-600 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition duration-300 ease-in-out transform hover:scale-105">
+                <label for="year" class="px-4 text-lg font-semibold text-gray-700">ابحث حسب السنة:</label>
+                <input type="text" id="year" name="year" placeholder="أدخل السنة" class="rounded-lg p-2 border-2 border-gray-300 focus:outline-none focus:border-gray-500" />
+                <button class="bg-primaryButtons text-white rounded-lg px-4 py-2 hover:emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-opacity-50 transition duration-300 ease-in-out transform hover:scale-105">
                     بحث
                 </button>
             </form>
             <!-- Add New Entry Button -->
-            <a asp-action="CreateRecord" class="bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-lg px-6 py-3 hover:from-green-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition duration-300 ease-in-out transform hover:scale-105 shadow-lg">
+            <a asp-action="CreateRecord" class="bg-primaryButtons text-white font-bold rounded-lg px-6 py-3 hover:emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-opacity-50 transition duration-300 ease-in-out transform hover:scale-105 shadow-lg">
                 إضافة مسير جديد
             </a>
         </div>
@@ -31,13 +52,13 @@
             @foreach (var item in Model)
             {
                 <div class="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition duration-300 ease-in-out transform hover:-translate-y-1">
-                    <div class="bg-gradient-to-r from-green-500 to-emerald-600 p-4">
+                    <div class="bg-primaryButtons p-4">
                         <h3 class="text-xl font-bold text-white">@getArabicMonth(item.Month)</h3>
                     </div>
                     <div class="p-6">
-                        <p class="text-gray-600 mb-2"><span class="font-semibold">عدد السجلات:</span> @item.Count</p>
-                        <p class="text-gray-600 mb-4"><span class="font-semibold">إجمالي الصرف:</span> @item.Total</p>
-                        <a asp-action="MonthDetails" asp-route-month="@item.Month" class="inline-block bg-gradient-to-r from-emerald-400 to-emerald-500 text-white rounded-lg px-4 py-2 hover:from-emerald-500 hover:to-emerald-600 transition duration-300 ease-in-out transform hover:scale-105">
+                        <p class="text-gray-800 mb-2"><span class="font-semibold">عدد السجلات:</span> @item.Count</p>
+                        <p class="text-gray-800 mb-4"><span class="font-semibold">إجمالي الصرف:</span> @item.Total</p>
+                        <a asp-action="MonthDetails" asp-route-month="@item.Month" class="inline-block bg-primaryButtons text-white rounded-lg px-4 py-2 hover:emerald-800 transition duration-300 ease-in-out transform hover:scale-105">
                             عرض التفاصيل
                         </a>
                     </div>

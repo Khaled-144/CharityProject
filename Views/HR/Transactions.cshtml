@@ -20,13 +20,37 @@
             border-color: #248277;
             color: #248277;
         }
+
+        .page-header {
+            background: #f3f4f6;
+            padding: 2rem;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #333;
+            margin: 0;
+        }
+
+        .page-subtitle {
+            font-size: 1.25rem;
+            color: #555;
+        }
+   
     </style>
 </head>
 
 <body>
+    
+        <header class="page-header text-center">
+            <h1 class="page-title">@ViewData["PageTitle"]</h1>
+           
+        </header>
     <div class="flex justify-self-auto justify-between mt-10">
         <div>
-            <button id="dropdownDefaultButton" data-dropdown-toggle="dropdown" class="text-white w-32 bg-primaryButtons hover:bg-emerald-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-xl px-4 py-2.5 text-center inline-flex justify-evenly items-center">
+            <button id="dropdownDefaultButton" data-dropdown-toggle="dropdown" class="text-white w-32 bg-primaryButtons hover:bg-emerald-800 focus:ring-4 focus:outline-none focus:ring-emerald-300 font-medium rounded-lg text-xl px-4 py-2.5 text-center inline-flex justify-evenly items-center">
                 جديد
                 <svg class="w-2.5 h-2.5 mx-1 mt-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4" />
@@ -178,40 +202,8 @@
     </script>*@
 
 
-   <script>
-        $(document).ready(function () {
-            var searchTimer;
-
-            function loadTransactions() {
-                $("#loadingIndicator").show();
-                $("#tab-content-container").hide();
-
-                var searchTerm = $("#searchForm input[name='searchTerm']").val();
-                var sortOrder = $("#sortOrder").val();
-                var activeTab = $(".active-tab").attr("id");
-
-                console.log("Searching with term:", searchTerm);
-                console.log("Sort order:", sortOrder);
-                console.log("Active tab:", activeTab);
-                
-                var url;
-                switch (activeTab) {
-                    case "internal-tab":
-                        url = '@Url.Action("SearchTransactions", "Employees")';
-                        break;
-                    case "holidays-tab":
-                        url = '@Url.Action("SearchHolidays", "Employees")';
-                        break;
-                    case "letters-tab":
-                        url = '@Url.Action("SearchLetters", "Employees")';
-                        break;
-                    case "assets-tab":
-                        url = '@Url.Action("SearchAssets", "Employees")';
-                        break;
-                    default:
-                        url = '@Url.Action("SearchTransactions", "Employees")';
-                }
-    
+  @*  <script>
+        
                 $.ajax({
                     url: url,
                     type: 'GET',
@@ -257,7 +249,7 @@
             // Initial load
             loadTransactions();
         });
-    </script>
+    </script> *@
 </body>
 
 </html>

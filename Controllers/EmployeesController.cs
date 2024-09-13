@@ -574,8 +574,6 @@ namespace CharityProject.Controllers
             return PartialView("_getAllLetters", letters);
         }
 
-
-
         public async Task<IActionResult> GetArchivedLetters()
         {
             var employeeDetails = await GetEmployeeDetailsFromSessionAsync();

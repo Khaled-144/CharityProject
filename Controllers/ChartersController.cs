@@ -258,7 +258,7 @@ namespace CharityProject.Controllers
             }
 
             // Update the status to "Closed"
-            charter.status = "تم الإقرار";
+            charter.status = "مستلمة";
             charter.receive_date = DateTime.Now;
 
             // Save changes to the database
