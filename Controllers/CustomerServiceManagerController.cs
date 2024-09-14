@@ -267,6 +267,173 @@ namespace CharityProject.Controllers
             return PartialView("_getAllLetters", letters);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> SearchAssets(string searchTerm = "", string sortOrder = "")
+        {
+
+            var employeeId = GetEmployeeIdFromSession();
+
+            var query = _context.charter
+                .Where(a => a.to_emp_id == employeeId);
+
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                query = query.Where(a =>
+                    a.charter_id.ToString().Contains(searchTerm) ||
+                    a.charter_info.Contains(searchTerm)
+                );
+            }
+
+            switch (sortOrder)
+            {
+                case "oldest":
+                    query = query.OrderBy(a => a.receive_date);
+                    break;
+                case "newest":
+                default:
+                    query = query.OrderByDescending(a => a.receive_date);
+                    break;
+            }
+
+            var assets = await query.ToListAsync();
+
+            return PartialView("_getAllAssets", assets);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> SearchTransactions(string searchTerm = "", string sortOrder = "")
+        {
+
+            var employeeId = GetEmployeeIdFromSession();
+
+            var query = _context.Transactions
+                .Include(t => t.Referrals)
+                    .ThenInclude(r => r.from_employee)
+                .Include(t => t.Referrals)
+                    .ThenInclude(r => r.to_employee)
+                .Where(t => t.to_emp_id == employeeId || t.Referrals.Any(r => r.to_employee_id == employeeId));
+
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                query = query.Where(t =>
+                    t.transaction_id.ToString().Contains(searchTerm) ||
+                    t.title.Contains(searchTerm)
+                );
+            }
+
+            switch (sortOrder)
+            {
+                case "oldest":
+                    query = query.OrderBy(t => t.create_date);
+                    break;
+                case "newest":
+                default:
+                    query = query.OrderByDescending(t => t.create_date);
+                    break;
+            }
+
+            var transactions = await query.ToListAsync();
+
+            // Fetch employee names
+            var employeeIds = transactions.SelectMany(t => new[] { t.from_emp_id, t.to_emp_id }).Distinct().ToList();
+            var employees = await _context.employee
+                .Where(e => employeeIds.Contains(e.employee_id))
+                .ToDictionaryAsync(e => e.employee_id, e => e.name);
+
+            ViewBag.EmployeeNames = employees;
+
+            // Fetch departments for the dropdown
+            var departments = await _context.Department.ToListAsync();
+            ViewBag.Departments = new SelectList(departments, "departement_id", "departement_name");
+
+            return PartialView("_getAllTransactions", transactions);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> SearchHolidays(string searchTerm = "", string sortOrder = "")
+        {
+
+            var employeeId = GetEmployeeIdFromSession();
+
+            var query = _context.HolidayHistories
+                .Where(h => h.emp_id == employeeId);
+
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                query = query.Where(h =>
+                    h.holidays_history_id.ToString().Contains(searchTerm) ||
+                    h.title.Contains(searchTerm)
+                );
+            }
+
+            switch (sortOrder)
+            {
+                case "oldest":
+                    query = query.OrderBy(h => h.start_date);
+                    break;
+                case "newest":
+                default:
+                    query = query.OrderByDescending(h => h.start_date);
+                    break;
+            }
+
+            var holidays = await query.ToListAsync();
+
+            return PartialView("_getAllHolidays", holidays);
+        }
+        [HttpGet]
+        public async Task<IActionResult> SearchLetters(string searchTerm = "", string sortOrder = "")
+        {
+
+            var employeeId = GetEmployeeIdFromSession();
+
+            var query = _context.letters
+                .Where(l => l.to_emp_id == employeeId);
+
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                query = query.Where(l =>
+                    l.letters_id.ToString().Contains(searchTerm) ||
+                    l.title.Contains(searchTerm)
+                );
+            }
+
+            switch (sortOrder)
+            {
+                case "oldest":
+                    query = query.OrderBy(l => l.date);
+                    break;
+                case "newest":
+                default:
+                    query = query.OrderByDescending(l => l.date);
+                    break;
+            }
+
+            var letters = await query.ToListAsync();
+
+            return PartialView("_getAllLetters", letters);
+        }
+        [HttpGet]
+        public IActionResult SearchExternalTransactions(string searchTerm)
+        {
+            var transactions = _context.ExternalTransactions.AsQueryable();
+
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                transactions = transactions.Where(t => t.identity_number.ToString().Contains(searchTerm) || t.sending_number.ToString().Contains(searchTerm));
+            }
+
+            var resultList = transactions.ToList();
+
+            if (!resultList.Any())
+            {
+                return PartialView("_NoResults"); // Return the _NoResults partial view if no results are found
+            }
+
+            return PartialView("_getAllExternalTransactios", resultList); // Return the transaction list partial view if results are found
+        }
+
+
         // Create Actions  --------------------------------------------------------
 
 

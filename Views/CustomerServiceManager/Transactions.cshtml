@@ -1,20 +1,20 @@
 ﻿@model IEnumerable<CharityProject.Models.Transaction>
 
 @{
-    Layout = "_Layout_Managers";
+    Layout = "_Layout_Employees";
     ViewData["PageTitle"] = "المعاملات";
     ViewData["Title"] = "صفحة المعاملات";
+    var permission = Context.Session.GetString("Permission_position");
+
 }
 
 <!DOCTYPE html>
 <html lang="ar">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@ViewData["PageTitle"]</title>
     <link rel="stylesheet" href="~/css/site.css">
-    <!-- Add any additional CSS or JS references here -->
     <style>
         .active-tab {
             border-color: #248277;
@@ -22,10 +22,12 @@
         }
     </style>
 </head>
-
 <body>
-    <div class="flex justify-self-auto justify-between mt-10">
-        <div>
+    <!-- Tab and search UI -->
+    <div class="flex justify-between mt-10">
+
+        <!-- Right Side: Dropdown Button -->
+        <div class="flex items-center">
             <button id="dropdownDefaultButton" data-dropdown-toggle="dropdown" class="text-white w-32 bg-primaryButtons hover:bg-emerald-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-xl px-4 py-2.5 text-center inline-flex justify-evenly items-center transition duration-200 ease-in-out">
                 جديد
                 <svg class="w-2.5 h-2.5 mx-1 mt-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
@@ -48,21 +50,21 @@
                 </ul>
             </div>
         </div>
-        <!-- Search and filter -->
-        <div class="mx-4">
-            <form id="searchForm">
-                <div class="flex justify-evenly">
-                    <input name="searchTerm" placeholder="رقم المعاملة أو العنوان" class="form-control mr-2" type="search" aria-label="search" />
-                    <select name="sortOrder" id="sortOrder" class="bg-white border border-primaryButtons px-5 text-black text-sm rounded-lg text-center focus:ring-blue-500 focus:border-blue-500 block mr-2">
-                        <option selected>فلترة</option>
-                        <option value="newest">الاحدث</option>
-                        <option value="oldest">الاقدم</option>
-                    </select>
-                </div>
-            </form>
+        
+        <!-- Left Side: Search Form -->
+        <div class="flex items-center space-x-2">
+            <div class="flex items-center">
+                <input id="transactionSearch" placeholder="عنوان او رقم المعاملة" class="form-control mr-2" type="search" aria-label="search" />
+                <button id="searchButton" class="btn btn-dark" type="button">بحث</button>
+                <select id="sortOrder" class="bg-white border border-primaryButtons px-5 text-black text-sm py-2 rounded-lg text-center focus:ring-blue-500 focus:border-blue-500 block mr-2">
+                    <option value="newest">الاحدث</option>
+                    <option value="oldest">الاقدم</option>
+                </select>
+            </div>
         </div>
     </div>
 
+    <!-- Tab navigation -->
     <div class="mb-4 border-b border-gray-200 dark:border-gray-700">
         <ul class="flex flex-wrap -mb-px text-xl font-medium text-center" id="default-tab" role="tablist">
             <li class="me-2 flex items-center" role="presentation">
@@ -92,8 +94,8 @@
         </ul>
     </div>
 
-
-    <div id="tab-content-container" class="mt-5">
+    <!-- Tab content -->
+    <div id="tab-content-container" class="">
         <!-- Content will be dynamically loaded here -->
     </div>
 
@@ -104,114 +106,89 @@
 
     <script src="~/js/site.js"></script>
     <script>
+        const placeholders = {
+            internal: "عنوان او رقم المعاملة",
+            holidays: "رقم الإجازة",
+            external: "رقم الهوية او رقم الصادر",
+            letters: "عنوان او رقم الخطاب",
+            charters: "رقم العهده"
+        };
         $(document).ready(function () {
-            function loadTabContent(url) {
+            let selectedTab = 'internal'; // Default tab type
+
+            function loadTabContent(url, searchTerm, sortOrder) {
                 $("#tab-content-container").html('<div class="text-center"><div class="spinner text-center"></div><p>جاري تحميل المحتوى...</p></div>');
-                $.ajax({
-                    url: url,
-                    type: 'GET',
-                    success: function (result) {
-                        $("#tab-content-container").html(result);
-                    },
-                    error: function (xhr, status, error) {
-                        console.error(error);
-                        $("#tab-content-container").html('<p class = " text-center ">فشل تحميل المحتوى. حاول مرة أخرى لاحقاً.</p>');
-                    }
-                });
-            }
-
-            $("#default-tab button").on("click", function () {
-                var url = $(this).data("content-url");
-                loadTabContent(url);
-                $("#default-tab button").removeClass("active-tab");
-                $(this).addClass("active-tab");
-            });
-
-            // Load initial tab content
-            $("#internal-tab").trigger("click");
-        });
-    </script>
-
-    <script>
-        $(document).ready(function () {
-            var searchTimer;
-
-            function loadTransactions() {
-                $("#loadingIndicator").show();
-                $("#tab-content-container").hide();
-
-                var searchTerm = $("#searchForm input[name='searchTerm']").val();
-                var sortOrder = $("#sortOrder").val();
-                var activeTab = $(".active-tab").attr("id");
-
-                console.log("Searching with term:", searchTerm);
-                console.log("Sort order:", sortOrder);
-                console.log("Active tab:", activeTab);
-                
-                var url;
-                switch (activeTab) {
-                    case "internal-tab":
-                        url = '@Url.Action("SearchTransactions", "Employees")';
-                        break;
-                    case "holidays-tab":
-                        url = '@Url.Action("SearchHolidays", "Employees")';
-                        break;
-                    case "letters-tab":
-                        url = '@Url.Action("SearchLetters", "Employees")';
-                        break;
-                    case "assets-tab":
-                        url = '@Url.Action("SearchAssets", "Employees")';
-                        break;
-                    default:
-                        url = '@Url.Action("SearchTransactions", "Employees")';
-                }
-    
                 $.ajax({
                     url: url,
                     type: 'GET',
                     data: { searchTerm: searchTerm, sortOrder: sortOrder },
                     success: function (result) {
-                        console.log("Received data:", result);
-                        if (result.trim() === "") {
-                            // If the result is empty, load the _NothingNew tab
-                            $("#tab-content-container").load('@Url.Action("_NothingNew", "Employees")');
-                        } else {
-                            $("#tab-content-container").html(result);
-                        }
-                        $("#loadingIndicator").hide();
-                        $("#tab-content-container").show();
+                        $("#tab-content-container").html(result);
                     },
                     error: function (xhr, status, error) {
-                        console.error("Error:", error);
-                        console.error("Status:", status);
-                        console.error("Response:", xhr.responseText);
-                        $("#loadingIndicator").hide();
-                        $("#tab-content-container").show();
-                        $("#tab-content-container").html("<p>Error loading transactions. Please try again.</p>");
+                        console.error(`Error loading content from ${url}: ${error}`);
+                        $("#tab-content-container").html('<p class="text-center">فشل تحميل المحتوى. حاول مرة أخرى لاحقاً.</p>');
                     }
                 });
             }
 
-            // Trigger search on input change with a delay
-            $("#searchForm input[name='searchTerm']").on('input', function() {
-                clearTimeout(searchTimer);
-                searchTimer = setTimeout(loadTransactions, 1000); // 1000ms delay
-            });
 
-            // Trigger search on sort order change
-            $("#sortOrder").on("change", function () {
-                loadTransactions();
-            });
-
-            // Trigger search on tab change
+            // Handle tab clicks
             $("#default-tab button").on("click", function () {
-                loadTransactions();
+                selectedTab = $(this).attr('id').replace('-tab', ''); // Update selectedTab with the clicked tab id
+                var url = $(this).data("content-url");
+                loadTabContent(url, $('#transactionSearch').val(), $('#sortOrder').val());
+                $("#default-tab button").removeClass("active-tab");
+                $(this).addClass("active-tab");
+
+                // Update the placeholder text based on selected tab
+                $('#transactionSearch').attr('placeholder', placeholders[selectedTab]);
             });
 
-            // Initial load
-            loadTransactions();
-        });
-</script>
-</body>
+            // Load initial tab content
+            $("#internal-tab").trigger("click");
 
+            // Handle search input typing
+            $('#transactionSearch').on('keyup', function () {
+                var searchTerm = $(this).val().toLowerCase();
+                var items = $('#tab-content-container li').filter(function () {
+                    var text = $(this).text().toLowerCase();
+                    return text.indexOf(searchTerm) > -1;
+                });
+
+                $('#tab-content-container li').each(function () {
+                    $(this).toggle(items.index($(this)) > -1);
+                });
+            });
+
+            // Handle sort selection change
+            $('#sortOrder').on('change', function () {
+                var sortOrder = $(this).val();
+                var items = $('#tab-content-container li').get();
+
+                // Sort items based on the selected order
+                items.sort(function (a, b) {
+                    var firstItem = $(a).text(); // Get the text from each item
+                    var secondItem = $(b).text();
+
+                    if (sortOrder === 'newest') {
+                        return firstItem > secondItem ? -1 : 1;
+                    } else if (sortOrder === 'oldest') {
+                        return firstItem < secondItem ? -1 : 1;
+                    }
+                    return 0; // Default, no sorting
+                });
+
+                // Re-append the sorted items back to the container
+                $.each(items, function (i, li) {
+                    $('#tab-content-container ul').append(li);
+                });
+
+            });
+        });
+    </script>
+
+
+
+</body>
 </html>
