@@ -335,6 +335,8 @@ namespace CharityProject.Controllers
 
 		}
 
+
+
 		public async Task<IActionResult> GetArchivedTransactions()
 		{
 			var employeeId = GetEmployeeIdFromSession();
@@ -411,7 +413,6 @@ namespace CharityProject.Controllers
 		// New method to view referral history
 		public async Task<IActionResult> ReferralHistory(int id)
 		{
-			_logger.LogInformation($"Fetching referral history for transaction {id}");
 
 			var referrals = await _context.Referrals
 				.Where(r => r.transaction_id == id)
@@ -419,13 +420,6 @@ namespace CharityProject.Controllers
 				.Include(r => r.to_employee)
 				.OrderByDescending(r => r.referral_date)
 				.ToListAsync();
-
-			_logger.LogInformation($"Found {referrals.Count} referrals");
-
-			foreach (var referral in referrals)
-			{
-				_logger.LogInformation($"Referral {referral.referral_id}: From {referral.from_employee_id} ({referral.from_employee?.name ?? "N/A"}) To {referral.to_employee_id} ({referral.to_employee?.name ?? "N/A"})");
-			}
 
 			return View(referrals);
 		}
@@ -638,10 +632,8 @@ namespace CharityProject.Controllers
 		[HttpGet]
 		public async Task<IActionResult> SearchAssets(string searchTerm = "", string sortOrder = "")
 		{
-			_logger.LogInformation($"SearchAssets called with searchTerm: {searchTerm}, sortOrder: {sortOrder}");
 
 			var employeeId = GetEmployeeIdFromSession();
-			_logger.LogInformation($"Employee ID from session: {employeeId}");
 
 			var query = _context.charter
 				.Where(a => a.to_emp_id == employeeId);
@@ -666,7 +658,6 @@ namespace CharityProject.Controllers
 			}
 
 			var assets = await query.ToListAsync();
-			_logger.LogInformation($"Found {assets.Count} assets");
 
 			return PartialView("_getAllAssets", assets);
 		}
@@ -674,10 +665,8 @@ namespace CharityProject.Controllers
 		[HttpGet]
 		public async Task<IActionResult> SearchTransactions(string searchTerm = "", string sortOrder = "")
 		{
-			_logger.LogInformation($"SearchTransactions called with searchTerm: {searchTerm}, sortOrder: {sortOrder}");
 
 			var employeeId = GetEmployeeIdFromSession();
-			_logger.LogInformation($"Employee ID from session: {employeeId}");
 
 			var query = _context.Transactions
 				.Include(t => t.Referrals)
@@ -706,7 +695,6 @@ namespace CharityProject.Controllers
 			}
 
 			var transactions = await query.ToListAsync();
-			_logger.LogInformation($"Found {transactions.Count} transactions");
 
 			// Fetch employee names
 			var employeeIds = transactions.SelectMany(t => new[] { t.from_emp_id, t.to_emp_id }).Distinct().ToList();
@@ -726,10 +714,8 @@ namespace CharityProject.Controllers
 		[HttpGet]
 		public async Task<IActionResult> SearchHolidays(string searchTerm = "", string sortOrder = "")
 		{
-			_logger.LogInformation($"SearchHolidays called with searchTerm: {searchTerm}, sortOrder: {sortOrder}");
 
 			var employeeId = GetEmployeeIdFromSession();
-			_logger.LogInformation($"Employee ID from session: {employeeId}");
 
 			var query = _context.HolidayHistories
 				.Where(h => h.emp_id == employeeId);
@@ -754,17 +740,14 @@ namespace CharityProject.Controllers
 			}
 
 			var holidays = await query.ToListAsync();
-			_logger.LogInformation($"Found {holidays.Count} holidays");
 
 			return PartialView("_getAllHolidays", holidays);
 		}
 		[HttpGet]
 		public async Task<IActionResult> SearchLetters(string searchTerm = "", string sortOrder = "")
 		{
-			_logger.LogInformation($"SearchLetters called with searchTerm: {searchTerm}, sortOrder: {sortOrder}");
 
 			var employeeId = GetEmployeeIdFromSession();
-			_logger.LogInformation($"Employee ID from session: {employeeId}");
 
 			var query = _context.letters
 				.Where(l => l.to_emp_id == employeeId);
@@ -789,7 +772,6 @@ namespace CharityProject.Controllers
 			}
 
 			var letters = await query.ToListAsync();
-			_logger.LogInformation($"Found {letters.Count} letters");
 
 			return PartialView("_getAllLetters", letters);
 		}

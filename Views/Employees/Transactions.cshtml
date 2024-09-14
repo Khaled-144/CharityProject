@@ -51,19 +51,15 @@
 
 		<!-- Left Side: Search Form -->
 		<div class="flex items-center space-x-2">
-			<form id="searchForm" class="flex items-center">
-				<input name="id" placeholder="رقم المعاملة" class="form-control mr-2" type="search" aria-label="search" />
-				<button id="searchButton" class="btn btn-dark" type="submit">بحث</button>
-				<select name="sortOrder" id="sortOrder" class="bg-white border border-primaryButtons px-5 text-black text-sm rounded-lg text-center focus:ring-blue-500 focus:border-blue-500 block ml-2">
-					<option selected>فلترة</option>
+			<div class="flex items-center">
+				<input id="transactionSearch" placeholder="عنوان او رقم المعاملة" class="form-control mr-2" type="search" aria-label="search" />
+				<button id="searchButton" class="btn btn-dark" type="button">بحث</button>
+				<select id="sortOrder" class="bg-white border border-primaryButtons px-5 text-black text-sm py-2 rounded-lg text-center focus:ring-blue-500 focus:border-blue-500 block mr-2">
 					<option value="newest">الاحدث</option>
 					<option value="oldest">الاقدم</option>
 				</select>
-			</form>
-
+			</div>
 		</div>
-
-
 	</div>
 
 	<!-- Tab navigation -->
@@ -76,16 +72,16 @@
 			@if (permission == "السكرتير")
 			{
 				<li class="me-2 flex items-center" role="presentation">
-					<button class="inline-block p-4 border-b-2 rounded-t-lg" id="letters-tab" data-content-url="@Url.Action("GetAllExternalTransactions", "Employees")" type="button" role="tab">خارجية</button>
-				<span class="text-red-500 text-sm ml-2">(@ViewBag.ExternalCount)</span>
-			</li>
+					<button class="inline-block p-4 border-b-2 rounded-t-lg" id="external-tab" data-content-url="@Url.Action("GetAllExternalTransactions", "Employees")" type="button" role="tab">خارجية</button>
+					<span class="text-red-500 text-sm ml-2">(@ViewBag.ExternalCount)</span>
+				</li>
 			}
 			<li class="me-2 flex items-center" role="presentation">
 				<button class="inline-block p-4 border-b-2 rounded-t-lg" id="letters-tab" data-content-url="@Url.Action("GetAllLetters", "Employees")" type="button" role="tab">خطابات</button>
 				<span class="text-red-500 text-sm ml-2">(@ViewBag.LettersCount)</span>
 			</li>
 			<li class="flex items-center" role="presentation">
-				<button class="inline-block p-4 border-b-2 rounded-t-lg" id="assets-tab" data-content-url="@Url.Action("GetAllCharters", "Employees")" type="button" role="tab">عهده</button>
+				<button class="inline-block p-4 border-b-2 rounded-t-lg" id="charters-tab" data-content-url="@Url.Action("GetAllCharters", "Employees")" type="button" role="tab">عهده</button>
 				<span class="text-red-500 text-sm ml-2">(@ViewBag.AssetsCount)</span>
 			</li>
 		</ul>
@@ -103,6 +99,12 @@
 
 	<script src="~/js/site.js"></script>
 	<script>
+		const placeholders = {
+			internal: "عنوان او رقم المعاملة",
+			external: "رقم الهوية او رقم الصادر",
+			letters: "عنوان او رقم الخطاب",
+			charters: "رقم العهده"
+		};
 		$(document).ready(function () {
 			let selectedTab = 'internal'; // Default tab type
 
@@ -122,28 +124,63 @@
 				});
 			}
 
+
 			// Handle tab clicks
 			$("#default-tab button").on("click", function () {
 				selectedTab = $(this).attr('id').replace('-tab', ''); // Update selectedTab with the clicked tab id
 				var url = $(this).data("content-url");
-				loadTabContent(url, $('#searchForm input[name="id"]').val(), $('#sortOrder').val());
+				loadTabContent(url, $('#transactionSearch').val(), $('#sortOrder').val());
 				$("#default-tab button").removeClass("active-tab");
 				$(this).addClass("active-tab");
-			});
 
-			// Handle form submissions for searching
-			$("#searchForm").on("submit", function (e) {
-				e.preventDefault();
-				var searchTerm = $(this).find('input[name="id"]').val();
-				var sortOrder = $('#sortOrder').val();
-				var url = $('#' + selectedTab + '-tab').data("content-url");
-				loadTabContent(url, searchTerm, sortOrder);
+				// Update the placeholder text based on selected tab
+				$('#transactionSearch').attr('placeholder', placeholders[selectedTab]);
 			});
 
 			// Load initial tab content
 			$("#internal-tab").trigger("click");
+
+			// Handle search input typing
+			$('#transactionSearch').on('keyup', function () {
+				var searchTerm = $(this).val().toLowerCase();
+				var items = $('#tab-content-container li').filter(function () {
+					var text = $(this).text().toLowerCase();
+					return text.indexOf(searchTerm) > -1;
+				});
+
+				$('#tab-content-container li').each(function () {
+					$(this).toggle(items.index($(this)) > -1);
+				});
+			});
+
+			// Handle sort selection change
+			$('#sortOrder').on('change', function () {
+				var sortOrder = $(this).val();
+				var items = $('#tab-content-container li').get();
+
+				// Sort items based on the selected order
+				items.sort(function (a, b) {
+					var firstItem = $(a).text(); // Get the text from each item
+					var secondItem = $(b).text();
+
+					if (sortOrder === 'newest') {
+						return firstItem > secondItem ? -1 : 1;
+					} else if (sortOrder === 'oldest') {
+						return firstItem < secondItem ? -1 : 1;
+					}
+					return 0; // Default, no sorting
+				});
+
+				// Re-append the sorted items back to the container
+				$.each(items, function (i, li) {
+					$('#tab-content-container ul').append(li);
+				});
+
+			});
 		});
 	</script>
+
+
 
 </body>
 </html>
