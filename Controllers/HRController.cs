@@ -362,7 +362,7 @@ namespace CharityProject.Controllers
 
             var charter = await _context.charter
                 .Include(c=>c.employee)
-                .Where(c=>c.status != "مسلمة")
+                .Where(c=>c.status != "مستلمة")
                 .OrderByDescending(t => t.charter_id) // Order by transaction_id in descending order
                 .ToListAsync();
             if (charter.Count == 0)
