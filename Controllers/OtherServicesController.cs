@@ -11,11 +11,11 @@ using System.IO;
 using Microsoft.Extensions.Logging;
 using System.Reflection;
 using System.Threading.Tasks;
-using IronPdf;
-using IronPdf.Rendering;
-using IronPdf.Font;
-using IronSoftware.Drawing;
 using Microsoft.Extensions.Logging;
+using QuestPDF.Fluent;
+using QuestPDF.Helpers;
+using QuestPDF.Infrastructure;
+using QuestPDF.Elements;
 
 
 namespace CharityProject.Controllers
@@ -35,109 +35,289 @@ namespace CharityProject.Controllers
 
         }
 
-        public async Task<IActionResult> GeneratePdf()
+        private async Task<employee_details> GetEmployeeDetailsFromSessionAsync()
         {
-            // Path to the existing PDF file
-            string pdfPath = Path.Combine(Directory.GetCurrentDirectory(), "pdfs/Templates/mySalaryStatementTemplate.pdf");
+            var employeeIdString = HttpContext.Session.GetString("Id");
 
-            // Load the existing PDF
-            var pdf = PdfDocument.FromFile(pdfPath);
+            if (employeeIdString != null && int.TryParse(employeeIdString, out int employeeId))
+            {
+                var employeeDetails = await _context.employee_details
+                    .Include(ed => ed.employee)
+                   .Include(ed => ed.Department)
+                    .FirstOrDefaultAsync(ed => ed.employee_id == employeeId);
 
-            // HTML content to add to the PDF
-            string htmlContent = @"
-                <div style='font-family: Arial, sans-serif; font-size: 24pt; color: #000;'>
-                    <h1 style='position: absolute; top: 0; left: 50%; transform: translateX(-50%);'>من يهمه الأمر</h1>
-                </div>";
+                return employeeDetails;
+            }
 
-            // Create a renderer for the HTML content
-            var renderer = new ChromePdfRenderer();
-
-            // Render the HTML content to an image
-            var htmlPdf = renderer.RenderHtmlAsPdf(htmlContent);
-            var htmlImage = htmlPdf.ToBitmap(300)[0]; // Convert the first page to an image (DPI = 300) 
-
-            // Adjust the x and y coordinates to move the text on the PDF
-            int index = 0;
-            int x = 0; // Move units
-            int y = 0; // Move units
-            int width = 100; // Width of the drawn image
-            int height = 100; // Height of the drawn image
-
-            // Draw the image on the existing PDF
-            pdf.DrawBitmap(htmlImage, index, x, y, width, height); // Adjust the position and size as needed
-
-            // Save the modified PDF to a file (optional)
-            string outputPdfPath = Path.Combine(Directory.GetCurrentDirectory(), "pdfs/Outputs/replaceTextOnSinglePage.pdf");
-            pdf.SaveAs(outputPdfPath);
-
-            // Return the modified PDF as a file result
-            return File(pdf.BinaryData, "application/pdf", "replaceTextOnSinglePage.pdf");
+            return null;
         }
-    
 
-    [HttpPost]
-        public async Task<IActionResult> GenerateSalaryStatement(string employeeName, string employeeId, string salaryAmount, string recipient, string customRecipientName)
+        [HttpPost]
+        public async Task<IActionResult> GenerateSalaryStatement(string salaryAmount, string recipient)
         {
-            string dateTime = DateTime.Now.ToString("yyyyMMdd_HHmmss");
-            string outputFileName = $"SalaryStatement_{employeeId}_{dateTime}.pdf";
-            string outputPath = Path.Combine(Directory.GetCurrentDirectory(), "pdfs", "Outputs", outputFileName);
-
-            string templatePath = Path.Combine(Directory.GetCurrentDirectory(), "pdfs", "Templates", "SalaryStatementTemplate.pdf");
+            var employee = await GetEmployeeDetailsFromSessionAsync();
+            string employeeName = employee.employee.name;
+            string employeeId = employee.employee_id.ToString();
+            QuestPDF.Settings.License = LicenseType.Community;
+            string dateTime = DateTime.Now.ToString("yyyy_MM_dd_HHmmss");
+            string outputFileName = $"تعريف بالراتب للموظف_{employeeName}_بتاريخ_{dateTime}.pdf";
 
             try
             {
-                // Load the existing PDF template
-                var templatePdf = PdfDocument.FromFile(templatePath);
+                var document = Document.Create(container =>
+                {
+                    container.Page(page =>
+                    {
+                        page.Size(PageSizes.A4);
+                        page.Margin(2, Unit.Centimetre);
+                        page.DefaultTextStyle(x => x.FontFamily("Arial").FontSize(11));
 
-                // HTML content with placeholders for dynamic data
-                string htmlContent = $@"
-                <html>
-                    <head>
-                        <style>
-                            body {{ font-family: 'Cairo', sans-serif; direction: rtl; }}
-                            .field {{ position: absolute; }}
-                            #employeeName {{ top: 300px; left: 200px; }}
-                            #employeeId {{ top: 350px; left: 200px; }}
-                            #salaryAmount {{ top: 400px; left: 200px; }}
-                            #recipient {{ top: 450px; left: 200px; }}
-                            #customRecipientName {{ top: 500px; left: 200px; }}
-                        </style>
-                    </head>
-                    <body>
-                        <div class='field' id='employeeName'>اسم الموظف: {employeeName}</div>
-                        <div class='field' id='employeeId'>رقم الموظف: {employeeId}</div>
-                        <div class='field' id='salaryAmount'>مبلغ الراتب: {salaryAmount}</div>
-                        <div class='field' id='recipient'>إلى: {recipient}</div>
-                        {(string.IsNullOrEmpty(customRecipientName) ? "" : $"<div class='field' id='customRecipientName'>اسم الجهة: {customRecipientName}</div>")}
-                    </body>
-                </html>";
+                        page.Header().Element(ComposeHeader);
+                        page.Content().Element(container => ComposeContent(container, employeeName, employeeId, salaryAmount, recipient));
+                        page.Footer().Element(ComposeFooter);
 
-                // Render HTML content to an overlay PDF document
-                var Renderer = new ChromePdfRenderer();
-                var overlayPdf = Renderer.RenderHtmlAsPdf(htmlContent);
+                        page.Background().Border(1).BorderColor(Colors.Grey.Lighten2);
+                    });
+                });
 
+                byte[] pdfBytes;
+                using (var ms = new MemoryStream())
+                {
+                    document.GeneratePdf(ms);
+                    pdfBytes = ms.ToArray();
+                }
 
-                // Merge the overlay PDF with the template PDF
-                var mergedPdf = PdfDocument.Merge(new List<PdfDocument> { templatePdf, overlayPdf });
+                // Optionally save the file on the server
+                string savePath = Path.Combine("pdfs", "outputs", outputFileName);
+                Directory.CreateDirectory(Path.GetDirectoryName(savePath));
+                await System.IO.File.WriteAllBytesAsync(savePath, pdfBytes);
 
-                // Save the merged PDF document
-                mergedPdf.SaveAs(outputPath);
-
-                byte[] fileBytes = await System.IO.File.ReadAllBytesAsync(outputPath);
-                return File(fileBytes, "application/pdf", outputFileName);
+                // Return the file to the client
+                return File(pdfBytes, "application/pdf", outputFileName);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error generating PDF");
+                _logger.LogError(ex, "Error generating PDF: {ErrorMessage}", ex.Message);
                 return StatusCode(500, "Error generating PDF");
             }
         }
 
-        // GET: OtherServices
-        public async Task<IActionResult> Index()
+        void ComposeHeader(IContainer container)
         {
-            return View(await _context.OtherServices.ToListAsync());
+            container.Background(Colors.Grey.Lighten3).Padding(20).Row(row =>
+            {
+                row.ConstantItem(100).Height(50).Image("wwwroot/images/logo.png");
+                row.RelativeItem().Column(column =>
+                {
+                    column.Item().AlignCenter().Text("تعريف بالراتب").FontSize(24).Bold().FontColor(Colors.Blue.Medium);
+                    column.Item().AlignCenter().Text($"التاريخ: {GetArabicFormattedDate(DateTime.Now)}").FontSize(12).FontColor(Colors.Grey.Medium);
+                });
+            });
         }
+
+        string GetArabicFormattedDate(DateTime date)
+        {
+            string[] arabicMonths = { "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر" };
+            string day = new string(date.Day.ToString("00").Reverse().ToArray());
+            string year = new string(date.Year.ToString().Reverse().ToArray());
+            return $"{day} {arabicMonths[date.Month - 1]} {year}";
+        }
+
+        void ComposeContent(IContainer container, string employeeName, string employeeId, string salaryAmount, string recipient)
+        {
+            container.PaddingVertical(1, Unit.Centimetre).Column(column =>
+            {
+                column.Spacing(20);
+
+                column.Item().Background(Colors.Grey.Lighten4).Padding(10).Column(innerColumn =>
+                {
+                    innerColumn.Item().AlignRight().Text("نموذج تعريف بالراتب لموظفين جمعية مسكني – المدينة المنورة").Bold().FontSize(14);
+                    innerColumn.Item().AlignRight().Text("هذا النموذج خاص بجمعية مسكني وتم انشاء هذه الصفحة بناءً على طلب الموظف ولا تتحمل الجمعية أي مسؤولية بخصوص صحة البيانات أدناه.").FontSize(10);
+                });
+
+                column.Item().Table(table =>
+                {
+                    table.ColumnsDefinition(columns =>
+                    {
+                        columns.RelativeColumn();
+                        columns.ConstantColumn(150);
+                    });
+
+                    string salaryText = salaryAmount;
+                    string reversedSalaryText = new string(salaryText.Reverse().ToArray());
+
+                    AddTableRow(table, "اسم الموظف:", employeeName);
+                    AddTableRow(table, "رقم الموظف:", employeeId);
+                    AddTableRow(table, "مبلغ الراتب:", $"{reversedSalaryText} ريال سعودي فقط");
+                    AddTableRow(table, "الى:", recipient);
+                });
+
+                column.Item().PaddingTop(20).LineHorizontal(1).LineColor(Colors.Grey.Medium);
+
+                column.Item().PaddingTop(20).AlignRight().Text("هذا المستند يوثق معلومات الراتب").FontSize(10).FontColor(Colors.Grey.Medium);
+            });
+        }
+
+        void AddTableRow(TableDescriptor table, string label, string value)
+        {
+            table.Cell().Border(1).BorderColor(Colors.Grey.Lighten2).Padding(5).AlignRight().Text(value);
+            table.Cell().Border(1).BorderColor(Colors.Grey.Lighten2).Padding(5).AlignRight().Text(label).Bold();
+        }
+
+        void ComposeFooter(IContainer container)
+        {
+            string reversedYear = new string(DateTime.Now.Year.ToString().Reverse().ToArray());
+            container.Background(Colors.Grey.Lighten3).Padding(10).Row(row =>
+            {
+                row.RelativeItem().AlignRight().Text($"© {reversedYear} جمعية مسكني").FontSize(10).FontColor(Colors.Grey.Medium);
+                row.RelativeItem().AlignLeft().Text(x =>
+                {
+                    x.CurrentPageNumber();
+                    x.Span(" / ");
+                    x.TotalPages();
+                });
+            });
+        }
+        //--------------salar recored----------------
+        [HttpPost]
+        public async Task<IActionResult> GenerateSalaryRecored(DateTime startDate, DateTime endDate)
+        {
+            var employee = await GetEmployeeDetailsFromSessionAsync();
+            string employeeName = employee.employee.name;
+            int employeeId = employee.employee_id;
+            QuestPDF.Settings.License = LicenseType.Community;
+            string dateTime = DateTime.Now.ToString("yyyy_MM_dd_HHmmss");
+            string outputFileName = $"تقرير بالراتب للموظف_{employeeName}_بتاريخ_{dateTime}.pdf";
+
+            try
+            {
+                var salaryRecords = await GetSalaryRecordsAsync(employeeId, startDate, endDate);
+
+                var document = Document.Create(container =>
+                {
+                    container.Page(page =>
+                    {
+                        page.Size(PageSizes.A4);
+                        page.Margin(1, Unit.Centimetre);
+                        page.DefaultTextStyle(x => x.FontFamily("Arial").FontSize(10));
+
+                        page.Header().Element(ComposeHeaderRecored);
+                        page.Content().Element(container => ComposeContent(container, employeeName, employeeId.ToString(), startDate, endDate, salaryRecords));
+                        page.Footer().Element(ComposeFooter);
+
+                        page.Background().Border(1).BorderColor(Colors.Grey.Lighten2);
+                    });
+                });
+
+                byte[] pdfBytes;
+                using (var ms = new MemoryStream())
+                {
+                    document.GeneratePdf(ms);
+                    pdfBytes = ms.ToArray();
+                }
+
+                string savePath = Path.Combine("pdfs", "outputs", outputFileName);
+                Directory.CreateDirectory(Path.GetDirectoryName(savePath));
+                await System.IO.File.WriteAllBytesAsync(savePath, pdfBytes);
+
+                return File(pdfBytes, "application/pdf", outputFileName);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error generating PDF: {ErrorMessage}", ex.Message);
+                return StatusCode(500, "Error generating PDF");
+            }
+        }
+
+        private async Task<List<salaries_history>> GetSalaryRecordsAsync(int employeeId, DateTime startDate, DateTime endDate)
+        {
+            return await _context.SalaryHistories
+                .Where(r => r.emp_id == employeeId && r.date >= startDate && r.date <= endDate)
+                .OrderBy(r => r.date)
+                .ToListAsync();
+        }
+        void ComposeHeaderRecored(IContainer container)
+        {
+            container.Background(Colors.Grey.Lighten3).Padding(20).Row(row =>
+            {
+                row.ConstantItem(100).Height(50).Image("wwwroot/images/logo.png");
+                row.RelativeItem().Column(column =>
+                {
+                    column.Item().AlignCenter().Text("تقرير الراتب").FontSize(24).Bold().FontColor(Colors.Blue.Medium);
+                    column.Item().AlignCenter().Text($"التاريخ: {GetArabicFormattedDate(DateTime.Now)}").FontSize(12).FontColor(Colors.Grey.Medium);
+                });
+            });
+        }
+        private void ComposeContent(IContainer container, string employeeName, string employeeId, DateTime startDate, DateTime endDate, List<salaries_history> salaryRecords)
+        {
+            container.PaddingVertical(20).Column(column =>
+            {
+                column.Spacing(10);
+
+
+                column.Item().AlignRight().Text($"اسم الموظف: {employeeName}").SemiBold();
+                column.Item().AlignRight().Text($"رقم الموظف: {ReverseNumber(employeeId)}");
+                column.Item().AlignRight().Text($"الفترة: {GetArabicMonthYear(endDate)} - {GetArabicMonthYear(startDate)}");
+
+                column.Item().AlignCenter().Table(table =>
+                {
+                    table.ColumnsDefinition(columns =>
+                    {
+                        columns.ConstantColumn(100); // الإجمالي النهائي
+                        columns.ConstantColumn(100); // إجمالي الخصومات
+                        columns.ConstantColumn(100); // إجمالي البدلات
+                        columns.ConstantColumn(80);  // التاريخ
+                    });
+
+                    table.Header(header =>
+                    {
+                        header.Cell().Border(1).BorderColor(Colors.Black).Padding(2).AlignCenter().Text("الإجمالي النهائي").SemiBold();
+                        header.Cell().Border(1).BorderColor(Colors.Black).Padding(2).AlignCenter().Text("إجمالي الخصومات").SemiBold();
+                        header.Cell().Border(1).BorderColor(Colors.Black).Padding(2).AlignCenter().Text("إجمالي البدلات").SemiBold();
+                        header.Cell().Border(1).BorderColor(Colors.Black).Padding(2).AlignCenter().Text("التاريخ").SemiBold();
+                    });
+
+                    foreach (var record in salaryRecords.OrderByDescending(r => r.date))
+                    {
+                        decimal totalAllowances = (decimal)record.base_salary
+                            + (decimal)(record.housing_allowances ?? 0)
+                            + (decimal)(record.transportaion_allowances ?? 0)
+                            + (decimal)(record.other_allowances ?? 0)
+                            + (decimal)(record.overtime ?? 0)
+                            + (decimal)(record.bonus ?? 0);
+
+                        decimal totalDiscounts = (decimal)(record.delay_discount ?? 0)
+                            + (decimal)(record.absence_discount ?? 0)
+                            + (decimal)(record.other_discount ?? 0)
+                            + (decimal)(record.debt ?? 0)
+                            + (decimal)(record.shared_portion ?? 0);
+                           
+
+                        decimal finalTotal = totalAllowances - totalDiscounts;
+
+                        table.Cell().Border(1).BorderColor(Colors.Black).Padding(2).AlignRight().Text(finalTotal.ToString("N2"));
+                        table.Cell().Border(1).BorderColor(Colors.Black).Padding(2).AlignRight().Text(totalDiscounts.ToString("N2"));
+                        table.Cell().Border(1).BorderColor(Colors.Black).Padding(2).AlignRight().Text(totalAllowances.ToString("N2"));
+                        table.Cell().Border(1).BorderColor(Colors.Black).Padding(2).AlignRight().Text(GetArabicMonthYear(record.date));
+                    }
+                });
+            });
+        }
+        private string ReverseNumber(string number)
+        {
+            return new string(number.Reverse().ToArray());
+        }
+        private string GetArabicMonthYear(DateTime date)
+        {
+            string[] arabicMonths = new string[] {
+        "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو",
+        "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"
+    };
+
+            string reversedYear = new string(date.Year.ToString().Reverse().ToArray());
+            return $"{arabicMonths[date.Month - 1]} {reversedYear}";
+        }
+
 
         // GET: OtherServices/Details/5
         public async Task<IActionResult> Details(int? id)
@@ -158,6 +338,10 @@ namespace CharityProject.Controllers
         }
 
         // GET: OtherServices/Create
+        public IActionResult index()
+        {
+            return View();
+        }
         public IActionResult Create()
         {
             return View();
