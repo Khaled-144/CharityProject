@@ -803,7 +803,45 @@ namespace CharityProject.Controllers
             return PartialView("_getAllExternalTransactios", resultList); // Return the transaction list partial view if results are found
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetEmployeesByDepartmentName([FromQuery] int[] departmentNames)
+        {
+            _logger.LogInformation($"Fetching employees for department names: {string.Join(", ", departmentNames)}");
 
+            // Find department IDs by names
+            var departmentIds = await _context.Department
+                .Where(d => departmentNames.Contains(d.departement_id))
+                .Select(d => d.departement_id)
+                .ToListAsync();
+
+            if (!departmentIds.Any())
+            {
+                _logger.LogWarning($"No departments found with names: {string.Join(", ", departmentNames)}");
+                return NotFound("No departments found with the given names.");
+            }
+
+            // Fetch employees based on the department IDs
+            var employees = await _context.employee_details
+                .Where(ed => departmentIds.Contains(ed.departement_id))
+                .Select(ed => new
+                {
+                    employee_id = ed.employee_id,
+                    name = ed.employee.name,
+                    position = ed.position
+                })
+                .GroupBy(e => e.employee_id)
+                .Select(g => g.First())
+                .ToListAsync();
+
+            if (!employees.Any())
+            {
+                _logger.LogWarning($"No employees found for department names: {string.Join(", ", departmentNames)}");
+                return NotFound("No employees found for the given departments.");
+            }
+
+            _logger.LogInformation($"Found {employees.Count} employees for department names: {string.Join(", ", departmentNames)}");
+            return Ok(employees);
+        }
 
         //-----------------------------------------------------------------------------{  Charter Actions }------------------------------------------------------
 
