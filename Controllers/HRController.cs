@@ -405,6 +405,13 @@ namespace CharityProject.Controllers
                 // Render the _NothingNew partial view if no transactions
                 return PartialView("_NothingNew");
             }
+             
+            var employeeIds = letters.SelectMany(t => new[] { t.from_emp_id, t.to_emp_id }).Distinct().ToList();
+            var employees = await _context.employee
+                .Where(e => employeeIds.Contains(e.employee_id))
+                .ToDictionaryAsync(e => e.employee_id, e => e.name);
+
+            ViewBag.EmployeeNames = employees;
 
             return PartialView("_getAllLetters", letters);
         }

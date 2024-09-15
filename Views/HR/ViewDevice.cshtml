@@ -49,30 +49,34 @@
         </div>
     </div>
 
-    <table class="table table-bordered   mt-5 ">
-        <thead>
-            <tr>
-                <th class="text-right">اسم الجهاز</th>
-                <th class="text-center">الكمية</th>
-                <th class="text-left">العمليات</th>
-            </tr>
-        </thead>
-        <tbody id="deviceTableBody">
-            @foreach (var item in Model)
-            {
-                <tr>
-                    <td class="text-right">@Html.DisplayFor(modelItem => item.name)</td>
-                    <td class="text-center">@Html.DisplayFor(modelItem => item.quantity)</td>
-                    <td class="text-left">
-                        <button type="button" class="btn btn-warning mr-2" data-toggle="modal" data-target="@("#EditDeviceModal-" + @item.devices_id)">تعديل</button>
-                       
-                        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="@("#DeleteDeviceModal-" + @item.devices_id)">حذف</button>
-                    </td>
+    <div class="overflow-x-auto">
+        <table class="w-full bg-white rounded-lg shadow-md overflow-hidden">
+            <thead>
+                <tr class="bg-primaryButtons text-white">
+                    <th class="py-4 px-6 text-right">اسم الجهاز</th>
+                    <th class="py-4 px-6 text-center">الكمية</th>
+                    <th class="py-4 px-6 text-left">العمليات</th>
                 </tr>
-                @await Html.PartialAsync("_EditDevice", item)
-              
-                @await Html.PartialAsync("_DeleteDevice", item)
-            }
+            </thead>
+            <tbody id="deviceTableBody">
+                @foreach (var item in Model)
+                {
+                    <tr class="hover-effect">
+                        <td class="py-4 px-6 border-b text-right">@Html.DisplayFor(modelItem => item.name)</td>
+                        <td class="py-4 px-6 border-b text-center">@Html.DisplayFor(modelItem => item.quantity)</td>
+                        <td class="py-4 px-6 border-b text-left">
+                            <button type="button" class="bg-gradient-to-r from-blue-500 to-blue-600 text-white py-2 px-4 rounded-lg hover:from-blue-600 hover:to-blue-700 transition duration-300 ease-in-out transform hover:scale-105 inline-block" data-toggle="modal" data-target="@("#EditDeviceModal-" + @item.devices_id)">تعديل</button>
+                            <button type="button" class="bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 transition duration-300 ease-in-out transform hover:scale-105 inline-block" data-toggle="modal" data-target="@("#DeleteDeviceModal-" + @item.devices_id)">
+                                حذف
+                            </button>
+                        </td>
+                    </tr>
+                    @await Html.PartialAsync("_EditDevice", item)
+                    @await Html.PartialAsync("_DeleteDevice", item)
+                }
+            </tbody>
+        </table>
+    </div>
         </tbody>
     </table>
 
