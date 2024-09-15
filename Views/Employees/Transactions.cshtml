@@ -5,7 +5,23 @@
 	ViewData["PageTitle"] = "المعاملات";
 	ViewData["Title"] = "صفحة المعاملات";
 	var permission = Context.Session.GetString("Permission_position");
+	if (Context.Session.GetString("Permission_position") == "مدير الموارد البشرية والمالية")
+	{
+		Layout = "_Layout_HR";
 
+	}
+	else if (Context.Session.GetString("Permission_position") == "مدير خدمة المستفيدين" || Context.Session.GetString("Permission_position") == "مدير التنمية المالية والاستدامة")
+	{
+		Layout = "_Layout_Managers";
+	}
+	else if (Context.Session.GetString("Permission_position") == "موظف" || Context.Session.GetString("Permission_position") == "السكرتير")
+	{
+		Layout = "_Layout_Employees";
+	}
+	else
+	{
+		Layout = "_Layout";
+	}
 }
 
 <!DOCTYPE html>
@@ -101,6 +117,7 @@
 	<script>
 		const placeholders = {
 			internal: "عنوان او رقم المعاملة",
+			holidays: "رقم الإجازة",
 			external: "رقم الهوية او رقم الصادر",
 			letters: "عنوان او رقم الخطاب",
 			charters: "رقم العهده"
