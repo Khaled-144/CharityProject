@@ -160,37 +160,49 @@ namespace CharityProject.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create_Transaction(IFormFile files, [Bind("create_date,close_date,title,description,to_emp_id,department_id,Confidentiality,Urgency,Importance")] Transaction transaction)
+        public async Task<IActionResult> Create_Transaction(List<IFormFile> files, [Bind("create_date,close_date,title,description,to_emp_id,department_id,Confidentiality,Urgency,Importance")] Transaction transaction)
         {
             // Retrieve the employee ID from session
             var employeeId = GetEmployeeIdFromSession();
-
             transaction.from_emp_id = employeeId;
 
-            if (files != null && files.Length > 0)
+            // Check if files were uploaded
+            if (files != null && files.Count > 0)
             {
-                // Validate the file type
                 var allowedExtensions = new[] { ".pdf", ".xls", ".xlsx", ".doc", ".docx" };
-                var extension = Path.GetExtension(files.FileName).ToLower();
+                List<string> fileNames = new List<string>();
 
-                if (!allowedExtensions.Contains(extension))
+                foreach (var file in files)
                 {
-                    ModelState.AddModelError("files", "Only PDF, Excel, and Word files are allowed.");
-                    return View(transaction); // Return the view with validation error
+                    // Validate the file type
+                    var extension = Path.GetExtension(file.FileName).ToLower();
+                    if (!allowedExtensions.Contains(extension))
+                    {
+                        ModelState.AddModelError("files", "Only PDF, Excel, and Word files are allowed.");
+                        return View(transaction); // Return the view with validation error
+                    }
+
+                    // Save the file
+                    string filename = Path.GetFileName(file.FileName);
+                    string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/files");
+
+                    if (!Directory.Exists(path))
+                    {
+                        Directory.CreateDirectory(path);
+                    }
+
+                    string filePath = Path.Combine(path, filename);
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await file.CopyToAsync(fileStream);
+                    }
+
+                    // Add the filename to the list
+                    fileNames.Add(filename);
                 }
 
-                string filename = Path.GetFileName(files.FileName);
-                string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/files");
-                if (!Directory.Exists(path))
-                {
-                    Directory.CreateDirectory(path);
-                }
-                string filePath = Path.Combine(path, filename);
-                using (var filestream = new FileStream(filePath, FileMode.Create))
-                {
-                    await files.CopyToAsync(filestream);
-                }
-                transaction.files = filename;
+                // Concatenate the file names and store them in the transaction
+                transaction.files = string.Join(",", fileNames);
             }
 
             if (transaction.create_date == null)
@@ -204,6 +216,7 @@ namespace CharityProject.Controllers
 
             return RedirectToAction(nameof(Transactions));
         }
+
 
         [HttpGet]
         [Route("Employees/GetNextReceivingNumber")]
@@ -293,32 +306,29 @@ namespace CharityProject.Controllers
         {
             var employeeId = GetEmployeeIdFromSession();
 
-            // Fetch transactions sent directly to the employee or referred to the employee
+            // Fetch transactions
             var transactions = await _context.Transactions
                 .Include(t => t.Referrals)
                     .ThenInclude(r => r.from_employee)
                 .Include(t => t.Referrals)
                     .ThenInclude(r => r.to_employee)
                 .Where(t => t.status != "منهاة" && (
-                    (t.status == "مرسلة" && t.to_emp_id == employeeId) || t.Referrals.Any() && // Ensure there are referrals
+                    (t.status == "مرسلة" && t.to_emp_id == employeeId) || t.Referrals.Any() &&
                     t.Referrals
                         .OrderByDescending(r => r.referral_date)
                         .First().to_employee_id == employeeId &&
                     t.Referrals
                         .OrderByDescending(r => r.referral_date)
-                        .First().from_employee_id != employeeId // Exclude transactions referred back to the same employee
+                        .First().from_employee_id != employeeId
                 ))
                 .OrderByDescending(t => t.transaction_id)
                 .ToListAsync();
 
-            // Check if there are no transactions
             if (transactions.Count == 0)
             {
-                // Render the _NothingNew partial view if no transactions
                 return PartialView("_NothingNew");
             }
 
-            // Fetch employee names
             var employeeIds = transactions.SelectMany(t => new[] { t.from_emp_id, t.to_emp_id }).Distinct().ToList();
             var employees = await _context.employee
                 .Where(e => employeeIds.Contains(e.employee_id))
@@ -326,14 +336,12 @@ namespace CharityProject.Controllers
 
             ViewBag.EmployeeNames = employees;
 
-            // Fetch departments for the dropdown
             var departments = await _context.Department.ToListAsync();
             ViewBag.Departments = new SelectList(departments, "departement_id", "departement_name");
 
-            // Render the _getAllTransactions partial view if there are transactions
             return PartialView("_getAllTransactions", transactions);
-
         }
+
 
 
 

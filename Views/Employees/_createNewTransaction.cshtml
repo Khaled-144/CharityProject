@@ -46,10 +46,15 @@
                         <!-- Files -->
                         <div class="form-group mb-4">
                             <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="files">المرفقات</label>
-                            <input asp-for="files" class="form-control w-full border rounded focus:ring-blue-500 focus:border-blue-500" type="file" accept=".pdf,.xls,.xlsx,.doc,.docx" />
+                            <input name="files" class="form-control w-full border rounded focus:ring-blue-500 focus:border-blue-500"
+                                   type="file" accept=".pdf,.xls,.xlsx,.doc,.docx" multiple id="fileInput" />
                             <span asp-validation-for="files" class="text-danger"></span>
                             <small id="fileError" class="text-danger" style="display:none;">الملفات المسموح بها فقط :PDF, Excel, Word</small>
+
+                            <!-- Added container to display file names -->
+                            <ul id="fileList" class="mt-2"></ul>
                         </div>
+
 
                         <!-- Confidentiality, Urgency, and Importance -->
                         <div class="flex justify-between space-x-4 mb-4 rtl:space-x-reverse">
@@ -132,19 +137,33 @@
 	// Set the value of the date input field
 	document.getElementById('myDateField').value = formattedDate;
 
-	document.getElementById('transactionForm').addEventListener('submit', function (e) {
-		var fileInput = document.getElementById('files');
-		var filePath = fileInput.value;
-		var allowedExtensions = /(\.pdf|\.xls|\.xlsx|\.doc|\.docx)$/i;
-		var fileError = document.getElementById('fileError');
+    document.getElementById('transactionForm').addEventListener('submit', function (e) {
+        var fileInput = document.getElementById('files');
+        var allowedExtensions = /(\.pdf|\.xls|\.xlsx|\.doc|\.docx)$/i;
+        var fileError = document.getElementById('fileError');
+        fileError.style.display = 'none';
 
-		if (filePath && !allowedExtensions.exec(filePath)) {
-			fileError.style.display = 'block';
-			e.preventDefault();
-		} else {
-			fileError.style.display = 'none';
-		}
-	});
+        if (fileInput.files.length > 0) {
+            for (var i = 0; i < fileInput.files.length; i++) {
+                var file = fileInput.files[i];
+                if (!allowedExtensions.exec(file.name)) {
+                    fileError.style.display = 'block';
+                    e.preventDefault();
+                    return;
+                }
+            }
+        }
+    });
+    document.getElementById('fileInput').addEventListener('change', function () {
+        var fileList = document.getElementById('fileList');
+        fileList.innerHTML = ''; // Clear the list first
+
+        for (var i = 0; i < this.files.length; i++) {
+            var listItem = document.createElement('li');
+            listItem.textContent = this.files[i].name; // Add file name
+            fileList.appendChild(listItem);
+        }
+    });
 </script>
 
 @section Scripts {
