@@ -267,7 +267,7 @@
             return;
         }
 
-        fetch('/CustomerServiceManager/GetEmployeesByDepartmentName?departmentNames=' + selectedDepartments.join('&departmentNames='), {
+        fetch('/HR/GetEmployeesByDepartmentName?departmentNames=' + selectedDepartments.join('&departmentNames='), {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -291,13 +291,13 @@
         let html = '';
         employees.forEach(employee => {
             html += `
-                            <li>
-                                <div class="flex items-center p-2 rounded hover:bg-gray-100">
-                                    <input id="emp-${employee.employee_id}" name="to_emp_id" type="checkbox" value="${employee.employee_id}" class="w-4 h-4 text-gray-600 bg-gray-100 border-gray-300 rounded focus:ring-gray-500">
-                                    <label for="emp-${employee.employee_id}" class="w-full ms-2 text-sm font-medium text-gray-900">${employee.name} (${employee.position})</label>
-                                </div>
-                            </li>
-                        `;
+                                    <li>
+                                        <div class="flex items-center p-2 rounded hover:bg-gray-100">
+                                                <input id="emp-${employee.employee_id}" name="to_emp_id" type="checkbox" value="${employee.employee_id}" class="w-4 h-4 text-gray-600 bg-gray-100 border-gray-300 rounded focus:ring-gray-500">
+                                            <label for="emp-${employee.employee_id}" class="w-full ms-2 text-sm font-medium text-gray-900">${employee.name} (${employee.position})</label>
+                                        </div>
+                                    </li>
+                                `;
         });
 
         employeeList.innerHTML = html;
@@ -305,7 +305,7 @@
 
     // Form submission handling
     document.getElementById('letterForm').addEventListener('submit', function (event) {
-        event.preventDefault();
+        event.preventDefault(); // Prevent form submission until validation is complete
 
         const type = document.getElementById('type').value;
         const departmentSelected = document.querySelectorAll('input[name="to_departement_name"]:checked').length > 0;
@@ -314,29 +314,33 @@
         const departmentWarning = document.getElementById('departmentWarningUnique');
         const employeeWarning = document.getElementById('employeeWarningUnique');
 
-        departmentWarning.style.display = 'none';
-        employeeWarning.style.display = 'none';
+        departmentWarning.style.display = 'none'; // Hide department warning initially
+        employeeWarning.style.display = 'none';   // Hide employee warning initially
 
         let isValid = true;
 
+        // Validate based on the selected type
         if (type === 'عام') {
+            // For "عام", at least one department must be selected
             if (!departmentSelected) {
-                departmentWarning.style.display = 'block';
+                departmentWarning.style.display = 'block'; // Show department warning
                 isValid = false;
             }
         } else if (type === 'مخصص') {
+            // For "مخصص", both department and employee must be selected
             if (!departmentSelected) {
-                departmentWarning.style.display = 'block';
+                departmentWarning.style.display = 'block'; // Show department warning
                 isValid = false;
             }
             if (!employeeSelected) {
-                employeeWarning.style.display = 'block';
+                employeeWarning.style.display = 'block'; // Show employee warning
                 isValid = false;
             }
         }
 
+        // Only submit if the form is valid
         if (isValid) {
-            this.submit();
+            this.submit(); // Proceed with form submission
         }
     });
 </script>
