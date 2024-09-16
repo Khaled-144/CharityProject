@@ -142,7 +142,7 @@ namespace CharityProject.Controllers
 
         public IActionResult ReferTransaction()
         {
-            return RedirectToAction("Transactions", "hr");
+            return RedirectToAction("Transactions", "FinancialSustainabilityDevelopmentManager");
         }
 
         [HttpPost]
@@ -171,8 +171,9 @@ namespace CharityProject.Controllers
                 referral_date = DateTime.Now,
                 comments = comments,
             };
-
+           
             _context.Referrals.Add(referral);
+            transaction.status = "تحت الإجراء";
             transaction.to_emp_id = to_employee_id;
             await _context.SaveChangesAsync();
 
