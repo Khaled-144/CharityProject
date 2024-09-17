@@ -143,8 +143,12 @@ namespace CharityProject.Controllers
 
         public async Task<IActionResult> Transactions()
         {
-            // Retrieve the current user's ID from the session or context
-            int currentUserId = GetEmployeeIdFromSession();
+			var employeeId = GetEmployeeIdFromSession();
+			var emplyee_Details = await GetEmployeeDetailsFromSessionAsync();
+             var hrManager = _context.employee_details
+        .FirstOrDefault(e => e.position == "مدير خدمة المستفيدين");
+			// Retrieve the current user's ID from the session or context
+			int currentUserId = GetEmployeeIdFromSession();
 
             // Populate the Departments dropdown list
             ViewData["Departments"] = _context.Department.Select(d => new SelectListItem
@@ -161,12 +165,24 @@ namespace CharityProject.Controllers
 
             // Get the counts for various entities
             int internalCount = await _context.Transactions
-                .Where(t => t.to_emp_id == currentUserId)
-                .CountAsync();
+						   .Where(t =>
+	(t.status == "مرسلة" && t.Employee_detail.departement_id == emplyee_Details.departement_id) ||
+	(t.status == "مرسلة" && (t.to_emp_id == employeeId || t.to_emp_id == hrManager.employee_id)) || // Transactions sent to the employee
+	(t.Referrals.Any() && // Ensure there are referrals
+		(
+			t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == employeeId ||
+			t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == hrManager.employee_id
+		) &&
+		(
+			t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == employeeId ||
+			t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == hrManager.employee_id
+		)
+	)
+)
+				.CountAsync();
 
             int holidaysCount = await _context.HolidayHistories
-                .Where(h => h.emp_id == currentUserId)
-                .CountAsync();
+            .Where(h => h.status == "مرسلة" && h.Employee_detail.departement_id == emplyee_Details.departement_id).CountAsync();
 
             int lettersCount = await _context.letters
                 .Where(l => l.to_emp_id == currentUserId || l.to_emp_id == currentUserId)
@@ -251,186 +267,43 @@ namespace CharityProject.Controllers
             return PartialView("_getAllHolidays", holidays);
         }
 
-        public async Task<IActionResult> GetAllLetters()
-        {
-            var employeeDetails = await GetEmployeeDetailsFromSessionAsync();
-            if (employeeDetails == null)
-            {
-                return NotFound(); // Handle the case where employee details are not found
-            }
+		public async Task<IActionResult> GetAllLetters()
+		{
+			var employeeDetails = await GetEmployeeDetailsFromSessionAsync();
+			var letters = await _context.letters
+				  .Where(l => l.to_emp_id == employeeDetails.employee_id || (l.to_departement_name == employeeDetails.Department.departement_name && l.to_emp_id == 0))
+				.OrderByDescending(l => l.letters_id) // Order by letters_id in descending order
+				.ToListAsync();
+			if (letters.Count == 0)
+			{
+				// Render the _NothingNew partial view if no transactions
+				return PartialView("_NothingNew");
+			}
 
-            var letters = await _context.letters
-                .Where(l => l.to_emp_id == employeeDetails.employee_id || l.departement_id == employeeDetails.departement_id)
-                .OrderByDescending(l => l.letters_id)
+			var employeeIds = letters.SelectMany(t => new[] { t.from_emp_id, t.to_emp_id }).Distinct().ToList();
+			var employees = await _context.employee
+				.Where(e => employeeIds.Contains(e.employee_id))
+				.ToDictionaryAsync(e => e.employee_id, e => e.name);
+
+			ViewBag.EmployeeNames = employees;
+
+			return PartialView("_getAllLetters", letters);
+		}
+        public async Task<IActionResult> GetAllCharters()
+        {
+
+
+            var charter = await _context.charter
+                .Include(c => c.employee)
+                .Where(c => c.status != "مستلمة")
+                .OrderByDescending(t => t.charter_id) // Order by transaction_id in descending order
                 .ToListAsync();
-
-            return PartialView("_getAllLetters", letters);
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> SearchAssets(string searchTerm = "", string sortOrder = "")
-        {
-
-            var employeeId = GetEmployeeIdFromSession();
-
-            var query = _context.charter
-                .Where(a => a.to_emp_id == employeeId);
-
-            if (!string.IsNullOrEmpty(searchTerm))
+            if (charter.Count == 0)
             {
-                query = query.Where(a =>
-                    a.charter_id.ToString().Contains(searchTerm) ||
-                    a.charter_info.Contains(searchTerm)
-                );
+                // Render the _NothingNew partial view if no transactions
+                return PartialView("_NothingNew");
             }
-
-            switch (sortOrder)
-            {
-                case "oldest":
-                    query = query.OrderBy(a => a.receive_date);
-                    break;
-                case "newest":
-                default:
-                    query = query.OrderByDescending(a => a.receive_date);
-                    break;
-            }
-
-            var assets = await query.ToListAsync();
-
-            return PartialView("_getAllAssets", assets);
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> SearchTransactions(string searchTerm = "", string sortOrder = "")
-        {
-
-            var employeeId = GetEmployeeIdFromSession();
-
-            var query = _context.Transactions
-                .Include(t => t.Referrals)
-                    .ThenInclude(r => r.from_employee)
-                .Include(t => t.Referrals)
-                    .ThenInclude(r => r.to_employee)
-                .Where(t => t.to_emp_id == employeeId || t.Referrals.Any(r => r.to_employee_id == employeeId));
-
-            if (!string.IsNullOrEmpty(searchTerm))
-            {
-                query = query.Where(t =>
-                    t.transaction_id.ToString().Contains(searchTerm) ||
-                    t.title.Contains(searchTerm)
-                );
-            }
-
-            switch (sortOrder)
-            {
-                case "oldest":
-                    query = query.OrderBy(t => t.create_date);
-                    break;
-                case "newest":
-                default:
-                    query = query.OrderByDescending(t => t.create_date);
-                    break;
-            }
-
-            var transactions = await query.ToListAsync();
-
-            // Fetch employee names
-            var employeeIds = transactions.SelectMany(t => new[] { t.from_emp_id, t.to_emp_id }).Distinct().ToList();
-            var employees = await _context.employee
-                .Where(e => employeeIds.Contains(e.employee_id))
-                .ToDictionaryAsync(e => e.employee_id, e => e.name);
-
-            ViewBag.EmployeeNames = employees;
-
-            // Fetch departments for the dropdown
-            var departments = await _context.Department.ToListAsync();
-            ViewBag.Departments = new SelectList(departments, "departement_id", "departement_name");
-
-            return PartialView("_getAllTransactions", transactions);
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> SearchHolidays(string searchTerm = "", string sortOrder = "")
-        {
-
-            var employeeId = GetEmployeeIdFromSession();
-
-            var query = _context.HolidayHistories
-                .Where(h => h.emp_id == employeeId);
-
-            if (!string.IsNullOrEmpty(searchTerm))
-            {
-                query = query.Where(h =>
-                    h.holidays_history_id.ToString().Contains(searchTerm) ||
-                    h.title.Contains(searchTerm)
-                );
-            }
-
-            switch (sortOrder)
-            {
-                case "oldest":
-                    query = query.OrderBy(h => h.start_date);
-                    break;
-                case "newest":
-                default:
-                    query = query.OrderByDescending(h => h.start_date);
-                    break;
-            }
-
-            var holidays = await query.ToListAsync();
-
-            return PartialView("_getAllHolidays", holidays);
-        }
-        [HttpGet]
-        public async Task<IActionResult> SearchLetters(string searchTerm = "", string sortOrder = "")
-        {
-
-            var employeeId = GetEmployeeIdFromSession();
-
-            var query = _context.letters
-                .Where(l => l.to_emp_id == employeeId);
-
-            if (!string.IsNullOrEmpty(searchTerm))
-            {
-                query = query.Where(l =>
-                    l.letters_id.ToString().Contains(searchTerm) ||
-                    l.title.Contains(searchTerm)
-                );
-            }
-
-            switch (sortOrder)
-            {
-                case "oldest":
-                    query = query.OrderBy(l => l.date);
-                    break;
-                case "newest":
-                default:
-                    query = query.OrderByDescending(l => l.date);
-                    break;
-            }
-
-            var letters = await query.ToListAsync();
-
-            return PartialView("_getAllLetters", letters);
-        }
-        [HttpGet]
-        public IActionResult SearchExternalTransactions(string searchTerm)
-        {
-            var transactions = _context.ExternalTransactions.AsQueryable();
-
-            if (!string.IsNullOrEmpty(searchTerm))
-            {
-                transactions = transactions.Where(t => t.identity_number.ToString().Contains(searchTerm) || t.sending_number.ToString().Contains(searchTerm));
-            }
-
-            var resultList = transactions.ToList();
-
-            if (!resultList.Any())
-            {
-                return PartialView("_NoResults"); // Return the _NoResults partial view if no results are found
-            }
-
-            return PartialView("_getAllExternalTransactios", resultList); // Return the transaction list partial view if results are found
+            return PartialView("_GetAllCharters", charter);
         }
 
         [HttpGet]
