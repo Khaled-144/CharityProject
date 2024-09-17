@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using System.Configuration;
 
 namespace CharityProject.Data
 {
@@ -12,6 +13,11 @@ namespace CharityProject.Data
         {
         }
 
+    /*    public void ConfigureServices(IServiceCollection services)
+        {
+            IServiceCollection serviceCollection = services.Configure<SmtpSettings>(Configuration.GetSection("SmtpSettings"));
+        }*/
+        public DbSet<Configuration> Configuration { get; set; }
         // DbSet properties for your entities
         public DbSet<charter> charter { get; set; }
         public DbSet<Department> Department { get; set; }
