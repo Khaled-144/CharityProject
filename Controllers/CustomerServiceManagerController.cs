@@ -41,7 +41,8 @@ namespace CharityProject.Controllers
             if (employeeIdString != null && int.TryParse(employeeIdString, out int employeeId))
             {
                 var employeeDetails = await _context.employee_details
-                    .Include(ed => ed.employee) // To include related employee data
+                    .Include(ed => ed.employee)
+                   .Include(ed => ed.Department)
                     .FirstOrDefaultAsync(ed => ed.employee_id == employeeId);
 
                 return employeeDetails;
@@ -111,6 +112,7 @@ namespace CharityProject.Controllers
         public async Task<IActionResult> Index()
         {
             int currentUserId = GetEmployeeIdFromSession();
+            var employeeDetails = await GetEmployeeDetailsFromSessionAsync();
 
             // Count transactions based on their status, ensuring no duplicates
             var newTransactions = await _context.Transactions
@@ -143,13 +145,9 @@ namespace CharityProject.Controllers
 
         public async Task<IActionResult> Transactions()
         {
-			var employeeId = GetEmployeeIdFromSession();
-			var emplyee_Details = await GetEmployeeDetailsFromSessionAsync();
-             var hrManager = _context.employee_details
-        .FirstOrDefault(e => e.position == "مدير خدمة المستفيدين");
-			// Retrieve the current user's ID from the session or context
-			int currentUserId = GetEmployeeIdFromSession();
-
+            // Retrieve the current user's ID from the session or context
+            int currentUserId = GetEmployeeIdFromSession();
+            var employeeDetails = await GetEmployeeDetailsFromSessionAsync();
             // Populate the Departments dropdown list
             ViewData["Departments"] = _context.Department.Select(d => new SelectListItem
             {
@@ -165,31 +163,19 @@ namespace CharityProject.Controllers
 
             // Get the counts for various entities
             int internalCount = await _context.Transactions
-						   .Where(t =>
-	(t.status == "مرسلة" && t.Employee_detail.departement_id == emplyee_Details.departement_id) ||
-	(t.status == "مرسلة" && (t.to_emp_id == employeeId || t.to_emp_id == hrManager.employee_id)) || // Transactions sent to the employee
-	(t.Referrals.Any() && // Ensure there are referrals
-		(
-			t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == employeeId ||
-			t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == hrManager.employee_id
-		) &&
-		(
-			t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == employeeId ||
-			t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == hrManager.employee_id
-		)
-	)
-)
-				.CountAsync();
-
-            int holidaysCount = await _context.HolidayHistories
-            .Where(h => h.status == "مرسلة" && h.Employee_detail.departement_id == emplyee_Details.departement_id).CountAsync();
-
-            int lettersCount = await _context.letters
-                .Where(l => l.to_emp_id == currentUserId || l.to_emp_id == currentUserId)
+                .Where(t => t.to_emp_id == currentUserId)
                 .CountAsync();
 
+            int holidaysCount = await _context.HolidayHistories
+                .Where(h => h.emp_id == currentUserId)
+                .CountAsync();
+
+            int lettersCount = await _context.letters
+                   .Where(l => l.to_emp_id == employeeDetails.employee_id || (l.to_departement_name == employeeDetails.Department.departement_name && l.to_emp_id == 0))
+                 .CountAsync();
+
             int assetsCount = await _context.charter
-                .Where(c => c.to_emp_id == currentUserId)
+                .Where(c => c.status == "غير مسلمة" && c.to_emp_id == employeeDetails.employee_id)
                 .CountAsync();
 
             // Passing the counts to the view using ViewBag
@@ -267,35 +253,36 @@ namespace CharityProject.Controllers
             return PartialView("_getAllHolidays", holidays);
         }
 
-		public async Task<IActionResult> GetAllLetters()
-		{
-			var employeeDetails = await GetEmployeeDetailsFromSessionAsync();
-			var letters = await _context.letters
-				  .Where(l => l.to_emp_id == employeeDetails.employee_id || (l.to_departement_name == employeeDetails.Department.departement_name && l.to_emp_id == 0))
-				.OrderByDescending(l => l.letters_id) // Order by letters_id in descending order
-				.ToListAsync();
-			if (letters.Count == 0)
-			{
-				// Render the _NothingNew partial view if no transactions
-				return PartialView("_NothingNew");
-			}
+        public async Task<IActionResult> GetAllLetters()
+        {
+            var employeeDetails = await GetEmployeeDetailsFromSessionAsync();
+            var letters = await _context.letters
+                  .Where(l => l.to_emp_id == employeeDetails.employee_id || (l.to_departement_name == employeeDetails.Department.departement_name && l.to_emp_id == 0))
+                .OrderByDescending(l => l.letters_id) // Order by letters_id in descending order
+                .ToListAsync();
+            if (letters.Count == 0)
+            {
+                // Render the _NothingNew partial view if no transactions
+                return PartialView("_NothingNew");
+            }
 
-			var employeeIds = letters.SelectMany(t => new[] { t.from_emp_id, t.to_emp_id }).Distinct().ToList();
-			var employees = await _context.employee
-				.Where(e => employeeIds.Contains(e.employee_id))
-				.ToDictionaryAsync(e => e.employee_id, e => e.name);
+            var employeeIds = letters.SelectMany(t => new[] { t.from_emp_id, t.to_emp_id }).Distinct().ToList();
+            var employees = await _context.employee
+                .Where(e => employeeIds.Contains(e.employee_id))
+                .ToDictionaryAsync(e => e.employee_id, e => e.name);
 
-			ViewBag.EmployeeNames = employees;
+            ViewBag.EmployeeNames = employees;
 
-			return PartialView("_getAllLetters", letters);
-		}
+            return PartialView("_getAllLetters", letters);
+        }
+
         public async Task<IActionResult> GetAllCharters()
         {
-
+            var employe_details = await GetEmployeeDetailsFromSessionAsync();
 
             var charter = await _context.charter
                 .Include(c => c.employee)
-                .Where(c => c.status != "مستلمة")
+                .Where(c => c.status != "مستلمة" && c.to_emp_id == employe_details.employee_id)
                 .OrderByDescending(t => t.charter_id) // Order by transaction_id in descending order
                 .ToListAsync();
             if (charter.Count == 0)
@@ -305,6 +292,8 @@ namespace CharityProject.Controllers
             }
             return PartialView("_GetAllCharters", charter);
         }
+
+
 
         [HttpGet]
         public async Task<IActionResult> GetEmployeesByDepartmentName([FromQuery] int[] departmentNames)

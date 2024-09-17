@@ -266,8 +266,9 @@ namespace CharityProject.Controllers
                 .Include(t => t.Referrals)
                     .ThenInclude(r => r.to_employee)
                 .Where(t =>
-    (t.status == "مرسلة" && t.Employee_detail.departement_id == employeeDetails.departement_id && t.Employee_detail.employee_id != employeeDetails.employee_id) ||
-    (t.status == "مرسلة" && (t.to_emp_id == currentUserId||t.to_emp_id==hrManager.employee_id)) || // Transactions sent to the employee
+     (t.status == "مرسلة" && t.Employee_detail.departement_id == employeeDetails.departement_id && t.Employee_detail.employee_id != employeeDetails.employee_id && t.Employee_detail.permission_position == "موظف") ||
+    (t.status == "مرسلة" && (t.to_emp_id == currentUserId || t.to_emp_id == hrManager.employee_id) && t.Employee_detail.permission_position != "موظف")
+    || (t.status == "مرسلة" && t.department_id == employeeDetails.departement_id && t.Employee_detail.permission_position != "موظف" && t.Employee_detail.employee_id != employeeDetails.employee_id) ||// Transactions sent to the employee
     (t.Referrals.Any() && // Ensure there are referrals
         (
             t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == currentUserId ||
@@ -277,8 +278,8 @@ namespace CharityProject.Controllers
             t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == currentUserId ||
             t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == hrManager.employee_id
         )
-
-     )).CountAsync();
+    )
+).CountAsync();
             int holidaysCount = await _context.HolidayHistories
                  .Where(h => h.status == "موافقة المدير المباشر" || (h.status == "مرسلة" && h.Employee_detail.departement_id == employeeDetails.departement_id))
                 .CountAsync();
@@ -359,8 +360,6 @@ namespace CharityProject.Controllers
 
 		public async Task<IActionResult> GetAllCharters()
         {
-
-
             var charter = await _context.charter
                 .Include(c=>c.employee)
                 .Where(c=>c.status != "مستلمة")
@@ -420,59 +419,7 @@ namespace CharityProject.Controllers
 
         // Search Actions  --------------------------------------------------------
 
-        
       
-
-        [HttpGet]
-        public async Task<IActionResult> SearchTransactions(string searchTerm = "", string sortOrder = "")
-        {
-
-            var employeeId = GetEmployeeIdFromSession();
-
-            var query = _context.Transactions
-                .Include(t => t.Referrals)
-                    .ThenInclude(r => r.from_employee)
-                .Include(t => t.Referrals)
-                    .ThenInclude(r => r.to_employee)
-                .Where(t => t.to_emp_id == employeeId || t.Referrals.Any(r => r.to_employee_id == employeeId));
-
-            if (!string.IsNullOrEmpty(searchTerm))
-            {
-                query = query.Where(t =>
-                    t.transaction_id.ToString().Contains(searchTerm) ||
-                    t.title.Contains(searchTerm)
-                );
-            }
-
-            switch (sortOrder)
-            {
-                case "oldest":
-                    query = query.OrderBy(t => t.create_date);
-                    break;
-                case "newest":
-                default:
-                    query = query.OrderByDescending(t => t.create_date);
-                    break;
-            }
-
-            var transactions = await query.ToListAsync();
-
-            // Fetch employee names
-            var employeeIds = transactions.SelectMany(t => new[] { t.from_emp_id, t.to_emp_id }).Distinct().ToList();
-            var employees = await _context.employee
-                .Where(e => employeeIds.Contains(e.employee_id))
-                .ToDictionaryAsync(e => e.employee_id, e => e.name);
-
-            ViewBag.EmployeeNames = employees;
-
-            // Fetch departments for the dropdown
-            var departments = await _context.Department.ToListAsync();
-            ViewBag.Departments = new SelectList(departments, "departement_id", "departement_name");
-
-            return PartialView("_getAllTransactions", transactions);
-        }
-
-        
 
         // Create Actions  --------------------------------------------------------
 
