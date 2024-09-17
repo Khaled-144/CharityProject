@@ -41,7 +41,8 @@ namespace CharityProject.Controllers
             if (employeeIdString != null && int.TryParse(employeeIdString, out int employeeId))
             {
                 var employeeDetails = await _context.employee_details
-                    .Include(ed => ed.employee) // To include related employee data
+                    .Include(ed => ed.employee)
+                   .Include(ed => ed.Department)
                     .FirstOrDefaultAsync(ed => ed.employee_id == employeeId);
 
                 return employeeDetails;
@@ -111,6 +112,7 @@ namespace CharityProject.Controllers
         public async Task<IActionResult> Index()
         {
             int currentUserId = GetEmployeeIdFromSession();
+            var employeeDetails = await GetEmployeeDetailsFromSessionAsync();
 
             // Count transactions based on their status, ensuring no duplicates
             var newTransactions = await _context.Transactions
@@ -145,7 +147,7 @@ namespace CharityProject.Controllers
         {
             // Retrieve the current user's ID from the session or context
             int currentUserId = GetEmployeeIdFromSession();
-
+            var employeeDetails = await GetEmployeeDetailsFromSessionAsync();
             // Populate the Departments dropdown list
             ViewData["Departments"] = _context.Department.Select(d => new SelectListItem
             {
@@ -169,11 +171,11 @@ namespace CharityProject.Controllers
                 .CountAsync();
 
             int lettersCount = await _context.letters
-                .Where(l => l.to_emp_id == currentUserId || l.to_emp_id == currentUserId)
-                .CountAsync();
+                   .Where(l => l.to_emp_id == employeeDetails.employee_id || (l.to_departement_name == employeeDetails.Department.departement_name && l.to_emp_id == 0))
+                 .CountAsync();
 
             int assetsCount = await _context.charter
-                .Where(c => c.to_emp_id == currentUserId)
+                .Where(c => c.status == "غير مسلمة" && c.to_emp_id == employeeDetails.employee_id)
                 .CountAsync();
 
             // Passing the counts to the view using ViewBag
@@ -254,184 +256,44 @@ namespace CharityProject.Controllers
         public async Task<IActionResult> GetAllLetters()
         {
             var employeeDetails = await GetEmployeeDetailsFromSessionAsync();
-            if (employeeDetails == null)
-            {
-                return NotFound(); // Handle the case where employee details are not found
-            }
-
             var letters = await _context.letters
-                .Where(l => l.to_emp_id == employeeDetails.employee_id || l.departement_id == employeeDetails.departement_id)
-                .OrderByDescending(l => l.letters_id)
+                  .Where(l => l.to_emp_id == employeeDetails.employee_id || (l.to_departement_name == employeeDetails.Department.departement_name && l.to_emp_id == 0))
+                .OrderByDescending(l => l.letters_id) // Order by letters_id in descending order
                 .ToListAsync();
-
-            return PartialView("_getAllLetters", letters);
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> SearchAssets(string searchTerm = "", string sortOrder = "")
-        {
-
-            var employeeId = GetEmployeeIdFromSession();
-
-            var query = _context.charter
-                .Where(a => a.to_emp_id == employeeId);
-
-            if (!string.IsNullOrEmpty(searchTerm))
+            if (letters.Count == 0)
             {
-                query = query.Where(a =>
-                    a.charter_id.ToString().Contains(searchTerm) ||
-                    a.charter_info.Contains(searchTerm)
-                );
+                // Render the _NothingNew partial view if no transactions
+                return PartialView("_NothingNew");
             }
 
-            switch (sortOrder)
-            {
-                case "oldest":
-                    query = query.OrderBy(a => a.receive_date);
-                    break;
-                case "newest":
-                default:
-                    query = query.OrderByDescending(a => a.receive_date);
-                    break;
-            }
-
-            var assets = await query.ToListAsync();
-
-            return PartialView("_getAllAssets", assets);
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> SearchTransactions(string searchTerm = "", string sortOrder = "")
-        {
-
-            var employeeId = GetEmployeeIdFromSession();
-
-            var query = _context.Transactions
-                .Include(t => t.Referrals)
-                    .ThenInclude(r => r.from_employee)
-                .Include(t => t.Referrals)
-                    .ThenInclude(r => r.to_employee)
-                .Where(t => t.to_emp_id == employeeId || t.Referrals.Any(r => r.to_employee_id == employeeId));
-
-            if (!string.IsNullOrEmpty(searchTerm))
-            {
-                query = query.Where(t =>
-                    t.transaction_id.ToString().Contains(searchTerm) ||
-                    t.title.Contains(searchTerm)
-                );
-            }
-
-            switch (sortOrder)
-            {
-                case "oldest":
-                    query = query.OrderBy(t => t.create_date);
-                    break;
-                case "newest":
-                default:
-                    query = query.OrderByDescending(t => t.create_date);
-                    break;
-            }
-
-            var transactions = await query.ToListAsync();
-
-            // Fetch employee names
-            var employeeIds = transactions.SelectMany(t => new[] { t.from_emp_id, t.to_emp_id }).Distinct().ToList();
+            var employeeIds = letters.SelectMany(t => new[] { t.from_emp_id, t.to_emp_id }).Distinct().ToList();
             var employees = await _context.employee
                 .Where(e => employeeIds.Contains(e.employee_id))
                 .ToDictionaryAsync(e => e.employee_id, e => e.name);
 
             ViewBag.EmployeeNames = employees;
 
-            // Fetch departments for the dropdown
-            var departments = await _context.Department.ToListAsync();
-            ViewBag.Departments = new SelectList(departments, "departement_id", "departement_name");
-
-            return PartialView("_getAllTransactions", transactions);
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> SearchHolidays(string searchTerm = "", string sortOrder = "")
-        {
-
-            var employeeId = GetEmployeeIdFromSession();
-
-            var query = _context.HolidayHistories
-                .Where(h => h.emp_id == employeeId);
-
-            if (!string.IsNullOrEmpty(searchTerm))
-            {
-                query = query.Where(h =>
-                    h.holidays_history_id.ToString().Contains(searchTerm) ||
-                    h.title.Contains(searchTerm)
-                );
-            }
-
-            switch (sortOrder)
-            {
-                case "oldest":
-                    query = query.OrderBy(h => h.start_date);
-                    break;
-                case "newest":
-                default:
-                    query = query.OrderByDescending(h => h.start_date);
-                    break;
-            }
-
-            var holidays = await query.ToListAsync();
-
-            return PartialView("_getAllHolidays", holidays);
-        }
-        [HttpGet]
-        public async Task<IActionResult> SearchLetters(string searchTerm = "", string sortOrder = "")
-        {
-
-            var employeeId = GetEmployeeIdFromSession();
-
-            var query = _context.letters
-                .Where(l => l.to_emp_id == employeeId);
-
-            if (!string.IsNullOrEmpty(searchTerm))
-            {
-                query = query.Where(l =>
-                    l.letters_id.ToString().Contains(searchTerm) ||
-                    l.title.Contains(searchTerm)
-                );
-            }
-
-            switch (sortOrder)
-            {
-                case "oldest":
-                    query = query.OrderBy(l => l.date);
-                    break;
-                case "newest":
-                default:
-                    query = query.OrderByDescending(l => l.date);
-                    break;
-            }
-
-            var letters = await query.ToListAsync();
-
             return PartialView("_getAllLetters", letters);
         }
-        [HttpGet]
-        public IActionResult SearchExternalTransactions(string searchTerm)
+
+        public async Task<IActionResult> GetAllCharters()
         {
-            var transactions = _context.ExternalTransactions.AsQueryable();
+            var employe_details = await GetEmployeeDetailsFromSessionAsync();
 
-            if (!string.IsNullOrEmpty(searchTerm))
+            var charter = await _context.charter
+                .Include(c => c.employee)
+                .Where(c => c.status != "مستلمة" && c.to_emp_id == employe_details.employee_id)
+                .OrderByDescending(t => t.charter_id) // Order by transaction_id in descending order
+                .ToListAsync();
+            if (charter.Count == 0)
             {
-                transactions = transactions.Where(t => t.identity_number.ToString().Contains(searchTerm) || t.sending_number.ToString().Contains(searchTerm));
+                // Render the _NothingNew partial view if no transactions
+                return PartialView("_NothingNew");
             }
-
-            var resultList = transactions.ToList();
-
-            if (!resultList.Any())
-            {
-                return PartialView("_NoResults"); // Return the _NoResults partial view if no results are found
-            }
-
-            return PartialView("_getAllExternalTransactios", resultList); // Return the transaction list partial view if results are found
+            return PartialView("_GetAllCharters", charter);
         }
+
+
 
         [HttpGet]
         public async Task<IActionResult> GetEmployeesByDepartmentName([FromQuery] int[] departmentNames)
