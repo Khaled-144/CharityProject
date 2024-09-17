@@ -2,8 +2,9 @@
 
 @{
     ViewData["Title"] = "Transaction Details";
-    string fileUrl = Url.Content("~/files/" + Model.files);
     string currentUrl = Context.Request.Path;
+    var fileNames = Model.files?.Split(',') ?? new string[] { };
+
 }
 
 <div class="modal fade" id="detailModal-@Model.transaction_id" role="dialog" data-transaction-id="@Model.transaction_id">
@@ -48,11 +49,16 @@
                             <dd class="col-sm-8">@Html.DisplayFor(model => model.close_date)</dd>
                             <dt class="col-sm-4">الحالة</dt>
                             <dd class="col-sm-8">@Html.DisplayFor(model => model.status)</dd>
-                            <dt class="col-sm-4">@Html.DisplayNameFor(model => model.files)</dt>
+                            <dt class="col-sm-4">المرفقات</dt>
                             <dd class="col-sm-8">
-                                @if (!string.IsNullOrEmpty(Model.files))
+                                @if (fileNames.Any())
                                 {
-                                    <a href="@fileUrl" target="_blank">@Model.files</a>
+                                    foreach (var fileName in fileNames)
+                                    {
+                                        var fileUrl = Url.Content($"~/files/{fileName.Trim()}");
+                                        <a href="@fileUrl" target="_blank">@fileName.Trim()</a>
+                                        <br />
+                                    }
                                 }
                                 else
                                 {
@@ -76,6 +82,7 @@
                                             <th class="py-3 px-4 text-right font-medium text-gray-600">من الموظف</th>
                                             <th class="py-3 px-4 text-right font-medium text-gray-600">إلى الموظف</th>
                                             <th class="py-3 px-4 text-right font-medium text-gray-600">التعليقات</th>
+                                            <th class="py-3 px-4 text-right font-medium text-gray-600">المرفقات</th> <!-- New column for files -->
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -107,6 +114,11 @@
                                                         }
                                                     </td>
                                                     <td class="py-3 px-4 text-right">@referral.comments</td>
+                                                    <td class="py-3 px-4 text-right">
+
+                                                            <span>لا توجد مرفقات</span>
+                                                        
+                                                    </td> <!-- Display files here -->
                                                 </tr>
                                                 index++;
                                             }
@@ -122,34 +134,39 @@
                     </div>
                 </div>
                 @if (!currentUrl.Contains("GetArchivedTransactions"))
-                { 
-                <div id="referForm-@Model.transaction_id" class="mt-4">
-                    <h5>إحالة المعاملة #@Model.transaction_id</h5>
-                    @using (Html.BeginForm("ReferTransaction", "Employees", FormMethod.Post, new { id = $"referTransactionForm-{Model.transaction_id}" }))
-                    {
-                        @Html.AntiForgeryToken()
-                        @Html.HiddenFor(model => model.transaction_id)
-                        <div class="form-group">
-                            <label for="department_id">القسم:</label>
-                            <select id="department_id" name="department_id" class="form-control" required>
-                                <option value="">اختر القسم</option>
-                                @foreach (var dept in ViewBag.Departments)
-                                {
-                                    <option value="@dept.Value">@dept.Text</option>
-                                }
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="to_employee_id">إحالة إلى الموظف:</label>
-                            <select name="to_employee_id" id="to_employee_id" class="form-control" required>
-                                <option value="">اختر الموظف</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="comments">توجيهات الإحالة:</label>
-                            <textarea name="comments" id="comments" class="form-control" required></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-primary">تأكيد الإحالة</button>
+                {
+                    <div id="referForm-@Model.transaction_id" class="mt-4">
+                        <h5>إحالة المعاملة #@Model.transaction_id</h5>
+                        @using (Html.BeginForm("ReferTransaction", "Employees", FormMethod.Post, new { id = $"referTransactionForm-{Model.transaction_id}", enctype = "multipart/form-data" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            @Html.HiddenFor(model => model.transaction_id)
+                            <div class="form-group">
+                                <label for="department_id">القسم:</label>
+                                <select id="department_id" name="department_id" class="form-control" required>
+                                    <option value="">اختر القسم</option>
+                                    @foreach (var dept in ViewBag.Departments)
+                                    {
+                                        <option value="@dept.Value">@dept.Text</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="to_employee_id">إحالة إلى الموظف:</label>
+                                <select name="to_employee_id" id="to_employee_id" class="form-control" required>
+                                    <option value="">اختر الموظف</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="comments">توجيهات الإحالة:</label>
+                                <textarea name="comments" id="comments" class="form-control" required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="fileInput" class="block text-gray-700">مرفقات الإحالة</label>
+                                <input type="file" id="fileInput" name="files" accept=".pdf,.xls,.xlsx,.doc,.docx" multiple class="block mt-2" />
+                                <ul id="fileList" class="mt-2 flex flex-wrap gap-2 p-2 border border-gray-300 rounded-lg shadow-sm"></ul>
+                            </div>
+                            <button type="submit" class="btn btn-primary">تأكيد الإحالة</button>
                             @using (Html.BeginForm("UpdateStatus", "Transactions", FormMethod.Post, new { id = $"updateStatusForm-{Model.transaction_id}", @class = "d-inline" }))
                             {
                                 @Html.AntiForgeryToken()
@@ -158,14 +175,13 @@
                                 </button>
                                 @Html.HiddenFor(model => model.transaction_id)
                                 <button type="button" class="btn btn-dark" data-dismiss="modal">إخفاء</button>
-
                             }
-                    }
+                        }
                     </div>
-                }else
+                }
+                else
                 {
                     <button type="button" class="btn btn-dark" data-dismiss="modal">إخفاء</button>
-
                 }
             </div>
         </div>
@@ -199,6 +215,7 @@
     </div>
 </div>
 
+<!-- Modal Script and Form -->
 <script>
     $(document).ready(function () {
         // Department selection handler for dynamic employee dropdown population
@@ -209,13 +226,11 @@
             employeeDropdown.append('<option value="">اختر الموظف</option>');
 
             if (departmentId) {
-                console.log("Selected department ID:", departmentId);
                 $.ajax({
                     url: '@Url.Action("GetEmployeesByDepartment", "Employees")',
                     type: 'GET',
                     data: { departmentId: departmentId },
                     success: function (data) {
-                        console.log("Received data:", data);
                         if (Array.isArray(data) && data.length > 0) {
                             $.each(data, function (index, item) {
                                 employeeDropdown.append($('<option></option>')
@@ -254,5 +269,61 @@
                 });
             }
         });
+
+        // File input management
+        $('#fileInput').on('change', function () {
+            var fileList = $('#fileList');
+            fileList.empty(); // Clear previous file list
+
+            for (var i = 0; i < this.files.length; i++) {
+                var file = this.files[i];
+                var listItem = $('<li></li>')
+                    .addClass('flex items-center p-2 bg-white border border-gray-300 rounded-md shadow-sm');
+                var fileName = $('<span></span>').text(file.name).addClass('mr-2');
+                var removeButton = $('<button type="button" class="bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center">X</button>');
+
+                removeButton.on('click', function () {
+                    var listItem = $(this).parent();
+                    var fileName = listItem.find('span').text().trim();
+
+                    // Remove file from file input
+                    var dataTransfer = new DataTransfer();
+                    var input = $('#fileInput')[0];
+
+                    for (var i = 0; i < input.files.length; i++) {
+                        if (input.files[i].name !== fileName) {
+                            dataTransfer.items.add(input.files[i]);
+                        }
+                    }
+
+                    input.files = dataTransfer.files;
+
+                    listItem.remove();
+                });
+
+                listItem.append(fileName).append(removeButton);
+                fileList.append(listItem);
+            }
+        });
+
+        // Validate file types on form submission
+        $('#referTransactionForm').on('submit', function (e) {
+            var fileInput = document.getElementById('fileInput');
+            var allowedExtensions = /(\.pdf|\.xls|\.xlsx|\.doc|\.docx)$/i;
+            var fileError = document.getElementById('fileError');
+            fileError.style.display = 'none';
+
+            if (fileInput.files.length > 0) {
+                for (var i = 0; i < fileInput.files.length; i++) {
+                    var file = fileInput.files[i];
+                    if (!allowedExtensions.exec(file.name)) {
+                        fileError.style.display = 'block';
+                        e.preventDefault();
+                        return;
+                    }
+                }
+            }
+        });
     });
 </script>
+
