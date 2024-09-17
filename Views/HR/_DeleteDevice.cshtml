@@ -26,11 +26,12 @@
                 </dl>
                 <p>هل أنت متأكد أنك تريد حذف هذا الجهاز؟</p>
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer justify-content-start">
+                <!-- Align buttons to the right -->
                 <form asp-action="DeleteDevice" asp-route-id="@Model.devices_id">
                     <input type="hidden" asp-for="devices_id" />
                     <button type="submit" class="btn btn-danger">حذف</button>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">إلغاء</button>
+                    <button type="button" class="btn btn-dark" data-dismiss="modal">إلغاء</button>
                 </form>
             </div>
         </div>

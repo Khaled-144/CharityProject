@@ -189,17 +189,30 @@ namespace CharityProject.Controllers
         {
             var employeeId = GetEmployeeIdFromSession();
             var emplyee_Details = await GetEmployeeDetailsFromSessionAsync();
-            
+            var hrManager = _context.employee_details
+        .FirstOrDefault(e => e.position == "مدير خدمة المستفيدين");
+
             // Fetch transactions based on the conditions provided
             var transactions = await _context.Transactions
                 .Include(t => t.Referrals)
                     .ThenInclude(r => r.from_employee)
                 .Include(t => t.Referrals)
                     .ThenInclude(r => r.to_employee)
-                .Where(t =>(t.status=="مرسلة"&&t.Employee_detail.departement_id == emplyee_Details.departement_id)|| // Transactions sent to the employee
-                    t.Referrals.Any(r => r.to_employee_id == employeeId)
-                 // Transactions for the manager's department or from department 5
-                 )  // Transactions referred to the employee
+                .Where(t =>
+    (t.status == "مرسلة" && t.Employee_detail.departement_id == emplyee_Details.departement_id) ||
+    (t.status == "مرسلة" && (t.to_emp_id == employeeId || t.to_emp_id == hrManager.employee_id)) || // Transactions sent to the employee
+    (t.Referrals.Any() && // Ensure there are referrals
+        (
+            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == employeeId ||
+            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == hrManager.employee_id
+        ) &&
+        (
+            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == employeeId ||
+            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == hrManager.employee_id
+        )
+    )
+)
+
                 .OrderByDescending(t => t.transaction_id)
                 .ToListAsync();
             var employeeIds = transactions.SelectMany(t => new[] { t.from_emp_id, t.to_emp_id }).Distinct().ToList();
@@ -212,7 +225,11 @@ namespace CharityProject.Controllers
             // Fetch departments for the dropdown
             var departments = await _context.Department.ToListAsync();
             ViewBag.Departments = new SelectList(departments, "departement_id", "departement_name");
-
+            if (transactions.Count == 0)
+            {
+                // Render the _NothingNew partial view if no transactions
+                return PartialView("_NothingNew");
+            }
             return PartialView("_getAllTransactions", transactions);
         }
         public async Task<IActionResult> GetAllHolidays()
@@ -248,6 +265,212 @@ namespace CharityProject.Controllers
                 .ToListAsync();
 
             return PartialView("_getAllLetters", letters);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> SearchAssets(string searchTerm = "", string sortOrder = "")
+        {
+
+            var employeeId = GetEmployeeIdFromSession();
+
+            var query = _context.charter
+                .Where(a => a.to_emp_id == employeeId);
+
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                query = query.Where(a =>
+                    a.charter_id.ToString().Contains(searchTerm) ||
+                    a.charter_info.Contains(searchTerm)
+                );
+            }
+
+            switch (sortOrder)
+            {
+                case "oldest":
+                    query = query.OrderBy(a => a.receive_date);
+                    break;
+                case "newest":
+                default:
+                    query = query.OrderByDescending(a => a.receive_date);
+                    break;
+            }
+
+            var assets = await query.ToListAsync();
+
+            return PartialView("_getAllAssets", assets);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> SearchTransactions(string searchTerm = "", string sortOrder = "")
+        {
+
+            var employeeId = GetEmployeeIdFromSession();
+
+            var query = _context.Transactions
+                .Include(t => t.Referrals)
+                    .ThenInclude(r => r.from_employee)
+                .Include(t => t.Referrals)
+                    .ThenInclude(r => r.to_employee)
+                .Where(t => t.to_emp_id == employeeId || t.Referrals.Any(r => r.to_employee_id == employeeId));
+
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                query = query.Where(t =>
+                    t.transaction_id.ToString().Contains(searchTerm) ||
+                    t.title.Contains(searchTerm)
+                );
+            }
+
+            switch (sortOrder)
+            {
+                case "oldest":
+                    query = query.OrderBy(t => t.create_date);
+                    break;
+                case "newest":
+                default:
+                    query = query.OrderByDescending(t => t.create_date);
+                    break;
+            }
+
+            var transactions = await query.ToListAsync();
+
+            // Fetch employee names
+            var employeeIds = transactions.SelectMany(t => new[] { t.from_emp_id, t.to_emp_id }).Distinct().ToList();
+            var employees = await _context.employee
+                .Where(e => employeeIds.Contains(e.employee_id))
+                .ToDictionaryAsync(e => e.employee_id, e => e.name);
+
+            ViewBag.EmployeeNames = employees;
+
+            // Fetch departments for the dropdown
+            var departments = await _context.Department.ToListAsync();
+            ViewBag.Departments = new SelectList(departments, "departement_id", "departement_name");
+
+            return PartialView("_getAllTransactions", transactions);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> SearchHolidays(string searchTerm = "", string sortOrder = "")
+        {
+
+            var employeeId = GetEmployeeIdFromSession();
+
+            var query = _context.HolidayHistories
+                .Where(h => h.emp_id == employeeId);
+
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                query = query.Where(h =>
+                    h.holidays_history_id.ToString().Contains(searchTerm) ||
+                    h.title.Contains(searchTerm)
+                );
+            }
+
+            switch (sortOrder)
+            {
+                case "oldest":
+                    query = query.OrderBy(h => h.start_date);
+                    break;
+                case "newest":
+                default:
+                    query = query.OrderByDescending(h => h.start_date);
+                    break;
+            }
+
+            var holidays = await query.ToListAsync();
+
+            return PartialView("_getAllHolidays", holidays);
+        }
+        [HttpGet]
+        public async Task<IActionResult> SearchLetters(string searchTerm = "", string sortOrder = "")
+        {
+
+            var employeeId = GetEmployeeIdFromSession();
+
+            var query = _context.letters
+                .Where(l => l.to_emp_id == employeeId);
+
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                query = query.Where(l =>
+                    l.letters_id.ToString().Contains(searchTerm) ||
+                    l.title.Contains(searchTerm)
+                );
+            }
+
+            switch (sortOrder)
+            {
+                case "oldest":
+                    query = query.OrderBy(l => l.date);
+                    break;
+                case "newest":
+                default:
+                    query = query.OrderByDescending(l => l.date);
+                    break;
+            }
+
+            var letters = await query.ToListAsync();
+
+            return PartialView("_getAllLetters", letters);
+        }
+        [HttpGet]
+        public IActionResult SearchExternalTransactions(string searchTerm)
+        {
+            var transactions = _context.ExternalTransactions.AsQueryable();
+
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                transactions = transactions.Where(t => t.identity_number.ToString().Contains(searchTerm) || t.sending_number.ToString().Contains(searchTerm));
+            }
+
+            var resultList = transactions.ToList();
+
+            if (!resultList.Any())
+            {
+                return PartialView("_NoResults"); // Return the _NoResults partial view if no results are found
+            }
+
+            return PartialView("_getAllExternalTransactios", resultList); // Return the transaction list partial view if results are found
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetEmployeesByDepartmentName([FromQuery] int[] departmentNames)
+        {
+            _logger.LogInformation($"Fetching employees for department names: {string.Join(", ", departmentNames)}");
+
+            // Find department IDs by names
+            var departmentIds = await _context.Department
+                .Where(d => departmentNames.Contains(d.departement_id))
+                .Select(d => d.departement_id)
+                .ToListAsync();
+
+            if (!departmentIds.Any())
+            {
+                _logger.LogWarning($"No departments found with names: {string.Join(", ", departmentNames)}");
+                return NotFound("No departments found with the given names.");
+            }
+
+            // Fetch employees based on the department IDs
+            var employees = await _context.employee_details
+                .Where(ed => departmentIds.Contains(ed.departement_id))
+                .Select(ed => new
+                {
+                    employee_id = ed.employee_id,
+                    name = ed.employee.name,
+                    position = ed.position
+                })
+                .GroupBy(e => e.employee_id)
+                .Select(g => g.First())
+                .ToListAsync();
+
+            if (!employees.Any())
+            {
+                _logger.LogWarning($"No employees found for department names: {string.Join(", ", departmentNames)}");
+                return NotFound("No employees found for the given departments.");
+            }
+
+            _logger.LogInformation($"Found {employees.Count} employees for department names: {string.Join(", ", departmentNames)}");
+            return Ok(employees);
         }
 
         // Create Actions  --------------------------------------------------------
@@ -393,31 +616,40 @@ namespace CharityProject.Controllers
 
             // Return the same view with validation errors
         }
-        public IActionResult GetRemainingHolidayBalance(int employeeId, int holidayId)
-        {
-            // Get the allowed duration for the specified holiday type
-            var holidayType = _context.Holidays
-                .Where(h => h.holiday_id == holidayId)
-                .Select(h => h.allowedDuration)
-                .FirstOrDefault();
 
-            // Calculate the total duration taken for the specified holiday type
-            var totalTakenDuration = _context.HolidayHistories
-                .Where(hh => hh.emp_id == employeeId
-                             && hh.holiday_id == holidayId
-                             && hh.start_date.Year == DateTime.Now.Year)
-                .Sum(hh => hh.duration);
+		[HttpGet]
+		[Route("CustomerServiceManager/GetRemainingHolidayBalance")]
+		public IActionResult GetRemainingHolidayBalance(int holidayId)
+		{
+			var employeeId = GetEmployeeIdFromSession(); // Ensure this is returning the correct employee ID
 
-            // Calculate the remaining balance
-            var remainingBalance = holidayType - totalTakenDuration;
+			// Check if holidayId exists
+			var holidayType = _context.Holidays
+				.Where(h => h.holiday_id == holidayId)
+				.Select(h => h.allowedDuration)
+				.FirstOrDefault();
 
-            return Json(remainingBalance);
-        }
+			if (holidayType == 0)
+			{
+				return Json("Holiday type not found");
+			}
+
+			// Check if any records exist
+			var totalTakenDuration = _context.HolidayHistories
+				.Where(hh => hh.emp_id == employeeId
+							 && hh.holiday_id == holidayId
+							 && hh.start_date.Year == DateTime.Now.Year)
+				.Sum(hh => hh.duration);
+
+			var remainingBalance = holidayType - totalTakenDuration;
+
+			return Json(remainingBalance);
+		}
 
 
 
-        // Update Actions --------------------------------------------------------
-        [HttpPost]
+		// Update Actions --------------------------------------------------------
+		[HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateTransactionStatus(int transaction_id)
         {

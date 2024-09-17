@@ -1,0 +1,62 @@
+﻿@model CharityProject.Models.letter
+
+@{
+    ViewData["Title"] = "PartialDetails2";
+    string fileUrl = Url.Content("~/files/" + Model.files);
+
+}
+<div class="modal fade" id="detailModal-@Model.letters_id" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header flex justify-content-center">
+                <h4>معلومات المعاملة  #@Model.letters_id</h4>
+            </div>
+            <div class="modal-body align-content-center">
+                <div class="col-md text-right my-1" dir="rtl">
+                    <div>
+                        <dl class="row text-center">
+                            <dt class="col-sm-4">
+                                الموضوع
+                            </dt>
+                            <dd class="col-sm-8">
+                                @Html.DisplayFor(model => model.title)
+                            </dd>
+
+                            <dt class="col-sm-4">
+                                الوصف
+                            </dt>
+                            <dd class="col-sm-8">
+                                @Html.DisplayFor(model => model.description)
+                            </dd>
+
+                            <dt class="col-sm-5">
+                                تاريخ الانشاء
+                            </dt>
+                            <dd class="col-sm-7">
+                                @Html.DisplayFor(model => model.date)
+                            </dd>
+                            <dt class="col-sm-4">
+                                المرفقات
+                            </dt>
+                            <dd class="col-sm-8">
+                                @if (!string.IsNullOrEmpty(Model.files))
+                                {
+                                    <a href="@fileUrl" target="_blank">@Model.files</a>
+                                }
+                                else
+                                {
+                                    <span>لا توجد مرفقات</span>
+                                }
+                            </dd>
+                        </dl>
+                    </div>
+                    <div class="flex justify-center">
+                        <button type="button" class="btn btn-dark" data-dismiss="modal">إخفاء</button>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

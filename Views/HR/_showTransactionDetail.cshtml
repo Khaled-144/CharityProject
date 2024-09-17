@@ -153,7 +153,7 @@
 				<!-- Referral form (initially hidden) -->
 				<div id="referForm-@Model.transaction_id" class="mt-4" style="display: none;">
 					<h5>إحالة المعاملة #@Model.transaction_id</h5>
-					@using (Html.BeginForm("ReferTransaction", "CustomerServiceManager", FormMethod.Post, new { id = $"referTransactionForm-{Model.transaction_id}" }))
+					@using (Html.BeginForm("ReferTransaction", "hr", FormMethod.Post, new { id = $"referTransactionForm-{Model.transaction_id}" }))
 					{
 						@Html.AntiForgeryToken()
 						@Html.HiddenFor(model => model.transaction_id)
@@ -201,7 +201,7 @@
 				</div>
 			</div>
 			<div class="modal-footer flex pt-14 justify-center">
-				@using (Html.BeginForm("UpdateTransactionsStatus", "CustomerServiceManager", FormMethod.Post, new { id = $"updateStatusFormConfirm-{Model.transaction_id}" }))
+				@using (Html.BeginForm("UpdateTransactionsStatus", "hr", FormMethod.Post, new { id = $"updateStatusFormConfirm-{Model.transaction_id}" }))
 				{
 					@Html.AntiForgeryToken()
 					@Html.HiddenFor(model => model.transaction_id)
@@ -212,25 +212,7 @@
 		</div>
 	</div>
 </div>
-<div class="modal fade" id="confirmAcceptModal-@Model.transaction_id" tabindex="-1" role="dialog" aria-labelledby="confirmEndLabel" aria-hidden="true">
-	<div class="modal-dialog" role="document">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h5 class="modal-title" id="confirmEndLabel">تأكيد قبول المعاملة</h5>
-			</div>
 
-			<div class="modal-footer flex pt-14 justify-center">
-				@using (Html.BeginForm("ApproveTransaction", "CustomerServiceManager", FormMethod.Post, new { id = $"updateStatusFormConfirm-{Model.transaction_id}" }))
-				{
-					@Html.AntiForgeryToken()
-					@Html.HiddenFor(model => model.transaction_id)
-					<button type="submit" class="btn btn-primary" onclick="addReasonToForm(@Model.transaction_id)">نعم، قبول</button>
-				}
-				<button type="button" class="btn btn-secondary" data-dismiss="modal">الغاء</button>
-			</div>
-		</div>
-	</div>
-</div>
 
 <script>
 	function addReasonToForm(transactionId) {
@@ -251,93 +233,58 @@
 	});
 </script>
 <script>
-	$("#department_id").change(function () {
-		var departmentId = $(this).val();
-		var employeeDropdown = $("#to_employee_id");
-		employeeDropdown.empty();
-		employeeDropdown.append('<option value="">اختر الموظف</option>');
+$("#department_id").off('change').on('change', function () {
+var departmentId = $(this).val();
+var employeeDropdown = $("#to_employee_id");
+employeeDropdown.empty();
+employeeDropdown.append('<option value="">اختر الموظف</option>');
 
-		if (departmentId) {
-			console.log("Selected department ID:", departmentId);
-			$.ajax({
-				url: '@Url.Action("GetEmployeesByDepartment", "CustomerServiceManager")',
-				type: 'GET',
-				data: { departmentId: departmentId },
-				success: function (data) {
-					console.log("Received data:", data);
-					if (data && data.length > 0) {
-						$.each(data, function (index, item) {
-							employeeDropdown.append($('<option></option>')
-								.val(item.employee_id)
-								.text(item.name + ' - ' + item.position));
-						});
-					} else {
-						employeeDropdown.append($('<option></option>').val('').text('لا يوجد موظفين في هذا القسم'));
-					}
-				},
-				error: function (xhr, status, error) {
-					console.error("Error fetching employees:", error);
-					console.error("Status:", status);
-					console.error("Response:", xhr.responseText);
-					employeeDropdown.append($('<option></option>').val('').text('حدث خطأ أثناء جلب الموظفين'));
-				}
-			});
-		}
-	});
-</script>
-<script>
-	$("#department_id").off('change').on('change', function () {
-		var departmentId = $(this).val();
-		var employeeDropdown = $("#to_employee_id");
-		employeeDropdown.empty();
-		employeeDropdown.append('<option value="">اختر الموظف</option>');
+if (departmentId) {
+console.log("Selected department ID:", departmentId);
+$.ajax({
+url: '@Url.Action("GetEmployeesByDepartment", "hr")',
+type: 'GET',
+data: { departmentId: departmentId },
+success: function (data) {
+console.log("Received data:", data);
 
-		if (departmentId) {
-			console.log("Selected department ID:", departmentId);
-			$.ajax({
-				url: '@Url.Action("GetEmployeesByDepartment", "Employees")',
-				type: 'GET',
-				data: { departmentId: departmentId },
-				success: function (data) {
-					console.log("Received data:", data);
-
-					if (data && data.length > 0) {
-						$.each(data, function (index, item) {
-							employeeDropdown.append($('<option></option>')
-								.val(item.employee_id)
-								.text(item.name + ' - ' + item.position));
-						});
-					} else {
-						employeeDropdown.append($('<option></option>').val('').text('لا يوجد موظفين في هذا القسم'));
-					}
-				},
-				error: function (xhr, status, error) {
-					console.error("Error fetching employees:", error);
-					console.error("Status:", status);
-					console.error("Response:", xhr.responseText);
-					employeeDropdown.append($('<option></option>').val('').text('حدث خطأ أثناء جلب الموظفين'));
-				}
-			});
-		}
-	});
+if (data && data.length > 0) {
+$.each(data, function (index, item) {
+employeeDropdown.append($('<option></option>')
+.val(item.employee_id)
+.text(item.name + ' - ' + item.position));
+});
+} else {
+employeeDropdown.append($('<option></option>').val('').text('لا يوجد موظفين في هذا القسم'));
+}
+},
+error: function (xhr, status, error) {
+console.error("Error fetching employees:", error);
+console.error("Status:", status);
+console.error("Response:", xhr.responseText);
+employeeDropdown.append($('<option></option>').val('').text('حدث خطأ أثناء جلب الموظفين'));
+}
+});
+}
+});
 
 </script>
 <script>
-	$(document).ready(function () {
-		var departmentId = @Model.department_id;
-		var transactionId = @Model.transaction_id;
+$(document).ready(function () {
+var departmentId = @Model.department_id;
+var transactionId = @Model.transaction_id;
 
-		$.ajax({
-			url: '@Url.Action("GetDepartmentName", "CustomerServiceManager")',
-			type: 'GET',
-			data: { departmentId: departmentId },
-			success: function (data) {
-				$('#department-name-' + transactionId).text(data);
-			},
-			error: function (xhr, status, error) {
-				console.error("Error fetching department name:", error);
-				$('#department-name-' + transactionId).text("غير معروف");
-			}
-		});
-	});
+$.ajax({
+url: '@Url.Action("GetDepartmentName", "Employees")',
+type: 'GET',
+data: { departmentId: departmentId },
+success: function (data) {
+$('#department-name-' + transactionId).text(data);
+},
+error: function (xhr, status, error) {
+console.error("Error fetching department name:", error);
+$('#department-name-' + transactionId).text("غير معروف");
+}
+});
+});
 </script>

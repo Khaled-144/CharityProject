@@ -1,0 +1,224 @@
+﻿@{
+    if (Context.Session.GetString("Permission_position") == "مدير الموارد البشرية والمالية")
+    {
+        Layout = "_Layout_HR";
+
+    }
+    else if (Context.Session.GetString("Permission_position") == "مدير خدمة المستفيدين" || Context.Session.GetString("Permission_position") == "مدير التنمية المالية والاستدامة")
+    {
+        Layout = "_Layout_Managers";
+    }
+    else if (Context.Session.GetString("Permission_position") == "موظف")
+    {
+        Layout = "_Layout_Employees";
+    }
+    else
+    {
+        Layout = "_Layout";
+    }
+
+    ViewData["PageTitle"] = "موظفين القسم";
+    ViewData["Title"] = "صفحة موظفين القسم";
+}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>قائمة الموظفين الخاصة بقسمك</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <style>
+        /* Custom styles here */
+        keyframes fadeIn {
+            from
+
+        {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .shadow-text {
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-emerald-100 via-teal-200 to-cyan-300 min-h-screen p-8 font-sans">
+    <div class="max-w-7xl mx-auto">
+        <h2 class="p-4 text-5xl font-bold mb-12 text-center text-black shadow-text fade-in">قائمة الموظفين بقسمك</h2>
+
+        <div class="glass-effect p-8 mb-10 fade-in shadow-lg">
+            <form id="searchForm" onsubmit="return false;" class="mb-6">
+                <div class="flex justify-center">
+                    <input id="employeeSearch" name="name" placeholder="بحث عن اسم الموظف" class="w-full md:w-1/2 px-4 py-3 rounded-lg border-2 border-gray-300 focus:outline-none focus:border-gray-500 transition duration-300" type="search" aria-label="search" onkeyup="filterEmployees()" />
+                </div>
+            </form>
+        </div>
+
+        @if (ViewData["EmployeeList"] != null)
+        {
+            <div class="overflow-x-auto fade-in">
+                <table id="employeeTable" class="w-full bg-white rounded-lg shadow-xl overflow-hidden">
+                    <thead>
+                        <tr class="bg-primaryButtons text-white">
+                            <th class="py-4 px-6 text-right">الرقم الوظيفي</th>
+                            <th class="py-4 px-6 text-right">الاسم</th>
+                            <th class="py-4 px-6 text-right">اسم المستخدم</th>
+                            <th class="py-4 px-6 text-right">المنصب</th>
+                            <th class="py-4 px-6 text-right">الصلاحيات</th>
+                            <th class="py-4 px-6 text-right">اسم القسم</th>
+                            <th class="py-4 px-6 text-right">الاجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var employee in (IEnumerable<dynamic>)ViewData["EmployeeList"])
+                        {
+                            <tr class="employeeRow hover:bg-emerald-50 transition duration-300 ease-in-out" data-name="@employee.name">
+                                <td class="py-4 px-6 border-b">@employee.employee_id</td>
+                                <td class="py-4 px-6 border-b">@employee.name</td>
+                                <td class="py-4 px-6 border-b">@employee.username</td>
+                                <td class="py-4 px-6 border-b">@employee.Position</td>
+                                <td class="py-4 px-6 border-b">@employee.PermissionPosition</td>
+                                <td class="py-4 px-6 border-b">@employee.DepartmentName</td>
+                                <td class="py-4 px-6 border-b">
+                                    <button class="bg-primaryButtons text-white py-2 px-4 rounded-lg hover:from-emerald-600 hover:to-teal-700 transition duration-300 ease-in-out transform hover:scale-105" data-toggle="modal" data-target="@("#EditPerModal-" + @employee.employee_id)">تعديل</button>
+                                </td>
+                            </tr>
+
+                            <!-- Modal -->
+                            <div class="modal fade" id="EditPerModal-@employee.employee_id" tabindex="-1" role="dialog" aria-labelledby="editPerModalLabel-@employee.employee_id" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content bg-white rounded-lg shadow-lg">
+                                        <div class="modal-header border-b border-gray-200">
+                                            <h5 class="modal-title text-xl font-semibold text-gray-900" id="editPerModalLabel-@employee.employee_id">تعديل صلاحيات الموظف - @employee.name</h5>
+                                            <button type="button" class="text-gray-500 hover:text-gray-700" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body p-6">
+                                            <form id="permissionForm" asp-action="UpdatePermission" method="post">
+                                                <input type="hidden" name="id" value="@employee.employee_id" />
+
+                                                <div class="mb-4">
+                                                    <label for="currentPermission" class="block text-gray-700 font-medium mb-2">الصلاحية الحالية:</label>
+                                                    <p id="currentPermission" class="text-gray-800">@employee.PermissionPosition</p>
+                                                </div>
+
+                                                <div class="mb-6">
+                                                    <label for="permissionPosition-@employee.employee_id" class="block text-gray-700 font-medium mb-2">تغيير الصلاحية:</label>
+                                                    <select class="form-select block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" id="permissionPosition-@employee.employee_id" name="permissionPosition">
+                                                        <option disabled selected>اختر الصلاحيات الجديدة</option>
+                                                        <option value="موظف">موظف</option>
+                                                        <option value="مدير التنمية المالية والاستدامة">مدير</option>
+                                                    </select>
+                                                </div>
+
+                                                <div class="modal-footer flex justify-center mt-4">
+                                                    <button class="btn btn-primary text-white hover:bg-blue-700 rounded-md px-4 py-2">حفظ التغييرات</button>
+                                                    <button class="btn btn-dark text-white rounded-md px-4 py-2 mr-2" data-dismiss="modal">إخفاء</button>
+                                                   
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <p class="text-gray-700 text-center mt-4 text-xl fade-in bg-white p-8 rounded-lg shadow-lg">لا توجد بيانات لعرضها.</p>
+        }
+
+     
+    </div>
+
+    <script>
+     
+            $(document).on('submit', '#permissionForm', function (e) {
+                e.preventDefault();
+
+                // Create FormData object to handle the form data
+                var formData = new FormData(this);
+
+                $.ajax({
+                url: '@Url.Action("UpdatePermission", "FinancialSustainabilityDevelopmentManager")',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,  // Prevent jQuery from automatically processing data
+                    contentType: false,  // Prevent jQuery from setting the content type
+                    success: function (response) {
+                        if (response.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'نجاح',
+                                text: response.message,
+                                showConfirmButton: false,
+                                timer: 5000
+                            }).then(function () {
+                                location.reload(); // Refresh the page after the alert
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'خطأ!',
+                                text: response.message,
+                                confirmButtonText: 'حسناً'
+                            });
+                        }
+                    },
+                    error: function () {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'خطأ!',
+                            text: 'حدث خطأ في الاتصال بالخادم.',
+                            confirmButtonText: 'حسناً'
+                        });
+                    }
+                });
+            });
+
+
+        function filterEmployees() {
+            var input = document.getElementById('employeeSearch').value.toLowerCase();
+            var table = document.getElementById('employeeTable');
+            var rows = table.getElementsByClassName('employeeRow');
+
+            for (var i = 0; i < rows.length; i++) {
+                var name = rows[i].getAttribute('data-name').toLowerCase();
+
+                if (name.includes(input) || input === '') {
+                    rows[i].style.display = '';
+                    rows[i].classList.add('fade-in');
+                } else {
+                    rows[i].style.display = 'none';
+                    rows[i].classList.remove('fade-in');
+                }
+            }
+        }
+    </script>
+</body>
+</html>

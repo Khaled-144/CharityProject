@@ -2,7 +2,6 @@
     if (Context.Session.GetString("Permission_position") == "مدير الموارد البشرية والمالية")
     {
         Layout = "_Layout_HR";
-
     }
     else if (Context.Session.GetString("Permission_position") == "مدير خدمة المستفيدين" || Context.Session.GetString("Permission_position") == "مدير التنمية المالية والاستدامة")
     {
@@ -78,31 +77,32 @@
                     </div>
                     <div class="p-4 md:p-5">
                         <form class="space-y-4" action="@Url.Action("GenerateSalaryStatement", "OtherServices")" method="post">
-                            <div>
-                                <label for="employeeName" class="block mb-2 text-sm font-medium text-gray-900">اسم الموظف</label>
-                                <input type="text" name="employeeName" id="employeeName" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
-                            </div>
-                            <div>
-                                <label for="employeeId" class="block mb-2 text-sm font-medium text-gray-900">رقم الموظف</label>
-                                <input type="text" name="employeeId" id="employeeId" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
-                            </div>
+                            
                             <div>
                                 <label for="salaryAmount" class="block mb-2 text-sm font-medium text-gray-900">مبلغ الراتب</label>
                                 <input type="text" name="salaryAmount" id="salaryAmount" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
                             </div>
                             <div>
-                                <label for="recipient" class="block mb-2 text-sm font-medium text-gray-900">إلى ...</label>
-                                <select id="recipient" name="recipient" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
-                                    <option value="">اختر الجهة</option>
-                                    <option value="general">من يهمه الأمر</option>
-                                    <option value="custom">مخصص...</option>
-                                </select>
+                                <div>
+                                    <label for="recipient" class="block mb-2 text-sm font-medium text-gray-900">إلى ...</label>
+                                    <select id="recipientSelect" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                                        <option value="">اختر الجهة</option>
+                                        <option value="من يهمه الأمر">من يهمه الأمر</option>
+                                        <option value="مخصص">مخصص...</option>
+                                    </select>
+                                    <!-- Hidden field to store the actual recipient -->
+                                    <input type="hidden" id="recipient" name="recipient" value="">
+                                </div>
+                                <div id="customRecipient" class="hidden">
+                                    <label for="customRecipientName" class="block mb-2 text-sm font-medium text-gray-900">أدخل اسم الجهة</label>
+                                    <input type="text" id="customRecipientName" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="اسم الجهة">
+                                </div>
+                                <div id="warningMessage" class="hidden text-red-500 text-sm mt-2">
+                                    يرجى ملء حقل الجهة المخصصة
+                                </div>
                             </div>
-                            <div id="customRecipient" class="hidden">
-                                <label for="customRecipientName" class="block mb-2 text-sm font-medium text-gray-900">أدخل اسم الجهة</label>
-                                <input type="text" id="customRecipientName" name="customRecipientName" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="اسم الجهة">
-                            </div>
-                            <button type="submit" class="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">أطبع الملف</button>
+
+                            <button type="submit" id="submitForm" class="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">أطبع الملف</button>
                         </form>
                     </div>
                 </div>
@@ -125,11 +125,11 @@
                         </button>
                     </div>
                     <div class="p-4 md:p-5">
-                        <form class="space-y-4" action="#">
-                            <div date-rangepicker datepicker-format="yyyy/mm/dd" class="flex flex-col space-y-4">
+                        <form class="space-y-4" action="@Url.Action("GenerateSalaryRecored", "OtherServices")" method="post" onsubmit="return validateDates()">
+                           
                                 <div class="flex items-center">
                                     <div class="relative flex-grow">
-                                        <input name="start" type="text" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="تاريخ البدء">
+                                        <input name="startDate" id="startDate" type="date" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="تاريخ البدء" required>
                                     </div>
                                     <div class="flex items-center justify-center w-10 h-10 ml-2">
                                         <svg class="w-5 h-5 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
@@ -139,7 +139,7 @@
                                 </div>
                                 <div class="flex items-center">
                                     <div class="relative flex-grow">
-                                        <input name="end" type="text" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="تاريخ الانتهاء">
+                                        <input name="endDate" id="endDate" type="date" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="تاريخ الانتهاء" required>
                                     </div>
                                     <div class="flex items-center justify-center w-10 h-10 ml-2">
                                         <svg class="w-5 h-5 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
@@ -147,29 +147,61 @@
                                         </svg>
                                     </div>
                                 </div>
-                            </div>
-                            <button type="submit" class="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">أطبع الملف</button>
+                            
+                            <button type="submit" class="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                                اطبع
+                            </button>
                         </form>
                     </div>
-                </div>
-            </div>
         </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.8.0/flowbite.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const recipientSelect = document.getElementById('recipient');
+            const recipientSelect = document.getElementById('recipientSelect');
             const customRecipientDiv = document.getElementById('customRecipient');
+            const customRecipientName = document.getElementById('customRecipientName');
+            const recipientInput = document.getElementById('recipient');
+            const warningMessage = document.getElementById('warningMessage');
+            const submitButton = document.getElementById('submitForm');
 
             recipientSelect.addEventListener('change', function () {
-                if (this.value === 'custom') {
+                if (this.value === 'مخصص') {
                     customRecipientDiv.classList.remove('hidden');
                 } else {
                     customRecipientDiv.classList.add('hidden');
+                    warningMessage.classList.add('hidden');
+                }
+            });
+
+            submitButton.addEventListener('click', function (event) {
+                if (recipientSelect.value === 'مخصص' && customRecipientName.value.trim() === '') {
+                    event.preventDefault();
+                    warningMessage.classList.remove('hidden');
+                } else {
+                    // Update the hidden input field with the correct recipient value
+                    if (recipientSelect.value === 'مخصص') {
+                        recipientInput.value = customRecipientName.value.trim();
+                    } else {
+                        recipientInput.value = recipientSelect.value;
+                    }
+                    warningMessage.classList.add('hidden');
                 }
             });
         });
     </script>
+            <script>
+                function validateDates() {
+                    const startDate = document.getElementById('startDate').value;
+                    const endDate = document.getElementById('endDate').value;
+
+                    if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
+                        alert('تاريخ البدء يجب أن يكون قبل أو نفس تاريخ الانتهاء');
+                        return false;
+                    }
+                    return true;
+                }
+            </script>
 </body>
 </html>

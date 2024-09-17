@@ -142,7 +142,7 @@ namespace CharityProject.Controllers
 
         public IActionResult ReferTransaction()
         {
-            return RedirectToAction("Transactions", "Employees");
+            return RedirectToAction("Transactions", "FinancialSustainabilityDevelopmentManager");
         }
 
         [HttpPost]
@@ -171,8 +171,9 @@ namespace CharityProject.Controllers
                 referral_date = DateTime.Now,
                 comments = comments,
             };
-
+           
             _context.Referrals.Add(referral);
+            transaction.status = "تحت الإجراء";
             transaction.to_emp_id = to_employee_id;
             await _context.SaveChangesAsync();
 
@@ -202,9 +203,9 @@ namespace CharityProject.Controllers
 			return View(referrals);
 		}
 
-		// End of khaled work -----------------------------------------------------
-
-		private int GetEmployeeIdFromSession()
+        // End of khaled work -----------------------------------------------------
+       
+        private int GetEmployeeIdFromSession()
         {
             var employeeIdString = HttpContext.Session.GetString("Id");
             if (employeeIdString != null)
@@ -222,7 +223,8 @@ namespace CharityProject.Controllers
             if (employeeIdString != null && int.TryParse(employeeIdString, out int employeeId))
             {
                 var employeeDetails = await _context.employee_details
-                    .Include(ed => ed.employee) // To include related employee data
+                    .Include(ed => ed.employee) 
+                   .Include(ed=>ed.Department)
                     .FirstOrDefaultAsync(ed => ed.employee_id == employeeId);
 
                 return employeeDetails;
@@ -255,30 +257,37 @@ namespace CharityProject.Controllers
                 Value = e.employee_id.ToString(),
                 Text = e.name
             }).ToList();
-			// Filter transactions based on the current user's ID
-			var transactions = await _context.Transactions
-				.Where(t => t.to_emp_id == currentUserId)
-				.ToListAsync();
+            // Filter transactions based on the current user's ID
 
-			int internalCount = await _context.Transactions
+
+            int internalCount = await _context.Transactions
                 .Include(t => t.Referrals)
                     .ThenInclude(r => r.from_employee)
                 .Include(t => t.Referrals)
                     .ThenInclude(r => r.to_employee)
-                 .Where(t => (t.status == "مرسلة" && t.Employee_detail.departement_id == employeeDetails.departement_id) || (t.status == "مرسلة" && t.to_emp_id == currentUserId) || // Transactions sent to the employee
-                    t.Referrals.Any(r => r.to_employee_id == currentUserId || r.to_employee_id == hrManager.employee_details_id)
-                
-                 )  
-                .CountAsync();
-			int holidaysCount = await _context.HolidayHistories
+                .Where(t =>
+    (t.status == "مرسلة" && t.Employee_detail.departement_id == employeeDetails.departement_id && t.Employee_detail.employee_id != employeeDetails.employee_id) ||
+    (t.status == "مرسلة" && (t.to_emp_id == currentUserId||t.to_emp_id==hrManager.employee_id)) || // Transactions sent to the employee
+    (t.Referrals.Any() && // Ensure there are referrals
+        (
+            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == currentUserId ||
+            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == hrManager.employee_id
+        ) &&
+        (
+            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == currentUserId ||
+            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == hrManager.employee_id
+        )
+
+     )).CountAsync();
+            int holidaysCount = await _context.HolidayHistories
                  .Where(h => h.status == "موافقة المدير المباشر" || (h.status == "مرسلة" && h.Employee_detail.departement_id == employeeDetails.departement_id))
                 .CountAsync();
 			int lettersCount = await _context.letters
-                 .Where(l => l.to_emp_id == employeeDetails.employee_id || l.departement_id == employeeDetails.departement_id || l.to_emp_id == 0)
+                  .Where(l => l.to_emp_id == employeeDetails.employee_id || (l.to_departement_name == employeeDetails.Department.departement_name && l.to_emp_id == 0))
                 .CountAsync();
 			int assetsCount = await _context.charter
-				.Where(c => c.to_emp_id == currentUserId || c.status != "مسلمة")
-				.CountAsync();
+             .Where(c => c.status != "مستلمة")
+                .CountAsync();
 
 			// Passing the counts to the view using ViewBag
 			ViewBag.InternalCount = internalCount;
@@ -286,7 +295,7 @@ namespace CharityProject.Controllers
 			ViewBag.LettersCount = lettersCount;
 			ViewBag.AssetsCount = assetsCount;
 
-			return View(transactions);
+			return View();
 		}
 		[HttpGet]
 		public async Task<IActionResult> GetDepartmentName(int departmentId)
@@ -302,7 +311,7 @@ namespace CharityProject.Controllers
 		public async Task<IActionResult> GetAllTransactions()
 		{
 			var employeeId = GetEmployeeIdFromSession();
-			var emplyee_Details = await GetEmployeeDetailsFromSessionAsync();
+			var employeeDetails = await GetEmployeeDetailsFromSessionAsync();
             var hrManager = _context.employee_details
         .FirstOrDefault(e => e.position == "مدير الموارد البشرية والمالية");
 
@@ -312,11 +321,23 @@ namespace CharityProject.Controllers
 					.ThenInclude(r => r.from_employee)
 				.Include(t => t.Referrals)
 					.ThenInclude(r => r.to_employee)
-				.Where(t => (t.status == "مرسلة" && t.Employee_detail.departement_id == emplyee_Details.departement_id) ||(t.status=="مرسلة"&&t.to_emp_id==employeeId)|| // Transactions sent to the employee
-					t.Referrals.Any(r => r.to_employee_id == employeeId||r.to_employee_id == hrManager.employee_details_id)
-				 // Transactions for the manager's department or from department 5
-				 )  // Transactions referred to the employee
-				.OrderByDescending(t => t.transaction_id)
+                .Where(t =>
+     (t.status == "مرسلة" && t.Employee_detail.departement_id == employeeDetails.departement_id && t.Employee_detail.employee_id != employeeDetails.employee_id && t.Employee_detail.permission_position == "موظف") ||
+    (t.status ==  "مرسلة" && (t.to_emp_id == employeeId || t.to_emp_id == hrManager.employee_id) && t.Employee_detail.permission_position != "موظف")
+    || (t.status == "مرسلة" && t.department_id == employeeDetails.departement_id && t.Employee_detail.permission_position!="موظف" && t.Employee_detail.employee_id!= employeeDetails.employee_id) ||// Transactions sent to the employee
+    (t.Referrals.Any() && // Ensure there are referrals
+        (
+            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == employeeId ||
+            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == hrManager.employee_id
+        ) &&
+        (
+            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == employeeId ||
+            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == hrManager.employee_id
+        )
+    )
+)
+
+                .OrderByDescending(t => t.transaction_id)
 				.ToListAsync();
 			var employeeIds = transactions.SelectMany(t => new[] { t.from_emp_id, t.to_emp_id }).Distinct().ToList();
 			var employees = await _context.employee
@@ -340,10 +361,9 @@ namespace CharityProject.Controllers
         {
 
 
-
-
             var charter = await _context.charter
-                .Where(c=>c.status != "مسلمة")
+                .Include(c=>c.employee)
+                .Where(c=>c.status != "مستلمة")
                 .OrderByDescending(t => t.charter_id) // Order by transaction_id in descending order
                 .ToListAsync();
             if (charter.Count == 0)
@@ -378,7 +398,7 @@ namespace CharityProject.Controllers
         {
             var employeeDetails = await GetEmployeeDetailsFromSessionAsync();
             var letters = await _context.letters
-                  .Where(l => l.to_emp_id == employeeDetails.employee_id || l.departement_id == employeeDetails.departement_id|| l.to_emp_id==0  )
+                  .Where(l => l.to_emp_id == employeeDetails.employee_id || (l.to_departement_name == employeeDetails.Department.departement_name && l.to_emp_id==0))
                 .OrderByDescending(l => l.letters_id) // Order by letters_id in descending order
                 .ToListAsync();
             if (letters.Count == 0)
@@ -386,14 +406,188 @@ namespace CharityProject.Controllers
                 // Render the _NothingNew partial view if no transactions
                 return PartialView("_NothingNew");
             }
+             
+            var employeeIds = letters.SelectMany(t => new[] { t.from_emp_id, t.to_emp_id }).Distinct().ToList();
+            var employees = await _context.employee
+                .Where(e => employeeIds.Contains(e.employee_id))
+                .ToDictionaryAsync(e => e.employee_id, e => e.name);
+
+            ViewBag.EmployeeNames = employees;
 
             return PartialView("_getAllLetters", letters);
         }
 
+
+        // Search Actions  --------------------------------------------------------
+
+        [HttpGet]
+        public async Task<IActionResult> SearchAssets(string searchTerm = "", string sortOrder = "")
+        {
+
+            var employeeId = GetEmployeeIdFromSession();
+
+            var query = _context.charter
+                .Where(a => a.to_emp_id == employeeId);
+
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                query = query.Where(a =>
+                    a.charter_id.ToString().Contains(searchTerm) ||
+                    a.charter_info.Contains(searchTerm)
+                );
+            }
+
+            switch (sortOrder)
+            {
+                case "oldest":
+                    query = query.OrderBy(a => a.receive_date);
+                    break;
+                case "newest":
+                default:
+                    query = query.OrderByDescending(a => a.receive_date);
+                    break;
+            }
+
+            var assets = await query.ToListAsync();
+
+            return PartialView("_getAllAssets", assets);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> SearchTransactions(string searchTerm = "", string sortOrder = "")
+        {
+
+            var employeeId = GetEmployeeIdFromSession();
+
+            var query = _context.Transactions
+                .Include(t => t.Referrals)
+                    .ThenInclude(r => r.from_employee)
+                .Include(t => t.Referrals)
+                    .ThenInclude(r => r.to_employee)
+                .Where(t => t.to_emp_id == employeeId || t.Referrals.Any(r => r.to_employee_id == employeeId));
+
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                query = query.Where(t =>
+                    t.transaction_id.ToString().Contains(searchTerm) ||
+                    t.title.Contains(searchTerm)
+                );
+            }
+
+            switch (sortOrder)
+            {
+                case "oldest":
+                    query = query.OrderBy(t => t.create_date);
+                    break;
+                case "newest":
+                default:
+                    query = query.OrderByDescending(t => t.create_date);
+                    break;
+            }
+
+            var transactions = await query.ToListAsync();
+
+            // Fetch employee names
+            var employeeIds = transactions.SelectMany(t => new[] { t.from_emp_id, t.to_emp_id }).Distinct().ToList();
+            var employees = await _context.employee
+                .Where(e => employeeIds.Contains(e.employee_id))
+                .ToDictionaryAsync(e => e.employee_id, e => e.name);
+
+            ViewBag.EmployeeNames = employees;
+
+            // Fetch departments for the dropdown
+            var departments = await _context.Department.ToListAsync();
+            ViewBag.Departments = new SelectList(departments, "departement_id", "departement_name");
+
+            return PartialView("_getAllTransactions", transactions);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> SearchHolidays(string searchTerm = "", string sortOrder = "")
+        {
+
+            var employeeId = GetEmployeeIdFromSession();
+
+            var query = _context.HolidayHistories
+                .Where(h => h.emp_id == employeeId);
+
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                query = query.Where(h =>
+                    h.holidays_history_id.ToString().Contains(searchTerm) ||
+                    h.title.Contains(searchTerm)
+                );
+            }
+
+            switch (sortOrder)
+            {
+                case "oldest":
+                    query = query.OrderBy(h => h.start_date);
+                    break;
+                case "newest":
+                default:
+                    query = query.OrderByDescending(h => h.start_date);
+                    break;
+            }
+
+            var holidays = await query.ToListAsync();
+
+            return PartialView("_getAllHolidays", holidays);
+        }
+        [HttpGet]
+        public async Task<IActionResult> SearchLetters(string searchTerm = "", string sortOrder = "")
+        {
+
+            var employeeId = GetEmployeeIdFromSession();
+
+            var query = _context.letters
+                .Where(l => l.to_emp_id == employeeId);
+
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                query = query.Where(l =>
+                    l.letters_id.ToString().Contains(searchTerm) ||
+                    l.title.Contains(searchTerm)
+                );
+            }
+
+            switch (sortOrder)
+            {
+                case "oldest":
+                    query = query.OrderBy(l => l.date);
+                    break;
+                case "newest":
+                default:
+                    query = query.OrderByDescending(l => l.date);
+                    break;
+            }
+
+            var letters = await query.ToListAsync();
+
+            return PartialView("_getAllLetters", letters);
+        }
+        [HttpGet]
+        public IActionResult SearchExternalTransactions(string searchTerm)
+        {
+            var transactions = _context.ExternalTransactions.AsQueryable();
+
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                transactions = transactions.Where(t => t.identity_number.ToString().Contains(searchTerm) || t.sending_number.ToString().Contains(searchTerm));
+            }
+
+            var resultList = transactions.ToList();
+
+            if (!resultList.Any())
+            {
+                return PartialView("_NoResults"); // Return the _NoResults partial view if no results are found
+            }
+
+            return PartialView("_getAllExternalTransactios", resultList); // Return the transaction list partial view if results are found
+        }
+
+
         // Create Actions  --------------------------------------------------------
-
-
-  
 
 
 
@@ -401,28 +595,95 @@ namespace CharityProject.Controllers
         {
             ViewData["Departments"] = _context.Department.Select(d => new SelectListItem
             {
-                Value = d.departement_name,
+                Value = d.departement_id.ToString(),
                 Text = d.departement_name
             }).ToList();
 
-            ViewData["Employees"] = _context.employee.Select(e => new SelectListItem
-            {
-                Value = e.employee_id.ToString(),
-                Text = e.name
-            }).ToList();
-
+            // Initial load, employees list will be empty until a department is selected.
+            ViewData["Employees"] = new List<SelectListItem>();
         }
+
+        // New action to get employees by department
+        [HttpGet]
+        public async Task<IActionResult> GetEmployeesByDepartment(int departmentId)
+        {
+            _logger.LogInformation($"Fetching employees for department ID: {departmentId}");
+
+            var employees = await _context.employee_details
+                .Where(ed => ed.departement_id == departmentId)
+                .Select(ed => new
+                {
+                    employee_id = ed.employee_id,
+                    name = ed.employee.name,
+                    position = ed.position
+                })
+                .GroupBy(e => e.employee_id)
+                .Select(g => g.First())
+                .ToListAsync();
+
+            if (!employees.Any())
+            {
+                _logger.LogWarning($"No employees found for department ID: {departmentId}");
+                return NotFound("No employees found for the given department.");
+            }
+
+            _logger.LogInformation($"Found {employees.Count} employees for department ID: {departmentId}");
+            return Ok(employees);
+        }
+        [HttpGet]
+        public async Task<IActionResult> GetEmployeesByDepartmentName([FromQuery] int[] departmentNames)
+        {
+            _logger.LogInformation($"Fetching employees for department names: {string.Join(", ", departmentNames)}");
+
+            // Find department IDs by names
+            var departmentIds = await _context.Department
+                .Where(d => departmentNames.Contains(d.departement_id))
+                .Select(d => d.departement_id)
+                .ToListAsync();
+
+            if (!departmentIds.Any())
+            {
+                _logger.LogWarning($"No departments found with names: {string.Join(", ", departmentNames)}");
+                return NotFound("No departments found with the given names.");
+            }
+
+            // Fetch employees based on the department IDs
+            var employees = await _context.employee_details
+                .Where(ed => departmentIds.Contains(ed.departement_id))
+                .Select(ed => new
+                {
+                    employee_id = ed.employee_id,
+                    name = ed.employee.name,
+                    position = ed.position
+                })
+                .GroupBy(e => e.employee_id)
+                .Select(g => g.First())
+                .ToListAsync();
+
+            if (!employees.Any())
+            {
+                _logger.LogWarning($"No employees found for department names: {string.Join(", ", departmentNames)}");
+                return NotFound("No employees found for the given departments.");
+            }
+
+            _logger.LogInformation($"Found {employees.Count} employees for department names: {string.Join(", ", departmentNames)}");
+            return Ok(employees);
+        }
+
+
+
 
         // POST: Charters/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create_Charter([Bind("charter_id,charter_info,serial_number,creation_date,from_departement_name,status,notes,to_departement_name,to_emp_id,receive_date,end_date")] charter charter)
+        public async Task<IActionResult> Create_Charter([Bind("charter_id,charter_info,serial_number,creation_date,notes,to_departement_name,to_emp_id,receive_date,end_date")] charter charter)
         {
 
 
-
+            charter.status = "غير مسلمة";
+            charter.from_departement_name = "الموارد البشرية والمالية";
             _context.Add(charter);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Transactions));
@@ -592,7 +853,7 @@ namespace CharityProject.Controllers
 
         ///////   Old Code
         public void Create_Letter()
-        {
+       {
             ViewData["Departments"] = _context.Department.Select(d => new SelectListItem
             {
                 Value = d.departement_name,
@@ -604,8 +865,6 @@ namespace CharityProject.Controllers
                 Value = e.employee_id.ToString(),
                 Text = e.name
             }).ToList();
-
-
 
 
         }
@@ -712,10 +971,11 @@ namespace CharityProject.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create_Letter(
      IFormFile files,
-     string[]? to_departement_name,
+     int[]? to_departement_name,
      string[]? to_emp_id,
-     [Bind("title,description,type,from_emp_id,files,Confidentiality,Urgency,Importance")] letter letter)
+     [Bind("title,description,type,from_emp_id,date,files,Confidentiality,Urgency,Importance")] letter letter)
         {
+            var employee_details = await GetEmployeeDetailsFromSessionAsync();
             if (files != null && files.Length > 0)
             {
                 // Validate the file type
@@ -742,63 +1002,22 @@ namespace CharityProject.Controllers
                 letter.files = filename;
             }
 
-            letter.date = DateTime.Now; // Set the current date
-            letter.from_emp_id = 23;
-            letter.departement_id = 1;
+            letter.date = DateTime.Now;
+            letter.from_emp_id = employee_details.employee_id;
+            letter.departement_id = employee_details.departement_id;
 
-            List<int> employeeIdsToSendTo = new List<int>();
+            bool letterCreated = false;
+            HashSet<int> processedEmployees = new HashSet<int>();
 
-            // If departments are selected and no specific employees are chosen
-            if (to_departement_name != null && to_departement_name.Any() && (to_emp_id == null || !to_emp_id.Any()))
-            {
-                foreach (var deptName in to_departement_name)
-                {
-                    // Find the department ID by name
-                    var department = await _context.Department.FirstOrDefaultAsync(d => d.departement_name == deptName);
-
-
-                    if (department != null)
-                    {
-                        // Get all active employees in the selected department
-                        var departmentEmployees = _context.employee_details
-                            .Where(ed => ed.departement_id == department.departement_id && ed.active)
-                            .Select(ed => ed.employee_id)
-                            .ToList();
-
-                        foreach (var empId in departmentEmployees)
-                        {
-                            // Create a new letter record for each employee in the department
-                            var newLetter = new letter
-                            {
-                                title = letter.title,
-                                description = letter.description,
-                                type = letter.type,
-                                from_emp_id = letter.from_emp_id,
-                                files = letter.files,
-                                Confidentiality = letter.Confidentiality,
-                                Urgency = letter.Urgency,
-                                Importance = letter.Importance,
-                                date = letter.date,
-                                to_emp_id = empId,
-                                to_departement_name = deptName,
-                               departement_id = letter.departement_id // Store the specific department name for this record
-                            };
-
-                            _context.Add(newLetter);
-                        }
-                    }
-                }
-            }
-
-            // If specific employees are chosen, prioritize them over departments
+            // If specific employees are chosen, prioritize them
             if (to_emp_id != null && to_emp_id.Any())
             {
                 foreach (var empId in to_emp_id.Select(int.Parse))
                 {
-                    // Find the department(s) for each selected employee
+                    // Find the employee and their department
                     var employee = await _context.employee_details
-                                                 .Include(ed => ed.Department)
-                                                 .FirstOrDefaultAsync(ed => ed.employee_id == empId);
+                                                .Include(ed => ed.Department)
+                                                .FirstOrDefaultAsync(ed => ed.employee_id == empId);
 
                     if (employee != null)
                     {
@@ -815,19 +1034,113 @@ namespace CharityProject.Controllers
                             date = letter.date,
                             to_emp_id = empId,
                             to_departement_name = employee.Department.departement_name,
-                             departement_id = letter.departement_id// Store the department name for this employee
+                            departement_id = letter.departement_id
                         };
 
                         _context.Add(newLetter);
+                        processedEmployees.Add(empId);
+                        letterCreated = true;
                     }
                 }
+            }
+
+            // If departments are selected
+            if (to_departement_name != null && to_departement_name.Any())
+            {
+                foreach (var deptId in to_departement_name)
+                {
+                    // Find the department by ID
+                    var department = await _context.Department.FirstOrDefaultAsync(d => d.departement_id == deptId);
+
+                    if (department != null)
+                    {
+                        // Get all active employees in the selected department
+                        var departmentEmployees = await _context.employee_details
+                            .Where(ed => ed.departement_id == deptId && ed.active)
+                            .Select(ed => ed.employee_id)
+                            .ToListAsync();
+
+                        // If there are no active employees or no specific employees are chosen
+                        if (!departmentEmployees.Any() || (to_emp_id == null || !to_emp_id.Any()))
+                        {
+                            // Create a new letter record for the department
+                            var newLetter = new letter
+                            {
+                                title = letter.title,
+                                description = letter.description,
+                                type = letter.type,
+                                from_emp_id = letter.from_emp_id,
+                                files = letter.files,
+                                Confidentiality = letter.Confidentiality,
+                                Urgency = letter.Urgency,
+                                Importance = letter.Importance,
+                                date = letter.date,
+                                to_emp_id = 0,
+                                to_departement_name = department.departement_name,
+                                departement_id = letter.departement_id
+                            };
+
+                            _context.Add(newLetter);
+                            letterCreated = true;
+                        }
+                        else
+                        {
+                            foreach (var empId in departmentEmployees)
+                            {
+                                // Create a new letter record for each employee in the department
+                                // that hasn't been processed yet
+                                if (!processedEmployees.Contains(empId))
+                                {
+                                    var newLetter = new letter
+                                    {
+                                        title = letter.title,
+                                        description = letter.description,
+                                        type = letter.type,
+                                        from_emp_id = letter.from_emp_id,
+                                        files = letter.files,
+                                        Confidentiality = letter.Confidentiality,
+                                        Urgency = letter.Urgency,
+                                        Importance = letter.Importance,
+                                        date = letter.date,
+                                        to_emp_id = empId,
+                                        to_departement_name = department.departement_name,
+                                        departement_id = letter.departement_id
+                                    };
+
+                                    _context.Add(newLetter);
+                                    letterCreated = true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // If no departments or employees are chosen, create a letter for all departments
+            if (!letterCreated)
+            {
+                var newLetter = new letter
+                {
+                    title = letter.title,
+                    description = letter.description,
+                    type = letter.type,
+                    from_emp_id = letter.from_emp_id,
+                    files = letter.files,
+                    Confidentiality = letter.Confidentiality,
+                    Urgency = letter.Urgency,
+                    Importance = letter.Importance,
+                    date = letter.date,
+                    to_emp_id = 0,
+                    to_departement_name = "الادارة التنفيذية",
+                    departement_id = letter.departement_id
+                };
+
+                _context.Add(newLetter);
             }
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Transactions));
         }
-
-
 
 
 
@@ -1124,7 +1437,7 @@ namespace CharityProject.Controllers
             var employeeList = await _context.employee
                 .Include(e => e.EmployeeDetails)
                 .ThenInclude(ed => ed.Department)
-                .Where(e => e.EmployeeDetails.Department.departement_id == currentEmployee.departement_id)
+                .Where(e => e.EmployeeDetails.Department.departement_id == currentEmployee.departement_id && e.EmployeeDetails.employee_id != currentEmployee.employee_id)
                 .Select(e => new
                 {
                     e.employee_id,
@@ -1369,7 +1682,7 @@ namespace CharityProject.Controllers
                 }
 
 
-                if (employee_permission_position == "المدير التنفيذي")
+                if (employee_permission_position.Trim() == "المدير التنفيذي")
                 {
                     if (department != null)
                     {
@@ -1594,7 +1907,7 @@ namespace CharityProject.Controllers
             }
 
 
-            if (permission_position == "المدير التنفيذي")
+            if (permission_position.Trim() == "المدير التنفيذي")
             {
                 if (department != null)
                 {
@@ -1646,7 +1959,7 @@ namespace CharityProject.Controllers
 
 
         [HttpGet]
-		[Route("ControllerName/GetRemainingHolidayBalance")]
+		[Route("HR/GetRemainingHolidayBalance")]
 		public IActionResult GetRemainingHolidayBalance(int holidayId)
 		{
 			var employeeId = GetEmployeeIdFromSession(); // Ensure this is returning the correct employee ID
