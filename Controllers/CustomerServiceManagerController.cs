@@ -189,17 +189,30 @@ namespace CharityProject.Controllers
         {
             var employeeId = GetEmployeeIdFromSession();
             var emplyee_Details = await GetEmployeeDetailsFromSessionAsync();
-            
+            var hrManager = _context.employee_details
+        .FirstOrDefault(e => e.position == "مدير خدمة المستفيدين");
+
             // Fetch transactions based on the conditions provided
             var transactions = await _context.Transactions
                 .Include(t => t.Referrals)
                     .ThenInclude(r => r.from_employee)
                 .Include(t => t.Referrals)
                     .ThenInclude(r => r.to_employee)
-                .Where(t =>(t.status=="مرسلة"&&t.Employee_detail.departement_id == emplyee_Details.departement_id)|| // Transactions sent to the employee
-                    t.Referrals.Any(r => r.to_employee_id == employeeId)
-                 // Transactions for the manager's department or from department 5
-                 )  // Transactions referred to the employee
+                .Where(t =>
+    (t.status == "مرسلة" && t.Employee_detail.departement_id == emplyee_Details.departement_id) ||
+    (t.status == "مرسلة" && (t.to_emp_id == employeeId || t.to_emp_id == hrManager.employee_id)) || // Transactions sent to the employee
+    (t.Referrals.Any() && // Ensure there are referrals
+        (
+            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == employeeId ||
+            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == hrManager.employee_id
+        ) &&
+        (
+            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == employeeId ||
+            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == hrManager.employee_id
+        )
+    )
+)
+
                 .OrderByDescending(t => t.transaction_id)
                 .ToListAsync();
             var employeeIds = transactions.SelectMany(t => new[] { t.from_emp_id, t.to_emp_id }).Distinct().ToList();
@@ -212,7 +225,11 @@ namespace CharityProject.Controllers
             // Fetch departments for the dropdown
             var departments = await _context.Department.ToListAsync();
             ViewBag.Departments = new SelectList(departments, "departement_id", "departement_name");
-
+            if (transactions.Count == 0)
+            {
+                // Render the _NothingNew partial view if no transactions
+                return PartialView("_NothingNew");
+            }
             return PartialView("_getAllTransactions", transactions);
         }
         public async Task<IActionResult> GetAllHolidays()
