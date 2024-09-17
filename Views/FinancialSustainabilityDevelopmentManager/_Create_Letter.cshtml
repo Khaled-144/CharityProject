@@ -291,13 +291,13 @@
         let html = '';
         employees.forEach(employee => {
             html += `
-                                <li>
-                                    <div class="flex items-center p-2 rounded hover:bg-gray-100">
-                                            <input id="emp-${employee.employee_id}" name="to_emp_id" type="checkbox" value="${employee.employee_id}" class="w-4 h-4 text-gray-600 bg-gray-100 border-gray-300 rounded focus:ring-gray-500">
-                                        <label for="emp-${employee.employee_id}" class="w-full ms-2 text-sm font-medium text-gray-900">${employee.name} (${employee.position})</label>
-                                    </div>
-                                </li>
-                            `;
+                                    <li>
+                                        <div class="flex items-center p-2 rounded hover:bg-gray-100">
+                                                <input id="emp-${employee.employee_id}" name="to_emp_id" type="checkbox" value="${employee.employee_id}" class="w-4 h-4 text-gray-600 bg-gray-100 border-gray-300 rounded focus:ring-gray-500">
+                                            <label for="emp-${employee.employee_id}" class="w-full ms-2 text-sm font-medium text-gray-900">${employee.name} (${employee.position})</label>
+                                        </div>
+                                    </li>
+                                `;
         });
 
         employeeList.innerHTML = html;

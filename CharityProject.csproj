@@ -37,7 +37,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.AzureAppServices" Version="8.0.7" />
     <PackageReference Include="Microsoft.Identity.Client" Version="4.61.3" />
-    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.4" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.5" />
     <PackageReference Include="QuestPDF" Version="2023.5.3" />
     <PackageReference Include="Serilog.AspNetCore" Version="8.0.2" />
     <PackageReference Include="Serilog.Extensions.Logging.File" Version="3.0.0" />
@@ -53,6 +53,21 @@
 <ItemGroup>
   <Folder Include="pdfs\Outputs\" />
   <Folder Include="wwwroot\files\" />
+</ItemGroup>
+
+<ItemGroup>
+  <None Include="Views\FinancialSustainabilityDevelopmentManager\Index.cshtml" />
+  <None Include="Views\FinancialSustainabilityDevelopmentManager\Transactions.cshtml" />
+  <None Include="Views\FinancialSustainabilityDevelopmentManager\_createNewTransaction.cshtml" />
+  <None Include="Views\FinancialSustainabilityDevelopmentManager\_Create_Holiday.cshtml" />
+  <None Include="Views\FinancialSustainabilityDevelopmentManager\_Create_Letter.cshtml" />
+  <None Include="Views\FinancialSustainabilityDevelopmentManager\_getAllHolidays.cshtml" />
+  <None Include="Views\FinancialSustainabilityDevelopmentManager\_getAllLetters.cshtml" />
+  <None Include="Views\FinancialSustainabilityDevelopmentManager\_getAllTransactions.cshtml" />
+  <None Include="Views\FinancialSustainabilityDevelopmentManager\_NoResults.cshtml" />
+  <None Include="Views\FinancialSustainabilityDevelopmentManager\_ShowHolidayDetail.cshtml" />
+  <None Include="Views\FinancialSustainabilityDevelopmentManager\_ShowLetterDetail.cshtml" />
+  <None Include="Views\FinancialSustainabilityDevelopmentManager\_showTransactionDetail.cshtml" />
 </ItemGroup>
 
 <ItemGroup>
