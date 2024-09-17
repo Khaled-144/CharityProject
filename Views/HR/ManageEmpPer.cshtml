@@ -127,8 +127,27 @@
                                                     <label for="permissionPosition-@employee.employee_id" class="block text-gray-700 font-medium mb-2">تغيير الصلاحية:</label>
                                                     <select class="form-select block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" id="permissionPosition-@employee.employee_id" name="permissionPosition">
                                                         <option disabled selected>اختر الصلاحيات الجديدة</option>
-                                                        <option value="موظف">موظف</option>
-                                                        <option value="مدير الموارد البشرية والمالية">مدير</option>
+                                                        @if (Context.Session.GetString("Permission_position") == "مدير الموارد البشرية والمالية")
+                                                        {
+                                                            <option value="موظف">موظف</option>
+                                                            <option value="مدير الموارد البشرية والمالية">مدير</option>
+                                                        }
+                                                        else if (Context.Session.GetString("Permission_position") == "مدير خدمة المستفيدين")
+                                                        {
+                                                            <option value="موظف">موظف</option>
+                                                            <option value="مدير خدمة المستفيدين">مدير</option>
+                                                        }
+                                                        else if (Context.Session.GetString("Permission_position") == "مدير التنمية المالية والاستدامة")
+                                                        {
+                                                            <option value="موظف">موظف</option>
+                                                            <option value="مدير التنمية المالية والاستدامة">مدير</option>
+                                                        }
+                                                        // ء" المدير التنفيذي" اسمه يجي كذا مع مسافة وتأكد من الداتابيس
+                                                        else if (Context.Session.GetString("Permission_position") == "المدير التنفيذي")
+                                                        {
+                                                            <option value="موظف">موظف</option>
+                                                            <option value="المدير التنفيذي">مدير</option>
+                                                        }
                                                     </select>
                                                 </div>
 
