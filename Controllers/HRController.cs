@@ -2175,7 +2175,23 @@ namespace CharityProject.Controllers
             return RedirectToAction(nameof(_GetAllSalaries));
         }
 
+        public async Task<IActionResult> UpdateStatus(int transaction_id, string TerminationCause)
+        {
+            var transaction = await _context.Transactions.FindAsync(transaction_id);
+            if (transaction == null)
+            {
+                return NotFound();
+            }
 
+            // Update the status to "Closed"
+            transaction.status = "منهاة";
+            transaction.close_date = DateTime.Now;
+            transaction.TerminationCause = TerminationCause;
+            // Save changes to the database
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Transactions");
+        }
 
     }
 

@@ -25,7 +25,8 @@
         public string? Confidentiality { get; set; }
         public string? Urgency { get; set; }
         public string? Importance { get; set; }
-      
+        public string? TerminationCause { get; set; }
+
 
         // New property for referrals
         //public virtual ICollection<Referral> Referrals { get; set; }
