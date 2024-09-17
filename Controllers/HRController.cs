@@ -286,8 +286,8 @@ namespace CharityProject.Controllers
                   .Where(l => l.to_emp_id == employeeDetails.employee_id || (l.to_departement_name == employeeDetails.Department.departement_name && l.to_emp_id == 0))
                 .CountAsync();
 			int assetsCount = await _context.charter
-				.Where(c => c.to_emp_id == currentUserId || c.status != "مسلمة")
-				.CountAsync();
+             .Where(c => c.status != "مستلمة")
+                .CountAsync();
 
 			// Passing the counts to the view using ViewBag
 			ViewBag.InternalCount = internalCount;
@@ -1437,7 +1437,7 @@ namespace CharityProject.Controllers
             var employeeList = await _context.employee
                 .Include(e => e.EmployeeDetails)
                 .ThenInclude(ed => ed.Department)
-                .Where(e => e.EmployeeDetails.Department.departement_id == currentEmployee.departement_id)
+                .Where(e => e.EmployeeDetails.Department.departement_id == currentEmployee.departement_id && e.EmployeeDetails.employee_id != currentEmployee.employee_id)
                 .Select(e => new
                 {
                     e.employee_id,

@@ -270,6 +270,11 @@ namespace CharityProject.Controllers
                 .ToDictionaryAsync(e => e.employee_id, e => e.name);
 
             ViewBag.EmployeeNames = employees;
+            if (holidays.Count == 0)
+            {
+                // Render the _NothingNew partial view if no transactions
+                return PartialView("_NothingNew");
+            }
 
             return PartialView("_getAllHolidays", holidays);
         }
@@ -951,13 +956,67 @@ namespace CharityProject.Controllers
 
             return RedirectToAction(nameof(Transactions));
         }
-       
 
 
 
-        // Delete Actions --------------------------------------------------------
+
+        // mange permisions --------------------------------------------------------
+
+        public async Task<IActionResult> ManageEmpPer()
+        {
+            var currentEmployee = await GetEmployeeDetailsFromSessionAsync();
 
 
+            var employeeList = await _context.employee
+                .Include(e => e.EmployeeDetails)
+                .ThenInclude(ed => ed.Department)
+                .Where(e => e.EmployeeDetails.Department.departement_id == currentEmployee.departement_id && e.EmployeeDetails.employee_id != currentEmployee.employee_id)
+                .Select(e => new
+                {
+                    e.employee_id,
+                    e.name,
+                    e.username,
+                    Position = e.EmployeeDetails != null ? e.EmployeeDetails.position : "No Position",
+                    PermissionPosition = e.EmployeeDetails != null ? e.EmployeeDetails.permission_position : "No Permission",
+                    DepartmentName = e.EmployeeDetails != null && e.EmployeeDetails.Department != null
+                        ? e.EmployeeDetails.Department.departement_name
+                        : "No Department"
+                })
+                .ToListAsync();
+
+            var departments = await _context.Department.ToListAsync();
+            ViewData["Departments"] = departments;
+            ViewData["EmployeeList"] = employeeList;
+            return View();
+        }
+        [HttpPost]
+        public IActionResult UpdatePermission(int id, string permissionPosition)
+        {
+            try
+            {
+                // Find the employee by ID
+                var employee = _context.employee_details.FirstOrDefault(e => e.employee_details_id == id);
+
+                if (employee == null)
+                {
+                    return Json(new { success = false, message = "الموظف غير موجود." });
+                }
+
+                // Update the employee's permission position
+                employee.permission_position = permissionPosition;
+
+                // Save the changes to the database
+                _context.SaveChanges();
+
+                // Return a success response
+                return Json(new { success = true, message = "تم تحديث صلاحيات الموظف بنجاح." });
+            }
+            catch (Exception ex)
+            {
+                // Handle the error and return a failure response
+                return Json(new { success = false, message = "حدث خطأ أثناء تحديث صلاحيات الموظف." });
+            }
+        }
 
     }
 }

@@ -102,7 +102,7 @@
                 <span class="text-red-500 text-sm ml-2">(@ViewBag.LettersCount)</span>
             </li>
             <li class="flex items-center" role="presentation">
-                <button class="inline-block p-4 border-b-2 rounded-t-lg" id="assets-tab" data-content-url="@Url.Action("GetAllAssets", "Assets")" type="button" role="tab">
+                <button class="inline-block p-4 border-b-2 rounded-t-lg" id="charters-tab" data-content-url="@Url.Action("GetAllCharters", "FinancialSustainabilityDevelopmentManager")" type="button" role="tab">
                     عهده
                 </button>
                 <span class="text-red-500 text-sm ml-2">(@ViewBag.AssetsCount)</span>
@@ -118,7 +118,7 @@
     @await Html.PartialAsync("_CreateNewTransaction", new Transaction())
     @await Html.PartialAsync("_Create_Letter", new letter())
     @await Html.PartialAsync("_Create_Holiday", new HolidayHistory())
-
+  
 
     <script src="~/js/site.js"></script>
     <script>
