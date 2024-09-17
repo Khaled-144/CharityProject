@@ -19,11 +19,14 @@
         <div class="modal-dialog custom-modal-size">
             <div class="modal-content bg-white shadow-lg rounded-lg">
                 <div class="modal-header border-b p-4 flex justify-between items-center">
-                    <h4 class="modal-title text-lg font-bold text-gray-800">نموذج العهدة</h4>
                     <button type="button" class="btn btn-danger" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
+                    <h4 class="modal-title w-full text-center">نموذج العهدة</h4>
                 </div>
+         
+        
+   
                 <div class="modal-body p-6 text-right">
                     <form asp-action="Create_Charter" method="post" class="space-y-4">
                         <div class="flex flex-col md:flex-row gap-4">
@@ -64,7 +67,7 @@
                         </div>
 
                         <div class="flex justify-center mt-6">
-                            <button type="submit" class="bg-gradient-to-r from-green-400 via-green-500 to-green-600 hover:bg-gradient-to-br focus:outline-none focus:ring-2 focus:ring-green-500 text-white font-bold py-2 px-4 rounded-lg transition duration-300">إرسال</button>
+                            <button class="bg-primaryButtons hover:bg-primaryButtons focus:outline-none focus:ring-2 focus:ring-emerald-500 text-white font-bold py-2 px-4 rounded-lg transition duration-300">إرسال</button>
                         </div>
                     </form>
                 </div>
@@ -92,10 +95,13 @@
                             employeeSelect.innerHTML = '<option value="">-- اختر الموظف --</option>'; // Reset employee options
                             data.forEach(employee => {
                                 let option = document.createElement('option');
-                                option.value = employee.value;
-                                option.textContent = employee.text;
+                                option.value = employee.employee_id; // Set the value to employee_id
+                                option.textContent = employee.name + ' - ' + employee.position; // Set the text to name and position
                                 employeeSelect.appendChild(option);
                             });
+                        })
+                        .catch(error => {
+                            console.error('خطاء في استرجاع الموظفين:', error);
                         });
                 } else {
                     employeeSelect.innerHTML = '<option value="">-- اختر الموظف --</option>';
@@ -103,5 +109,6 @@
             });
         });
     </script>
+
 </body>
 </html>

@@ -48,7 +48,7 @@ namespace CharityProject.Controllers
             _context = context;
         }
 
-        
+
 
         private int GetEmployeeIdFromSession()
         {
@@ -194,7 +194,7 @@ namespace CharityProject.Controllers
                     Response.Cookies.Append("pass", user.password);
                 }
 
-                else if (permission_position == "موظف" || permission_position == "سكريتر المدير التنفيذي")
+                else if (permission_position == "موظف" || permission_position == "السكرتير")
                 {
                     return RedirectToAction("Index", "Employees");
                 }

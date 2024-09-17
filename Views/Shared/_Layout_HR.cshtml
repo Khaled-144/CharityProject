@@ -17,12 +17,9 @@
     <!-- Header -->
     <header class="flex w-full bg-white border-b-2 border-secondaryColor">
         <nav class="font-sans flex justify-between py-2 px-6 sm:px-12 bg-white shadow w-full">
-
             <!-- Drawer Toggle Button -->
-
             <div class="text-center">
-                <button class="border px-4 py-2  text-center border-primaryColor text-3xl flex rounded-md hover:bg-gray-300 transition duration-300 ease-in-out" data-drawer-target="drawer-right-example" data-drawer-show="drawer-right-example" data-drawer-placement="right" aria-controls="drawer-right-example">
-
+                <button class="border px-4 py-2 text-center border-primaryColor text-3xl flex rounded-md hover:bg-gray-300 transition duration-300 ease-in-out" data-drawer-target="drawer-right-example" data-drawer-show="drawer-right-example" data-drawer-placement="right" aria-controls="drawer-right-example">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
                     </svg>
@@ -91,13 +88,23 @@
                             </a>
                         </li>
                         <li>
+                            <a asp-controller="HR" asp-action="ManageEmpPer" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-black hover:bg-gray-100 dark:hover:bg-gray-700 group">
+                                <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="50.000000pt" height="50.000000pt" viewBox="0 0 50.000000 50.000000" preserveAspectRatio="xMidYMid meet">
+                                    <g transform="translate(0.000000,50.000000) scale(0.100000,-0.100000)" fill="#000000" stroke="none">
+                                        <path d="M209 425 c-15 -8 -29 -21 -32 -28 -3 -9 -15 -13 -29 -10 -14 3 -34 -4 -51 -17 -22 -17 -27 -29 -27 -65 0 -24 8 -58 18 -75 16 -31 16 -32 -2 -43 -65 -41 -81 -55 -84 -75 -3 -19 1 -22 32 -22 25 0 36 -4 36 -15 0 -13 27 -15 180 -15 153 0 180 2 180 15 0 10 11 15 35 15 22 0 35 5 35 13 0 24 -30 56 -65 67 -38 13 -45 33 -20 66 8 10 15 38 15 62 0 34 -6 48 -27 68 -15 14 -36 24 -48 22 -19 -2 -29 3 -70 40 -18 16 -43 15 -76 -3z m61 -15 c0 -5 7 -10 15 -10 36 0 43 -83 13 -150 -9 -19 -18 -43 -22 -52 -7 -23 -45 -23 -52 0 -4 9 -13 33 -22 52 -20 44 -25 105 -11 131 15 29 79 52 79 29z m-116 -49 c4 -5 7 -22 7 -38 1 -15 11 -50 22 -77 l21 -48 -24 -20 c-22 -18 -25 -18 -28 -4 -2 9 -9 16 -16 16 -15 0 -37 54 -43 107 -3 34 0 44 19 57 26 18 35 20 42 7z m232 -7 c19 -13 24 -24 23 -53 -1 -20 -8 -46 -16 -58 -7 -12 -13 -29 -13 -38 0 -8 -6 -15 -14 -15 -8 0 -16 -7 -18 -16 -3 -14 -6 -14 -28 4 l-25 20 23 46 c12 26 22 64 22 86 0 44 8 48 46 24z m-261 -204 c-5 -8 -11 -8 -17 -2 -6 6 -7 16 -3 22 5 8 11 8 17 2 6 -6 7 -16 3 -22z m110 10 c4 -6 3 -24 0 -42 -8 -36 -25 -20 -25 25 0 27 13 36 25 17z m54 -12 c0 -13 -4 -32 -8 -43 -7 -18 -9 -16 -15 12 -8 33 -2 53 15 53 5 0 9 -10 8 -22z m109 11 c-2 -6 -8 -10 -13 -10 -5 0 -11 4 -13 10 -2 6 4 11 13 11 9 0 15 -5 13 -11z" />
+                                    </g>
+                                </svg>
+                                <span class="ms-3 whitespace-nowrap">موظفين القسم</span>
+                            </a>
+                        </li>
+                        <li>
                             <a asp-controller="HR" asp-action="EmployeeView" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-black hover:bg-gray-100 dark:hover:bg-gray-700 group">
                                 <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="50.000000pt" height="50.000000pt" viewBox="0 0 50.000000 50.000000" preserveAspectRatio="xMidYMid meet">
                                     <g transform="translate(0.000000,50.000000) scale(0.100000,-0.100000)" fill="#000000" stroke="none">
                                         <path d="M209 425 c-15 -8 -29 -21 -32 -28 -3 -9 -15 -13 -29 -10 -14 3 -34 -4 -51 -17 -22 -17 -27 -29 -27 -65 0 -24 8 -58 18 -75 16 -31 16 -32 -2 -43 -65 -41 -81 -55 -84 -75 -3 -19 1 -22 32 -22 25 0 36 -4 36 -15 0 -13 27 -15 180 -15 153 0 180 2 180 15 0 10 11 15 35 15 22 0 35 5 35 13 0 24 -30 56 -65 67 -38 13 -45 33 -20 66 8 10 15 38 15 62 0 34 -6 48 -27 68 -15 14 -36 24 -48 22 -19 -2 -29 3 -70 40 -18 16 -43 15 -76 -3z m61 -15 c0 -5 7 -10 15 -10 36 0 43 -83 13 -150 -9 -19 -18 -43 -22 -52 -7 -23 -45 -23 -52 0 -4 9 -13 33 -22 52 -20 44 -25 105 -11 131 15 29 79 52 79 29z m-116 -49 c4 -5 7 -22 7 -38 1 -15 11 -50 22 -77 l21 -48 -24 -20 c-22 -18 -25 -18 -28 -4 -2 9 -9 16 -16 16 -15 0 -37 54 -43 107 -3 34 0 44 19 57 26 18 35 20 42 7z m232 -7 c19 -13 24 -24 23 -53 -1 -20 -8 -46 -16 -58 -7 -12 -13 -29 -13 -38 0 -8 -6 -15 -14 -15 -8 0 -16 -7 -18 -16 -3 -14 -6 -14 -28 4 l-25 20 23 46 c12 26 22 64 22 86 0 44 8 48 46 24z m-261 -204 c-5 -8 -11 -8 -17 -2 -6 6 -7 16 -3 22 5 8 11 8 17 2 6 -6 7 -16 3 -22z m110 10 c4 -6 3 -24 0 -42 -8 -36 -25 -20 -25 25 0 27 13 36 25 17z m54 -12 c0 -13 -4 -32 -8 -43 -7 -18 -9 -16 -15 12 -8 33 -2 53 15 53 5 0 9 -10 8 -22z m109 11 c-2 -6 -8 -10 -13 -10 -5 0 -11 4 -13 10 -2 6 4 11 13 11 9 0 15 -5 13 -11z" />
                                     </g>
                                 </svg>
-                                <span class="ms-3 whitespace-nowrap">الموظفين</span>
+                                <span class="ms-3 whitespace-nowrap">جميع الموظفين</span>
                             </a>
                         </li>
                         <li>
@@ -140,12 +147,9 @@
                     <img class="object-contain" src="~/images/logo.png" />
                 </div>
             </div>
-                
-           
 
             <!-- User and Notifications -->
             <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-
             <div x-data="{ isOpen: false, isModalOpen: false }" class="relative inline-block text-right z-50">
                 <div>
                     <button x-on:click="isOpen = !isOpen" type="button" class="border py-2 px-4 text-center border-primaryColor text-3xl flex items-center rounded-full hover:bg-gray-300 transition-all duration-300 ease-in-out">
@@ -163,20 +167,21 @@
                         <li class="relative group">
                             <a href="#" x-on:click.prevent="isModalOpen = true; isOpen = false" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-all duration-300 ease-in-out">
                                 <svg class="w-5 h-5 mr-3 text-gray-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M12 2a9 9 0 100 18 9 9 0 000-18zM11 17.93A7.963 7.963 0 014 12c0-.5.06-1 .17-1.5H8v1a1 1 0 002 0v-1h2v1a1 1 0 002 0v-1h3.83c.11.5.17 1 .17 1.5a7.963 7.963 0 01-7 5.93V15h-2v2.93zM17.83 10H16V9a1 1 0 00-2 0v1h-2V9a1 1 0 00-2 0v1H6.17c-.06-.32-.17-.64-.17-.98A7.978 7.978 0 0111 4.07V7h2V4.07a7.978 7.978 0 015.83 5.93z" />
+                                    <g fill="none" fill-rule="evenodd">
+                                        <path d="M24 0v24H0V0zM12.593 23.258l-.011.002-.071.035-.02.004-.014-.004-.071-.035q-.016-.005-.024.005l-.004.01-.017.428.005.02.01.013.104.074.015.004.012-.004.104-.074.012-.016.004-.017-.017-.427q-.004-.016-.017-.018m.265-.113-.013.002-.185.093-.01.01-.003.011.018.43.005.012.008.007.201.093q.019.005.029-.008l.004-.014-.034-.614q-.005-.018-.02-.022m-.715.002a.02.02 0 0 0-.027.006l-.006.014-.034.614q.001.018.017.024l.015-.002.201-.093.01-.008.004-.011.017-.43-.003-.012-.01-.01z" />
+                                        <path d="M20 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm0 2H4v14h16zm-3 10a1 1 0 0 1 .117 1.993L17 17H7a1 1 0 0 1-.117-1.993L7 15zm-7-8a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2zm7 4a1 1 0 1 1 0 2h-3a1 1 0 1 1 0-2zm-7-2H8v2h2zm7-2a1 1 0 0 1 .117 1.993L17 9h-3a1 1 0 0 1-.117-1.993L14 7z" fill="currentColor" />
+                                    </g>
                                 </svg>
                                 الملف الشخصي
                             </a>
                         </li>
                         <li class="relative group">
                             <a href="@Url.Action("Logout", "Home")" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-all duration-300 ease-in-out">
-                                <svg class="w-5 h-5 mr-3 text-gray-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M15.7 3.3a1 1 0 10-1.4 1.4l2.3 2.3H8a1 1 0 100 2h8.6l-2.3 2.3a1 1 0 101.4 1.4l4-4a1 1 0 000-1.4l-4-4z" />
-                                    <path d="M11 4a1 1 0 10-2 0v16a1 1 0 102 0V4z" />
+                                <svg class="w-5 h-5 mr-3 text-gray-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12h-9.5m7.5 3 3-3-3-3m-5-2V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h5a2 2 0 0 0 2-2v-1" />
                                 </svg>
                                 تسجيل الخروج
                             </a>
-                           
                         </li>
                     </ul>
                 </div>
@@ -191,16 +196,15 @@
                                 @await Html.PartialAsync("_employeeProfile")
                             </div>
                             <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                                <button type="button" x-on:click="isModalOpen = false" class="mt-3 w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-6 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
-                                    إغلاق
+                                <button type="button" x-on:click="isModalOpen = false" class="mt-3 w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-6 py-2 bg-dark text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-dark sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                                    إخفاء
                                 </button>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-
-
+        </nav>
     </header>
 
     <!-- Main Content -->
