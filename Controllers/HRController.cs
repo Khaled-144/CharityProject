@@ -70,7 +70,7 @@ namespace CharityProject.Controllers
             }
 
             // Update the status to "موافقة مدير القسم"
-            holiday.status = "موافقة مدير القسم";
+            holiday.status = "موافقة مدير الموارد البشرية";
 
             // Save changes to the database
             await _context.SaveChangesAsync();
@@ -87,7 +87,7 @@ namespace CharityProject.Controllers
             }
 
             // Update the status to "عدم موافقة مدير القسم"
-            holiday.status = "رفضت من مدير القسم";
+            holiday.status = "رفضت من مدير الموارد البشرية";
 
             // Save changes to the database
             await _context.SaveChangesAsync();
@@ -142,7 +142,7 @@ namespace CharityProject.Controllers
 
         public IActionResult ReferTransaction()
         {
-            return RedirectToAction("Transactions", "FinancialSustainabilityDevelopmentManager");
+            return RedirectToAction("Transactions", "HR");
         }
 
         [HttpPost]

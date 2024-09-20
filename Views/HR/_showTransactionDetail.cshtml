@@ -137,7 +137,7 @@
                 {
                     <div id="referForm-@Model.transaction_id" class="mt-4">
                         <h5>إحالة المعاملة #@Model.transaction_id</h5>
-                        @using (Html.BeginForm("ReferTransaction", "Employees", FormMethod.Post, new { id = $"referTransactionForm-{Model.transaction_id}", enctype = "multipart/form-data" }))
+                        @using (Html.BeginForm("ReferTransaction", "HR", FormMethod.Post, new { id = $"referTransactionForm-{Model.transaction_id}", enctype = "multipart/form-data" }))
                         {
                             @Html.AntiForgeryToken()
                             @Html.HiddenFor(model => model.transaction_id)
@@ -167,7 +167,7 @@
                                 <ul id="fileList" class="mt-2 flex flex-wrap gap-2 p-2 border border-gray-300 rounded-lg shadow-sm"></ul>
                             </div>
                             <button type="submit" class="btn btn-primary">تأكيد الإحالة</button>
-                            @using (Html.BeginForm("UpdateStatus", "Transactions", FormMethod.Post, new { id = $"updateStatusForm-{Model.transaction_id}", @class = "d-inline" }))
+                            @using (Html.BeginForm("UpdateStatus", "HR", FormMethod.Post, new { id = $"updateStatusForm-{Model.transaction_id}", @class = "d-inline" }))
                             {
                                 @Html.AntiForgeryToken()
                                 <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#confirmEndModal-@Model.transaction_id">

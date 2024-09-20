@@ -38,7 +38,7 @@
                 <!-- Modal Body -->
                 <div class="modal-body">
                     <div class="col-md text-right" dir="rtl">
-                        <form id="transactionForm" asp-action="Create_Transaction" method="post"  enctype="multipart/form-data">
+                        <form id="transactionForm" asp-action="Create_Transaction" method="post" enctype="multipart/form-data">
                             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
                             <!-- Title -->
@@ -93,16 +93,8 @@
                                 <textarea asp-for="description" id="description" name="description" class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500"></textarea>
                             </div>
                             <div class="mb-3">
-                                <div class="form-group mb-4">
-                               <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="files">المرفقات</label>
-                               <input name="files" class="form-control w-full border rounded focus:ring-blue-500 focus:border-blue-500"
-                                   type="file" accept=".pdf,.xls,.xlsx,.doc,.docx" multiple id="fileInput" />
-                               <span asp-validation-for="files" class="text-danger"></span>
-                            <small id="fileError" class="text-danger" style="display:none;">الملفات المسموح بها فقط :PDF, Excel, Word</small>
-
-                            <!-- Added container to display file names -->
-                            <ul id="fileList" class="mt-2"></ul>
-                        </div>
+                                <label asp-for="files" class="block text-sm font-bold text-gray-700">المرفقات</label>
+                                <input asp-for="files" type="file" id="files" name="files" class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500">
                             </div>
 
                             <!-- Confidentiality, Urgency, Importance -->
@@ -207,36 +199,6 @@
                 }
             });
         });
-
-        document.getElementById('transactionForm').addEventListener('submit', function (e) {
-            var fileInput = document.getElementById('files');
-            var allowedExtensions = /(\.pdf|\.xls|\.xlsx|\.doc|\.docx)$/i;
-            var fileError = document.getElementById('fileError');
-            fileError.style.display = 'none';
-
-            if (fileInput.files.length > 0) {
-                for (var i = 0; i < fileInput.files.length; i++) {
-                    var file = fileInput.files[i];
-                    if (!allowedExtensions.exec(file.name)) {
-                        fileError.style.display = 'block';
-                        e.preventDefault();
-                        return;
-                    }
-                }
-            }
-        });
-        document.getElementById('fileInput').addEventListener('change', function () {
-            var fileList = document.getElementById('fileList');
-            fileList.innerHTML = ''; // Clear the list first
-
-            // Loop through all selected files and display their names
-            for (var i = 0; i < this.files.length; i++) {
-                var listItem = document.createElement('li');
-                listItem.textContent = this.files[i].name; // Add file name
-                fileList.appendChild(listItem);
-            }
-        });
-      
 
         document.getElementById('departmentSelect').addEventListener('change', function () {
             let departmentId = this.value;

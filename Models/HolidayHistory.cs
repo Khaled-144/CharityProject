@@ -17,7 +17,8 @@
         public int emp_id { get; set; }
         [ForeignKey("emp_id")]
         public employee_details Employee_detail { get; set; }
-
+        [ForeignKey("emp_id")]
+        public employee Employee { get; set; }
         public DateOnly creation_date { get; set; }
         public DateTime start_date { get; set; }
         public DateTime end_date { get; set; }

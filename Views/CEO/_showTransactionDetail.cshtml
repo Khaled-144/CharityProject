@@ -39,15 +39,18 @@
                                 </dd>
                             }
                             <dt class="col-sm-4">الى قسم</dt>
-                            <dd class="col-sm-8">
-                                <span id="department-name-@Model.transaction_id"></span>
-                            </dd>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.Department.departement_name)</dd>
                             <dt class="col-sm-4">تاريخ الانشاء</dt>
                             <dd class="col-sm-8">@Html.DisplayFor(model => model.create_date)</dd>
                             <dt class="col-sm-4">تاريخ الانهاء</dt>
                             <dd class="col-sm-8">@Html.DisplayFor(model => model.close_date)</dd>
                             <dt class="col-sm-4">الحالة</dt>
                             <dd class="col-sm-8">@Html.DisplayFor(model => model.status)</dd>
+                            @if (Model.status == "منهاة")
+                            {
+                                <dt class="col-sm-4">الحالة</dt>
+                                <dd class="col-sm-8">@Html.DisplayFor(model => model.TerminationCause)</dd>
+                            }
                             <dt class="col-sm-4">المرفقات</dt>
                             <dd class="col-sm-8">
                                 @if (fileNames.Any())
@@ -147,7 +150,7 @@
                 {
                     <div id="referForm-@Model.transaction_id" class="mt-4">
                         <h5>إحالة المعاملة #@Model.transaction_id</h5>
-                        @using (Html.BeginForm("ReferTransaction", "FinancialSustainabilityDevelopmentManager", FormMethod.Post, new { id = $"referTransactionForm-{Model.transaction_id}", enctype = "multipart/form-data" }))
+                        @using (Html.BeginForm("ReferTransaction", "CEO", FormMethod.Post, new { id = $"referTransactionForm-{Model.transaction_id}", enctype = "multipart/form-data" }))
                         {
                             @Html.AntiForgeryToken()
                             @Html.HiddenFor(model => model.transaction_id)
@@ -237,7 +240,7 @@
 
             if (departmentId) {
                 $.ajax({
-                    url: '@Url.Action("GetEmployeesByDepartment", "FinancialSustainabilityDevelopmentManager")',
+                    url: '@Url.Action("GetEmployeesByDepartment", "CEO")',
                     type: 'GET',
                     data: { departmentId: departmentId },
                     success: function (data) {
@@ -266,7 +269,7 @@
 
             if (departmentId) {
                 $.ajax({
-                    url: '@Url.Action("GetDepartmentName", "FinancialSustainabilityDevelopmentManager")',
+                    url: '@Url.Action("GetDepartmentName", "CEO")',
                     type: 'GET',
                     data: { departmentId: departmentId },
                     success: function (data) {
