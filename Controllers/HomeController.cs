@@ -26,7 +26,7 @@ namespace CharityProject.Controllers
         private readonly ApplicationDbContext _context;
              /// <summary>
              /// /////////////
-             /// </summary>
+  /*           /// </summary>
         private readonly EmailService _emailService;
       
 
@@ -35,7 +35,7 @@ namespace CharityProject.Controllers
         public HomeController(EmailService emailService)
         {
             _emailService = emailService;
-        }
+        }*/
 
         /// <summary>
         /// ////////////////
@@ -255,7 +255,10 @@ namespace CharityProject.Controllers
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-        public IActionResult ForgotPassword()
+
+
+
+      /*  public IActionResult ForgotPassword()
         {
             return View();
         }
@@ -286,7 +289,7 @@ namespace CharityProject.Controllers
        [HttpPost]
         public IActionResult SendVerificationCode(string userEmail)
         {
-            bool emailSent = _emailService.SendEmail(userEmail, "Subject Here", "Body Here");
+         *//*   bool emailSent = _emailService.SendEmail(userEmail, "Subject Here", "Body Here");*//*
 
             if (emailSent)
             {
@@ -351,15 +354,53 @@ namespace CharityProject.Controllers
             ViewData["Message"] = "حدث خطأ، حاول مرة أخرى";
             return View("ForgotPassword");
         }
-
-       
-
+*/
 
 
+   /*     public class EmailService
+        {
+            private readonly SmtpSettings _smtpSettings;
+
+            // Constructor that uses IOptions<SmtpSettings>
+            public EmailService(IOptions<SmtpSettings> smtpSettings)
+            {
+                _smtpSettings = smtpSettings.Value;  // Get actual settings from IOptions
+            }
+
+            public bool SendEmail(string toEmail, string subject, string body)
+            {
+                try
+                {
+                    // Use the settings to configure your SMTP client
+                    var smtpClient = new SmtpClient(_smtpSettings.Server)
+                    {
+                        Port = _smtpSettings.Port,
+                        Credentials = new NetworkCredential(_smtpSettings.Username, _smtpSettings.Password),
+                        EnableSsl = _smtpSettings.EnableSsl
+                    };
+
+                    var mailMessage = new MailMessage
+                    {
+                        From = new MailAddress(_smtpSettings.Username), // Sender's email
+                        Subject = subject,
+                        Body = body,
+                        IsBodyHtml = true
+                    };
+                    mailMessage.To.Add(toEmail);
+
+                    smtpClient.Send(mailMessage);  // Send the email
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error sending email: {ex.Message}");
+                    return false;
+                }
+            }
+        }*/
 
 
 
-     
 
 
 
@@ -372,5 +413,7 @@ namespace CharityProject.Controllers
 
 
 
-}
+
+
+    }
 }
