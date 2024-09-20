@@ -5,6 +5,18 @@ using Microsoft.CodeAnalysis.Elfie.Diagnostics;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
+using System.Net.Mail;
+using System.Net;
+/*using SendGrid;
+using SendGrid.Helpers.Mail;*/
+using CharityProject.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Options;
+
+
+
 
 namespace CharityProject.Controllers
 {
@@ -12,6 +24,23 @@ namespace CharityProject.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly ApplicationDbContext _context;
+             /// <summary>
+             /// /////////////
+  /*           /// </summary>
+        private readonly EmailService _emailService;
+      
+
+     
+
+        public HomeController(EmailService emailService)
+        {
+            _emailService = emailService;
+        }*/
+
+        /// <summary>
+        /// ////////////////
+        /// </summary>
+       
 
         public HomeController(ILogger<HomeController> logger, ApplicationDbContext context)
         {
@@ -217,5 +246,174 @@ namespace CharityProject.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+
+
+
+
+
+
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+      /*  public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResetPassword(string userid, string newPassword)
+        {
+            // Fetch the user by their employee ID
+            var user = await _context.employee.FirstOrDefaultAsync(e => e.employee_id.ToString() == userid);
+
+            if (user != null)
+            {
+                // Update the user's password
+                user.password = newPassword;
+                _context.Update(user);
+                await _context.SaveChangesAsync();
+
+                ViewData["Message"] = "تم تغيير كلمة المرور بنجاح";
+                return RedirectToAction("LoginPage");
+            }
+
+            ViewData["Message"] = "المستخدم غير موجود";
+            return View("ForgotPassword");
+        }
+
+
+       [HttpPost]
+        public IActionResult SendVerificationCode(string userEmail)
+        {
+         *//*   bool emailSent = _emailService.SendEmail(userEmail, "Subject Here", "Body Here");*//*
+
+            if (emailSent)
+            {
+                ViewData["Message"] = "Verification code sent to your email.";
+            }
+            else
+            {
+                ViewData["Message"] = "Failed to send email.";
+            }
+
+            return View();
+        }
+        // View to input the verification code
+        public IActionResult VerifyCode()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> VerifyCode(string verificationCode)
+        {
+            // Check if the code matches the one in the session
+            var storedCode = HttpContext.Session.GetString("VerificationCode");
+            var userId = HttpContext.Session.GetString("ResetUserId");
+
+            if (verificationCode == storedCode && !string.IsNullOrEmpty(userId))
+            {
+                return RedirectToAction("ResetPasswordForm");
+            }
+
+            ViewData["Message"] = "رمز التحقق غير صحيح";
+            return View();
+        }
+
+        public IActionResult ResetPasswordForm()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResetPassword(string newPassword)
+        {
+            var userId = HttpContext.Session.GetString("ResetUserId");
+
+            if (!string.IsNullOrEmpty(userId))
+            {
+                var user = await _context.employee.FirstOrDefaultAsync(e => e.employee_id.ToString() == userId);
+
+                if (user != null)
+                {
+                    user.password = newPassword;
+                    _context.Update(user);
+                    await _context.SaveChangesAsync();
+
+                    ViewData["Message"] = "تم تغيير كلمة المرور بنجاح";
+                    return RedirectToAction("LoginPage");
+                }
+            }
+
+            ViewData["Message"] = "حدث خطأ، حاول مرة أخرى";
+            return View("ForgotPassword");
+        }
+*/
+
+
+   /*     public class EmailService
+        {
+            private readonly SmtpSettings _smtpSettings;
+
+            // Constructor that uses IOptions<SmtpSettings>
+            public EmailService(IOptions<SmtpSettings> smtpSettings)
+            {
+                _smtpSettings = smtpSettings.Value;  // Get actual settings from IOptions
+            }
+
+            public bool SendEmail(string toEmail, string subject, string body)
+            {
+                try
+                {
+                    // Use the settings to configure your SMTP client
+                    var smtpClient = new SmtpClient(_smtpSettings.Server)
+                    {
+                        Port = _smtpSettings.Port,
+                        Credentials = new NetworkCredential(_smtpSettings.Username, _smtpSettings.Password),
+                        EnableSsl = _smtpSettings.EnableSsl
+                    };
+
+                    var mailMessage = new MailMessage
+                    {
+                        From = new MailAddress(_smtpSettings.Username), // Sender's email
+                        Subject = subject,
+                        Body = body,
+                        IsBodyHtml = true
+                    };
+                    mailMessage.To.Add(toEmail);
+
+                    smtpClient.Send(mailMessage);  // Send the email
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error sending email: {ex.Message}");
+                    return false;
+                }
+            }
+        }*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     }
 }
