@@ -4,7 +4,7 @@
 
 @{
     ViewData["Title"] = "PartialDetails2";
-    string fileUrl = Url.Content("~/files/" + Model.files);
+    var fileNames = Model.files?.Split(',') ?? new string[] { };
 }
 
 <div class="modal fade" id="detailModal-@Model.letters_id" role="dialog">
@@ -23,19 +23,26 @@
                             <dd>@Html.DisplayFor(model => model.employee.name)</dd>
                         </div>
                         <div class="bg-gray-100 p-3 rounded">
-                            <dt class="font-bold mb-1">الموضوع</dt>
+                           
                             <dd>@Html.DisplayFor(model => model.title)</dd>
                         </div>
                         <div class="bg-gray-100 p-3 rounded">
                             <dt class="font-bold mb-1">المرفقات</dt>
-                            @if (!string.IsNullOrEmpty(Model.files))
-                            {
-                                <a href="@fileUrl" target="_blank" class="text-blue-600 hover:underline">@Model.files</a>
-                            }
-                            else
-                            {
-                                <span>لا توجد مرفقات</span>
-                            }
+                            <dd>
+                                @if (fileNames.Any())
+                                {
+                                    foreach (var fileName in fileNames)
+                                    {
+                                        var fileUrl = Url.Content($"~/files/{fileName.Trim()}");
+                                        <a href="@fileUrl" target="_blank">@fileName.Trim()</a>
+                                        <br />
+                                    }
+                                }
+                                else
+                                {
+                                    <span>لا توجد مرفقات</span>
+                                }
+                            </dd>
                         </div>
                         <div class="bg-gray-100 p-3 rounded">
                             <dt class="font-bold mb-1">تاريخ الانشاء</dt>

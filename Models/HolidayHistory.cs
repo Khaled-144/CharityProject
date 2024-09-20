@@ -20,8 +20,8 @@
         [ForeignKey("emp_id")]
         public employee Employee { get; set; }
         public DateOnly creation_date { get; set; }
-        public DateTime start_date { get; set; }
-        public DateTime end_date { get; set; }
+        public DateOnly start_date { get; set; }
+        public DateOnly end_date { get; set; }
         public string? files { get; set; }
         public string? status { get; set; }
 

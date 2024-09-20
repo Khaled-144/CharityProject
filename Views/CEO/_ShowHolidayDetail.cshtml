@@ -33,7 +33,7 @@
                                 <svg class="w-3.5 h-3.5 mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
                                     <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm4.5 10.5h-9a1 1 0 0 0 0 2h9a1 1 0 0 0 0-2Z" />
                                 </svg>
-                               رفضت من المدير المباشر 
+                                رفضت من المدير المباشر 
                             </li>
                         }
                         else if (Model.status == "رفضت من مدير الموارد البشرية")
@@ -83,7 +83,7 @@
                                 <svg class="w-3.5 h-3.5 mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
                                     <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 1 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
                                 </svg>
-                                 موافقة المدير التنفيذي
+                                موافقة المدير التنفيذي
                             </li>
                         }
                     </ol>
@@ -102,7 +102,38 @@
                         </div>
                         <div class="bg-gray-100 p-3 rounded">
                             <dt class="font-bold mb-1">المدة</dt>
-                            <dd>@Html.DisplayFor(model => model.duration)</dd>
+                            <dd>
+                                @if (Model.holiday.type == "استئذان")
+                                {
+                                    @if (Model.duration == 1)
+                                    {
+                                        <span>ساعة واحدة</span>
+                                    }
+                                    else if (Model.duration == 2)
+                                    {
+                                        <span>ساعتين</span>
+                                    }
+                                    else
+                                    {
+                                        <span>@Model.duration @Model.holiday.duration_Unit</span>
+                                    }
+                                }
+                                else
+                                {
+                                    @if (Model.duration == 1)
+                                    {
+                                        <span>يوم واحد</span>
+                                    }
+                                    else if (Model.duration == 2)
+                                    {
+                                        <span>يومين</span>
+                                    }
+                                    else
+                                    {
+                                        <span>@Model.duration @Model.holiday.duration_Unit</span>
+                                    }
+                                }
+                            </dd>
                         </div>
                         <div class="bg-gray-100 p-3 rounded">
                             <dt class="font-bold mb-1">الوصف</dt>
@@ -112,7 +143,7 @@
                             <dt class="font-bold mb-1">تاريخ البدء</dt>
                             <dd>@Html.DisplayFor(model => model.start_date)</dd>
                         </div>
-                        
+
                         <div class="bg-gray-100 p-3 rounded">
                             <dt class="font-bold mb-1">النوع</dt>
                             <dd>@Html.DisplayFor(model => model.holiday.type)</dd>
@@ -125,7 +156,7 @@
                             <dt class="font-bold mb-1">الحالة</dt>
                             <dd>@Html.DisplayFor(model => model.status)</dd>
                         </div>
-                       
+
                         <div class="bg-gray-100 p-3 rounded col-span-2">
                             <dt class="font-bold mb-1">الملفات</dt>
                             <dd>

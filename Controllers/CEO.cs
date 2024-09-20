@@ -337,7 +337,8 @@ namespace CharityProject.Controllers
 
             // Fetch holidays with the status "مرسلة" where the employee's department ID is 5
             var holidays = await _context.HolidayHistories
-                .Where(h => h.status == "مرسلة من مدير" )
+                .Include(h=>h.holiday)
+                .Where(h=> h.status == "مرسلة من مدير" )
                 .OrderByDescending(h => h.holidays_history_id)
                 .ToListAsync();
             var employeeIds = holidays.SelectMany(t => new[] { t.emp_id }).Distinct().ToList();
@@ -360,6 +361,7 @@ namespace CharityProject.Controllers
 
             // Fetch holidays with the status "مرسلة" where the employee's department ID is 5
             var holidays = await _context.HolidayHistories
+                 .Include(h => h.holiday)
                 .Where(h => h.status == "موافقة مدير الموارد البشرية" || h.status == "رفضت من مدير الموارد البشرية"|| h.status == "موافقة المدير التنفيذي"|| h.status == "رفضت من المدير التنفيذي")
                 .OrderByDescending(h => h.holidays_history_id)
                 .ToListAsync();
@@ -637,41 +639,57 @@ namespace CharityProject.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create_Letter(
-      IFormFile files,
-      int[]? to_departement_name,
-      string[]? to_emp_id,
-      [Bind("title,description,type,from_emp_id,date,files,Confidentiality,Urgency,Importance")] letter letter)
+     List<IFormFile> files,
+     int[]? to_departement_name,
+     string[]? to_emp_id,
+     [Bind("title,description,type,from_emp_id,date,files,Confidentiality,Urgency,Importance")] letter letter)
         {
+            // Retrieve employee details from the session
             var employee_details = await GetEmployeeDetailsFromSessionAsync();
-            if (files != null && files.Length > 0)
-            {
-                // Validate the file type
-                var allowedExtensions = new[] { ".pdf", ".xls", ".xlsx", ".doc", ".docx" };
-                var extension = Path.GetExtension(files.FileName).ToLower();
-
-                if (!allowedExtensions.Contains(extension))
-                {
-                    ModelState.AddModelError("files", "Only PDF, Excel, and Word files are allowed.");
-                    return View(letter); // Return the view with validation error
-                }
-
-                string filename = Path.GetFileName(files.FileName);
-                string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/files");
-                if (!Directory.Exists(path))
-                {
-                    Directory.CreateDirectory(path);
-                }
-                string filePath = Path.Combine(path, filename);
-                using (var filestream = new FileStream(filePath, FileMode.Create))
-                {
-                    await files.CopyToAsync(filestream);
-                }
-                letter.files = filename;
-            }
-
-            letter.date = DateTime.Now;
             letter.from_emp_id = employee_details.employee_id;
             letter.departement_id = employee_details.departement_id;
+
+            // Check if files were uploaded
+            if (files != null && files.Count > 0)
+            {
+                var allowedExtensions = new[] { ".pdf", ".xls", ".xlsx", ".doc", ".docx" };
+                List<string> fileNames = new List<string>();
+
+                foreach (var file in files)
+                {
+                    // Validate the file type
+                    var extension = Path.GetExtension(file.FileName).ToLower();
+                    if (!allowedExtensions.Contains(extension))
+                    {
+                        ModelState.AddModelError("files", "Only PDF, Excel, and Word files are allowed.");
+                        return View(letter); // Return the view with validation error
+                    }
+
+                    // Save the file
+                    string filename = Path.GetFileName(file.FileName);
+                    string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/files");
+
+                    if (!Directory.Exists(path))
+                    {
+                        Directory.CreateDirectory(path);
+                    }
+
+                    string filePath = Path.Combine(path, filename);
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await file.CopyToAsync(fileStream);
+                    }
+
+                    // Add the filename to the list
+                    fileNames.Add(filename);
+                }
+
+                // Concatenate the file names and store them in the letter
+                letter.files = string.Join(",", fileNames);
+            }
+
+            // Set the date to now if not provided
+            letter.date = DateTime.Now;
 
             bool letterCreated = false;
             HashSet<int> processedEmployees = new HashSet<int>();
@@ -683,8 +701,8 @@ namespace CharityProject.Controllers
                 {
                     // Find the employee and their department
                     var employee = await _context.employee_details
-                                                .Include(ed => ed.Department)
-                                                .FirstOrDefaultAsync(ed => ed.employee_id == empId);
+                                                  .Include(ed => ed.Department)
+                                                  .FirstOrDefaultAsync(ed => ed.employee_id == empId);
 
                     if (employee != null)
                     {

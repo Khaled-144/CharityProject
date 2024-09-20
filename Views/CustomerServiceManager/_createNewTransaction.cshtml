@@ -38,11 +38,17 @@
                             <label asp-for="create_date"> تاريخ الانشاء</label>
                             <input asp-for="create_date" type="date" class="w-full" id="myDateField" />
                         </div>
-                        <div class="form-group my-3">
-                            <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="files">المرفقات</label>
-                            <input asp-for="files" class="form-control" type="file" accept=".pdf,.xls,.xlsx,.doc,.docx" />
-                            <span asp-validation-for="files" class="text-danger"></span>
-                            <small id="fileError" class="text-danger" style="display:none;">الملفات المسموح بها فقط :PDF, Excel, Word</small>
+                        <div class="mb-3">
+                            <div class="form-group mb-4">
+                                <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="files">المرفقات</label>
+                                <input name="files" class="form-control w-full border rounded focus:ring-blue-500 focus:border-blue-500"
+                                       type="file" accept=".pdf,.xls,.xlsx,.doc,.docx" multiple id="fileInput" />
+                                <span asp-validation-for="files" class="text-danger"></span>
+                                <small id="fileError" class="text-danger" style="display:none;">الملفات المسموح بها فقط :PDF, Excel, Word</small>
+
+                                <!-- Added container to display file names -->
+                                <ul id="fileList" class="mt-2"></ul>
+                            </div>
                         </div>
                         <div class="flex justify-between">
                             <div class="mb-4 p-">

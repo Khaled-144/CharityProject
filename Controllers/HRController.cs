@@ -60,8 +60,8 @@ namespace CharityProject.Controllers
         }
 
 
-
-        public async Task<IActionResult> UpdateStatus_approval(int holiday_id)
+        [HttpPost]
+        public async Task<IActionResult>ApproveHoliday(int holiday_id)
         {
             var holiday = await _context.HolidayHistories.FindAsync(holiday_id);
             if (holiday == null)
@@ -69,8 +69,9 @@ namespace CharityProject.Controllers
                 return Json(new { success = false, message = "طلب الإجازة غير موجود" });
             }
 
-            // Update the status to "موافقة مدير القسم"
+            // Update the status to "Closed"
             holiday.status = "موافقة مدير الموارد البشرية";
+
 
             // Save changes to the database
             await _context.SaveChangesAsync();
@@ -78,7 +79,8 @@ namespace CharityProject.Controllers
             return Json(new { success = true, message = "تمت الموافقة على الإجازة" });
         }
 
-        public async Task<IActionResult> UpdateStatus_rejection(int holiday_id)
+        [HttpPost]
+        public async Task<IActionResult>DenyHoliday(int holiday_id)
         {
             var holiday = await _context.HolidayHistories.FindAsync(holiday_id);
             if (holiday == null)
@@ -86,8 +88,9 @@ namespace CharityProject.Controllers
                 return Json(new { success = false, message = "طلب الإجازة غير موجود" });
             }
 
-            // Update the status to "عدم موافقة مدير القسم"
+            // Update the status to "Closed"
             holiday.status = "رفضت من مدير الموارد البشرية";
+
 
             // Save changes to the database
             await _context.SaveChangesAsync();
@@ -383,8 +386,13 @@ namespace CharityProject.Controllers
 							(h.status == "مرسلة" && h.Employee_detail.departement_id == emplyee_Details.departement_id))
 				.OrderByDescending(h => h.holidays_history_id)
 				.ToListAsync();
+            var employeeIds = holidays.SelectMany(t => new[] { t.emp_id }).Distinct().ToList();
+            var employees = await _context.employee
+                .Where(e => employeeIds.Contains(e.employee_id))
+                .ToDictionaryAsync(e => e.employee_id, e => e.name);
 
-			if (holidays.Count == 0)
+            ViewBag.EmployeeNames = employees;
+            if (holidays.Count == 0)
 			{
 				// Render the _NothingNew partial view if no transactions
 				return PartialView("_NothingNew");
@@ -524,41 +532,54 @@ namespace CharityProject.Controllers
 
 
         }
-		// POST: Transactions/Create
-		// To protect from overposting attacks, enable the specific properties you want to bind to.
-		// For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-		[HttpPost]
-		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> Create_Transaction(IFormFile files, [Bind("create_date,close_date,title,description,from_emp_id,to_emp_id,department_id,Confidentiality,Urgency,Importance")] Transaction transaction)
-		{
+        // POST: Transactions/Create
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create_Transaction(List<IFormFile> files, [Bind("create_date,close_date,title,description,to_emp_id,department_id,Confidentiality,Urgency,Importance")] Transaction transaction)
+        {
+            // Retrieve the employee ID from session
             var employeeId = GetEmployeeIdFromSession();
-
             transaction.from_emp_id = employeeId;
 
-            if (files != null && files.Length > 0)
+            // Check if files were uploaded
+            if (files != null && files.Count > 0)
             {
-                // Validate the file type
                 var allowedExtensions = new[] { ".pdf", ".xls", ".xlsx", ".doc", ".docx" };
-                var extension = Path.GetExtension(files.FileName).ToLower();
+                List<string> fileNames = new List<string>();
 
-                if (!allowedExtensions.Contains(extension))
+                foreach (var file in files)
                 {
-                    ModelState.AddModelError("files", "Only PDF, Excel, and Word files are allowed.");
-                    return View(transaction); // Return the view with validation error
+                    // Validate the file type
+                    var extension = Path.GetExtension(file.FileName).ToLower();
+                    if (!allowedExtensions.Contains(extension))
+                    {
+                        ModelState.AddModelError("files", "Only PDF, Excel, and Word files are allowed.");
+                        return View(transaction); // Return the view with validation error
+                    }
+
+                    // Save the file
+                    string filename = Path.GetFileName(file.FileName);
+                    string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/files");
+
+                    if (!Directory.Exists(path))
+                    {
+                        Directory.CreateDirectory(path);
+                    }
+
+                    string filePath = Path.Combine(path, filename);
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await file.CopyToAsync(fileStream);
+                    }
+
+                    // Add the filename to the list
+                    fileNames.Add(filename);
                 }
 
-                string filename = Path.GetFileName(files.FileName);
-                string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/files");
-                if (!Directory.Exists(path))
-                {
-                    Directory.CreateDirectory(path);
-                }
-                string filePath = Path.Combine(path, filename);
-                using (var filestream = new FileStream(filePath, FileMode.Create))
-                {
-                    await files.CopyToAsync(filestream);
-                }
-                transaction.files = filename;
+                // Concatenate the file names and store them in the transaction
+                transaction.files = string.Join(",", fileNames);
             }
 
             if (transaction.create_date == null)

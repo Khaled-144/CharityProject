@@ -34,7 +34,7 @@
         //public virtual ICollection<Referral> Referrals { get; set; }
         public ICollection<Referral> Referrals { get; set; }
 
-        public string? TerminationCause { get; set; }
+       
     }
 
 }
