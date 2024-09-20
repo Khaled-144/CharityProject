@@ -33,7 +33,7 @@
                                 <svg class="w-3.5 h-3.5 mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
                                     <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm4.5 10.5h-9a1 1 0 0 0 0 2h9a1 1 0 0 0 0-2Z" />
                                 </svg>
-                                رفضت من المدير المباشر
+                                رفضت من المدير المباشر 
                             </li>
                         }
                         else if (Model.status == "رفضت من مدير الموارد البشرية")
@@ -52,7 +52,7 @@
                                 رفضت من مدير الموارد البشرية
                             </li>
                         }
-                        else if (Model.status == "موافقة مدير الموارد البشرية" || Model.status == "موافقة المدير المباشر" || Model.status =="مرسلة" )
+                        else if (Model.status == "موافقة مدير الموارد البشرية" || Model.status == "موافقة المدير المباشر")
                         {
                             <li class="flex items-center @((Model.status == "موافقة المدير المباشر" || Model.status == "موافقة مدير الموارد البشرية") ? "text-green-600" : "text-gray-400")">
                                 <svg class="w-3.5 h-3.5 mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
@@ -103,7 +103,6 @@
                         <div class="bg-gray-100 p-3 rounded">
                             <dt class="font-bold mb-1">المدة</dt>
                             <dd>
-                                @Html.DisplayFor(model => model.duration)
                                 @if (Model.holiday.type == "استئذان")
                                 {
                                     @if (Model.duration == 1)
@@ -175,7 +174,7 @@
                 </div>
 
                 <div class="flex flex-wrap items-center justify-center gap-4 mt-6">
-                    @if (!Model.status.Contains("موافقة") || !Model.status.Contains("رفض"))
+                    @if (Model.status == "مرسلة من مدير")
                     {
                         <button type="button" class="px-4 py-2 text-sm font-medium text-white bg-green-500 rounded-md hover:bg-green-600 focus:outline-none focus:ring-4 focus:ring-green-300 transition duration-300" data-toggle="modal" data-target="#confirmApprovalModal-@Model.holidays_history_id">
                             موافقة
@@ -187,6 +186,7 @@
                     <button data-dismiss="modal" type="button" class="px-4 py-2 text-sm font-medium text-white bg-gray-500 rounded-md hover:bg-gray-600 focus:outline-none focus:ring-4 focus:ring-gray-300 transition duration-300">
                         إخفاء
                     </button>
+                </div>
             </div>
         </div>
     </div>
@@ -237,13 +237,13 @@
 <script>
     function submitApproval(holidays_history_id) {
         $.ajax({
-                url: '/CustomerServiceManager/ApproveHoliday',
+            url: '/CEO/ApproveHoliday',
             type: 'POST',
             data: { holiday_id: holidays_history_id },
             success: function (response) {
                 if (response.success) {
                     Swal.fire('نجاح', response.message, 'success').then(() => {
-                            window.location.href = '/CustomerServiceManager/Transactions';
+                        window.location.href = '/CEO/Transactions';
                     });
                 } else {
                     Swal.fire('خطأ', response.message, 'error');
@@ -257,13 +257,13 @@
 
     function submitRejection(holidays_history_id) {
         $.ajax({
-                url: '/CustomerServiceManager/DenyHoliday',
+            url: '/CEO/DenyHoliday',
             type: 'POST',
             data: { holiday_id: holidays_history_id },
             success: function (response) {
                 if (response.success) {
                     Swal.fire('نجاح', response.message, 'success').then(() => {
-                            window.location.href = '/CustomerServiceManager/Transactions';
+                        window.location.href = '/CEO/Transactions';
                     });
                 } else {
                     Swal.fire('خطأ', response.message, 'error');

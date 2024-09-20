@@ -1,328 +1,345 @@
 ﻿@model CharityProject.Models.Transaction
 
 @{
-    ViewData["Title"] = "Transaction Details";
-    string currentUrl = Context.Request.Path;
-    var fileNames = Model.files?.Split(',') ?? new string[] { };
-
+	ViewData["Title"] = "Transaction Details";
+	string fileUrl = Url.Content("~/files/" + Model.files);
+	string currentUrl = Context.Request.Path;
 }
 
-<div class="modal fade" id="detailModal-@Model.transaction_id" role="dialog" data-transaction-id="@Model.transaction_id">
-    <div class="modal-dialog modal-xl">
-        <div class="modal-content">
-            <div class="modal-header flex justify-content-center">
-                <h4>معلومات المعاملة  #@Model.transaction_id</h4>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <!-- Right section for transaction details -->
-                    <div class="col-md-5" dir="rtl">
-                        <h5>تفاصيل المعاملة</h5>
-                        <hr class="w-48 h-1 mx-auto my-2 bg-gray-950 border-2 rounded md:my-10 dark:bg-gray-800">
-                        <dl class="row text-right">
-                            <dt class="col-sm-4">العنوان</dt>
-                            <dd class="col-sm-8">@Html.DisplayFor(model => model.title)</dd>
-                            <dt class="col-sm-4">الوصف</dt>
-                            <dd class="col-sm-8">@Html.DisplayFor(model => model.description)</dd>
-                            @{
-                                var employeeNames = ViewBag.EmployeeNames as Dictionary<int, string>;
-                            }
+<div class="modal fade" id="detailModal-@Model.transaction_id" role="dialog">
+	<div class="modal-dialog modal-xl">
+		<div class="modal-content">
+			<div class="modal-header flex justify-content-center">
+				<h4>معلومات المعاملة  #@Model.transaction_id</h4>
+			</div>
+			<div class="modal-body">
+				<div class="row">
+					<!-- Right section for transaction details -->
+					<div class="col-md-5" dir="rtl">
+						<h5>تفاصيل المعاملة</h5>
+						<hr class="w-48 h-1 mx-auto my-2 bg-gray-950 border-2 rounded md:my-10 dark:bg-gray-800">
+						<dl class="row text-right">
+							<dt class="col-sm-4">العنوان</dt>
+							<dd class="col-sm-8">@Html.DisplayFor(model => model.title)</dd>
+							<dt class="col-sm-4">الوصف</dt>
+							<dd class="col-sm-8">@Html.DisplayFor(model => model.description)</dd>
+							@{
+								var employeeNames = ViewBag.EmployeeNames as Dictionary<int, string>;
+							}
 
-                            <dt class="col-sm-4">من الموظف</dt>
-                            <dd class="col-sm-8">
-                                @(employeeNames.TryGetValue(Model.from_emp_id, out var fromName) ? fromName : "غير معروف")
-                            </dd>
-                            @if (Model.to_emp_id != null)
-                            {
-                                <dt class="col-sm-4">الى الموظف</dt>
-                                <dd class="col-sm-8">
-                                    @(employeeNames.TryGetValue(Model.to_emp_id ?? 0, out var toName) ? toName : "غير معروف")
-                                </dd>
-                            }
-                            <dt class="col-sm-4">الى قسم</dt>
-                            <dd class="col-sm-8">
-                                <span id="department-name-@Model.transaction_id"></span>
-                            </dd>
-                            <dt class="col-sm-4">تاريخ الانشاء</dt>
-                            <dd class="col-sm-8">@Html.DisplayFor(model => model.create_date)</dd>
-                            <dt class="col-sm-4">تاريخ الانهاء</dt>
-                            <dd class="col-sm-8">@Html.DisplayFor(model => model.close_date)</dd>
-                            <dt class="col-sm-4">الحالة</dt>
-                            <dd class="col-sm-8">@Html.DisplayFor(model => model.status)</dd>
-                            <dt class="col-sm-4">المرفقات</dt>
-                            <dd class="col-sm-8">
-                                @if (fileNames.Any())
-                                {
-                                    foreach (var fileName in fileNames)
-                                    {
-                                        var fileUrl = Url.Content($"~/files/{fileName.Trim()}");
-                                        <a href="@fileUrl" target="_blank">@fileName.Trim()</a>
-                                        <br />
-                                    }
-                                }
-                                else
-                                {
-                                    <span>لا توجد مرفقات</span>
-                                }
-                            </dd>
-                        </dl>
-                    </div>
+							<dt class="col-sm-4">من الموظف</dt>
+							<dd class="col-sm-8">
+								@(employeeNames.TryGetValue(Model.from_emp_id, out var fromName) ? fromName : "غير معروف")
+							</dd>
+							@if (Model.to_emp_id != null)
+							{
+								<dt class="col-sm-4">الى الموظف</dt>
+								<dd class="col-sm-8">
+									@(employeeNames.TryGetValue(Model.to_emp_id ?? 0, out var toName) ? toName : "غير معروف")
+								</dd>
+							}
+							<dt class="col-sm-4">الى قسم</dt>
+							<dd class="col-sm-8">
+								<span id="department-name-@Model.transaction_id"></span>
+							</dd>
+							<dt class="col-sm-4">تاريخ الانشاء</dt>
+							<dd class="col-sm-8">@Html.DisplayFor(model => model.create_date)</dd>
+							<dt class="col-sm-4">تاريخ الانهاء</dt>
+							<dd class="col-sm-8">@Html.DisplayFor(model => model.close_date)</dd>
+							<dt class="col-sm-4">الحالة</dt>
+							<dd class="col-sm-8">@Html.DisplayFor(model => model.status)</dd>
+							<dt class="col-sm-4">@Html.DisplayNameFor(model => model.files)</dt>
+							<dd class="col-sm-8">
+								@if (!string.IsNullOrEmpty(Model.files))
+								{
+									<a href="@fileUrl" target="_blank">@Model.files</a>
+								}
+								else
+								{
+									<span>لا توجد مرفقات</span>
+								}
+							</dd>
+						</dl>
+					</div>
 
-                    <!-- Left section for referrals details -->
-                    <div class="col-md-7" dir="rtl">
-                        <h5>تفاصيل الإحالات</h5>
-                        <hr class="w-48 h-1 mx-auto my-2 bg-gray-950 border-2 rounded md:my-10 dark:bg-gray-800">
-                        @if (Model.Referrals != null && Model.Referrals.Any())
-                        {
-                            <div class="border border-gray-300 shadow-sm rounded-lg overflow-hidden">
-                                <table class="w-full text-sm leading-5">
-                                    <thead class="bg-gray-100">
-                                        <tr>
-                                            <th class="py-3 px-4 text-right font-medium text-gray-600">تاريخ الإحالة</th>
-                                            <th class="py-3 px-4 text-right font-medium text-gray-600">من الموظف</th>
-                                            <th class="py-3 px-4 text-right font-medium text-gray-600">إلى الموظف</th>
-                                            <th class="py-3 px-4 text-right font-medium text-gray-600">التعليقات</th>
-                                            <th class="py-3 px-4 text-right font-medium text-gray-600">المرفقات</th> <!-- New column for files -->
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @{
-                                            var index = 0;
-                                            foreach (var referral in Model.Referrals.OrderByDescending(r => r.referral_date))
-                                            {
-                                                var rowClass = index % 2 == 0 ? "" : "bg-gray-50";
-                                                <tr class="@rowClass">
-                                                    <td class="py-3 px-4 text-right">@referral.referral_date.ToString("yyyy/MM/dd - HH:mm")</td>
-                                                    <td class="py-3 px-4 text-right">
-                                                        @if (referral.from_employee == null)
-                                                        {
-                                                            <span class="text-red-500">موظف غير موجود (ID: @referral.from_employee_id)</span>
-                                                        }
-                                                        else
-                                                        {
-                                                            @referral.from_employee.name
-                                                        }
-                                                    </td>
-                                                    <td class="py-3 px-4 text-right">
-                                                        @if (referral.to_employee == null)
-                                                        {
-                                                            <span class="text-red-500">موظف غير موجود (ID: @referral.to_employee_id)</span>
-                                                        }
-                                                        else
-                                                        {
-                                                            @referral.to_employee.name
-                                                        }
-                                                    </td>
-                                                    <td class="py-3 px-4 text-right">@referral.comments</td>
-                                                    <td class="py-3 px-4 text-right">
+					<!-- Left section for referrals details -->
+					<div class="col-md-7" dir="rtl">
+						<h5>تفاصيل الإحالات</h5>
+						<hr class="w-48 h-1 mx-auto my-2 bg-gray-950 border-2 rounded md:my-10 dark:bg-gray-800">
+						@if (Model.Referrals != null && Model.Referrals.Any())
+						{
+							<div class="border border-gray-300 shadow-sm rounded-lg overflow-hidden">
+								<table class="w-full text-sm leading-5">
+									<thead class="bg-gray-100">
+										<tr>
+											<th class="py-3 px-4 text-right font-medium text-gray-600">تاريخ الإحالة</th>
+											<th class="py-3 px-4 text-right font-medium text-gray-600">من الموظف</th>
+											<th class="py-3 px-4 text-right font-medium text-gray-600">إلى الموظف</th>
+											<th class="py-3 px-4 text-right font-medium text-gray-600">التعليقات</th>
+										</tr>
+									</thead>
+									<tbody>
+										@{
+											var index = 0;
+											foreach (var referral in Model.Referrals.OrderByDescending(r => r.referral_date))
+											{
+												var rowClass = index % 2 == 0 ? "" : "bg-gray-50";
+												<tr class="@rowClass">
+													<td class="py-3 px-4 text-right">@referral.referral_date.ToString("yyyy/MM/dd - HH:mm")</td>
+													<td class="py-3 px-4 text-right">
+														@if (referral.from_employee == null)
+														{
+															<span class="text-red-500">موظف غير موجود (ID: @referral.from_employee_id)</span>
+														}
+														else
+														{
+															@referral.from_employee.name
+														}
+													</td>
+													<td class="py-3 px-4 text-right">
+														@if (referral.to_employee == null)
+														{
+															<span class="text-red-500">موظف غير موجود (ID: @referral.to_employee_id)</span>
+														}
+														else
+														{
+															@referral.to_employee.name
+														}
+													</td>
+													<td class="py-3 px-4 text-right">@referral.comments</td>
+												</tr>
+												index++;
+											}
+										}
+									</tbody>
+								</table>
+							</div>
+						}
+						else
+						{
+							<p>لا توجد إحالات لهذه المعاملة.</p>
+						}
+					</div>
+				</div>
 
-                                                        <span>لا توجد مرفقات</span>
+				<div class="row mt-3">
+					<div class="col-12 text-center flex justify-center ">
+						@if (!currentUrl.Contains("GetArchivedTransactions"))
+						{
+							@if (Model.status != "منهاة")
+							{
+								@using (Html.BeginForm("UpdateStatus", "Transactions", FormMethod.Post, new { id = $"updateStatusForm-{Model.transaction_id}", @class = "d-inline" }))
+								{
+									@Html.AntiForgeryToken()
+									<button type="button" class="btn btn-danger " data-toggle="modal" data-target="#confirmEndModal-@Model.transaction_id">
+										إنهاء المعاملة
+									</button>
+									@Html.HiddenFor(model => model.transaction_id)
+									<button type="button" class="btn btn-primary ml-8" data-toggle="modal" data-target="#confirmAcceptModal-@Model.transaction_id">
+										قبول المعاملة
+									</button>
+								}
 
-                                                    </td> <!-- Display files here -->
-                                                </tr>
-                                                index++;
-                                            }
-                                        }
-                                    </tbody>
-                                </table>
-                            </div>
-                        }
-                        else
-                        {
-                            <p>لا توجد إحالات لهذه المعاملة.</p>
-                        }
-                    </div>
-                </div>
-                @if (!currentUrl.Contains("GetArchivedTransactions"))
-                {
-                    <div id="referForm-@Model.transaction_id" class="mt-4">
-                        <h5>إحالة المعاملة #@Model.transaction_id</h5>
-                        @using (Html.BeginForm("ReferTransaction", "CustomerServiceManager", FormMethod.Post, new { id = $"referTransactionForm-{Model.transaction_id}", enctype = "multipart/form-data" }))
-                        {
-                            @Html.AntiForgeryToken()
-                            @Html.HiddenFor(model => model.transaction_id)
-                            <div class="form-group">
-                                <label for="department_id">القسم:</label>
-                                <select id="department_id" name="department_id" class="form-control" required>
-                                    <option value="">اختر القسم</option>
-                                    @foreach (var dept in ViewBag.Departments)
-                                    {
-                                        <option value="@dept.Value">@dept.Text</option>
-                                    }
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="to_employee_id">إحالة إلى الموظف:</label>
-                                <select name="to_employee_id" id="to_employee_id" class="form-control" required>
-                                    <option value="">اختر الموظف</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="comments">توجيهات الإحالة:</label>
-                                <textarea name="comments" id="comments" class="form-control" required></textarea>
-                            </div>
-                            <div class="form-group">
-                                <label for="fileInput" class="block text-gray-700">مرفقات الإحالة</label>
-                                <input type="file" id="fileInput" name="files" accept=".pdf,.xls,.xlsx,.doc,.docx" multiple class="block mt-2" />
-                                <ul id="fileList" class="mt-2 flex flex-wrap gap-2 p-2 border border-gray-300 rounded-lg shadow-sm"></ul>
-                            </div>
-                            <button type="submit" class="btn btn-primary">تأكيد الإحالة</button>
-                            @using (Html.BeginForm("UpdateStatus", "CustomerServiceManager", FormMethod.Post, new { id = $"updateStatusForm-{Model.transaction_id}", @class = "d-inline" }))
-                            {
-                                @Html.AntiForgeryToken()
-                                <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#confirmEndModal-@Model.transaction_id">
-                                    إنهاء المعاملة
-                                </button>
-                                @Html.HiddenFor(model => model.transaction_id)
-                                <button type="button" class="btn btn-dark" data-dismiss="modal">إخفاء</button>
-                            }
-                        }
-                    </div>
-                }
-                else
-                {
-                    <button type="button" class="btn btn-dark" data-dismiss="modal">إخفاء</button>
-                }
-            </div>
-        </div>
-    </div>
+								<button type="button" class="btn btn-primary mx-4" id="toggleReferForm-@Model.transaction_id">
+									إحالة المعاملة
+								</button>
+							}
+						}
+						<button data-dismiss="modal" type="button" class="px-4 py-2 text-sm font-medium text-white bg-gray-500 rounded-md hover:bg-gray-600 focus:outline-none focus:ring-4 focus:ring-gray-300 transition duration-300">
+							إخفاء
+						</button>
+					</div>
+
+				</div>
+
+				<!-- Referral form (initially hidden) -->
+				<div id="referForm-@Model.transaction_id" class="mt-4" style="display: none;">
+					<h5>إحالة المعاملة #@Model.transaction_id</h5>
+					@using (Html.BeginForm("ReferTransaction", "CustomerServiceManager", FormMethod.Post, new { id = $"referTransactionForm-{Model.transaction_id}" }))
+					{
+						@Html.AntiForgeryToken()
+						@Html.HiddenFor(model => model.transaction_id)
+						<div class="form-group">
+							<label for="department_id">القسم:</label>
+							<select id="department_id" name="department_id" class="form-control" required>
+								<option value="">اختر القسم</option>
+								@foreach (var dept in ViewBag.Departments)
+								{
+									<option value="@dept.Value">@dept.Text</option>
+								}
+							</select>
+						</div>
+						<div class="form-group">
+							<label for="to_employee_id">إحالة إلى الموظف:</label>
+							<select name="to_employee_id" id="to_employee_id" class="form-control" required>
+								<option value="">اختر الموظف</option>
+							</select>
+						</div>
+						<div class="form-group">
+							<label for="comments">توجيهات الإحالة:</label>
+							<textarea name="comments" id="comments" class="form-control" required></textarea>
+						</div>
+						<button type="submit" class="btn btn-primary">تأكيد الإحالة</button>
+					}
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
+
 
 <!-- Confirmation Modal -->
 <div class="modal fade" id="confirmEndModal-@Model.transaction_id" tabindex="-1" role="dialog" aria-labelledby="confirmEndLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="confirmEndLabel">تأكيد إنهاء المعاملة</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            @using (Html.BeginForm("UpdateStatus", "CustomerServiceManager", FormMethod.Post, new { id = $"confirmEndForm-{Model.transaction_id}" }))
-            {
-                <div class="modal-body">
-                    <label for="TerminationCause">سبب الإنهاء</label>
-                    <textarea name="TerminationCause" id="TerminationCause" class="form-control" required></textarea>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">إلغاء</button>
-                    @Html.AntiForgeryToken()
-                    @Html.HiddenFor(model => model.transaction_id)
-                    <button type="submit" class="btn btn-primary">تأكيد</button>
-                </div>
-            }
-        </div>
-    </div>
+
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="confirmEndLabel">تأكيد إنهاء المعاملة</h5>
+			</div>
+			<div class="modal-body">
+				<div class="form-group">
+					<label for="endReason">سبب الإنهاء:</label>
+					<textarea id="endReason-@Model.transaction_id" name="endReason" class="form-control mb-14" required></textarea>
+				</div>
+			</div>
+			<div class="modal-footer flex pt-14 justify-center">
+				@using (Html.BeginForm("UpdateTransactionsStatus", "CustomerServiceManager", FormMethod.Post, new { id = $"updateStatusFormConfirm-{Model.transaction_id}" }))
+				{
+					@Html.AntiForgeryToken()
+					@Html.HiddenFor(model => model.transaction_id)
+					<button type="submit" class="btn btn-danger" onclick="addReasonToForm(@Model.transaction_id)">نعم، إنهاء</button>
+				}
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">الغاء</button>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="modal fade" id="confirmAcceptModal-@Model.transaction_id" tabindex="-1" role="dialog" aria-labelledby="confirmEndLabel" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="confirmEndLabel">تأكيد قبول المعاملة</h5>
+			</div>
+
+			<div class="modal-footer flex pt-14 justify-center">
+				@using (Html.BeginForm("ApproveTransaction", "CustomerServiceManager", FormMethod.Post, new { id = $"updateStatusFormConfirm-{Model.transaction_id}" }))
+				{
+					@Html.AntiForgeryToken()
+					@Html.HiddenFor(model => model.transaction_id)
+					<button type="submit" class="btn btn-primary" onclick="addReasonToForm(@Model.transaction_id)">نعم، قبول</button>
+				}
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">الغاء</button>
+			</div>
+		</div>
+	</div>
 </div>
 
-<!-- Modal Script and Form -->
 <script>
-    $(document).ready(function () {
-        // Department selection handler for dynamic employee dropdown population
-        $(document).off('change', '#department_id').on('change', '#department_id', function () {
-            var departmentId = $(this).val();
-            var employeeDropdown = $(this).closest('form').find('#to_employee_id');
-            employeeDropdown.empty();
-            employeeDropdown.append('<option value="">اختر الموظف</option>');
+	function addReasonToForm(transactionId) {
+		var reason = document.getElementById('endReason-' + transactionId).value;
+		var form = document.getElementById('updateStatusFormConfirm-' + transactionId);
+		var input = document.createElement('input');
+		input.type = 'hidden';
+		input.name = 'reason';
+		input.value = reason;
+		form.appendChild(input);
+	}
+</script>
+<script>
+	$(document).ready(function () {
+		$("#toggleReferForm-@Model.transaction_id").click(function () {
+			$("#referForm-@Model.transaction_id").toggle();
+		});
+	});
+</script>
+<script>
+	$("#department_id").change(function () {
+		var departmentId = $(this).val();
+		var employeeDropdown = $("#to_employee_id");
+		employeeDropdown.empty();
+		employeeDropdown.append('<option value="">اختر الموظف</option>');
 
-            if (departmentId) {
-                $.ajax({
-                    url: '@Url.Action("GetEmployeesByDepartment", "CustomerServiceManager")',
-                    type: 'GET',
-                    data: { departmentId: departmentId },
-                    success: function (data) {
-                        if (Array.isArray(data) && data.length > 0) {
-                            $.each(data, function (index, item) {
-                                employeeDropdown.append($('<option></option>')
-                                    .val(item.employee_id)
-                                    .text(item.name + ' - ' + item.position));
-                            });
-                        } else {
-                            employeeDropdown.append($('<option></option>').val('').text(data.message || 'لا يوجد موظفين في هذا القسم'));
-                        }
-                    },
-                    error: function (xhr, status, error) {
-                        console.error("Error fetching employees:", error);
-                        employeeDropdown.append($('<option></option>').val('').text('حدث خطأ أثناء جلب الموظفين'));
-                    }
-                });
-            }
-        });
+		if (departmentId) {
+			console.log("Selected department ID:", departmentId);
+			$.ajax({
+				url: '@Url.Action("GetEmployeesByDepartment", "CustomerServiceManager")',
+				type: 'GET',
+				data: { departmentId: departmentId },
+				success: function (data) {
+					console.log("Received data:", data);
+					if (data && data.length > 0) {
+						$.each(data, function (index, item) {
+							employeeDropdown.append($('<option></option>')
+								.val(item.employee_id)
+								.text(item.name + ' - ' + item.position));
+						});
+					} else {
+						employeeDropdown.append($('<option></option>').val('').text('لا يوجد موظفين في هذا القسم'));
+					}
+				},
+				error: function (xhr, status, error) {
+					console.error("Error fetching employees:", error);
+					console.error("Status:", status);
+					console.error("Response:", xhr.responseText);
+					employeeDropdown.append($('<option></option>').val('').text('حدث خطأ أثناء جلب الموظفين'));
+				}
+			});
+		}
+	});
+</script>
+<script>
+	$("#department_id").off('change').on('change', function () {
+		var departmentId = $(this).val();
+		var employeeDropdown = $("#to_employee_id");
+		employeeDropdown.empty();
+		employeeDropdown.append('<option value="">اختر الموظف</option>');
 
-        // Fetch department name when modal is shown
-        $(document).on('shown.bs.modal', '[id^=detailModal]', function () {
-            var transactionId = $(this).data('transaction-id');
-            var departmentId = $(this).find('#department_id').val();
+		if (departmentId) {
+			console.log("Selected department ID:", departmentId);
+			$.ajax({
+				url: '@Url.Action("GetEmployeesByDepartment", "Employees")',
+				type: 'GET',
+				data: { departmentId: departmentId },
+				success: function (data) {
+					console.log("Received data:", data);
 
-            if (departmentId) {
-                $.ajax({
-                    url: '@Url.Action("GetDepartmentName", "CustomerServiceManager")',
-                    type: 'GET',
-                    data: { departmentId: departmentId },
-                    success: function (data) {
-                        $('#department-name-' + transactionId).text(data);
-                    },
-                    error: function (xhr, status, error) {
-                        console.error("Error fetching department name:", error);
-                        $('#department-name-' + transactionId).text("غير معروف");
-                    }
-                });
-            }
-        });
+					if (data && data.length > 0) {
+						$.each(data, function (index, item) {
+							employeeDropdown.append($('<option></option>')
+								.val(item.employee_id)
+								.text(item.name + ' - ' + item.position));
+						});
+					} else {
+						employeeDropdown.append($('<option></option>').val('').text('لا يوجد موظفين في هذا القسم'));
+					}
+				},
+				error: function (xhr, status, error) {
+					console.error("Error fetching employees:", error);
+					console.error("Status:", status);
+					console.error("Response:", xhr.responseText);
+					employeeDropdown.append($('<option></option>').val('').text('حدث خطأ أثناء جلب الموظفين'));
+				}
+			});
+		}
+	});
 
-        // File input management
-        $('#fileInput').on('change', function () {
-            var fileList = $('#fileList');
-            fileList.empty(); // Clear previous file list
+</script>
+<script>
+	$(document).ready(function () {
+		var departmentId = @Model.department_id;
+		var transactionId = @Model.transaction_id;
 
-            for (var i = 0; i < this.files.length; i++) {
-                var file = this.files[i];
-                var listItem = $('<li></li>')
-                    .addClass('flex items-center p-2 bg-white border border-gray-300 rounded-md shadow-sm');
-                var fileName = $('<span></span>').text(file.name).addClass('mr-2');
-                var removeButton = $('<button type="button" class="bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center">X</button>');
-
-                removeButton.on('click', function () {
-                    var listItem = $(this).parent();
-                    var fileName = listItem.find('span').text().trim();
-
-                    // Remove file from file input
-                    var dataTransfer = new DataTransfer();
-                    var input = $('#fileInput')[0];
-
-                    for (var i = 0; i < input.files.length; i++) {
-                        if (input.files[i].name !== fileName) {
-                            dataTransfer.items.add(input.files[i]);
-                        }
-                    }
-
-                    input.files = dataTransfer.files;
-
-                    listItem.remove();
-                });
-
-                listItem.append(fileName).append(removeButton);
-                fileList.append(listItem);
-            }
-        });
-
-        // Validate file types on form submission
-        $('#referTransactionForm').on('submit', function (e) {
-            var fileInput = document.getElementById('fileInput');
-            var allowedExtensions = /(\.pdf|\.xls|\.xlsx|\.doc|\.docx)$/i;
-            var fileError = document.getElementById('fileError');
-            fileError.style.display = 'none';
-
-            if (fileInput.files.length > 0) {
-                for (var i = 0; i < fileInput.files.length; i++) {
-                    var file = fileInput.files[i];
-                    if (!allowedExtensions.exec(file.name)) {
-                        fileError.style.display = 'block';
-                        e.preventDefault();
-                        return;
-                    }
-                }
-            }
-        });
-    });
+		$.ajax({
+			url: '@Url.Action("GetDepartmentName", "CustomerServiceManager")',
+			type: 'GET',
+			data: { departmentId: departmentId },
+			success: function (data) {
+				$('#department-name-' + transactionId).text(data);
+			},
+			error: function (xhr, status, error) {
+				console.error("Error fetching department name:", error);
+				$('#department-name-' + transactionId).text("غير معروف");
+			}
+		});
+	});
 </script>

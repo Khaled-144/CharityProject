@@ -56,6 +56,22 @@
 </ItemGroup>
 
 <ItemGroup>
+  <None Include="Views\CEO\Index.cshtml" />
+  <None Include="Views\CEO\ManageEmpPer.cshtml" />
+  <None Include="Views\CEO\Transactions.cshtml" />
+  <None Include="Views\CEO\_createNewTransaction.cshtml" />
+  <None Include="Views\CEO\_Create_Holiday.cshtml" />
+  <None Include="Views\CEO\_Create_Letter.cshtml" />
+  <None Include="Views\CEO\_GetAllCharters.cshtml" />
+  <None Include="Views\CEO\_getAllHolidays.cshtml" />
+  <None Include="Views\CEO\_getAllLetters.cshtml" />
+  <None Include="Views\CEO\_getAllTransactions.cshtml" />
+  <None Include="Views\CEO\_NoResults.cshtml" />
+  <None Include="Views\CEO\_NothingNew.cshtml" />
+  <None Include="Views\CEO\_ShowChartersDetail.cshtml" />
+  <None Include="Views\CEO\_ShowHolidayDetail.cshtml" />
+  <None Include="Views\CEO\_ShowLetterDetail.cshtml" />
+  <None Include="Views\CEO\_showTransactionDetail.cshtml" />
   <None Include="Views\FinancialSustainabilityDevelopmentManager\Index.cshtml" />
   <None Include="Views\FinancialSustainabilityDevelopmentManager\Transactions.cshtml" />
   <None Include="Views\FinancialSustainabilityDevelopmentManager\_createNewTransaction.cshtml" />

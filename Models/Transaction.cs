@@ -22,6 +22,8 @@
         [ForeignKey("from_emp_id")]
         public virtual employee_details Employee_detail { get; set; }
 
+
+
         public string? Confidentiality { get; set; }
         public string? Urgency { get; set; }
         public string? Importance { get; set; }
@@ -32,6 +34,7 @@
         //public virtual ICollection<Referral> Referrals { get; set; }
         public ICollection<Referral> Referrals { get; set; }
 
+       
     }
 
 }

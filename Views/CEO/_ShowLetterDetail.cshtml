@@ -1,4 +1,6 @@
-﻿@model CharityProject.Models.letter
+﻿
+
+@model CharityProject.Models.letter
 
 @{
     ViewData["Title"] = "PartialDetails2";
@@ -13,7 +15,7 @@
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
-
+               
                 <div class="text-right" dir="rtl">
                     <dl class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="bg-gray-100 p-3 rounded">
@@ -21,7 +23,7 @@
                             <dd>@Html.DisplayFor(model => model.employee.name)</dd>
                         </div>
                         <div class="bg-gray-100 p-3 rounded">
-                            <dt class="font-bold mb-1">العنوان</dt>
+                           
                             <dd>@Html.DisplayFor(model => model.title)</dd>
                         </div>
                         <div class="bg-gray-100 p-3 rounded">
@@ -50,7 +52,7 @@
                             <dt class="font-bold mb-1">الوصف</dt>
                             <dd>
                             <dd>@Html.DisplayFor(model => model.description)</dd>
-
+                              
                             </dd>
                         </div>
                     </dl>
