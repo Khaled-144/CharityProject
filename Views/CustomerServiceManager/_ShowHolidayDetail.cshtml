@@ -111,6 +111,8 @@
                             </dd>
                         </dl>
                     </div>
+
+                    @if (Model.status == "مرسلة") { 
                     <div class="flex justify-center space-x-2">
                         <div class="col-12 text-center">
 
@@ -120,11 +122,13 @@
                             <button type="button" class="btn btn-success ml-8" data-toggle="modal" data-target="#confirmAcceptModal-@Model.holidays_history_id">
                                 قبول الطلب
                             </button>
-
+                    
 
                             <button type="button" class="btn btn-dark" data-dismiss="modal">إخفاء</button>
                         </div>
+                    
                     </div>
+                    }
                 </div>
             </div>
         </div>
