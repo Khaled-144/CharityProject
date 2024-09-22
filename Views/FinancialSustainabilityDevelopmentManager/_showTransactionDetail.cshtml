@@ -48,6 +48,11 @@
                             <dd class="col-sm-8">@Html.DisplayFor(model => model.close_date)</dd>
                             <dt class="col-sm-4">الحالة</dt>
                             <dd class="col-sm-8">@Html.DisplayFor(model => model.status)</dd>
+                            @if (Model.status == "منهاة")
+                            {
+                                <dt class="col-sm-4">سبب الإنهاء</dt>
+                                <dd class="col-sm-8">@Html.DisplayFor(model => model.TerminationCause)</dd>
+                            }
                             <dt class="col-sm-4">المرفقات</dt>
                             <dd class="col-sm-8">
                                 @if (fileNames.Any())
@@ -208,7 +213,7 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            @using (Html.BeginForm("UpdateStatus", "Transactions", FormMethod.Post, new { id = $"confirmEndForm-{Model.transaction_id}" }))
+            @using (Html.BeginForm("UpdateTransactionStatus", "FinancialSustainabilityDevelopmentManager", FormMethod.Post, new { id = $"confirmEndForm-{Model.transaction_id}" }))
             {
                 <div class="modal-body">
                     <label for="TerminationCause">سبب الإنهاء</label>

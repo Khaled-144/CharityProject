@@ -694,6 +694,25 @@ namespace CharityProject.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Transactions));
         }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateTransactionStatus(int transaction_id, string TerminationCause)
+        {
+            var transaction = await _context.Transactions.FindAsync(transaction_id);
+            if (transaction == null)
+            {
+                return NotFound();
+            }
+
+            // Update the status to "Closed"
+            transaction.status = "منهاة";
+            transaction.close_date = DateTime.Now;
+            transaction.TerminationCause = TerminationCause;
+            // Save changes to the database
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Transactions));
+        }
 
 
         [HttpPost]

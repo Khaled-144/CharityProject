@@ -1,384 +1,350 @@
 ﻿@model CharityProject.Models.HolidayHistory
 <head>
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Form with Conditional Employee Div</title>
-	<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>طلب إجازة جديد</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f0f4f8;
+            font-family: 'Amiri', serif;
+        }
 
+        .modal-content {
+            background-color: #ffffff;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+       
+
+        .form-control, select {
+            border-radius: 8px;
+            border: 1px solid #cbd5e0;
+            transition: all 0.3s ease;
+        }
+
+            .form-control:focus, select:focus {
+                border-color: #3498db;
+                box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.25);
+            }
+
+        .btn-primary {
+            background-color: #3498db;
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+            .btn-primary:hover {
+                background-color: #2980b9;
+                transform: translateY(-2px);
+            }
+
+        .counter-btn {
+            background-color: #ecf0f1;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            font-size: 18px;
+            line-height: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+            .counter-btn:hover {
+                background-color: #bdc3c7;
+            }
+
+        #holidayBalance {
+            background-color: #2ecc71;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        .balance-zero {
+            background-color: #e74c3c;
+        }
+    </style>
 </head>
 
 <div class="modal fade" id="insertHolidayModal" role="dialog">
-	<div class="modal-dialog modal-xl">
-		<div class="modal-content ">
-			<div class="modal-header flex justify-center items-center ">
-				<button type="button" class="btn btn-danger" data-dismiss="modal">X</button>
-				<h4 class="modal-title text-center w-full">إنشاء طلب جديد</h4>
-			</div>
-			<div class="modal-body align-content-center">
-				<div class="col-md text-right" dir="rtl">
-					<form asp-action="Create_Holiday" method="post">
-						<div asp-validation-summary="ModelOnly" class="text-danger"></div>
-						<div class="mb-4">
-							<label for="subject" class="block text-gray-700 font-bold mb-2">موضوع الإجازة</label>
-							<input type="text" id="subject" name="title" asp-for="title" required class="border border-gray-400 rounded-md p-2 w-full" placeholder="أدخل موضوع الإجازة">
-						</div>
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header flex justify-between items-center">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title text-center w-full">إنشاء طلب إجازة جديد</h4>
+            </div>
+            <div class="modal-body p-6">
+                <div class="text-right" dir="rtl">
+                    <form asp-action="Create_Holiday" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-						<div class="mb-4 flex items-center">
-							<label for="holidayType" class="text-gray-700 font-bold ml-2">نوع الإجازة</label>
-							<select id="holidayType" required name="holiday_id" class="border border-gray-400 rounded-md p-2 w-28 px-10" onchange="handleHolidayTypeChange()">
-								<option disabled selected>اختر نوع الإجازة</option>
-								<option value="1">مرضية</option>
-								<option value="2">سنوية</option>
-								<option value="4">اضطرارية</option>
-								<option value="3">استئذان</option>
-							</select>
-							<label id="holidayBalance" class="text-gray-700 font-bold mr-5">الرصيد المتبقي: </label>
-						</div>
-						<div id="normal-div" class="mb-4 flex items-center">
-							<label for="counter" class="text-gray-700 font-bold mr-4" id="counterLabel">المدة</label>
-							<div class="flex px-4">
-								<button type="button" onclick="decrementCounter()" class="text-2xl">-</button>&nbsp;
-								<input required type="number" id="counter" asp-for="duration" name="duration" class="w-12 p-2" readonly>&nbsp;
-								<button type="button" onclick="incrementCounter()" class="text-2xl">+</button>
-							</div>
-							<span id="from-label" class="text-gray-700 font-bold mx-2">من</span>
-							<input required type="date" id="start_date" asp-for="start_date" name="start_date" class="border border-gray-400 rounded-md p-2 w-1/4" onchange="updateDuration()"><br />
-							<span id="to-label" class="text-gray-700 mr-4 ml-2 font-bold">إلى</span>
-							<input required type="date" id="end_date" asp-for="end_date" name="end_date" class="border border-gray-400 rounded-md p-2 w-1/4" onchange="updateDuration()">
-						</div>
+                        <div class="mb-4">
+                            <label for="subject" class="block text-gray-700 font-bold mb-2">موضوع الإجازة</label>
+                            <input type="text" id="subject" name="title" asp-for="title" required class="form-control" placeholder="أدخل موضوع الإجازة">
+                        </div>
 
-						<div class="mb-4">
-							<label for="notes" class="block text-gray-700 font-bold mb-2">الملاحظات</label>
-							<input type="text" id="notes" name="description" asp-for="description" class="border border-gray-400 rounded-md p-2 w-full " placeholder="أدخل الملاحظات"></input>
-						</div>
+                        <div class="mb-4 flex items-center">
+                            <label for="holidayType" class="text-gray-700 font-bold ml-2">نوع الإجازة</label>
+                            <select id="holidayType" required name="holiday_id" class="form-control w-1/3" onchange="handleHolidayTypeChange()">
+                                <option disabled selected>اختر نوع الإجازة</option>
+                                @if (ViewData["HolidayTypes"] != null)
+                                {
+                                    var holidayTypes = ViewData["HolidayTypes"] as List<Holiday>;
+                                    foreach (var holiday in holidayTypes)
+                                    {
+                                        <option value="@holiday.holiday_id">@holiday.type</option>
+                                    }
+                                }
+                                else
+                                {
+                                    <option disabled>لا توجد أنواع إجازة متاحة</option>
+                                }
+                            </select>
+                            <span id="holidayBalance" class="ml-4">الرصيد المتبقي: ---</span>
+                        </div>
 
-						<div class="mb-4">
-							<label for="attachments" class="block text-gray-700 font-bold mb-2">المرفقات</label>
-							<div class="flex">
-								<input type="file"  id="attachment" name="files" class="border border-gray-400 rounded-md p-2 w-full">
-							</div>
-						</div>
-						<div class="flex justify-center ">
-							<button id="submitButton" class="bg-primaryButtons hover:bg-primaryButtons focus:ring-4 focus:outline-none focus:ring-emerald-300 dark:focus:ring-emerald-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 text-white font-bold py-2 px-4">رفع الطلب</button>
-						</div>
-					</form>
-				</div>
-			</div>
-		</div>
-	</div>
+                        <div id="normal-div" class="mb-4">
+                            <div class="flex items-center mb-2">
+                                <label for="counter" class="text-gray-700 font-bold mr-4" id="counterLabel">المدة</label>
+                                <div class="flex items-center">
+                                    <button type="button" onclick="decrementCounter()" class="counter-btn">-</button>
+                                    <input required type="number" id="counter" asp-for="duration" name="duration" class="form-control mx-2 w-16 text-center" readonly>
+                                    <button type="button" onclick="incrementCounter()" class="counter-btn">+</button>
+                                </div>
+                            </div>
+                            <div class="flex items-center">
+                                <span id="from-label" class="text-gray-700 font-bold mx-2">من</span>
+                                <input required type="date" id="start_date" asp-for="start_date" name="start_date" class="form-control w-1/4" onchange="updateDuration()">
+                                <span id="to-label" class="text-gray-700 mx-2 font-bold">إلى</span>
+                                <input required type="date" id="end_date" asp-for="end_date" name="end_date" class="form-control w-1/4" onchange="updateDuration()">
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="notes" class="block text-gray-700 font-bold mb-2">الملاحظات</label>
+                            <textarea id="notes" name="description" asp-for="description" class="form-control" rows="3" placeholder="أدخل الملاحظات"></textarea>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="attachments" class="block text-gray-700 font-bold mb-2">المرفقات</label>
+                            <div class="custom-file">
+                                <input type="file" id="attachment" name="files" class="custom-file-input">
+                                <label class="custom-file-label" for="attachment">اختر الملف</label>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-center">
+                            <button id="submitButton" class="btn btn-primary px-6 py-2">رفع الطلب</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-@* <script>
-	document.addEventListener("DOMContentLoaded", function () {
-		let currentDate = new Date();
-		document.getElementById('start_date').value = currentDate.toISOString().split('T')[0];
-		document.getElementById('end_date').value = currentDate.toISOString().split('T')[0];
-		fetchRemainingHolidayBalance(); // Fetch balance when page loads
-	});
 
-	function handleHolidayTypeChange() {
-		var holidayType = document.getElementById('holidayType').value;
-		var fileInput = document.getElementById('attachment');
-		var counterInput = document.getElementById('counter');
-		var startDateInput = document.getElementById('start_date');
-		var endDateInput = document.getElementById('end_date');
-		var fromLabel = document.getElementById('from-label');
-		var toLabel = document.getElementById('to-label');
-
-		// Handle the attachment requirement based on holiday type
-		if (holidayType === '1') { // Assuming '1' is for "مرضية"
-			fileInput.required = true;
-		} else {
-			fileInput.required = false;
-		}
-
-		// Reset counter value
-		counterInput.value = '0';
-
-		// Display/Hide fields based on holiday type
-		if (holidayType === '3') { // Assuming '4' is for "استئذان"
-			startDateInput.style.display = 'none';
-			endDateInput.style.display = 'none';
-			fromLabel.style.display = 'none';
-			toLabel.style.display = 'none';
-			document.getElementById('counterLabel').textContent = 'المدة بالساعات';
-			counterInput.setAttribute('min', '1');
-			counterInput.setAttribute('max', '2'); // Max value for "استئذان"
-		} else {
-			startDateInput.style.display = 'inline';
-			endDateInput.style.display = 'inline';
-			fromLabel.style.display = 'inline';
-			toLabel.style.display = 'inline';
-			document.getElementById('counterLabel').textContent = 'المدة بالأيام';
-
-			// Fetch and set the max value based on the selected holiday type
-			fetchRemainingHolidayBalance();
-		}
-	}
-
-	function fetchRemainingHolidayBalance() {
-		var holidayTypeId = document.getElementById('holidayType').value;
-		console.log(`Fetching balance for holidayTypeId: ${holidayTypeId}`);
-
-		fetch(`/CustomerServiceManager/GetRemainingHolidayBalance?holidayId=${holidayTypeId}`)
-			.then(response => {
-				console.log(`Response status: ${response.status}`);
-				if (!response.ok) {
-					throw new Error('Network response was not ok');
-				}
-				return response.json();
-			})
-			.then(data => {
-				console.log(`Received data: ${data}`);
-				var counterInput = document.getElementById('counter');
-				if (typeof data === 'number' && data >= 0) {
-					document.getElementById('holidayBalance').textContent = `الرصيد المتبقي: ${data}`;
-					counterInput.setAttribute('max', data);
-					validateForm(); // Validate the form whenever balance is updated
-				} else {
-					console.error('Unexpected data format:', data);
-					document.getElementById('holidayBalance').textContent = 'الرصيد المتبقي: غير معروف';
-					counterInput.removeAttribute('max');
-				}
-			})
-			.catch(error => {
-				console.error('Error:', error);
-				document.getElementById('holidayBalance').textContent = 'الرصيد المتبقي: غير معروف';
-				document.getElementById('counter').removeAttribute('max');
-			});
-	}
-
-	function incrementCounter() {
-		const counterInput = document.getElementById('counter');
-		const max = parseInt(counterInput.getAttribute('max'));
-
-		if (max === null || parseInt(counterInput.value) < max) {
-			counterInput.value = parseInt(counterInput.value) + 1;
-			updateEndDate();
-			validateForm(); // Validate the form whenever counter is incremented
-		}
-	}
-
-	function decrementCounter() {
-		const counterInput = document.getElementById('counter');
-		if (parseInt(counterInput.value) > 1) {
-			counterInput.value = parseInt(counterInput.value) - 1;
-			updateEndDate();
-			validateForm(); // Validate the form whenever counter is decremented
-		}
-	}
-
-	function updateDuration() {
-		const holidayType = document.getElementById('holidayType').value;
-		const startDateInput = document.getElementById('start_date');
-		const endDateInput = document.getElementById('end_date');
-		const counterInput = document.getElementById('counter');
-
-		if (holidayType != 3) {
-			const startDate = new Date(startDateInput.value);
-			const endDate = new Date(endDateInput.value);
-			const duration = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
-			counterInput.value = duration;
-			validateForm(); // Validate the form whenever duration is updated
-		}
-	}
-
-	function updateEndDate() {
-		const startDateInput = document.getElementById('start_date');
-		const endDateInput = document.getElementById('end_date');
-		const counterInput = document.getElementById('counter');
-
-		if (startDateInput.value && document.getElementById('holidayType').value != 3) {
-			const startDate = new Date(startDateInput.value);
-			const durationDays = parseInt(counterInput.value);
-			startDate.setDate(startDate.getDate() + durationDays);
-			endDateInput.value = startDate.toISOString().split('T')[0];
-		}
-	}
-
-	function validateForm() {
-		const counterInput = document.getElementById('counter');
-		const holidayBalanceText = document.getElementById('holidayBalance').textContent.replace('الرصيد المتبقي: ', '');
-		const holidayBalance = parseInt(holidayBalanceText.match(/\d+/)); // Extract number
-		const submitButton = document.getElementById("submitButton")
-		const duration = parseInt(counterInput.value);
-
-		console.log('Duration:', duration); // Debugging
-		console.log('Holiday Balance:', holidayBalance); // Debugging
-
-		if (duration <= 0 || holidayBalance <= 0 || isNaN(holidayBalance)) {
-			submitButton.disabled = true;
-			submitButton.classList.add('bg-gray-400');
-			submitButton.classList.remove('bg-primaryButtons');
-		} else {
-			submitButton.disabled = false;
-			submitButton.classList.remove('bg-gray-400');
-			submitButton.classList.add('bg-primaryButtons');
-		}
-	}
-
-</script> *@
 <script>
-	document.addEventListener("DOMContentLoaded", function () {
-		let currentDate = new Date();
-		document.getElementById('start_date').value = currentDate.toISOString().split('T')[0];
-		document.getElementById('end_date').value = currentDate.toISOString().split('T')[0];
-		fetchRemainingHolidayBalance(); // Fetch balance when page loads
-	});
+    document.addEventListener("DOMContentLoaded", function () {
+        let currentDate = new Date();
+        document.getElementById('start_date').value = currentDate.toISOString().split('T')[0];
+        document.getElementById('end_date').value = currentDate.toISOString().split('T')[0];
+        fetchRemainingHolidayBalance();
+    });
 
-	function handleHolidayTypeChange() {
-		var holidayType = document.getElementById('holidayType').value;
-		var fileInput = document.getElementById('attachment');
-		var counterInput = document.getElementById('counter');
-		var startDateInput = document.getElementById('start_date');
-		var endDateInput = document.getElementById('end_date');
-		var fromLabel = document.getElementById('from-label');
-		var toLabel = document.getElementById('to-label');
+    function handleHolidayTypeChange() {
+        var holidayType = $('#holidayType option:selected').text();
+        var fileInput = document.getElementById('attachment');
+        var counterInput = document.getElementById('counter');
+        var startDateInput = document.getElementById('start_date');
+        var endDateInput = document.getElementById('end_date');
+        var fromLabel = document.getElementById('from-label');
+        var toLabel = document.getElementById('to-label');
 
-		// Handle the attachment requirement based on holiday type
-		if (holidayType === '1') { // Assuming '1' is for "مرضية"
-			fileInput.required = true;
-		} else {
-			fileInput.required = false;
-		}
+        if (holidayType === 'مرضية') {
+            fileInput.required = true;
+        } else {
+            fileInput.required = false;
+        }
 
-		// Reset counter value
-		counterInput.value = '0';
+        counterInput.value = '1';
 
-		// Display/Hide fields based on holiday type
-		if (holidayType === '3') { // Corrected: holidayType check for "استئذان" was 4, changed to 3
-			startDateInput.style.display = 'none';
-			endDateInput.style.display = 'none';
-			fromLabel.style.display = 'none';
-			toLabel.style.display = 'none';
-			document.getElementById('counterLabel').textContent = 'المدة بالساعات';
-			counterInput.setAttribute('min', '1');
-			counterInput.setAttribute('max', '2'); // Max value for "استئذان"
-			// Corrected: Call fetchRemainingHolidayBalance for "استئذان"
-			fetchRemainingHolidayBalance(); // Ensure balance is fetched for "استئذان"
-		} else {
-			startDateInput.style.display = 'inline';
-			endDateInput.style.display = 'inline';
-			fromLabel.style.display = 'inline';
-			toLabel.style.display = 'inline';
-			document.getElementById('counterLabel').textContent = 'المدة بالأيام';
+        if (holidayType === 'استئذان') {
+            startDateInput.style.display = 'none';
+            endDateInput.style.display = 'none';
+            fromLabel.style.display = 'none';
+            toLabel.style.display = 'none';
+            document.getElementById('counterLabel').textContent = 'المدة بالساعات';
+            counterInput.setAttribute('min', '1');
+            counterInput.setAttribute('max', '2'); // Set max to 2 for استئذان
+        } else if (holidayType === 'سنوية') {
+            startDateInput.style.display = 'inline';
+            endDateInput.style.display = 'inline';
+            fromLabel.style.display = 'inline';
+            toLabel.style.display = 'inline';
+            document.getElementById('counterLabel').textContent = 'المدة بالأيام';
 
-			// Fetch and set the max value based on the selected holiday type
-			fetchRemainingHolidayBalance();
-		}
-	}
+            // Set the end date to 3 days after the start date
+            let startDate = new Date(startDateInput.value);
+            startDate.setDate(startDate.getDate() + 2);
+            endDateInput.value = startDate.toISOString().split('T')[0];
+        } else {
+            startDateInput.style.display = 'inline';
+            endDateInput.style.display = 'inline';
+            fromLabel.style.display = 'inline';
+            toLabel.style.display = 'inline';
+            document.getElementById('counterLabel').textContent = 'المدة بالأيام';
 
-	function fetchRemainingHolidayBalance() {
-		var holidayTypeId = document.getElementById('holidayType').value;
-		console.log(`Fetching balance for holidayTypeId: ${holidayTypeId}`);
+            let currentDate = new Date();
+            startDateInput.value = currentDate.toISOString().split('T')[0];
+            endDateInput.value = currentDate.toISOString().split('T')[0];
+        }
 
-		fetch(`/CustomerServiceManager/GetRemainingHolidayBalance?holidayId=${holidayTypeId}`)
-			.then(response => {
-				console.log(`Response status: ${response.status}`);
-				if (!response.ok) {
-					throw new Error('Network response was not ok');
-				}
-				return response.json();
-			})
-			.then(data => {
-				console.log(`Received data: ${data}`);
-				var counterInput = document.getElementById('counter');
-				if (typeof data === 'number' && data >= 0) {
-					document.getElementById('holidayBalance').textContent = `الرصيد المتبقي: ${data}`;
-					counterInput.setAttribute('max', data);
-					validateForm(); // Validate the form whenever balance is updated
-				} else {
-					console.error('Unexpected data format:', data);
-					document.getElementById('holidayBalance').textContent = 'الرصيد المتبقي: غير معروف';
-					counterInput.removeAttribute('max');
-				}
-			})
-			.catch(error => {
-				console.error('Error:', error);
-				document.getElementById('holidayBalance').textContent = 'الرصيد المتبقي: غير معروف';
-				document.getElementById('counter').removeAttribute('max');
-			});
-	}
+        fetchRemainingHolidayBalance();
+    }
 
-	function incrementCounter() {
-		const counterInput = document.getElementById('counter');
-		const max = parseInt(counterInput.getAttribute('max'));
+    function fetchRemainingHolidayBalance() {
+        var holidayTypeId = document.getElementById('holidayType').value;
+        var holidayBalanceElem = document.getElementById('holidayBalance');
 
-		if (max === null || parseInt(counterInput.value) < max) {
-			counterInput.value = parseInt(counterInput.value) + 1;
-			updateEndDate();
-			validateForm(); // Validate the form whenever counter is incremented
-		}
-	}
+        if (!holidayTypeId) {
+            holidayBalanceElem.textContent = 'الرصيد المتبقي: ---';
+            return;
+        }
 
-	function decrementCounter() {
-		const counterInput = document.getElementById('counter');
-		if (parseInt(counterInput.value) > 1) {
-			counterInput.value = parseInt(counterInput.value) - 1;
-			updateEndDate();
-			validateForm(); // Validate the form whenever counter is decremented
-		}
-	}
+        console.log(`Fetching balance for holidayTypeId: ${holidayTypeId}`);
 
-	function updateDuration() {
-		const holidayType = document.getElementById('holidayType').value;
-		const startDateInput = document.getElementById('start_date');
-		const endDateInput = document.getElementById('end_date');
-		const counterInput = document.getElementById('counter');
+        fetch(`/CustomerServiceManager/GetRemainingHolidayBalance?holidayId=${holidayTypeId}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                var counterInput = document.getElementById('counter');
 
-		if (holidayType != 3) {
-			const startDate = new Date(startDateInput.value);
-			const endDate = new Date(endDateInput.value);
-			const duration = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
-			counterInput.value = duration;
-			validateForm(); // Validate the form whenever duration is updated
-		}
-	}
+                if (typeof data === 'number' && data >= 0) {
+                    holidayBalanceElem.textContent = `الرصيد المتبقي: ${data}`;
+                    holidayBalanceElem.classList.remove('balance-zero');
+                    if ($('#holidayType option:selected').text() !== 'استئذان') {
+                        counterInput.setAttribute('max', data);
+                    }
+                    counterInput.disabled = false;
+                } else {
+                    holidayBalanceElem.innerHTML = 'انت لم تعد تملك رصيد لهذا النوع من الاجازات';
+                    holidayBalanceElem.classList.add('balance-zero');
+                    counterInput.value = 0;
+                    counterInput.disabled = true;
+                }
 
-	function updateEndDate() {
-		const startDateInput = document.getElementById('start_date');
-		const endDateInput = document.getElementById('end_date');
-		const counterInput = document.getElementById('counter');
+                validateForm();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                holidayBalanceElem.textContent = 'الرصيد المتبقي: ---';
+            });
+    }
 
-		if (startDateInput.value && document.getElementById('holidayType').value != 3) {
-			const startDate = new Date(startDateInput.value);
-			const durationDays = parseInt(counterInput.value);
-			startDate.setDate(startDate.getDate() + durationDays);
-			endDateInput.value = startDate.toISOString().split('T')[0];
-		}
-	}
+    function incrementCounter() {
+        const counterInput = document.getElementById('counter');
+        const holidayType = $('#holidayType option:selected').text();
+        const max = parseInt(counterInput.getAttribute('max'));
 
-	function validateForm() {
-		const counterInput = document.getElementById('counter');
-		const holidayBalanceText = document.getElementById('holidayBalance').textContent.replace('الرصيد المتبقي: ', '');
-		const holidayBalance = parseInt(holidayBalanceText.match(/\d+/)); // Extract number
-		const submitButton = document.getElementById("submitButton")
-		const duration = parseInt(counterInput.value);
+        if (holidayType === 'استئذان' || !max) {
+            if (holidayType === 'استئذان' && parseInt(counterInput.value) < 2) {
+                counterInput.value = parseInt(counterInput.value) + 1;
+            } else if (!max || parseInt(counterInput.value) < max) {
+                counterInput.value = parseInt(counterInput.value) + 1;
+            }
+        } else if (parseInt(counterInput.value) < max) {
+            counterInput.value = parseInt(counterInput.value) + 1;
+        }
 
-		console.log('Duration:', duration); // Debugging
-		console.log('Holiday Balance:', holidayBalance); // Debugging
+        updateEndDate();
+        validateForm();
+    }
 
-		if (duration <= 0 || holidayBalance <= 0 || isNaN(holidayBalance)) {
-			submitButton.disabled = true;
-			submitButton.classList.add('bg-gray-400');
-			submitButton.classList.remove('bg-primaryButtons');
-		} else {
-			submitButton.disabled = false;
-			submitButton.classList.remove('bg-gray-400');
-			submitButton.classList.add('bg-primaryButtons');
-		}
-	}
+    function decrementCounter() {
+        const counterInput = document.getElementById('counter');
+        if (parseInt(counterInput.value) > 1) {
+            counterInput.value = parseInt(counterInput.value) - 1;
+            updateEndDate();
+            validateForm();
+        }
+    }
+
+    function updateDuration() {
+        const holidayType = $('#holidayType option:selected').text();
+        const startDateInput = document.getElementById('start_date');
+        const endDateInput = document.getElementById('end_date');
+        const counterInput = document.getElementById('counter');
+
+        if (holidayType === 'سنوية') {
+            // Set end date to 3 days + the counter value
+            const startDate = new Date(startDateInput.value);
+            let durationDays = parseInt(counterInput.value) + 2; // 3 days total
+            startDate.setDate(startDate.getDate() + durationDays);
+            endDateInput.value = startDate.toISOString().split('T')[0];
+        } else if (holidayType !== 'استئذان') {
+            const startDate = new Date(startDateInput.value);
+            const endDate = new Date(endDateInput.value);
+            const duration = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+            counterInput.value = duration;
+            validateForm();
+        }
+    }
+
+    function updateEndDate() {
+        const startDateInput = document.getElementById('start_date');
+        const endDateInput = document.getElementById('end_date');
+        const counterInput = document.getElementById('counter');
+        const holidayType = $('#holidayType option:selected').text();
+
+        if (holidayType === 'سنوية') {
+            // Adjust end date based on counter value
+            const startDate = new Date(startDateInput.value);
+            let durationDays = parseInt(counterInput.value) + 2; // 3 days minimum
+            startDate.setDate(startDate.getDate() + durationDays);
+            endDateInput.value = startDate.toISOString().split('T')[0];
+        } else if (startDateInput.value && holidayType !== 'استئذان') {
+            const startDate = new Date(startDateInput.value);
+            const durationDays = parseInt(counterInput.value) - 1;
+            startDate.setDate(startDate.getDate() + durationDays);
+            endDateInput.value = startDate.toISOString().split('T')[0];
+        }
+    }
+
+    function validateForm() {
+        const counterInput = document.getElementById('counter');
+        const holidayBalanceText = document.getElementById('holidayBalance').textContent.replace('الرصيد المتبقي: ', '');
+        const holidayBalance = parseInt(holidayBalanceText.match(/\d+/));
+        const submitButton = document.getElementById("submitButton");
+        const duration = parseInt(counterInput.value);
+        const holidayType = $('#holidayType option:selected').text();
+
+        if (duration <= 0 || (holidayType !== 'استئذان' && (holidayBalance <= 0 || isNaN(holidayBalance)))) {
+            submitButton.disabled = true;
+            submitButton.classList.add('opacity-50', 'cursor-not-allowed');
+        } else {
+            submitButton.disabled = false;
+            submitButton.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+    }
+
+    // Custom file input label
+    $(".custom-file-input").on("change", function () {
+        var fileName = $(this).val().split("\\").pop();
+        $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+    });
 </script>
-
-@section Scripts {
-	@{
-		await Html.RenderPartialAsync("_ValidationScriptsPartial");
-	}
-}

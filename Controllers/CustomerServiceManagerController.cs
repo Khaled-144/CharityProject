@@ -58,14 +58,51 @@ namespace CharityProject.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ReferTransaction(int transaction_id, int to_employee_id, string comments)
+        public async Task<IActionResult> ReferTransaction(List<IFormFile> files, int transaction_id, int to_employee_id, string comments)
         {
             var transaction = await _context.Transactions.FindAsync(transaction_id);
             if (transaction == null)
             {
                 return NotFound();
             }
+            List<string> fileNames = new List<string>();
+            if (files != null && files.Count > 0)
+            {
+                var allowedExtensions = new[] { ".pdf", ".xls", ".xlsx", ".doc", ".docx" };
 
+
+                foreach (var file in files)
+                {
+                    // Validate the file type
+                    var extension = Path.GetExtension(file.FileName).ToLower();
+                    if (!allowedExtensions.Contains(extension))
+                    {
+                        ModelState.AddModelError("files", "Only PDF, Excel, and Word files are allowed.");
+                        return View(transaction); // Return the view with validation error
+                    }
+
+                    // Save the file
+                    string filename = Path.GetFileName(file.FileName);
+                    string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/files");
+
+                    if (!Directory.Exists(path))
+                    {
+                        Directory.CreateDirectory(path);
+                    }
+
+                    string filePath = Path.Combine(path, filename);
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await file.CopyToAsync(fileStream);
+                    }
+
+                    // Add the filename to the list
+                    fileNames.Add(filename);
+                }
+
+                // Concatenate the file names and store them in the transaction
+
+            }
             // Get the current employee's ID from the session
             int fromEmployeeId;
             if (!int.TryParse(HttpContext.Session.GetString("Id"), out fromEmployeeId))
@@ -81,26 +118,16 @@ namespace CharityProject.Controllers
                 to_employee_id = to_employee_id,
                 referral_date = DateTime.Now,
                 comments = comments,
+                files = string.Join(",", fileNames)
             };
 
             _context.Referrals.Add(referral);
             transaction.to_emp_id = to_employee_id;
             transaction.status = "تحت الإجراء";
-		   await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
 
-			// Redirect to the Transactions page after successful referral
-			return RedirectToAction("Transactions", "CustomerServiceManager");
-		}
-
-        // New method to view referral history
-        public async Task<IActionResult> ReferralHistory(int id)
-        {
-            var referrals = await _context.Referrals
-                .Where(r => r.transaction_id == id)
-                .OrderByDescending(r => r.referral_date)
-                .ToListAsync();
-
-            return View(referrals);
+            // Redirect to the Transactions page after successful referral
+            return RedirectToAction("Transactions", "CustomerServiceManager");
         }
 
         // End of khaled work -----------------------------------------------------
@@ -169,9 +196,11 @@ namespace CharityProject.Controllers
                 Value = d.departement_id.ToString(),
                 Text = d.departement_name
             }).ToList();
+			var holidayTypes = await _context.Holidays.ToListAsync();
+			ViewData["HolidayTypes"] = holidayTypes ?? new List<Holiday>();
 
-            // Filter transactions based on the current user's ID and include the related Department
-            var transactions = await _context.Transactions
+			// Filter transactions based on the current user's ID and include the related Department
+			var transactions = await _context.Transactions
                 .Where(t => t.to_emp_id == employeeId)
                 .Include(t => t.Department) // Include the Department
                 .ToListAsync();
@@ -219,7 +248,7 @@ namespace CharityProject.Controllers
         {
             var employeeId = GetEmployeeIdFromSession();
             var emplyee_Details = await GetEmployeeDetailsFromSessionAsync();
-            var hrManager = _context.employee_details
+            var Manager = _context.employee_details
         .FirstOrDefault(e => e.position == "مدير خدمة المستفيدين");
 
             // Fetch transactions based on the conditions provided
@@ -228,17 +257,18 @@ namespace CharityProject.Controllers
                     .ThenInclude(r => r.from_employee)
                 .Include(t => t.Referrals)
                     .ThenInclude(r => r.to_employee)
-                .Where(t =>
-    (t.status == "مرسلة" && t.Employee_detail.departement_id == emplyee_Details.departement_id) ||
-    (t.status == "مرسلة" && (t.to_emp_id == employeeId || t.to_emp_id == hrManager.employee_id)) || // Transactions sent to the employee
+                 .Where(t =>
+     (t.status == "مرسلة" && t.Employee_detail.departement_id == emplyee_Details.departement_id && t.Employee_detail.employee_id != emplyee_Details.employee_id && t.Employee_detail.permission_position == "موظف") ||
+    (t.status == "مرسلة" && (t.to_emp_id == employeeId || t.to_emp_id == Manager.employee_id) && t.Employee_detail.permission_position != "موظف")
+    || (t.status == "مرسلة" && t.department_id == emplyee_Details.departement_id && t.Employee_detail.permission_position != "موظف" && t.Employee_detail.employee_id != emplyee_Details.employee_id) ||// Transactions sent to the employee
     (t.Referrals.Any() && // Ensure there are referrals
         (
             t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == employeeId ||
-            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == hrManager.employee_id
+            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == Manager.employee_id
         ) &&
         (
             t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == employeeId ||
-            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == hrManager.employee_id
+            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == Manager.employee_id
         )
     )
 )
@@ -264,72 +294,14 @@ namespace CharityProject.Controllers
         }
         public async Task<IActionResult> Archive()
         {
-            var employeeId = GetEmployeeIdFromSession();
-            var emplyee_Details = await GetEmployeeDetailsFromSessionAsync();
-            var hrManager = _context.employee_details
-        .FirstOrDefault(e => e.position == "مدير خدمة المستفيدين");
-
-            // Retrieve the current user's ID from the session or context
-            var employeeDetails = await GetEmployeeDetailsFromSessionAsync();
-            // Populate the Departments dropdown list
-            ViewData["Departments"] = _context.Department.Select(d => new SelectListItem
-            {
-                Value = d.departement_id.ToString(),
-                Text = d.departement_name
-            }).ToList();
-
-            // Filter transactions based on the current user's ID and include the related Department
-            var transactions = await _context.Transactions
-                .Where(t => t.to_emp_id == employeeId)
-                .Include(t => t.Department) // Include the Department
-                .ToListAsync();
-
-            // Get the counts for various entities
-            int internalCount = await _context.Transactions
-                .Where(t =>
-    (t.status == "مرسلة" && t.Employee_detail.departement_id == emplyee_Details.departement_id) ||
-    (t.status == "مرسلة" && (t.to_emp_id == employeeId || t.to_emp_id == hrManager.employee_id)) || // Transactions sent to the employee
-    (t.Referrals.Any() && // Ensure there are referrals
-        (
-            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == employeeId ||
-            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == hrManager.employee_id
-        ) &&
-        (
-            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == employeeId ||
-            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == hrManager.employee_id
-        )
-    )
-)
-                .CountAsync();
-
-            int holidaysCount = await _context.HolidayHistories
-                .Where(h => h.status == "مرسلة" && h.Employee_detail.departement_id == emplyee_Details.departement_id)
-                .CountAsync();
-
-            int lettersCount = await _context.letters
-                   .Where(l => l.to_emp_id == employeeDetails.employee_id || (l.to_departement_name == employeeDetails.Department.departement_name && l.to_emp_id == 0))
-                 .CountAsync();
-
-            int assetsCount = await _context.charter
-                .Where(c => c.status != "مستلمة" && c.to_emp_id == emplyee_Details.employee_id)
-                .CountAsync();
-
-            // Passing the counts to the view using ViewBag
-            ViewBag.InternalCount = internalCount;
-            ViewBag.HolidaysCount = holidaysCount;
-            ViewBag.LettersCount = lettersCount;
-            ViewBag.AssetsCount = assetsCount;
-
-            return View(transactions);
+            
+            return View();
         }
 
         
         public async Task<IActionResult> GetAllTransactionsArchived()
         {
-            var employeeId = GetEmployeeIdFromSession();
-            var emplyee_Details = await GetEmployeeDetailsFromSessionAsync();
-            var hrManager = _context.employee_details
-        .FirstOrDefault(e => e.position == "مدير خدمة المستفيدين");
+            var employe_details = await GetEmployeeDetailsFromSessionAsync();
 
             // Fetch transactions based on the conditions provided
             var transactions = await _context.Transactions
@@ -338,19 +310,7 @@ namespace CharityProject.Controllers
                 .Include(t => t.Referrals)
                     .ThenInclude(r => r.to_employee)
                 .Where(t =>
-    (t.status == "منهاة" && t.Employee_detail.departement_id == emplyee_Details.departement_id) ||
-    (t.status == "منهاة" && (t.to_emp_id == employeeId || t.to_emp_id == hrManager.employee_id)) || // Transactions sent to the employee
-    (t.Referrals.Any() && // Ensure there are referrals
-        (
-            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == employeeId ||
-            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == hrManager.employee_id
-        ) &&
-        (
-            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == employeeId ||
-            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == hrManager.employee_id
-        )
-    )
-)
+    (t.status == "منهاة" && t.Employee_detail.departement_id == employe_details.departement_id) )
 
                 .OrderByDescending(t => t.transaction_id)
                 .ToListAsync();
@@ -392,12 +352,13 @@ namespace CharityProject.Controllers
         }
         public async Task<IActionResult> GetAllHolidaysArchived()
         {
-            var employe_details = await GetEmployeeDetailsFromSessionAsync();
-            var employeeId = GetEmployeeIdFromSession();
+            var employee = await GetEmployeeDetailsFromSessionAsync();
 
             // Fetch holidays with the status "مرسلة" where the employee's department ID is 5
             var holidays = await _context.HolidayHistories
-                .Where(h =>( h.status == "موافقة المدير التنفيذي" || h.status=="رفضت من المدير التنفيذي" ) && h.Employee_detail.employee_id==employe_details.employee_id)
+                .Include(h => h.holiday)
+                .Where(h => (h.status.Contains("موافقة") || h.status.Contains("رفضت"))
+                && h.Employee_detail.departement_id == employee.departement_id)
                 .OrderByDescending(h => h.holidays_history_id)
                 .ToListAsync();
             var employeeIds = holidays.SelectMany(t => new[] { t.emp_id }).Distinct().ToList();
@@ -406,6 +367,11 @@ namespace CharityProject.Controllers
                 .ToDictionaryAsync(e => e.employee_id, e => e.name);
 
             ViewBag.EmployeeNames = employees;
+            if (holidays.Count == 0)
+            {
+                // Render the _NothingNew partial view if no transactions
+                return PartialView("_NothingNew");
+            }
 
             return PartialView("_getAllHolidays", holidays);
         }
@@ -516,65 +482,65 @@ namespace CharityProject.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create_Transaction(List<IFormFile> files, [Bind("create_date,close_date,title,description,to_emp_id,department_id,Confidentiality,Urgency,Importance")] Transaction transaction)
-        {
-            // Retrieve the employee ID from session
-            var employeeId = GetEmployeeIdFromSession();
-            transaction.from_emp_id = employeeId;
+		public async Task<IActionResult> Create_Transaction(List<IFormFile> files, [Bind("create_date,close_date,title,description,to_emp_id,department_id,Confidentiality,Urgency,Importance")] Transaction transaction)
+		{
+			// Retrieve the employee ID from session
+			var employeeId = GetEmployeeIdFromSession();
+			transaction.from_emp_id = employeeId;
 
-            // Check if files were uploaded
-            if (files != null && files.Count > 0)
-            {
-                var allowedExtensions = new[] { ".pdf", ".xls", ".xlsx", ".doc", ".docx" };
-                List<string> fileNames = new List<string>();
+			// Check if files were uploaded
+			if (files != null && files.Count > 0)
+			{
+				var allowedExtensions = new[] { ".pdf", ".xls", ".xlsx", ".doc", ".docx" };
+				List<string> fileNames = new List<string>();
 
-                foreach (var file in files)
-                {
-                    // Validate the file type
-                    var extension = Path.GetExtension(file.FileName).ToLower();
-                    if (!allowedExtensions.Contains(extension))
-                    {
-                        ModelState.AddModelError("files", "Only PDF, Excel, and Word files are allowed.");
-                        return View(transaction); // Return the view with validation error
-                    }
+				foreach (var file in files)
+				{
+					// Validate the file type
+					var extension = Path.GetExtension(file.FileName).ToLower();
+					if (!allowedExtensions.Contains(extension))
+					{
+						ModelState.AddModelError("files", "Only PDF, Excel, and Word files are allowed.");
+						return View(transaction); // Return the view with validation error
+					}
 
-                    // Save the file
-                    string filename = Path.GetFileName(file.FileName);
-                    string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/files");
+					// Save the file
+					string filename = Path.GetFileName(file.FileName);
+					string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/files");
 
-                    if (!Directory.Exists(path))
-                    {
-                        Directory.CreateDirectory(path);
-                    }
+					if (!Directory.Exists(path))
+					{
+						Directory.CreateDirectory(path);
+					}
 
-                    string filePath = Path.Combine(path, filename);
-                    using (var fileStream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await file.CopyToAsync(fileStream);
-                    }
+					string filePath = Path.Combine(path, filename);
+					using (var fileStream = new FileStream(filePath, FileMode.Create))
+					{
+						await file.CopyToAsync(fileStream);
+					}
 
-                    // Add the filename to the list
-                    fileNames.Add(filename);
-                }
+					// Add the filename to the list
+					fileNames.Add(filename);
+				}
 
-                // Concatenate the file names and store them in the transaction
-                transaction.files = string.Join(",", fileNames);
-            }
+				// Concatenate the file names and store them in the transaction
+				transaction.files = string.Join(",", fileNames);
+			}
 
-            if (transaction.create_date == null)
-            {
-                transaction.create_date = DateTime.Now;
-            }
+			if (transaction.create_date == null)
+			{
+				transaction.create_date = DateTime.Now;
+			}
 
-            transaction.status = "مرسلة";
-            _context.Add(transaction);
-            await _context.SaveChangesAsync();
+			transaction.status = "مرسلة";
+			_context.Add(transaction);
+			await _context.SaveChangesAsync();
 
-            return RedirectToAction(nameof(Transactions));
-        }
+			return RedirectToAction(nameof(Transactions));
+		}
 
 
-        [HttpPost]
+		[HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create_Holiday(IFormFile files, [Bind("title,description,duration,start_date,end_date,holiday_id")] HolidayHistory holidayHistory)
         {
@@ -698,7 +664,7 @@ namespace CharityProject.Controllers
 		// Update Actions --------------------------------------------------------
 		[HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateTransactionStatus(int transaction_id)
+        public async Task<IActionResult> UpdateTransactionStatus(int transaction_id, string TerminationCause)
         {
             var transaction = await _context.Transactions.FindAsync(transaction_id);
             if (transaction == null)
@@ -709,7 +675,7 @@ namespace CharityProject.Controllers
             // Update the status to "Closed"
             transaction.status = "منهاة";
             transaction.close_date = DateTime.Now;
-
+            transaction.TerminationCause = TerminationCause;
             // Save changes to the database
             await _context.SaveChangesAsync();
 
@@ -732,25 +698,8 @@ namespace CharityProject.Controllers
 
             return Json(new { success = true });
         }
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateHolidayStatus(int holidays_history_id)
-        {
-            var holiday = await _context.HolidayHistories.FindAsync(holidays_history_id);
-            if (holiday == null)
-            {
-                return NotFound();
-            }
+        
 
-            // Update the status to "Closed"
-            holiday.status = "رفضت من المدير المباشر";
-
-
-            // Save changes to the database
-            await _context.SaveChangesAsync();
-
-            return RedirectToAction(nameof(Transactions));
-        }
         public async Task<IActionResult> UpdateStatus(int transaction_id, string TerminationCause)
         {
             var transaction = await _context.Transactions.FindAsync(transaction_id);
@@ -825,7 +774,7 @@ namespace CharityProject.Controllers
             return Ok();
         }
 
-
+        [HttpPost]
         public async Task<IActionResult> ApproveHoliday(int holiday_id)
         {
             var holiday = await _context.HolidayHistories.FindAsync(holiday_id);
@@ -845,7 +794,6 @@ namespace CharityProject.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DenyHoliday(int holiday_id)
         {
             var holiday = await _context.HolidayHistories.FindAsync(holiday_id);
