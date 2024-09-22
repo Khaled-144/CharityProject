@@ -134,7 +134,7 @@ namespace CharityProject.Controllers
             await _context.SaveChangesAsync();
 
             // Redirect to the Transactions page after successful referral
-            return RedirectToAction("Transactions", "FinancialSustainabilityDevelopmentManager");
+            return RedirectToAction("Transactions");
         }
 
         // New method to view referral history
@@ -828,7 +828,7 @@ namespace CharityProject.Controllers
         }
 
         [HttpGet]
-        [Route("FinancialSustainabilityDevelopmentManager/GetRemainingHolidayBalance")]
+        [Route("CEO/GetRemainingHolidayBalance")]
         public IActionResult GetRemainingHolidayBalance(int holidayId)
         {
             var employeeId = GetEmployeeIdFromSession(); // Ensure this is returning the correct employee ID
@@ -861,7 +861,7 @@ namespace CharityProject.Controllers
         // Update Actions --------------------------------------------------------
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateTransactionStatus(int transaction_id)
+        public async Task<IActionResult> UpdateTransactionStatus(int transaction_id,string TerminationCause)
         {
             var transaction = await _context.Transactions.FindAsync(transaction_id);
             if (transaction == null)
@@ -872,7 +872,7 @@ namespace CharityProject.Controllers
             // Update the status to "Closed"
             transaction.status = "منهاة";
             transaction.close_date = DateTime.Now;
-
+            transaction.TerminationCause = TerminationCause;
             // Save changes to the database
             await _context.SaveChangesAsync();
 
