@@ -1973,37 +1973,38 @@ namespace CharityProject.Controllers
 
 
         [HttpGet]
-		[Route("HR/GetRemainingHolidayBalance")]
-		public IActionResult GetRemainingHolidayBalance(int holidayId)
-		{
-			var employeeId = GetEmployeeIdFromSession(); // Ensure this is returning the correct employee ID
+        [Route("HR/GetRemainingHolidayBalance")]
+        public IActionResult GetRemainingHolidayBalance(int holidayId)
+        {
+            var employeeId = GetEmployeeIdFromSession(); // Ensure this is returning the correct employee ID
 
-			// Check if holidayId exists
-			var holidayType = _context.Holidays
-				.Where(h => h.holiday_id == holidayId)
-				.Select(h => h.allowedDuration)
-				.FirstOrDefault();
+            // Check if holidayId exists
+            var holidayType = _context.Holidays
+                .Where(h => h.holiday_id == holidayId)
+                .Select(h => h.allowedDuration)
+                .FirstOrDefault();
 
-			if (holidayType == 0)
-			{
-				return Json("Holiday type not found");
-			}
+            if (holidayType == 0)
+            {
+                return Json("Holiday type not found");
+            }
 
-			// Check if any records exist
-			var totalTakenDuration = _context.HolidayHistories
-				.Where(hh => hh.emp_id == employeeId
-							 && hh.holiday_id == holidayId
-							 && hh.start_date.Year == DateTime.Now.Year)
-				.Sum(hh => hh.duration);
+            // Check if any records exist
+            var totalTakenDuration = _context.HolidayHistories
+                .Where(hh => hh.emp_id == employeeId
+                             && hh.holiday_id == holidayId
+                             && (hh.start_date.Year == DateTime.Now.Year && hh.holiday.type != "استئذان")
+                             || (hh.start_date.Month == DateTime.Now.Month && hh.holiday.type == "استئذان") && hh.status == "موافقة المدير التنفيذي")
+                .Sum(hh => hh.duration);
 
-			var remainingBalance = holidayType - totalTakenDuration;
+            var remainingBalance = holidayType - totalTakenDuration;
 
-			return Json(remainingBalance);
-		}
+            return Json(remainingBalance);
+        }
 
 
 
-		[HttpPost]
+        [HttpPost]
 		public IActionResult ArchiveHoliday(int id)
 		{
 			var holiday = _context.HolidayHistories.FirstOrDefault(h => h.holidays_history_id == id);

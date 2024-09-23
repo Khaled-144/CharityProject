@@ -145,8 +145,12 @@ namespace CharityProject.Controllers
 
         public async Task<IActionResult> Transactions()
         {
+            var employeeId = GetEmployeeIdFromSession();
+            var emplyee_Details = await GetEmployeeDetailsFromSessionAsync();
+            var hrManager = _context.employee_details
+        .FirstOrDefault(e => e.position == "مدير خدمة المستفيدين");
+
             // Retrieve the current user's ID from the session or context
-            int currentUserId = GetEmployeeIdFromSession();
             var employeeDetails = await GetEmployeeDetailsFromSessionAsync();
             // Populate the Departments dropdown list
             ViewData["Departments"] = _context.Department.Select(d => new SelectListItem
@@ -154,20 +158,35 @@ namespace CharityProject.Controllers
                 Value = d.departement_id.ToString(),
                 Text = d.departement_name
             }).ToList();
+            var holidayTypes = await _context.Holidays.ToListAsync();
+            ViewData["HolidayTypes"] = holidayTypes ?? new List<Holiday>();
 
             // Filter transactions based on the current user's ID and include the related Department
             var transactions = await _context.Transactions
-                .Where(t => t.to_emp_id == currentUserId)
+                .Where(t => t.to_emp_id == employeeId)
                 .Include(t => t.Department) // Include the Department
                 .ToListAsync();
 
             // Get the counts for various entities
             int internalCount = await _context.Transactions
-                .Where(t => t.to_emp_id == currentUserId)
+                .Where(t =>
+    (t.status == "مرسلة" && t.Employee_detail.departement_id == emplyee_Details.departement_id) ||
+    (t.status == "مرسلة" && (t.to_emp_id == employeeId || t.to_emp_id == hrManager.employee_id)) || // Transactions sent to the employee
+    (t.Referrals.Any() && // Ensure there are referrals
+        (
+            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == employeeId ||
+            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == hrManager.employee_id
+        ) &&
+        (
+            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == employeeId ||
+            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == hrManager.employee_id
+        )
+    )
+)
                 .CountAsync();
 
             int holidaysCount = await _context.HolidayHistories
-                .Where(h => h.emp_id == currentUserId)
+                .Where(h => h.status == "مرسلة" && h.Employee_detail.departement_id == emplyee_Details.departement_id)
                 .CountAsync();
 
             int lettersCount = await _context.letters
@@ -175,7 +194,7 @@ namespace CharityProject.Controllers
                  .CountAsync();
 
             int assetsCount = await _context.charter
-                .Where(c => c.status == "غير مسلمة" && c.to_emp_id == employeeDetails.employee_id)
+                .Where(c => c.status != "مستلمة" && c.to_emp_id == emplyee_Details.employee_id)
                 .CountAsync();
 
             // Passing the counts to the view using ViewBag
@@ -513,7 +532,8 @@ namespace CharityProject.Controllers
 			var totalTakenDuration = _context.HolidayHistories
 				.Where(hh => hh.emp_id == employeeId
 							 && hh.holiday_id == holidayId
-							 && hh.start_date.Year == DateTime.Now.Year)
+							 && (hh.start_date.Year == DateTime.Now.Year && hh.holiday.type!="استئذان")
+                             || (hh.start_date.Month == DateTime.Now.Month && hh.holiday.type == "استئذان") && hh.status =="موافقة المدير التنفيذي")
 				.Sum(hh => hh.duration);
 
 			var remainingBalance = holidayType - totalTakenDuration;
