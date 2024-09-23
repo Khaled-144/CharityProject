@@ -152,63 +152,56 @@ namespace CharityProject.Controllers
 
 
 
-     
-            public async Task<IActionResult> Index()
-            {
-                int employeeId = GetEmployeeIdFromSession();
-                var employeeDetails = await GetEmployeeDetailsFromSessionAsync();
-                var Manager = _context.employee_details
-      .FirstOrDefault(e => e.position == "مدير التنمية المالية والاستدامة");
-                // Populate the Departments dropdown list
-                ViewData["Departments"] = _context.Department.Select(d => new SelectListItem
-                {
-                    Value = d.departement_id.ToString(),
-                    Text = d.departement_name
-                }).ToList();
 
-                // Count transactions based on their status, ensuring no duplicates
-                var newTransactions = await _context.Transactions
-                      .Where(t =>
-         (t.status == "مرسلة" && t.Employee_detail.departement_id == employeeDetails.departement_id && t.Employee_detail.employee_id != employeeDetails.employee_id && t.Employee_detail.permission_position == "موظف") ||
-        (t.status == "مرسلة" && (t.to_emp_id == employeeId || t.to_emp_id == Manager.employee_id) && t.Employee_detail.permission_position != "موظف")
-        || (t.status == "مرسلة" && t.department_id == employeeDetails.departement_id && t.Employee_detail.permission_position != "موظف" && t.Employee_detail.employee_id != employeeDetails.employee_id) ||// Transactions sent to the employee
-        (t.Referrals.Any() && // Ensure there are referrals
-            (
-                t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == employeeId ||
-                t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == Manager.employee_id
-            ) &&
-            (
-                t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == employeeId ||
-                t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == Manager.employee_id
-            )
+        public async Task<IActionResult> Index()
+        {
+            var employeeId = GetEmployeeIdFromSession();
+            var employeeDetails = await GetEmployeeDetailsFromSessionAsync();
+            var hrManager = _context.employee_details
+        .FirstOrDefault(e => e.position == "مدير الموارد البشرية والمالية");
+
+            // Count transactions based on their status, ensuring no duplicates
+            var newTransactions = await _context.Transactions
+              
+                .Where(t =>
+     (t.status == "مرسلة" && t.Employee_detail.departement_id == employeeDetails.departement_id && t.Employee_detail.employee_id != employeeDetails.employee_id && t.Employee_detail.permission_position == "موظف") ||
+    (t.status == "مرسلة" && (t.to_emp_id == employeeId || t.to_emp_id == hrManager.employee_id) && t.Employee_detail.permission_position != "موظف")
+    || (t.status == "مرسلة" && t.department_id == employeeDetails.departement_id && t.Employee_detail.permission_position != "موظف" && t.Employee_detail.employee_id != employeeDetails.employee_id) ||// Transactions sent to the employee
+    (t.Referrals.Any() && // Ensure there are referrals
+        (
+            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == employeeId ||
+            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == hrManager.employee_id
+        ) &&
+        (
+            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == employeeId ||
+            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == hrManager.employee_id
         )
-    ).CountAsync();
+    )
+)
+                .GroupBy(t => t.transaction_id)
+                .Select(g => g.FirstOrDefault())
+                .CountAsync();
 
-            var referredTransactions = await _context.Transactions
-              .Where(t =>
-                  t.Referrals.Any(r =>
-                      r.to_employee_id == employeeId ||
-                      r.to_employee_id == Manager.employee_id)
-              )
-              .CountAsync();
+            var ongoingTransactions = await _context.Transactions
+                .Where(t => t.Referrals.Any(r => r.to_employee_id == employeeId))
+                .GroupBy(t => t.transaction_id)
+                .Select(g => g.FirstOrDefault())
+                .CountAsync();
 
-          /*  var ongoingTransactions = await _context.Transactions
-                    .Where(t => t.status != "منهاة" && (t.to_emp_id == employeeId || t.Referrals.Any(r => r.to_employee_id == employeeId)))
+            var completedTransactions = await _context.Transactions
+                .Where(t => t.status == "منهاة" && (t.to_emp_id == employeeId || t.Referrals.Any(r => r.to_employee_id == employeeId)))
+                .GroupBy(t => t.transaction_id)
+                .Select(g => g.FirstOrDefault())
+                .CountAsync();
 
-                    .CountAsync();*/
-
-                var completedTransactions = await _context.Transactions
-                    .Where(t => t.status == "منهاة" && t.to_emp_id == employeeId )
-
-                    .CountAsync();
-
-                // Passing the counts to the view using ViewBag
-                ViewBag.NewTransactionsCount = newTransactions;
-            ViewBag.ReferredTransactionsCount = referredTransactions;
+            // Passing the counts to the view using ViewBag
+            ViewBag.NewTransactionsCount = newTransactions;
+            ViewBag.OngoingTransactionsCount = ongoingTransactions;
             ViewBag.CompletedTransactionsCount = completedTransactions;
 
-                return View();
-            }
+            return View();
+        }
+
 
         // GET Actions -------------------------------------------------------- no details needed ( all used thrugh partial view )
 
@@ -224,7 +217,9 @@ namespace CharityProject.Controllers
             {
                 Value = d.departement_id.ToString(),
                 Text = d.departement_name
-            }).ToList();  
+            }).ToList();
+            var holidayTypes = await _context.Holidays.ToListAsync();
+            ViewData["HolidayTypes"] = holidayTypes ?? new List<Holiday>();
 
             // Get the counts for various entities
             int internalCount = 
@@ -911,7 +906,8 @@ namespace CharityProject.Controllers
             var totalTakenDuration = _context.HolidayHistories
                 .Where(hh => hh.emp_id == employeeId
                              && hh.holiday_id == holidayId
-                             && hh.start_date.Year == DateTime.Now.Year)
+                             && (hh.start_date.Year == DateTime.Now.Year && hh.holiday.type != "استئذان")
+                             || (hh.start_date.Month == DateTime.Now.Month && hh.holiday.type == "استئذان") && hh.status == "موافقة المدير التنفيذي")
                 .Sum(hh => hh.duration);
 
             var remainingBalance = holidayType - totalTakenDuration;

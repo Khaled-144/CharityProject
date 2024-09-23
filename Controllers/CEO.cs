@@ -156,23 +156,41 @@ namespace CharityProject.Controllers
 
         public async Task<IActionResult> Index()
         {
-            int currentUserId = GetEmployeeIdFromSession();
+            var employeeId = GetEmployeeIdFromSession();
+            var employeeDetails = await GetEmployeeDetailsFromSessionAsync();
+            var hrManager = _context.employee_details
+        .FirstOrDefault(e => e.position == "مدير الموارد البشرية والمالية");
 
             // Count transactions based on their status, ensuring no duplicates
             var newTransactions = await _context.Transactions
-                .Where(t => t.status == "مرسلة" && (t.to_emp_id == currentUserId || t.Referrals.Any(r => r.to_employee_id == currentUserId)))
+
+                .Where(t =>
+     (t.status == "مرسلة" && t.Employee_detail.departement_id == employeeDetails.departement_id && t.Employee_detail.employee_id != employeeDetails.employee_id && t.Employee_detail.permission_position == "موظف") ||
+    (t.status == "مرسلة" && (t.to_emp_id == employeeId || t.to_emp_id == hrManager.employee_id) && t.Employee_detail.permission_position != "موظف")
+    || (t.status == "مرسلة" && t.department_id == employeeDetails.departement_id && t.Employee_detail.permission_position != "موظف" && t.Employee_detail.employee_id != employeeDetails.employee_id) ||// Transactions sent to the employee
+    (t.Referrals.Any() && // Ensure there are referrals
+        (
+            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == employeeId ||
+            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == hrManager.employee_id
+        ) &&
+        (
+            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == employeeId ||
+            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == hrManager.employee_id
+        )
+    )
+)
                 .GroupBy(t => t.transaction_id)
                 .Select(g => g.FirstOrDefault())
                 .CountAsync();
 
             var ongoingTransactions = await _context.Transactions
-                .Where(t => t.status != "منهاة" && (t.to_emp_id == currentUserId || t.Referrals.Any(r => r.to_employee_id == currentUserId)))
+                .Where(t => t.Referrals.Any(r => r.to_employee_id == employeeId))
                 .GroupBy(t => t.transaction_id)
                 .Select(g => g.FirstOrDefault())
                 .CountAsync();
 
             var completedTransactions = await _context.Transactions
-                .Where(t => t.status == "منهاة" && (t.to_emp_id == currentUserId || t.Referrals.Any(r => r.to_employee_id == currentUserId)))
+                .Where(t => t.status == "منهاة" && (t.to_emp_id == employeeId || t.Referrals.Any(r => r.to_employee_id == employeeId)))
                 .GroupBy(t => t.transaction_id)
                 .Select(g => g.FirstOrDefault())
                 .CountAsync();
@@ -227,7 +245,7 @@ namespace CharityProject.Controllers
 ).CountAsync();
 
             int holidaysCount = await _context.HolidayHistories
-                .Where(h => h.status == "مرسلة" && h.Employee_detail.departement_id == employeeDetails.departement_id)
+                .Where(h => h.status  == "مرسلة من مدير" || (h.status== "مرسلة" && h.Employee_detail.departement_id == employeeDetails.departement_id))
                 .CountAsync();
 
             int lettersCount = await _context.letters

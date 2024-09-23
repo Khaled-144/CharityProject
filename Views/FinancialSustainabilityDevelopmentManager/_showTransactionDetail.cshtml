@@ -39,9 +39,7 @@
                                 </dd>
                             }
                             <dt class="col-sm-4">الى قسم</dt>
-                            <dd class="col-sm-8">
-                                <span id="department-name-@Model.transaction_id"></span>
-                            </dd>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.Department.departement_name)</dd>
                             <dt class="col-sm-4">تاريخ الانشاء</dt>
                             <dd class="col-sm-8">@Html.DisplayFor(model => model.create_date)</dd>
                             <dt class="col-sm-4">تاريخ الانهاء</dt>
@@ -181,22 +179,31 @@
                                 <input type="file" id="files" name="files" accept=".pdf,.xls,.xlsx,.doc,.docx" multiple class="block mt-2" />
                                 <ul id="fileList" class="mt-2 flex flex-wrap gap-2 p-2 border border-gray-300 rounded-lg shadow-sm"></ul>
                             </div>
-                            <button type="submit" class="btn btn-primary">تأكيد الإحالة</button>
-                            @using (Html.BeginForm("UpdateStatus", "Transactions", FormMethod.Post, new { id = $"updateStatusForm-{Model.transaction_id}", @class = "d-inline" }))
+                            @if (Model.status != "منهاة")
                             {
-                                @Html.AntiForgeryToken()
-                                <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#confirmEndModal-@Model.transaction_id">
-                                    إنهاء المعاملة
-                                </button>
+                                <button type="submit" class="btn btn-primary">تأكيد الإحالة</button>
+                                @using (Html.BeginForm("UpdateTransactionStatus", "CustomerServiceManager", FormMethod.Post, new { id = $"updateStatusForm-{Model.transaction_id}", @class = "d-inline" }))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#confirmEndModal-@Model.transaction_id">
+                                        إنهاء المعاملة
+                                    </button>
+                                
                                 @Html.HiddenFor(model => model.transaction_id)
-                                <button type="button" class="btn btn-dark" data-dismiss="modal">إخفاء</button>
+                                <button data-dismiss="modal" type="button" class="px-4 py-2 text-sm font-medium text-white bg-gray-500 rounded-md hover:bg-gray-600 focus:outline-none focus:ring-4 focus:ring-gray-300 transition duration-300">
+                                    إخفاء
+                                </button>
+                                }
                             }
                         }
+                        
                     </div>
                 }
                 else
                 {
-                    <button type="button" class="btn btn-dark" data-dismiss="modal">إخفاء</button>
+                    <button data-dismiss="modal" type="button" class="px-4 py-2 text-sm font-medium text-white bg-gray-500 rounded-md hover:bg-gray-600 focus:outline-none focus:ring-4 focus:ring-gray-300 transition duration-300">
+                        إخفاء
+                    </button>
                 }
             </div>
         </div>
