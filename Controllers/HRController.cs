@@ -58,13 +58,13 @@ namespace CharityProject.Controllers
                 .CountAsync();
 
             var ongoingTransactions = await _context.Transactions
-                .Where(t => t.Referrals.Any(r => r.to_employee_id == employeeId))
+                .Where(t => t.to_emp_id == employeeId &&t.status=="تحت الإجراء")
                 .GroupBy(t => t.transaction_id)
                 .Select(g => g.FirstOrDefault())
                 .CountAsync();
 
             var completedTransactions = await _context.Transactions
-                .Where(t => t.status == "منهاة" && (t.to_emp_id == employeeId || t.Referrals.Any(r => r.to_employee_id == employeeId)))
+                .Where(t => t.status == "منهاة" && t.to_emp_id == employeeId )
                 .GroupBy(t => t.transaction_id)
                 .Select(g => g.FirstOrDefault())
                 .CountAsync();
@@ -310,6 +310,8 @@ namespace CharityProject.Controllers
           Value = d.departement_id.ToString(), // Use the department ID as the value
     Text = d.departement_name            // Use the department name as the text
 }).ToList();
+            var holidayTypes = await _context.Holidays.ToListAsync();
+            ViewData["HolidayTypes"] = holidayTypes ?? new List<Holiday>();
 
             ViewData["Employees"] = _context.employee.Select(e => new SelectListItem
             {
@@ -529,8 +531,10 @@ namespace CharityProject.Controllers
             // Fetch holidays with the status "مرسلة" where the employee's department ID is 5
             var holidays = await _context.HolidayHistories
                 .Include(h=>h.holiday)
-                .Where(h => (h.status.Contains("موافقة") || h.status.Contains("رفضت"))
-                && h.Employee_detail.departement_id == employee.departement_id)
+                .Include(h => h.holiday)
+               .Where(h =>
+        (h.status.Contains("موافقة") || h.status.Contains("رفضت") || h.status == "مرسلة من مدير")
+        && h.Employee_detail.departement_id == employee.departement_id)
                 .OrderByDescending(h => h.holidays_history_id)
                 .ToListAsync();
             var employeeIds = holidays.SelectMany(t => new[] { t.emp_id }).Distinct().ToList();
@@ -792,7 +796,7 @@ namespace CharityProject.Controllers
             }
 
             holidayHistory.creation_date = DateOnly.FromDateTime(DateTime.Now); // Set to current date
-            holidayHistory.status = "مرسلة"; // Set default status
+            holidayHistory.status = "مرسلة من مدير"; // Set default status
             _context.Add(holidayHistory);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Transactions));
@@ -1049,8 +1053,8 @@ namespace CharityProject.Controllers
                 {
                     // Find the employee and their department
                     var employee = await _context.employee_details
-                                                  .Include(ed => ed.Department)
-                                                  .FirstOrDefaultAsync(ed => ed.employee_id == empId);
+                                                 .Include(ed => ed.Department)
+                                                 .FirstOrDefaultAsync(ed => ed.employee_id == empId);
 
                     if (employee != null)
                     {
@@ -1077,8 +1081,8 @@ namespace CharityProject.Controllers
                 }
             }
 
-            // If departments are selected
-            if (to_departement_name != null && to_departement_name.Any())
+            // If only departments are selected, create letters with to_emp_id set to 0
+            if ((to_emp_id == null || !to_emp_id.Any()) && to_departement_name != null && to_departement_name.Any())
             {
                 foreach (var deptId in to_departement_name)
                 {
@@ -1093,10 +1097,9 @@ namespace CharityProject.Controllers
                             .Select(ed => ed.employee_id)
                             .ToListAsync();
 
-                        // If there are no active employees or no specific employees are chosen
-                        if (!departmentEmployees.Any() || (to_emp_id == null || !to_emp_id.Any()))
+                        // Create a single letter for the department with to_emp_id set to 0
+                        if (departmentEmployees.Any())
                         {
-                            // Create a new letter record for the department
                             var newLetter = new letter
                             {
                                 title = letter.title,
@@ -1108,7 +1111,7 @@ namespace CharityProject.Controllers
                                 Urgency = letter.Urgency,
                                 Importance = letter.Importance,
                                 date = letter.date,
-                                to_emp_id = 0,
+                                to_emp_id = 0, // Set to_emp_id to 0 because this is department-wide
                                 to_departement_name = department.departement_name,
                                 departement_id = letter.departement_id
                             };
@@ -1116,40 +1119,11 @@ namespace CharityProject.Controllers
                             _context.Add(newLetter);
                             letterCreated = true;
                         }
-                        else
-                        {
-                            foreach (var empId in departmentEmployees)
-                            {
-                                // Create a new letter record for each employee in the department
-                                // that hasn't been processed yet
-                                if (!processedEmployees.Contains(empId))
-                                {
-                                    var newLetter = new letter
-                                    {
-                                        title = letter.title,
-                                        description = letter.description,
-                                        type = letter.type,
-                                        from_emp_id = letter.from_emp_id,
-                                        files = letter.files,
-                                        Confidentiality = letter.Confidentiality,
-                                        Urgency = letter.Urgency,
-                                        Importance = letter.Importance,
-                                        date = letter.date,
-                                        to_emp_id = empId,
-                                        to_departement_name = department.departement_name,
-                                        departement_id = letter.departement_id
-                                    };
-
-                                    _context.Add(newLetter);
-                                    letterCreated = true;
-                                }
-                            }
-                        }
                     }
                 }
             }
 
-            // If no departments or employees are chosen, create a letter for all departments
+            // If no departments or employees are chosen, create a letter for the default department
             if (!letterCreated)
             {
                 var newLetter = new letter

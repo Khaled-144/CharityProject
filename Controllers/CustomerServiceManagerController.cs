@@ -141,7 +141,7 @@ namespace CharityProject.Controllers
             var employeeId = GetEmployeeIdFromSession();
             var employeeDetails = await GetEmployeeDetailsFromSessionAsync();
             var hrManager = _context.employee_details
-        .FirstOrDefault(e => e.position == "مدير الموارد البشرية والمالية");
+        .FirstOrDefault(e => e.position == "مدير خدمة المستفيدين");
 
             // Count transactions based on their status, ensuring no duplicates
             var newTransactions = await _context.Transactions
@@ -166,13 +166,13 @@ namespace CharityProject.Controllers
                 .CountAsync();
 
             var ongoingTransactions = await _context.Transactions
-                .Where(t => t.Referrals.Any(r => r.to_employee_id == employeeId))
-                .GroupBy(t => t.transaction_id)
-                .Select(g => g.FirstOrDefault())
-                .CountAsync();
+                  .Where(t => t.to_emp_id == employeeId && t.status == "تحت الإجراء")
+                 .GroupBy(t => t.transaction_id)
+                 .Select(g => g.FirstOrDefault())
+                 .CountAsync();
 
             var completedTransactions = await _context.Transactions
-                .Where(t => t.status == "منهاة" && (t.to_emp_id == employeeId || t.Referrals.Any(r => r.to_employee_id == employeeId)))
+                .Where(t => t.status == "منهاة" && t.to_emp_id == employeeId)
                 .GroupBy(t => t.transaction_id)
                 .Select(g => g.FirstOrDefault())
                 .CountAsync();
@@ -364,7 +364,7 @@ namespace CharityProject.Controllers
             // Fetch holidays with the status "مرسلة" where the employee's department ID is 5
             var holidays = await _context.HolidayHistories
                 .Include(h => h.holiday)
-                .Where(h => (h.status.Contains("موافقة") || h.status.Contains("رفضت"))
+                .Where(h => (h.status.Contains("موافقة") || h.status.Contains("رفضت") || h.status=="مرسلة من مدير")
                 && h.Employee_detail.departement_id == employee.departement_id)
                 .OrderByDescending(h => h.holidays_history_id)
                 .ToListAsync();
@@ -591,50 +591,163 @@ namespace CharityProject.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create_Letter(IFormFile files, [Bind("title,description,type,to_emp_id")] letter letter)
+        public async Task<IActionResult> Create_Letter(
+        List<IFormFile> files,
+        int[]? to_departement_name,
+        string[]? to_emp_id,
+        [Bind("title,description,type,from_emp_id,date,files,Confidentiality,Urgency,Importance")] letter letter)
         {
-            var employeeId = GetEmployeeIdFromSession();
-            letter.from_emp_id = employeeId; // Assign the employee ID to the letter
+            // Retrieve employee details from the session
+            var employee_details = await GetEmployeeDetailsFromSessionAsync();
+            letter.from_emp_id = employee_details.employee_id;
+            letter.departement_id = employee_details.departement_id;
 
-            if (files != null && files.Length > 0)
+            // Check if files were uploaded
+            if (files != null && files.Count > 0)
             {
-                // Validate the file type
                 var allowedExtensions = new[] { ".pdf", ".xls", ".xlsx", ".doc", ".docx" };
-                var extension = Path.GetExtension(files.FileName).ToLower();
+                List<string> fileNames = new List<string>();
 
-                if (!allowedExtensions.Contains(extension))
+                foreach (var file in files)
                 {
-                    ModelState.AddModelError("files", "Only PDF, Excel, and Word files are allowed.");
-                    // Return the view with validation error
-                    return View(letter);
+                    // Validate the file type
+                    var extension = Path.GetExtension(file.FileName).ToLower();
+                    if (!allowedExtensions.Contains(extension))
+                    {
+                        ModelState.AddModelError("files", "Only PDF, Excel, and Word files are allowed.");
+                        return View(letter); // Return the view with validation error
+                    }
+
+                    // Save the file
+                    string filename = Path.GetFileName(file.FileName);
+                    string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/files");
+
+                    if (!Directory.Exists(path))
+                    {
+                        Directory.CreateDirectory(path);
+                    }
+
+                    string filePath = Path.Combine(path, filename);
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await file.CopyToAsync(fileStream);
+                    }
+
+                    // Add the filename to the list
+                    fileNames.Add(filename);
                 }
 
-                string filename = Path.GetFileName(files.FileName);
-                string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/files");
-                if (!Directory.Exists(path))
-                {
-                    Directory.CreateDirectory(path);
-                }
-                string filePath = Path.Combine(path, filename);
-                using (var filestream = new FileStream(filePath, FileMode.Create))
-                {
-                    await files.CopyToAsync(filestream);
-                }
-                letter.files = filename;
+                // Concatenate the file names and store them in the letter
+                letter.files = string.Join(",", fileNames);
             }
 
+            // Set the date to now if not provided
+            letter.date = DateTime.Now;
 
-            letter.date = DateTime.Now; // Set the current date
+            bool letterCreated = false;
+            HashSet<int> processedEmployees = new HashSet<int>();
 
-            // Optionally set department_id dynamically based on the user's department
-            // letter.departement_id = /* retrieve from employee details */;
+            // If specific employees are chosen, prioritize them
+            if (to_emp_id != null && to_emp_id.Any())
+            {
+                foreach (var empId in to_emp_id.Select(int.Parse))
+                {
+                    // Find the employee and their department
+                    var employee = await _context.employee_details
+                                                 .Include(ed => ed.Department)
+                                                 .FirstOrDefaultAsync(ed => ed.employee_id == empId);
 
-            _context.Add(letter);
+                    if (employee != null)
+                    {
+                        var newLetter = new letter
+                        {
+                            title = letter.title,
+                            description = letter.description,
+                            type = letter.type,
+                            from_emp_id = letter.from_emp_id,
+                            files = letter.files,
+                            Confidentiality = letter.Confidentiality,
+                            Urgency = letter.Urgency,
+                            Importance = letter.Importance,
+                            date = letter.date,
+                            to_emp_id = empId,
+                            to_departement_name = employee.Department.departement_name,
+                            departement_id = letter.departement_id
+                        };
+
+                        _context.Add(newLetter);
+                        processedEmployees.Add(empId);
+                        letterCreated = true;
+                    }
+                }
+            }
+
+            // If only departments are selected, create letters with to_emp_id set to 0
+            if ((to_emp_id == null || !to_emp_id.Any()) && to_departement_name != null && to_departement_name.Any())
+            {
+                foreach (var deptId in to_departement_name)
+                {
+                    // Find the department by ID
+                    var department = await _context.Department.FirstOrDefaultAsync(d => d.departement_id == deptId);
+
+                    if (department != null)
+                    {
+                        // Get all active employees in the selected department
+                        var departmentEmployees = await _context.employee_details
+                            .Where(ed => ed.departement_id == deptId && ed.active)
+                            .Select(ed => ed.employee_id)
+                            .ToListAsync();
+
+                        // Create a single letter for the department with to_emp_id set to 0
+                        if (departmentEmployees.Any())
+                        {
+                            var newLetter = new letter
+                            {
+                                title = letter.title,
+                                description = letter.description,
+                                type = letter.type,
+                                from_emp_id = letter.from_emp_id,
+                                files = letter.files,
+                                Confidentiality = letter.Confidentiality,
+                                Urgency = letter.Urgency,
+                                Importance = letter.Importance,
+                                date = letter.date,
+                                to_emp_id = 0, // Set to_emp_id to 0 because this is department-wide
+                                to_departement_name = department.departement_name,
+                                departement_id = letter.departement_id
+                            };
+
+                            _context.Add(newLetter);
+                            letterCreated = true;
+                        }
+                    }
+                }
+            }
+
+            // If no departments or employees are chosen, create a letter for the default department
+            if (!letterCreated)
+            {
+                var newLetter = new letter
+                {
+                    title = letter.title,
+                    description = letter.description,
+                    type = letter.type,
+                    from_emp_id = letter.from_emp_id,
+                    files = letter.files,
+                    Confidentiality = letter.Confidentiality,
+                    Urgency = letter.Urgency,
+                    Importance = letter.Importance,
+                    date = letter.date,
+                    to_emp_id = 0,
+                    to_departement_name = "الادارة التنفيذية",
+                    departement_id = letter.departement_id
+                };
+
+                _context.Add(newLetter);
+            }
+
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Transactions)); // Or any other relevant action
-
-
-            // Return the same view with validation errors
+            return RedirectToAction(nameof(Transactions));
         }
 
         [HttpGet]

@@ -1,97 +1,172 @@
-﻿@model IEnumerable<CharityProject.Models.HolidayHistory>
+﻿<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-<div class="p-2 rounded-lg shadow" style="max-height: 750px; overflow-y: auto;">
-    <ul class="w-full divide-y divide-gray-200 dark:divide-gray-700">
-        @foreach (var item in Model)
-        {
-            <li class="mb-2 shadow-sm bg-white">
-                <div class="flex items-center space-x-4 rtl:space-x-reverse text-center">
-                    <div class="flex-shrink-0 border-2 m-2 ml-3 p-3">
-                        <p class="text-blue-600">
-                            #@Html.DisplayFor(modelItem => item.holidays_history_id)
-                        </p>
-                    </div>
-                    <div class="flex-1 min-w-0 text-xl text-right">
-                        <div class="flex">
-                            <p class="font-medium text-gray-900 truncate dark:text-white px-2">
-                                @Html.DisplayFor(modelItem => item.title)
-                            </p>
-                            <p class="font-medium text-gray-900 truncate dark:text-white">
-                                بتاريخ: @Html.DisplayFor(modelItem => item.creation_date)
-                            </p>
+@model CharityProject.Models.HolidayHistory
+
+@{
+    ViewData["Title"] = "_showTransactionDetail";
+    string fileUrl = Url.Content("~/files/" + Model.files);
+}
+
+<div class="modal fade" id="detailModal-@Model.holidays_history_id" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title text-center w-100">معلومات الإجازة #@Model.holidays_history_id</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- Breadcrumb Navigation -->
+                <div class="bg-gradient-to-r from-gray-100 to-gray-200 p-4 rounded-xl shadow-md mb-4">
+                    <ol class="flex flex-wrap justify-center items-center text-sm font-medium text-black">
+                        <li class="flex items-center text-green-600">
+                            <svg class="w-3.5 h-3.5 mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 1 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
+                            </svg>
+                            مرسلة
+                        </li>
+                        <li class="mx-2 text-2xl">&larr;</li>
+
+                        @if (Model.status == "رفضت من المدير المباشر")
+                        {
+                            <li class="flex items-center text-red-600">
+                                <svg class="w-3.5 h-3.5 mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm4.5 10.5h-9a1 1 0 0 0 0 2h9a1 1 0 0 0 0-2Z" />
+                                </svg>
+                                رفضت من المدير المباشر
+                            </li>
+                        }
+                        else if (Model.status == "رفضت من مدير الموارد البشرية")
+                        {
+                            <li class="flex items-center text-green-600">
+                                <svg class="w-3.5 h-3.5 mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 1 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
+                                </svg>
+                                موافقة المدير المباشر
+                            </li>
+                            <li class="mx-2 text-2xl">&larr;</li>
+                            <li class="flex items-center text-red-600">
+                                <svg class="w-3.5 h-3.5 mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm4.5 10.5h-9a1 1 0 0 0 0 2h9a1 1 0 0 0 0-2Z" />
+                                </svg>
+                                رفضت من مدير الموارد البشرية
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="flex items-center @((Model.status == "موافقة المدير المباشر" || Model.status == "موافقة مدير الموارد البشرية") ? "text-green-600" : "text-gray-400")">
+                                <svg class="w-3.5 h-3.5 mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 1 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
+                                </svg>
+                                موافقة المدير المباشر
+                            </li>
+                            <li class="mx-2 text-2xl">&larr;</li>
+                            <li class="flex items-center @(Model.status == "موافقة مدير الموارد البشرية" ? "text-green-600" : "text-gray-400")">
+                                <svg class="w-3.5 h-3.5 mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 1 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
+                                </svg>
+                                موافقة مدير الموارد البشرية
+                            </li>
+                        }
+
+                    </ol>
+                </div>
+
+                <!-- Holiday Details -->
+                <div class="text-right" dir="rtl">
+                    <dl class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-gray-100 p-3 rounded">
+                            <dt class="font-bold mb-1">الموظف</dt>
+                            <dd>@Html.DisplayFor(model => model.Employee.name)</dd>
                         </div>
-                        <p class="text-gray-500 truncate dark:text-gray-400">
-                            @Html.DisplayFor(modelItem => item.description)
-                        </p>
+                        <div class="bg-gray-100 p-3 rounded">
+                            <dt class="font-bold mb-1">العنوان</dt>
+                            <dd>@Html.DisplayFor(model => model.title)</dd>
+                        </div>
+                        <div class="bg-gray-100 p-3 rounded">
+                            <dt class="font-bold mb-1">المدة</dt>
+                            <dd>
 
-                        <!-- Breadcrumb Navigation -->
-                        <div class="my-1 w-fit rounded px-2 py-1 bg-zinc-200">
-                            <ol class="flex items-center  w-auto  text-sm font-medium text-center text-black dark:text-gray-400">
-                                <li class="flex items-center justify-center text-green-600 dark:text-green-500">
-                                    <svg class="w-3.5 h-3.5 ml-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
-                                    </svg>
-                                    مرسلة
-                                    <span class="mx-2">/</span>
-                                </li>
-                                @if (item.status == "رفضت من المدير المباشر")
+                                @if (Model.holiday.type == "استئذان")
                                 {
-                                    <li class="flex items-center text-red-600 dark:text-red-500">
-                                        <svg class="w-3.5 h-3.5 ml-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                                            <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
-                                        </svg>
-                                        رفضت من المدير المباشر
-                                        <span class="mx-2">/</span>
-                                    </li>
-                                    <li class="flex items-center text-gray-400 dark:text-gray-500">
-                                        <svg class="w-3.5 h-3.5 ml-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                                            <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
-                                        </svg>
-                                        موافقة مدير القسم
-                                    </li>
-                                }
-                                else if (item.status == "رفضت من مدير القسم")
-                                {
-                                    <li class="flex items-center text-green-600 dark:text-green-500">
-                                        <svg class="w-3.5 h-3.5 ml-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                                            <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
-                                        </svg>
-                                        موافقة المدير المباشر
-                                        <span class="mx-2">/</span>
-                                    </li>
-                                    <li class="flex items-center text-red-600 dark:text-red-500">
-                                        <svg class="w-3.5 h-3.5 ml-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                                            <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
-                                        </svg>
-                                        رفضت من مدير القسم
-                                    </li>
+                                    @if (Model.duration == 1)
+                                    {
+                                        <span>ساعة واحدة</span>
+                                    }
+                                    else if (Model.duration == 2)
+                                    {
+                                        <span>ساعتين</span>
+                                    }
+                                    else
+                                    {
+                                        <span>@Model.duration @Model.holiday.duration_Unit</span>
+                                    }
                                 }
                                 else
                                 {
-                                    <li class="flex items-center @((item.status == "موافقة المدير المباشر" || item.status == "موافقة مدير القسم") ? "text-green-600 dark:text-green-500" : "text-gray-400 dark:text-gray-500")">
-                                        <svg class="w-3.5 h-3.5 ml-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                                            <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
-                                        </svg>
-                                        موافقة المدير المباشر
-                                        <span class="mx-2">/</span>
-                                    </li>
-                                    <li class="flex items-center @((item.status == "موافقة مدير القسم") ? "text-green-600 dark:text-green-500" : "text-gray-400 dark:text-gray-500")">
-                                        <svg class="w-3.5 h-3.5 ml-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                                            <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
-                                        </svg>
-                                        موافقة مدير القسم
-                                    </li>
+                                    @if (Model.duration == 1)
+                                    {
+                                        <span>يوم واحد</span>
+                                    }
+                                    else if (Model.duration == 2)
+                                    {
+                                        <span>يومين</span>
+                                    }
+                                    else
+                                    {
+                                        <span>@Model.duration @Model.holiday.duration_Unit</span>
+                                    }
                                 }
-                            </ol>
-
+                            </dd>
                         </div>
-                    </div>
-                    <div class="inline-flex items-center text-base font-semibold text-gray-900 ml-3 dark:text-white">
-                        <button class="btn btn-dark" data-toggle="modal" data-target="@("#detailModal-" + item.holidays_history_id)">عرض</button>
-                        @await Html.PartialAsync("_ShowHolidayDetail", item)
-                    </div>
+                        <div class="bg-gray-100 p-3 rounded">
+                            <dt class="font-bold mb-1">الوصف</dt>
+                            <dd>@Html.DisplayFor(model => model.description)</dd>
+                        </div>
+                        <div class="bg-gray-100 p-3 rounded">
+                            <dt class="font-bold mb-1">تاريخ البدء</dt>
+                            <dd>@Html.DisplayFor(model => model.start_date)</dd>
+                        </div>
+
+                        <div class="bg-gray-100 p-3 rounded">
+                            <dt class="font-bold mb-1">النوع</dt>
+                            <dd>@Html.DisplayFor(model => model.holiday.type)</dd>
+                        </div>
+                        <div class="bg-gray-100 p-3 rounded">
+                            <dt class="font-bold mb-1">تاريخ الانتهاء</dt>
+                            <dd>@Html.DisplayFor(model => model.end_date)</dd>
+                        </div>
+                        <div class="bg-gray-100 p-3 rounded">
+                            <dt class="font-bold mb-1">الحالة</dt>
+                            <dd>@Html.DisplayFor(model => model.status)</dd>
+                        </div>
+
+                        <div class="bg-gray-100 p-3 rounded col-span-2">
+                            <dt class="font-bold mb-1">الملفات</dt>
+                            <dd>
+                                @if (!string.IsNullOrEmpty(Model.files))
+                                {
+                                    <a href="@fileUrl" target="_blank" class="text-blue-600 hover:underline">@Model.files</a>
+                                }
+                                else
+                                {
+                                    <span>لا توجد مرفقات</span>
+                                }
+                            </dd>
+                        </div>
+                    </dl>
                 </div>
-            </li>
-        }
-    </ul>
-</div>
+
+                <div class="flex flex-wrap items-center justify-center gap-4 mt-6">
+
+                    <button data-dismiss="modal" type="button" class="px-4 py-2 text-sm font-medium text-white bg-gray-500 rounded-md hover:bg-gray-600 focus:outline-none focus:ring-4 focus:ring-gray-300 transition duration-300">
+                        إخفاء
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <script>

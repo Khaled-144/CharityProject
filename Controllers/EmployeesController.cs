@@ -39,7 +39,8 @@ namespace CharityProject.Controllers
             if (employeeIdString != null && int.TryParse(employeeIdString, out int employeeId))
             {
                 var employeeDetails = await _context.employee_details
-                    .Include(ed => ed.employee) // To include related employee data
+                    .Include(ed => ed.employee)
+                   .Include(ed => ed.Department)
                     .FirstOrDefaultAsync(ed => ed.employee_id == employeeId);
 
                 return employeeDetails;
@@ -77,25 +78,35 @@ namespace CharityProject.Controllers
         public async Task<IActionResult> Index()
         {
             int currentUserId = GetEmployeeIdFromSession();
-
+           
             // Count transactions based on their status, ensuring no duplicates
-            var newTransactions = await _context.Transactions
-                .Where(t => t.status == "مرسلة" && (t.to_emp_id == currentUserId || t.Referrals.Any(r => r.to_employee_id == currentUserId)))
-                .GroupBy(t => t.transaction_id)
-                .Select(g => g.FirstOrDefault())
+            var newTransactions =await _context.Transactions
+                .Include(t => t.Referrals)
+                    .ThenInclude(r => r.from_employee)
+                .Include(t => t.Referrals)
+                    .ThenInclude(r => r.to_employee)
+                .Where(t => t.status != "منهاة" && (
+                    (t.status == "مرسلة" && t.to_emp_id == currentUserId) || t.Referrals.Any() &&
+                    t.Referrals
+                        .OrderByDescending(r => r.referral_date)
+                        .First().to_employee_id == currentUserId &&
+                    t.Referrals
+                        .OrderByDescending(r => r.referral_date)
+                        .First().from_employee_id != currentUserId
+                ))
+                .OrderByDescending(t => t.transaction_id)
                 .CountAsync();
 
             var ongoingTransactions = await _context.Transactions
-                .Where(t => t.status != "منهاة" && (t.to_emp_id == currentUserId || t.Referrals.Any(r => r.to_employee_id == currentUserId)))
-                .GroupBy(t => t.transaction_id)
-                .Select(g => g.FirstOrDefault())
-                .CountAsync();
+                    .Where(t => t.to_emp_id == currentUserId && t.status == "تحت الإجراء")
+                   .GroupBy(t => t.transaction_id)
+                   .Select(g => g.FirstOrDefault())
+                   .CountAsync();
 
             var completedTransactions = await _context.Transactions
-                .Where(t => t.status == "منهاة" && (t.to_emp_id == currentUserId || t.Referrals.Any(r => r.to_employee_id == currentUserId)))
+                .Where(t => t.status == "منهاة" && t.to_emp_id == currentUserId)
                 .GroupBy(t => t.transaction_id)
-                .Select(g => g.FirstOrDefault())
-                .CountAsync();
+                .Select(g => g.FirstOrDefault()).CountAsync();
 
             // Passing the counts to the view using ViewBag
             ViewBag.NewTransactionsCount = newTransactions;
@@ -472,6 +483,8 @@ namespace CharityProject.Controllers
 
             // Fetch holidays created by the logged-in employee
             var holidays = await _context.HolidayHistories
+                .Include(h=>h.holiday)
+                 .Include(h => h.Employee)
                 .Where(h => h.emp_id == employeeId)
                 .OrderByDescending(h => h.holidays_history_id)
                 .ToListAsync();
@@ -480,6 +493,12 @@ namespace CharityProject.Controllers
                 // Render the _NothingNew partial view if no letters
                 return PartialView("_NothingNew");
             }
+            var employeeIds = holidays.SelectMany(t => new[] { t.emp_id }).Distinct().ToList();
+            var employees = await _context.employee
+                .Where(e => employeeIds.Contains(e.employee_id))
+                .ToDictionaryAsync(e => e.employee_id, e => e.name);
+
+            ViewBag.EmployeeNames = employees;
             return PartialView("_getAllArchivedHolidays", holidays);
         }
 
@@ -569,9 +588,14 @@ namespace CharityProject.Controllers
         {
             var employeeDetails = await GetEmployeeDetailsFromSessionAsync();
             var letters = await _context.letters
-                .Where(l => l.to_emp_id == employeeDetails.employee_id || l.departement_id == employeeDetails.departement_id)
-                .OrderByDescending(l => l.letters_id)
+                  .Where(l => l.to_emp_id == employeeDetails.employee_id || (l.to_departement_name == employeeDetails.Department.departement_name && l.to_emp_id == 0))
+                .OrderByDescending(l => l.letters_id) // Order by letters_id in descending order
                 .ToListAsync();
+            if (letters.Count == 0)
+            {
+                // Render the _NothingNew partial view if no transactions
+                return PartialView("_NothingNew");
+            }
 
             var employeeIds = letters.SelectMany(t => new[] { t.from_emp_id, t.to_emp_id }).Distinct().ToList();
             var employees = await _context.employee
@@ -579,13 +603,7 @@ namespace CharityProject.Controllers
                 .ToDictionaryAsync(e => e.employee_id, e => e.name);
 
             ViewBag.EmployeeNames = employees;
-            if (letters.Count == 0)
-            {
-                // Render the _NothingNew partial view if no letters
-                return PartialView("_NothingNew");
-            }
 
-            // Render the _getAllLetters partial view if there are letters
             return PartialView("_getAllLetters", letters);
         }
 

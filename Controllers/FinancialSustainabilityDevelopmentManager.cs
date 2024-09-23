@@ -158,7 +158,7 @@ namespace CharityProject.Controllers
             var employeeId = GetEmployeeIdFromSession();
             var employeeDetails = await GetEmployeeDetailsFromSessionAsync();
             var hrManager = _context.employee_details
-        .FirstOrDefault(e => e.position == "مدير الموارد البشرية والمالية");
+        .FirstOrDefault(e => e.position == "مدير التنمية المالية والاستدامة");
 
             // Count transactions based on their status, ensuring no duplicates
             var newTransactions = await _context.Transactions
@@ -183,20 +183,20 @@ namespace CharityProject.Controllers
                 .CountAsync();
 
             var ongoingTransactions = await _context.Transactions
-                .Where(t => t.Referrals.Any(r => r.to_employee_id == employeeId))
+                  .Where(t => t.to_emp_id == employeeId && t.status == "تحت الإجراء")
                 .GroupBy(t => t.transaction_id)
                 .Select(g => g.FirstOrDefault())
                 .CountAsync();
 
             var completedTransactions = await _context.Transactions
-                .Where(t => t.status == "منهاة" && (t.to_emp_id == employeeId || t.Referrals.Any(r => r.to_employee_id == employeeId)))
+                .Where(t => t.status == "منهاة" && t.to_emp_id == employeeId)
                 .GroupBy(t => t.transaction_id)
                 .Select(g => g.FirstOrDefault())
                 .CountAsync();
 
             // Passing the counts to the view using ViewBag
             ViewBag.NewTransactionsCount = newTransactions;
-            ViewBag.OngoingTransactionsCount = ongoingTransactions;
+            @ViewBag.ReferredTransactionsCount = ongoingTransactions;
             ViewBag.CompletedTransactionsCount = completedTransactions;
 
             return View();
@@ -315,11 +315,12 @@ namespace CharityProject.Controllers
         }
         public async Task<IActionResult> GetAllHolidays()
         {
-            var employee = await GetEmployeeDetailsFromSessionAsync();
-
+          
+            var emplyee_Details = await GetEmployeeDetailsFromSessionAsync();
             // Fetch holidays with the status "مرسلة" where the employee's department ID is 5
             var holidays = await _context.HolidayHistories
-                .Where(h => h.status == "مرسلة" && h.Employee_detail.departement_id == employee.departement_id)
+                .Include(h => h.holiday)
+                .Where(h => h.status == "مرسلة" && h.Employee_detail.departement_id== emplyee_Details.departement_id)
                 .OrderByDescending(h => h.holidays_history_id)
                 .ToListAsync();
             var employeeIds = holidays.SelectMany(t => new[] { t.emp_id }).Distinct().ToList();
@@ -328,11 +329,6 @@ namespace CharityProject.Controllers
                 .ToDictionaryAsync(e => e.employee_id, e => e.name);
 
             ViewBag.EmployeeNames = employees;
-            if (holidays.Count == 0)
-            {
-                // Render the _NothingNew partial view if no transactions
-                return PartialView("_NothingNew");
-            }
 
             return PartialView("_getAllHolidays", holidays);
         }
@@ -684,7 +680,7 @@ namespace CharityProject.Controllers
             }
 
             holidayHistory.creation_date = DateOnly.FromDateTime(DateTime.Now); // Set to current date
-            holidayHistory.status = "مرسلة"; // Set default status
+            holidayHistory.status = "مرسلة من مدير"; // Set default status
             _context.Add(holidayHistory);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Transactions));
@@ -713,41 +709,57 @@ namespace CharityProject.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create_Letter(
-      IFormFile files,
+      List<IFormFile> files,
       int[]? to_departement_name,
       string[]? to_emp_id,
       [Bind("title,description,type,from_emp_id,date,files,Confidentiality,Urgency,Importance")] letter letter)
         {
+            // Retrieve employee details from the session
             var employee_details = await GetEmployeeDetailsFromSessionAsync();
-            if (files != null && files.Length > 0)
-            {
-                // Validate the file type
-                var allowedExtensions = new[] { ".pdf", ".xls", ".xlsx", ".doc", ".docx" };
-                var extension = Path.GetExtension(files.FileName).ToLower();
-
-                if (!allowedExtensions.Contains(extension))
-                {
-                    ModelState.AddModelError("files", "Only PDF, Excel, and Word files are allowed.");
-                    return View(letter); // Return the view with validation error
-                }
-
-                string filename = Path.GetFileName(files.FileName);
-                string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/files");
-                if (!Directory.Exists(path))
-                {
-                    Directory.CreateDirectory(path);
-                }
-                string filePath = Path.Combine(path, filename);
-                using (var filestream = new FileStream(filePath, FileMode.Create))
-                {
-                    await files.CopyToAsync(filestream);
-                }
-                letter.files = filename;
-            }
-
-            letter.date = DateTime.Now;
             letter.from_emp_id = employee_details.employee_id;
             letter.departement_id = employee_details.departement_id;
+
+            // Check if files were uploaded
+            if (files != null && files.Count > 0)
+            {
+                var allowedExtensions = new[] { ".pdf", ".xls", ".xlsx", ".doc", ".docx" };
+                List<string> fileNames = new List<string>();
+
+                foreach (var file in files)
+                {
+                    // Validate the file type
+                    var extension = Path.GetExtension(file.FileName).ToLower();
+                    if (!allowedExtensions.Contains(extension))
+                    {
+                        ModelState.AddModelError("files", "Only PDF, Excel, and Word files are allowed.");
+                        return View(letter); // Return the view with validation error
+                    }
+
+                    // Save the file
+                    string filename = Path.GetFileName(file.FileName);
+                    string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/files");
+
+                    if (!Directory.Exists(path))
+                    {
+                        Directory.CreateDirectory(path);
+                    }
+
+                    string filePath = Path.Combine(path, filename);
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await file.CopyToAsync(fileStream);
+                    }
+
+                    // Add the filename to the list
+                    fileNames.Add(filename);
+                }
+
+                // Concatenate the file names and store them in the letter
+                letter.files = string.Join(",", fileNames);
+            }
+
+            // Set the date to now if not provided
+            letter.date = DateTime.Now;
 
             bool letterCreated = false;
             HashSet<int> processedEmployees = new HashSet<int>();
@@ -759,8 +771,8 @@ namespace CharityProject.Controllers
                 {
                     // Find the employee and their department
                     var employee = await _context.employee_details
-                                                .Include(ed => ed.Department)
-                                                .FirstOrDefaultAsync(ed => ed.employee_id == empId);
+                                                 .Include(ed => ed.Department)
+                                                 .FirstOrDefaultAsync(ed => ed.employee_id == empId);
 
                     if (employee != null)
                     {
@@ -787,8 +799,8 @@ namespace CharityProject.Controllers
                 }
             }
 
-            // If departments are selected
-            if (to_departement_name != null && to_departement_name.Any())
+            // If only departments are selected, create letters with to_emp_id set to 0
+            if ((to_emp_id == null || !to_emp_id.Any()) && to_departement_name != null && to_departement_name.Any())
             {
                 foreach (var deptId in to_departement_name)
                 {
@@ -803,10 +815,9 @@ namespace CharityProject.Controllers
                             .Select(ed => ed.employee_id)
                             .ToListAsync();
 
-                        // If there are no active employees or no specific employees are chosen
-                        if (!departmentEmployees.Any() || (to_emp_id == null || !to_emp_id.Any()))
+                        // Create a single letter for the department with to_emp_id set to 0
+                        if (departmentEmployees.Any())
                         {
-                            // Create a new letter record for the department
                             var newLetter = new letter
                             {
                                 title = letter.title,
@@ -818,7 +829,7 @@ namespace CharityProject.Controllers
                                 Urgency = letter.Urgency,
                                 Importance = letter.Importance,
                                 date = letter.date,
-                                to_emp_id = 0,
+                                to_emp_id = 0, // Set to_emp_id to 0 because this is department-wide
                                 to_departement_name = department.departement_name,
                                 departement_id = letter.departement_id
                             };
@@ -826,40 +837,11 @@ namespace CharityProject.Controllers
                             _context.Add(newLetter);
                             letterCreated = true;
                         }
-                        else
-                        {
-                            foreach (var empId in departmentEmployees)
-                            {
-                                // Create a new letter record for each employee in the department
-                                // that hasn't been processed yet
-                                if (!processedEmployees.Contains(empId))
-                                {
-                                    var newLetter = new letter
-                                    {
-                                        title = letter.title,
-                                        description = letter.description,
-                                        type = letter.type,
-                                        from_emp_id = letter.from_emp_id,
-                                        files = letter.files,
-                                        Confidentiality = letter.Confidentiality,
-                                        Urgency = letter.Urgency,
-                                        Importance = letter.Importance,
-                                        date = letter.date,
-                                        to_emp_id = empId,
-                                        to_departement_name = department.departement_name,
-                                        departement_id = letter.departement_id
-                                    };
-
-                                    _context.Add(newLetter);
-                                    letterCreated = true;
-                                }
-                            }
-                        }
                     }
                 }
             }
 
-            // If no departments or employees are chosen, create a letter for all departments
+            // If no departments or employees are chosen, create a letter for the default department
             if (!letterCreated)
             {
                 var newLetter = new letter
@@ -1059,8 +1041,7 @@ namespace CharityProject.Controllers
         {
             var employeeId = GetEmployeeIdFromSession();
             var employeeDetails = await GetEmployeeDetailsFromSessionAsync();
-            var Manager = _context.employee_details
-        .FirstOrDefault(e => e.position == "مدير التنمية المالية والاستدامة");
+         
 
             // Fetch transactions based on the conditions provided
             var transactions = await _context.Transactions
@@ -1069,20 +1050,7 @@ namespace CharityProject.Controllers
                 .Include(t => t.Referrals)
                     .ThenInclude(r => r.to_employee)
                 .Where(t =>
-     (t.status == "منهاة" && t.Employee_detail.departement_id == employeeDetails.departement_id && t.Employee_detail.employee_id != employeeDetails.employee_id && t.Employee_detail.permission_position == "موظف") ||
-    (t.status == "منهاة" && (t.to_emp_id == employeeId || t.to_emp_id == Manager.employee_id) && t.Employee_detail.permission_position != "موظف")
-    || (t.status == "منهاة" && t.department_id == employeeDetails.departement_id && t.Employee_detail.permission_position != "موظف" && t.Employee_detail.employee_id != employeeDetails.employee_id) ||// Transactions sent to the employee
-    (t.Referrals.Any() && // Ensure there are referrals
-        (
-            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == employeeId ||
-            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == Manager.employee_id
-        ) &&
-        (
-            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == employeeId ||
-            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == Manager.employee_id
-        )
-    )
-)
+               (t.status == "منهاة" && t.Employee_detail.departement_id == employeeDetails.departement_id)) 
 
                 .OrderByDescending(t => t.transaction_id)
                 .ToListAsync();
@@ -1111,7 +1079,8 @@ namespace CharityProject.Controllers
 
             // Fetch holidays with the status "مرسلة" where the employee's department ID is 5
             var holidays = await _context.HolidayHistories
-                .Where(h => h.status == "منهاة" && h.Employee_detail.departement_id == employee.departement_id)
+               .Where(h => (h.status.Contains("موافقة") || h.status.Contains("رفضت") || h.status == "مرسلة من مدير")
+                && h.Employee_detail.departement_id == employee.departement_id)
                 .OrderByDescending(h => h.holidays_history_id)
                 .ToListAsync();
             var employeeIds = holidays.SelectMany(t => new[] { t.emp_id }).Distinct().ToList();
