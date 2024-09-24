@@ -342,7 +342,10 @@ namespace CharityProject.Controllers
     )
 ).CountAsync();
             int holidaysCount = await _context.HolidayHistories
-                 .Where(h => h.status == "موافقة المدير المباشر" || (h.status == "مرسلة" && h.Employee_detail.departement_id == employeeDetails.departement_id))
+                 .Where(h => h.status == "موافقة المدير المباشر" ||
+                (h.status == "مرسلة" &&
+                 (h.Employee_detail.departement_id == employeeDetails.departement_id ||
+                  h.Employee_detail.Department.departement_name == "الادارة التنفيذية")))
                 .CountAsync();
 			int lettersCount = await _context.letters
                   .Where(l => l.to_emp_id == employeeDetails.employee_id || (l.to_departement_name == employeeDetails.Department.departement_name && l.to_emp_id == 0))
@@ -440,10 +443,12 @@ namespace CharityProject.Controllers
 			var emplyee_Details = await GetEmployeeDetailsFromSessionAsync();
 			var holidays = await _context.HolidayHistories
 				.Include(h => h.holiday)  // Eager load the Holiday entity
-				.Where(h => h.status == "موافقة المدير المباشر" ||
-							(h.status == "مرسلة" && h.Employee_detail.departement_id == emplyee_Details.departement_id))
-				.OrderByDescending(h => h.holidays_history_id)
-				.ToListAsync();
+                .Where(h => h.status == "موافقة المدير المباشر" ||
+                (h.status == "مرسلة" &&
+                 (h.Employee_detail.departement_id == emplyee_Details.departement_id ||
+                  h.Employee_detail.Department.departement_name == "الادارة التنفيذية")))
+    .OrderByDescending(h => h.holidays_history_id)
+    .ToListAsync();
             var employeeIds = holidays.SelectMany(t => new[] { t.emp_id }).Distinct().ToList();
             var employees = await _context.employee
                 .Where(e => employeeIds.Contains(e.employee_id))
@@ -491,8 +496,7 @@ namespace CharityProject.Controllers
         {
             var employeeId = GetEmployeeIdFromSession();
             var employeeDetails = await GetEmployeeDetailsFromSessionAsync();
-            var Manager = _context.employee_details
-        .FirstOrDefault(e => e.position == "مدير التنمية المالية والاستدامة");
+       
 
             // Fetch transactions based on the conditions provided
             var transactions = await _context.Transactions
@@ -991,10 +995,10 @@ namespace CharityProject.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create_Letter(
-     List<IFormFile> files,
-     int[]? to_departement_name,
-     string[]? to_emp_id,
-     [Bind("title,description,type,from_emp_id,date,files,Confidentiality,Urgency,Importance")] letter letter)
+          List<IFormFile> files,
+          int[]? to_departement_name,
+          string[]? to_emp_id,
+          [Bind("title,description,type,from_emp_id,date,files,Confidentiality,Urgency,Importance")] letter letter)
         {
             // Retrieve employee details from the session
             var employee_details = await GetEmployeeDetailsFromSessionAsync();
@@ -1123,6 +1127,30 @@ namespace CharityProject.Controllers
                 }
             }
 
+            // Additional condition: If type is "تظلم" and no departments or employees are chosen
+            if (letter.type == "تظلم" && (to_departement_name == null || !to_departement_name.Any()) && (to_emp_id == null || !to_emp_id.Any()))
+            {
+                // Create a letter with to_emp_id set to 0 and to_departement_name set to null
+                var newLetter = new letter
+                {
+                    title = letter.title,
+                    description = letter.description,
+                    type = letter.type,
+                    from_emp_id = letter.from_emp_id,
+                    files = letter.files,
+                    Confidentiality = letter.Confidentiality,
+                    Urgency = letter.Urgency,
+                    Importance = letter.Importance,
+                    date = letter.date,
+                    to_emp_id = 0,
+                    to_departement_name = null, // Set to_departement_name to null
+                    departement_id = letter.departement_id
+                };
+
+                _context.Add(newLetter);
+                letterCreated = true;
+            }
+
             // If no departments or employees are chosen, create a letter for the default department
             if (!letterCreated)
             {
@@ -1138,7 +1166,6 @@ namespace CharityProject.Controllers
                     Importance = letter.Importance,
                     date = letter.date,
                     to_emp_id = 0,
-                    to_departement_name = "الادارة التنفيذية",
                     departement_id = letter.departement_id
                 };
 

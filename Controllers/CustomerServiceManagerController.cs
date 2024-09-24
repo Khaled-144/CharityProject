@@ -592,10 +592,10 @@ namespace CharityProject.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create_Letter(
-        List<IFormFile> files,
-        int[]? to_departement_name,
-        string[]? to_emp_id,
-        [Bind("title,description,type,from_emp_id,date,files,Confidentiality,Urgency,Importance")] letter letter)
+         List<IFormFile> files,
+         int[]? to_departement_name,
+         string[]? to_emp_id,
+         [Bind("title,description,type,from_emp_id,date,files,Confidentiality,Urgency,Importance")] letter letter)
         {
             // Retrieve employee details from the session
             var employee_details = await GetEmployeeDetailsFromSessionAsync();
@@ -724,6 +724,30 @@ namespace CharityProject.Controllers
                 }
             }
 
+            // Additional condition: If type is "تظلم" and no departments or employees are chosen
+            if (letter.type == "تظلم" && (to_departement_name == null || !to_departement_name.Any()) && (to_emp_id == null || !to_emp_id.Any()))
+            {
+                // Create a letter with to_emp_id set to 0 and to_departement_name set to null
+                var newLetter = new letter
+                {
+                    title = letter.title,
+                    description = letter.description,
+                    type = letter.type,
+                    from_emp_id = letter.from_emp_id,
+                    files = letter.files,
+                    Confidentiality = letter.Confidentiality,
+                    Urgency = letter.Urgency,
+                    Importance = letter.Importance,
+                    date = letter.date,
+                    to_emp_id = 0,
+                    to_departement_name = null, // Set to_departement_name to null
+                    departement_id = letter.departement_id
+                };
+
+                _context.Add(newLetter);
+                letterCreated = true;
+            }
+
             // If no departments or employees are chosen, create a letter for the default department
             if (!letterCreated)
             {
@@ -739,7 +763,6 @@ namespace CharityProject.Controllers
                     Importance = letter.Importance,
                     date = letter.date,
                     to_emp_id = 0,
-                    to_departement_name = "الادارة التنفيذية",
                     departement_id = letter.departement_id
                 };
 
