@@ -47,6 +47,29 @@
             </a>
         </div>
 
+        <!-- Import/Export Buttons -->
+        <div class="flex justify-between mb-4">
+            <form asp-action="ImportFromExcel" method="post" enctype="multipart/form-data" class="flex items-center">
+                <input type="file" name="file" accept=".xlsx" required class="border border-emerald-300 rounded-lg p-2" />
+                <button type="submit" class="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg px-4 py-2 ml-2 hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-300 ease-in-out transform hover:scale-105">
+                    استيراد من Excel
+                </button>
+            </form>
+            <form asp-action="ExportToExcel" method="get" class="flex items-center">
+                <div class="flex flex-col mr-4">
+                    <label for="startDate" class="text-sm font-semibold text-gray-700">تاريخ البداية:</label>
+                    <input type="date" id="startDate" name="startDate" required class="border border-emerald-300 rounded-lg p-2" />
+                </div>
+                <div class="flex flex-col mr-4">
+                    <label for="endDate" class="text-sm font-semibold text-gray-700">تاريخ النهاية:</label>
+                    <input type="date" id="endDate" name="endDate" required class="border border-emerald-300 rounded-lg p-2" />
+                </div>
+                <button type="submit" class="bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-lg px-6 py-3 hover:from-green-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition duration-300 ease-in-out transform hover:scale-105 shadow-lg">
+                    تصدير إلى Excel
+                </button>
+            </form>
+        </div>
+
         <!-- Salary Records -->
         <div id="salaryTable" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             @foreach (var item in Model)

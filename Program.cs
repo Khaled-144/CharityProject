@@ -5,10 +5,11 @@ using Serilog;
 
 using Microsoft.Extensions.Logging;
 using System.IO;
+using OfficeOpenXml;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
+ExcelPackage.LicenseContext = LicenseContext.NonCommercial; // or LicenseContext.Commercial if applicable
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
