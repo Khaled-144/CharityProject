@@ -78,9 +78,9 @@ namespace CharityProject.Controllers
         public async Task<IActionResult> Index()
         {
             int currentUserId = GetEmployeeIdFromSession();
-           
+
             // Count transactions based on their status, ensuring no duplicates
-            var newTransactions =await _context.Transactions
+            var newTransactions = await _context.Transactions
                 .Include(t => t.Referrals)
                     .ThenInclude(r => r.from_employee)
                 .Include(t => t.Referrals)
@@ -119,6 +119,27 @@ namespace CharityProject.Controllers
         public async Task<IActionResult> Archive() { return View(); }
 
         //-----------------------------------------------------------------------------{ Transactions Actions }-----------------------------------------------
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateTransactionStatus(int transaction_id, string TerminationCause)
+        {
+            var transaction = await _context.Transactions.FindAsync(transaction_id);
+            if (transaction == null)
+            {
+                return NotFound();
+            }
+
+            // Update the status to "Closed"
+            transaction.status = "منهاة";
+            transaction.close_date = DateTime.Now;
+            transaction.TerminationCause = TerminationCause;
+            // Save changes to the database
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Transactions));
+        }
+
         public async Task<IActionResult> Transactions()
         {
             // Retrieve the current user's ID from the session or context
@@ -158,9 +179,9 @@ namespace CharityProject.Controllers
             int assetsCount = await _context.charter
                 .Where(c => c.to_emp_id == currentUserId)
                 .CountAsync();
-        
 
-          
+
+
             // Passing the counts to the view using ViewBag
             ViewBag.InternalCount = internalCount;
             ViewBag.HolidaysCount = holidaysCount;
@@ -397,14 +418,51 @@ namespace CharityProject.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ReferTransaction(int transaction_id, int to_employee_id, string comments)
+        public async Task<IActionResult> ReferTransaction(List<IFormFile> files, int transaction_id, int to_employee_id, string comments)
         {
             var transaction = await _context.Transactions.FindAsync(transaction_id);
             if (transaction == null)
             {
                 return NotFound();
             }
+            List<string> fileNames = new List<string>();
+            if (files != null && files.Count > 0)
+            {
+                var allowedExtensions = new[] { ".pdf", ".xls", ".xlsx", ".doc", ".docx" };
 
+
+                foreach (var file in files)
+                {
+                    // Validate the file type
+                    var extension = Path.GetExtension(file.FileName).ToLower();
+                    if (!allowedExtensions.Contains(extension))
+                    {
+                        ModelState.AddModelError("files", "Only PDF, Excel, and Word files are allowed.");
+                        return View(transaction); // Return the view with validation error
+                    }
+
+                    // Save the file
+                    string filename = Path.GetFileName(file.FileName);
+                    string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/files");
+
+                    if (!Directory.Exists(path))
+                    {
+                        Directory.CreateDirectory(path);
+                    }
+
+                    string filePath = Path.Combine(path, filename);
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await file.CopyToAsync(fileStream);
+                    }
+
+                    // Add the filename to the list
+                    fileNames.Add(filename);
+                }
+
+                // Concatenate the file names and store them in the transaction
+
+            }
             // Get the current employee's ID from the session
             int fromEmployeeId;
             if (!int.TryParse(HttpContext.Session.GetString("Id"), out fromEmployeeId))
@@ -420,30 +478,16 @@ namespace CharityProject.Controllers
                 to_employee_id = to_employee_id,
                 referral_date = DateTime.Now,
                 comments = comments,
+                files = string.Join(",", fileNames)
             };
 
             _context.Referrals.Add(referral);
             transaction.to_emp_id = to_employee_id;
+            transaction.status = "تحت الإجراء";
             await _context.SaveChangesAsync();
 
-
-
             // Redirect to the Transactions page after successful referral
-            return RedirectToAction("Transactions", "Employees");
-        }
-
-        // New method to view referral history
-        public async Task<IActionResult> ReferralHistory(int id)
-        {
-
-            var referrals = await _context.Referrals
-                .Where(r => r.transaction_id == id)
-                .Include(r => r.from_employee)
-                .Include(r => r.to_employee)
-                .OrderByDescending(r => r.referral_date)
-                .ToListAsync();
-
-            return View(referrals);
+            return RedirectToAction("Transactions");
         }
 
 
@@ -483,7 +527,7 @@ namespace CharityProject.Controllers
 
             // Fetch holidays created by the logged-in employee
             var holidays = await _context.HolidayHistories
-                .Include(h=>h.holiday)
+                .Include(h => h.holiday)
                  .Include(h => h.Employee)
                 .Where(h => h.emp_id == employeeId)
                 .OrderByDescending(h => h.holidays_history_id)
