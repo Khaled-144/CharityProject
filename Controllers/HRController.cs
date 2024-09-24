@@ -32,9 +32,12 @@ namespace CharityProject.Controllers
 			_logger = logger;
 		}
 
-        public IActionResult ExportToExcel()
+        public IActionResult ExportToExcel(DateTime startDate, DateTime endDate)
         {
-            var salaries = _context.SalaryHistories.ToList();
+            var salaries = _context.SalaryHistories
+           .Include(s => s.employee) // Include employee data
+           .Where(s => s.date >= startDate && s.date <= endDate)
+           .ToList();
 
             using (var package = new ExcelPackage())
             {
@@ -42,45 +45,47 @@ namespace CharityProject.Controllers
 
                 // Add headers
                 worksheet.Cells[1, 1].Value = "Employee ID";
-                worksheet.Cells[1, 2].Value = "Base Salary";
-                worksheet.Cells[1, 3].Value = "Housing Allowances";
-                worksheet.Cells[1, 4].Value = "Transportation Allowances";
-                worksheet.Cells[1, 5].Value = "Other Allowances";
-                worksheet.Cells[1, 6].Value = "Overtime";
-                worksheet.Cells[1, 7].Value = "Bonus";
-                worksheet.Cells[1, 8].Value = "Delay Discount";
-                worksheet.Cells[1, 9].Value = "Absence Discount";
-                worksheet.Cells[1, 10].Value = "Other Discount";
-                worksheet.Cells[1, 11].Value = "Debt";
-                worksheet.Cells[1, 12].Value = "Shared Portion";
-                worksheet.Cells[1, 13].Value = "Facility Portion";
-                worksheet.Cells[1, 14].Value = "Social Insurance";
-                worksheet.Cells[1, 15].Value = "Work Days";
-                worksheet.Cells[1, 16].Value = "Date";
-                worksheet.Cells[1, 17].Value = "Exchange Statement";
-                worksheet.Cells[1, 18].Value = "Notes";
+                worksheet.Cells[1, 2].Value = "Employee Name"; // New header for employee name
+                worksheet.Cells[1, 3].Value = "Base Salary";
+                worksheet.Cells[1, 4].Value = "Housing Allowances";
+                worksheet.Cells[1, 5].Value = "Transportation Allowances";
+                worksheet.Cells[1, 6].Value = "Other Allowances";
+                worksheet.Cells[1, 7].Value = "Overtime";
+                worksheet.Cells[1, 8].Value = "Bonus";
+                worksheet.Cells[1, 9].Value = "Delay Discount";
+                worksheet.Cells[1, 10].Value = "Absence Discount";
+                worksheet.Cells[1, 11].Value = "Other Discount";
+                worksheet.Cells[1, 12].Value = "Debt";
+                worksheet.Cells[1, 13].Value = "Shared Portion";
+                worksheet.Cells[1, 14].Value = "Facility Portion";
+                worksheet.Cells[1, 15].Value = "Social Insurance";
+                worksheet.Cells[1, 16].Value = "Work Days";
+                worksheet.Cells[1, 17].Value = "Date";
+                worksheet.Cells[1, 18].Value = "Exchange Statement";
+                worksheet.Cells[1, 19].Value = "Notes";
 
                 // Add data
                 for (int i = 0; i < salaries.Count; i++)
                 {
                     worksheet.Cells[i + 2, 1].Value = salaries[i].emp_id;
-                    worksheet.Cells[i + 2, 2].Value = salaries[i].base_salary;
-                    worksheet.Cells[i + 2, 3].Value = salaries[i].housing_allowances;
-                    worksheet.Cells[i + 2, 4].Value = salaries[i].transportaion_allowances;
-                    worksheet.Cells[i + 2, 5].Value = salaries[i].other_allowances;
-                    worksheet.Cells[i + 2, 6].Value = salaries[i].overtime;
-                    worksheet.Cells[i + 2, 7].Value = salaries[i].bonus;
-                    worksheet.Cells[i + 2, 8].Value = salaries[i].delay_discount;
-                    worksheet.Cells[i + 2, 9].Value = salaries[i].absence_discount;
-                    worksheet.Cells[i + 2, 10].Value = salaries[i].other_discount;
-                    worksheet.Cells[i + 2, 11].Value = salaries[i].debt;
-                    worksheet.Cells[i + 2, 12].Value = salaries[i].shared_portion;
-                    worksheet.Cells[i + 2, 13].Value = salaries[i].facility_portion;
-                    worksheet.Cells[i + 2, 14].Value = salaries[i].Social_insurance;
-                    worksheet.Cells[i + 2, 15].Value = salaries[i].work_days;
-                    worksheet.Cells[i + 2, 16].Value = salaries[i].date.ToString("yyyy-MM-dd");
-                    worksheet.Cells[i + 2, 17].Value = salaries[i].exchange_statement;
-                    worksheet.Cells[i + 2, 18].Value = salaries[i].notes;
+                    worksheet.Cells[i + 2, 2].Value = salaries[i].employee?.name; // Get employee name
+                    worksheet.Cells[i + 2, 3].Value = salaries[i].base_salary;
+                    worksheet.Cells[i + 2, 4].Value = salaries[i].housing_allowances;
+                    worksheet.Cells[i + 2, 5].Value = salaries[i].transportaion_allowances;
+                    worksheet.Cells[i + 2, 6].Value = salaries[i].other_allowances;
+                    worksheet.Cells[i + 2, 7].Value = salaries[i].overtime;
+                    worksheet.Cells[i + 2, 8].Value = salaries[i].bonus;
+                    worksheet.Cells[i + 2, 9].Value = salaries[i].delay_discount;
+                    worksheet.Cells[i + 2, 10].Value = salaries[i].absence_discount;
+                    worksheet.Cells[i + 2, 11].Value = salaries[i].other_discount;
+                    worksheet.Cells[i + 2, 12].Value = salaries[i].debt;
+                    worksheet.Cells[i + 2, 13].Value = salaries[i].shared_portion;
+                    worksheet.Cells[i + 2, 14].Value = salaries[i].facility_portion;
+                    worksheet.Cells[i + 2, 15].Value = salaries[i].Social_insurance;
+                    worksheet.Cells[i + 2, 16].Value = salaries[i].work_days;
+                    worksheet.Cells[i + 2, 17].Value = salaries[i].date.ToString("yyyy-MM-dd");
+                    worksheet.Cells[i + 2, 18].Value = salaries[i].exchange_statement;
+                    worksheet.Cells[i + 2, 19].Value = salaries[i].notes;
                 }
 
                 var stream = new MemoryStream();
