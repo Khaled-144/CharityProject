@@ -1,15 +1,19 @@
 ﻿@model IEnumerable<CharityProject.Models.letter>
+
 <div class="p-2 rounded-lg shadow" style="max-height: 750px; overflow-y: auto;">
     <ul class="w-full divide-y divide-gray-200 dark:divide-gray-700">
         @foreach (var item in Model)
         {
             <li class="mb-2 shadow-sm bg-white">
                 <div class="flex items-center space-x-4 rtl:space-x-reverse text-center">
+                    <!-- Letter ID -->
                     <div class="flex-shrink-0 border-2 m-2 ml-3 p-3">
                         <p class="text-blue-600">
                             #@Html.DisplayFor(modelItem => item.letters_id)
                         </p>
                     </div>
+
+                    <!-- Letter Information -->
                     <div class="flex-1 min-w-0 text-xl text-right">
                         <div class="flex">
                             <p class="font-medium text-gray-900 truncate dark:text-white px-2">
@@ -19,12 +23,35 @@
                                 بتاريخ: @Html.DisplayFor(modelItem => item.date)
                             </p>
                         </div>
+
                         <p class="text-gray-500 truncate dark:text-gray-400">
                             @Html.DisplayFor(modelItem => item.description)
                         </p>
-                        <!-- Confidentiality, Urgency, Importance -->
-                        <div class="flex w-fit mb-1">
-                            <p class="text-base">@Html.DisplayFor(modelItem => item.from_emp_id)</p>
+
+                        <!-- Confidentiality, Urgency, Importance, and Employee Name -->
+                        <div class="flex space-x-4 rtl:space-x-reverse w-fit mb-1">
+
+                            <!-- Employee Name (بواسطة) -->
+                            @if (ViewBag.EmployeeNames != null)
+                            {
+                                <p class="text-base ml-4">
+                                    بواسطة:
+                                    @{
+                                        string fromName;
+                                        var employeeNames = ViewBag.EmployeeNames as Dictionary<int, string>;
+                                        if (employeeNames != null && employeeNames.TryGetValue(item.from_emp_id, out fromName))
+                                        {
+                                            @fromName
+                                        }
+                                        else
+                                        {
+                                            <text>Unknown Employee (ID: @item.from_emp_id)</text>
+                                        }
+                                    }
+                                </p>
+                            }
+
+                            <!-- Confidentiality -->
                             @if (item.Confidentiality != "غير سري" && item.Confidentiality != null)
                             {
                                 <div class="flex items-center p-1 bg-gray-100 rounded-md text-sm">
@@ -43,7 +70,7 @@
                             }
 
                             <!-- Urgency -->
-                            @if (item.Urgency != "غير عاجلة" && item.Urgency != null)
+                            @if (item.Urgency != "غير عاجل" && item.Urgency != null)
                             {
                                 <div class="flex items-center p-1 bg-gray-100 rounded-md text-sm">
                                     <i class="fas fa-clock text-green-500 text-xs ml-1"></i>
@@ -52,13 +79,13 @@
                                         {
                                             <text>حالاً</text>
                                         }
-                                        else if (item.Urgency == "عاجلة")
+                                        else if (item.Urgency == "عاجل")
                                         {
-                                            <text>عاجلة</text>
+                                            <text>عاجل</text>
                                         }
                                         else
                                         {
-                                            <text>غير عاجلة</text>
+                                            <text>غير عاجل</text>
                                         }
                                     </span>
                                 </div>
@@ -81,11 +108,14 @@
                                     </span>
                                 </div>
                             }
-
                         </div>
                     </div>
-                    <div class="inline-flex items-center text-base font-semibold text-gray-900 ml-3 dark:text-white">
-                        <button type="button" class="btn btn-dark" data-toggle="modal" data-target="@("#detailModal-" + item.letters_id)">عرض</button>
+
+                    <!-- View Button -->
+                    <div class="inline-flex items-center ml-3">
+                        <button type="button" class="btn btn-dark" data-toggle="modal" data-target="@("#detailModal-" + item.letters_id)">
+                            عرض
+                        </button>
                         @await Html.PartialAsync("_ShowLetterDetail", item)
                     </div>
                 </div>

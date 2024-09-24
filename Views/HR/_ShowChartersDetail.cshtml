@@ -1,81 +1,69 @@
 ﻿@model CharityProject.Models.charter
 
 <div class="modal fade" id="detailModal-@Model.charter_id" role="dialog">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header flex justify-content-center">
-                <h4>معلومات العهدة  #@Model.charter_id</h4>
+            <div class="modal-header">
+                <h4 class="modal-title text-center w-100">معلومات العهدة #@Model.charter_id</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
-            <div class="modal-body align-content-center">
-                <div class="col-md text-right my-1" dir="rtl">
-                    <div>
-                        <dl class="row text-center">
-                            <dt class="col-sm-4 mb-2">
-                                معلومات العهدة
-                            </dt>
-                            <dd class="col-sm-8 mb-3">
-                                @Html.DisplayFor(model => model.charter_info)
-                            </dd>
-                            <dt class="col-sm-4 mb-2">
-                                القسم
-                            </dt>
-                            <dd class="col-sm-8 mb-3">
-                                @Html.DisplayFor(model => model.from_departement_name)
-                            </dd>
-                            <dt class="col-sm-4 mb-2">
-                               إلى الموظف 
-                            </dt>
-                            <dd class="col-sm-8 mb-3">
-                                @Html.DisplayFor(model => model.employee.name)
-                            </dd>
+            <div class="modal-body">
+                <div class="text-right" dir="rtl">
+                    <dl class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-gray-100 p-3 rounded">
+                            <dt class="font-bold mb-1">معلومات العهدة</dt>
+                            <dd>@Html.DisplayFor(model => model.charter_info)</dd>
+                        </div>
 
-                            <dt class="col-sm-4 mb-2">
-                                الرقم التسلسلي
-                            </dt>
-                            <dd class="col-sm-8 mb-3">
-                                @Html.DisplayFor(model => model.serial_number)
-                            </dd>
-                            <dt class="col-sm-4 mb-2">
-                                تاريخ الإنشاء 
-                            </dt>
-                            <dd class="col-sm-8 mb-3">
-                                @Html.DisplayFor(model => model.creation_date)
-                            </dd>
+                        <div class="bg-gray-100 p-3 rounded">
+                            <dt class="font-bold mb-1">القسم</dt>
+                            <dd>@Html.DisplayFor(model => model.from_departement_name)</dd>
+                        </div>
 
-                            <dt class="col-sm-4 mb-2">
-                                تاريخ الاستلام
-                            </dt>
-                            <dd class="col-sm-8 mb-3">
-                                @Html.DisplayFor(model => model.receive_date)
-                            </dd>
-                            
-                        </dl>
-                    </div>
-                    <div class="flex mt-5 justify-center">
-                        @* Check if the status is not "Closed" to show the button *@
-                        @if (Model.status !="مستلمة")
+                        <div class="bg-gray-100 p-3 rounded">
+                            <dt class="font-bold mb-1">إلى الموظف</dt>
+                            <dd>@Html.DisplayFor(model => model.employee.name)</dd>
+                        </div>
+
+                        <div class="bg-gray-100 p-3 rounded">
+                            <dt class="font-bold mb-1">الرقم التسلسلي</dt>
+                            <dd>@Html.DisplayFor(model => model.serial_number)</dd>
+                        </div>
+
+                        <div class="bg-gray-100 p-3 rounded">
+                            <dt class="font-bold mb-1">تاريخ الإنشاء</dt>
+                            <dd>@Html.DisplayFor(model => model.creation_date)</dd>
+                        </div>
+
+                        <div class="bg-gray-100 p-3 rounded">
+                            <dt class="font-bold mb-1">تاريخ الاستلام</dt>
+                            <dd>@Html.DisplayFor(model => model.receive_date)</dd>
+                        </div>
+                    </dl>
+                </div>
+
+                <div class="flex flex-wrap items-center justify-center gap-4 mt-6">
+                    @if (Model.status != "مستلمة")
+                    {
+                        @using (Html.BeginForm("UpdateStatus", "Charters", FormMethod.Post, new { id = $"updateStatusForm-{Model.charter_id}" }))
                         {
-                            @* Use a form to submit the status update *@
-                            @using (Html.BeginForm("UpdateStatus", "Charters", FormMethod.Post, new { id = $"updateStatusForm-{Model.charter_id}" }))
-                            {
-                                @Html.AntiForgeryToken()
-                                <button type="submit" class="block text-white bg-green-600 hover:bg-green-900 focus:ring-4 focus:ring-blue-300 transition duration-300 ease-in-out font-medium rounded-lg text-sm px-5 py-2.5 me-2 my-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
-                                    تم أستلام العهدة
-                                </button>
-                                @Html.HiddenFor(model => model.charter_id)
-                            }
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 focus:outline-none focus:ring-4 focus:ring-green-300 transition duration-300">
+                                تم أستلام العهدة
+                            </button>
+                            @Html.HiddenFor(model => model.charter_id)
                         }
-                    </div>
-                    <div class="flex justify-center">
-                        <button data-dismiss="modal" type="button" class="text-white bg-dark hover:bg-dark focus:ring-4 focus:ring-gray-600 transition duration-300 ease-in-out font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-600 dark:hover:bg-gray-700 focus:outline-none dark:focus:ring-gray-800">إخفاء</button>
+                    }
 
-                    </div>
+                    <button data-dismiss="modal" type="button" class="px-4 py-2 text-sm font-medium text-white bg-gray-500 rounded-md hover:bg-gray-600 focus:outline-none focus:ring-4 focus:ring-gray-300 transition duration-300">
+                        إخفاء
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 </div>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-                
-                
+
+<script>
+    // Add any necessary JavaScript here
+</script>

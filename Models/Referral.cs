@@ -31,5 +31,6 @@ namespace CharityProject.Models
         public DateTime referral_date { get; set; }
 
         public string? comments { get; set; }
+        public string? files { get; set; }
     }
 }

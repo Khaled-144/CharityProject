@@ -1,0 +1,59 @@
+﻿@model CharityProject.Models.charter
+
+<div class="modal fade" id="detailModal-@Model.charter_id" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title text-center w-100">معلومات العهدة #@Model.charter_id</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="text-right" dir="rtl">
+                    <dl class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-gray-100 p-3 rounded">
+                            <dt class="font-bold mb-1">معلومات العهدة</dt>
+                            <dd>@Html.DisplayFor(model => model.charter_info)</dd>
+                        </div>
+
+                        <div class="bg-gray-100 p-3 rounded">
+                            <dt class="font-bold mb-1">القسم</dt>
+                            <dd>@Html.DisplayFor(model => model.from_departement_name)</dd>
+                        </div>
+
+                        <div class="bg-gray-100 p-3 rounded">
+                            <dt class="font-bold mb-1">إلى الموظف</dt>
+                            <dd>@Html.DisplayFor(model => model.employee.name)</dd>
+                        </div>
+
+                        <div class="bg-gray-100 p-3 rounded">
+                            <dt class="font-bold mb-1">الرقم التسلسلي</dt>
+                            <dd>@Html.DisplayFor(model => model.serial_number)</dd>
+                        </div>
+
+                        <div class="bg-gray-100 p-3 rounded">
+                            <dt class="font-bold mb-1">تاريخ الإنشاء</dt>
+                            <dd>@Html.DisplayFor(model => model.creation_date)</dd>
+                        </div>
+
+                        <div class="bg-gray-100 p-3 rounded">
+                            <dt class="font-bold mb-1">تاريخ الاستلام</dt>
+                            <dd>@Html.DisplayFor(model => model.receive_date)</dd>
+                        </div>
+                    </dl>
+                </div>
+
+                <div class="flex flex-wrap items-center justify-center gap-4 mt-6">
+                   
+
+                    <button data-dismiss="modal" type="button" class="px-4 py-2 text-sm font-medium text-white bg-gray-500 rounded-md hover:bg-gray-600 focus:outline-none focus:ring-4 focus:ring-gray-300 transition duration-300">
+                        إخفاء
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Add any necessary JavaScript here
+</script>

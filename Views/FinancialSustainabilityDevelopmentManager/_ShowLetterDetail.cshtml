@@ -2,61 +2,70 @@
 
 @{
     ViewData["Title"] = "PartialDetails2";
-    string fileUrl = Url.Content("~/files/" + Model.files);
-
+    var fileNames = Model.files?.Split(',') ?? new string[] { };
 }
+
 <div class="modal fade" id="detailModal-@Model.letters_id" role="dialog">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header flex justify-content-center">
-                <h4>معلومات المعاملة  #@Model.letters_id</h4>
+            <div class="modal-header">
+                <h4 class="modal-title text-center w-100">معلومات الخطاب #@Model.letters_id</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
-            <div class="modal-body align-content-center">
-                <div class="col-md text-right my-1" dir="rtl">
-                    <div>
-                        <dl class="row text-center">
-                            <dt class="col-sm-4">
-                                الموضوع
-                            </dt>
-                            <dd class="col-sm-8">
-                                @Html.DisplayFor(model => model.title)
-                            </dd>
+            <div class="modal-body">
 
-                            <dt class="col-sm-4">
-                                الوصف
-                            </dt>
-                            <dd class="col-sm-8">
-                                @Html.DisplayFor(model => model.description)
-                            </dd>
-
-                            <dt class="col-sm-5">
-                                تاريخ الانشاء
-                            </dt>
-                            <dd class="col-sm-7">
-                                @Html.DisplayFor(model => model.date)
-                            </dd>
-                            <dt class="col-sm-4">
-                                المرفقات
-                            </dt>
-                            <dd class="col-sm-8">
-                                @if (!string.IsNullOrEmpty(Model.files))
+                <div class="text-right" dir="rtl">
+                    <dl class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-gray-100 p-3 rounded">
+                            <dt class="font-bold mb-1">المرسل</dt>
+                            <dd>@Html.DisplayFor(model => model.employee.name)</dd>
+                        </div>
+                        <div class="bg-gray-100 p-3 rounded">
+                            <dt class="font-bold mb-1">العنوان</dt>
+                            <dd>@Html.DisplayFor(model => model.title)</dd>
+                        </div>
+                        <div class="bg-gray-100 p-3 rounded">
+                            <dt class="font-bold mb-1">المرفقات</dt>
+                            <dd>
+                                @if (fileNames.Any())
                                 {
-                                    <a href="@fileUrl" target="_blank">@Model.files</a>
+                                    foreach (var fileName in fileNames)
+                                    {
+                                        var fileUrl = Url.Content($"~/files/{fileName.Trim()}");
+                                        <a href="@fileUrl" target="_blank">@fileName.Trim()</a>
+                                        <br />
+                                    }
                                 }
                                 else
                                 {
                                     <span>لا توجد مرفقات</span>
                                 }
                             </dd>
-                        </dl>
-                    </div>
-                    <div class="flex justify-center">
-                        <button type="button" class="btn btn-dark" data-dismiss="modal">إخفاء</button>
+                        </div>
+                        <div class="bg-gray-100 p-3 rounded">
+                            <dt class="font-bold mb-1">تاريخ الانشاء</dt>
+                            <dd>@Model.date.ToString("yyyy-MM-dd")</dd>
+                        </div>
+                        <div class="bg-gray-100 p-3 rounded col-span-2">
+                            <dt class="font-bold mb-1">الوصف</dt>
+                            <dd>
+                            <dd>@Html.DisplayFor(model => model.description)</dd>
 
-                    </div>
+                            </dd>
+                        </div>
+                    </dl>
+                </div>
+
+                <div class="flex flex-wrap items-center justify-center gap-4 mt-6">
+                    <button data-dismiss="modal" type="button" class="px-4 py-2 text-sm font-medium text-white bg-gray-500 rounded-md hover:bg-gray-600 focus:outline-none focus:ring-4 focus:ring-gray-300 transition duration-300">
+                        إخفاء
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+<script>
+    // Add any necessary JavaScript here
+</script>

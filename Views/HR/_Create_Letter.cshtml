@@ -149,9 +149,18 @@
 
                             <!-- Attachments -->
                             <div class="mb-3">
-                                <label asp-for="files" class="block text-sm font-bold text-gray-700">المرفقات</label>
-                                <input asp-for="files" type="file" id="files" name="files" class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500">
+                                <div class="form-group mb-4">
+                                    <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="files">المرفقات</label>
+                                    <input name="files" class="form-control w-full border rounded focus:ring-blue-500 focus:border-blue-500"
+                                           type="file" accept=".pdf,.xls,.xlsx,.doc,.docx" multiple id="fileInput" />
+                                    <span asp-validation-for="files" class="text-danger"></span>
+                                    <small id="fileError" class="text-danger" style="display:none;">الملفات المسموح بها فقط :PDF, Excel, Word</small>
+
+                                    <!-- Added container to display file names -->
+                                    <ul id="fileList" class="mt-2"></ul>
+                                </div>
                             </div>
+
 
                             <!-- Confidentiality, Urgency, Importance -->
                             <div class="flex justify-between">
@@ -193,6 +202,34 @@
 </body>
 
 <script>
+    document.getElementById('transactionForm').addEventListener('submit', function (e) {
+        var fileInput = document.getElementById('files');
+        var allowedExtensions = /(\.pdf|\.xls|\.xlsx|\.doc|\.docx)$/i;
+        var fileError = document.getElementById('fileError');
+        fileError.style.display = 'none';
+
+        if (fileInput.files.length > 0) {
+            for (var i = 0; i < fileInput.files.length; i++) {
+                var file = fileInput.files[i];
+                if (!allowedExtensions.exec(file.name)) {
+                    fileError.style.display = 'block';
+                    e.preventDefault();
+                    return;
+                }
+            }
+        }
+    });
+    document.getElementById('fileInput').addEventListener('change', function () {
+        var fileList = document.getElementById('fileList');
+        fileList.innerHTML = ''; // Clear the list first
+
+        // Loop through all selected files and display their names
+        for (var i = 0; i < this.files.length; i++) {
+            var listItem = document.createElement('li');
+            listItem.textContent = this.files[i].name; // Add file name
+            fileList.appendChild(listItem);
+        }
+    });
     document.getElementById('type').addEventListener('change', function () {
         this.blur();
         toggleElements();
@@ -202,7 +239,7 @@
     document.addEventListener('DOMContentLoaded', function () {
         const today = new Date().toISOString().split('T')[0];
         document.getElementById('date').value = today;
-        toggleElements(); // Call this to set initial state
+        toggleElements(); // Call this to set the initial state
     });
 
     function toggleElements() {
@@ -240,7 +277,8 @@
     });
 
     // Select all departments
-    document.getElementById('selectAllDepartments').addEventListener('click', function () {
+    document.getElementById('selectAllDepartments').addEventListener('click', function (event) {
+        event.preventDefault(); // Prevent form submission when clicking "الكل"
         const checkboxes = document.querySelectorAll('input[name="to_departement_name"]');
         const allChecked = Array.from(checkboxes).every(cb => cb.checked);
         checkboxes.forEach(cb => cb.checked = !allChecked);
@@ -248,7 +286,8 @@
     });
 
     // Select all employees
-    document.getElementById('selectAllEmployees').addEventListener('click', function () {
+    document.getElementById('selectAllEmployees').addEventListener('click', function (event) {
+        event.preventDefault(); // Prevent form submission when clicking "الكل"
         const checkboxes = document.querySelectorAll('input[name="to_emp_id"]');
         const allChecked = Array.from(checkboxes).every(cb => cb.checked);
         checkboxes.forEach(cb => cb.checked = !allChecked);
@@ -291,13 +330,13 @@
         let html = '';
         employees.forEach(employee => {
             html += `
-                                <li>
-                                    <div class="flex items-center p-2 rounded hover:bg-gray-100">
-                                            <input id="emp-${employee.employee_id}" name="to_emp_id" type="checkbox" value="${employee.employee_id}" class="w-4 h-4 text-gray-600 bg-gray-100 border-gray-300 rounded focus:ring-gray-500">
-                                        <label for="emp-${employee.employee_id}" class="w-full ms-2 text-sm font-medium text-gray-900">${employee.name} (${employee.position})</label>
-                                    </div>
-                                </li>
-                            `;
+                    <li>
+                        <div class="flex items-center p-2 rounded hover:bg-gray-100">
+                            <input id="emp-${employee.employee_id}" name="to_emp_id" type="checkbox" value="${employee.employee_id}" class="w-4 h-4 text-gray-600 bg-gray-100 border-gray-300 rounded focus:ring-gray-500">
+                            <label for="emp-${employee.employee_id}" class="w-full ms-2 text-sm font-medium text-gray-900">${employee.name} (${employee.position})</label>
+                        </div>
+                    </li>
+                `;
         });
 
         employeeList.innerHTML = html;

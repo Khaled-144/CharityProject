@@ -1,175 +1,277 @@
-﻿@model CharityProject.Models.HolidayHistory
+﻿<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+@model CharityProject.Models.HolidayHistory
 
 @{
     ViewData["Title"] = "_showTransactionDetail";
     string fileUrl = Url.Content("~/files/" + Model.files);
 }
 
-<!-- Holiday Details Modal -->
 <div class="modal fade" id="detailModal-@Model.holidays_history_id" role="dialog">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header flex justify-content-center">
-                <h4>معلومات الإجازة  #@Model.holidays_history_id</h4>
+            <div class="modal-header">
+                <h4 class="modal-title text-center w-100">معلومات الإجازة #@Model.holidays_history_id</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
-            <div class="modal-body align-content-center">
+            <div class="modal-body">
                 <!-- Breadcrumb Navigation -->
-                <ol class="flex items-center p-1 justify-center space-x-4 text-sm font-medium border-1 border-primaryButtons text-center text-gray-500 dark:text-gray-400">
-                    <li class="flex items-center text-green-600 dark:text-green-500">
-                        <svg class="w-3.5 h-3.5 ml-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
-                        </svg>
-                        مرسلة
-                        <span class="mx-2">/</span>
-                    </li>
-                    @if (Model.status == "رفضت من المدير المباشر")
-                    {
-                        <li class="flex items-center text-red-600 dark:text-red-500">
-                            <svg class="w-3.5 h-3.5 ml-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
+                <div class="bg-gradient-to-r from-gray-100 to-gray-200 p-4 rounded-xl shadow-md mb-4">
+                    <ol class="flex flex-wrap justify-center items-center text-sm font-medium text-black">
+                        <li class="flex items-center text-green-600">
+                            <svg class="w-3.5 h-3.5 mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 1 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
                             </svg>
-                            رفضت من المدير المباشر
-                            <span class="mx-2">/</span>
+                            مرسلة
                         </li>
-                        <li class="flex items-center text-gray-600 dark:text-gray-500">
-                            <svg class="w-3.5 h-3.5 ml-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
-                            </svg>
-                            موافقة مدير القسم
-                        </li>
-                    }
-                    else if (Model.status == "رفضت من مدير القسم")
-                    {
-                        <li class="flex items-center text-green-600 dark:text-green-500">
-                            <svg class="w-3.5 h-3.5 ml-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
-                            </svg>
-                            موافقة المدير المباشر
-                            <span class="mx-2">/</span>
-                        </li>
-                        <li class="flex items-center text-red-600 dark:text-red-500">
-                            <svg class="w-3.5 h-3.5 ml-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
-                            </svg>
-                            رفضت من مدير القسم
-                        </li>
-                    }
-                    else
-                    {
-                        <li class="flex items-center @((Model.status == "موافقة المدير المباشر" || Model.status == "موافقة مدير القسم") ? "text-green-600 dark:text-green-500" : "text-gray-400 dark:text-gray-500")">
-                            <svg class="w-3.5 h-3.5 ml-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
-                            </svg>
-                            موافقة المدير المباشر
-                            <span class="mx-2">/</span>
-                        </li>
-                        <li class="flex items-center @((Model.status == "موافقة مدير القسم") ? "text-green-600 dark:text-green-500" : "text-gray-400 dark:text-gray-500")">
-                            <svg class="w-3.5 h-3.5 ml-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
-                            </svg>
-                            موافقة مدير القسم
-                        </li>
-                    }
-                </ol>
+                        <li class="mx-2 text-2xl">&larr;</li>
 
+                        @if (Model.status == "رفضت من المدير المباشر")
+                        {
+                            <li class="flex items-center text-red-600">
+                                <svg class="w-3.5 h-3.5 mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm4.5 10.5h-9a1 1 0 0 0 0 2h9a1 1 0 0 0 0-2Z" />
+                                </svg>
+                                رفضت من المدير المباشر
+                            </li>
+                        }
+                        else if (Model.status == "رفضت من مدير الموارد البشرية")
+                        {
+                            <li class="flex items-center text-green-600">
+                                <svg class="w-3.5 h-3.5 mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 1 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
+                                </svg>
+                                موافقة المدير المباشر
+                            </li>
+                            <li class="mx-2 text-2xl">&larr;</li>
+                            <li class="flex items-center text-red-600">
+                                <svg class="w-3.5 h-3.5 mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm4.5 10.5h-9a1 1 0 0 0 0 2h9a1 1 0 0 0 0-2Z" />
+                                </svg>
+                                رفضت من مدير الموارد البشرية
+                            </li>
+                        }
+                        else if (Model.status == "موافقة مدير الموارد البشرية" || Model.status == "موافقة المدير المباشر" || Model.status =="مرسلة" )
+                        {
+                            <li class="flex items-center @((Model.status == "موافقة المدير المباشر" || Model.status == "موافقة مدير الموارد البشرية") ? "text-green-600" : "text-gray-400")">
+                                <svg class="w-3.5 h-3.5 mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 1 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
+                                </svg>
+                                موافقة المدير المباشر
+                            </li>
+                            <li class="mx-2 text-2xl">&larr;</li>
+                            <li class="flex items-center @(Model.status == "موافقة مدير الموارد البشرية" ? "text-green-600" : "text-gray-400")">
+                                <svg class="w-3.5 h-3.5 mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 1 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
+                                </svg>
+                                موافقة مدير الموارد البشرية
+                            </li>
+                        }
+                        else if (Model.status == "رفضت من المدير التنفيذي")
+                        {
+                            <li class="flex items-center text-red-600">
+                                <svg class="w-3.5 h-3.5 mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm4.5 10.5h-9a1 1 0 0 0 0 2h9a1 1 0 0 0 0-2Z" />
+                                </svg>
+                                رفضت من المدير التنفيذي
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="flex items-center @(Model.status == "موافقة المدير التنفيذي" ? "text-green-600" : "text-gray-400")">
+                                <svg class="w-3.5 h-3.5 mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 1 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
+                                </svg>
+                                موافقة المدير التنفيذي
+                            </li>
+                        }
+                    </ol>
+                </div>
 
                 <!-- Holiday Details -->
-                <div class="col-md text-right my-1" dir="rtl">
-                    <div>
-                        <dl class="row text-center">
-                            <dt class="col-sm-4 mb-2">العنوان</dt>
-                            <dd class="col-sm-8 mb-3">@Html.DisplayFor(model => model.title)</dd>
+                <div class="text-right" dir="rtl">
+                    <dl class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-gray-100 p-3 rounded">
+                            <dt class="font-bold mb-1">الموظف</dt>
+                            <dd>@Html.DisplayFor(model => model.Employee.name)</dd>
+                        </div>
+                        <div class="bg-gray-100 p-3 rounded">
+                            <dt class="font-bold mb-1">العنوان</dt>
+                            <dd>@Html.DisplayFor(model => model.title)</dd>
+                        </div>
+                        <div class="bg-gray-100 p-3 rounded">
+                            <dt class="font-bold mb-1">المدة</dt>
+                            <dd>
+                               
+                                @if (Model.holiday.type == "استئذان")
+                                {
+                                    @if (Model.duration == 1)
+                                    {
+                                        <span>ساعة واحدة</span>
+                                    }
+                                    else if (Model.duration == 2)
+                                    {
+                                        <span>ساعتين</span>
+                                    }
+                                    else
+                                    {
+                                        <span>@Model.duration @Model.holiday.duration_Unit</span>
+                                    }
+                                }
+                                else
+                                {
+                                    @if (Model.duration == 1)
+                                    {
+                                        <span>يوم واحد</span>
+                                    }
+                                    else if (Model.duration == 2)
+                                    {
+                                        <span>يومين</span>
+                                    }
+                                    else
+                                    {
+                                        <span>@Model.duration @Model.holiday.duration_Unit</span>
+                                    }
+                                }
+                            </dd>
+                        </div>
+                        <div class="bg-gray-100 p-3 rounded">
+                            <dt class="font-bold mb-1">الوصف</dt>
+                            <dd>@Html.DisplayFor(model => model.description)</dd>
+                        </div>
+                        <div class="bg-gray-100 p-3 rounded">
+                            <dt class="font-bold mb-1">تاريخ البدء</dt>
+                            <dd>@Html.DisplayFor(model => model.start_date)</dd>
+                        </div>
 
-                            <dt class="col-sm-4 mb-2">المدة</dt>
-                            <dd class="col-sm-8 mb-3">@Html.DisplayFor(model => model.duration)</dd>
+                        <div class="bg-gray-100 p-3 rounded">
+                            <dt class="font-bold mb-1">النوع</dt>
+                            <dd>@Html.DisplayFor(model => model.holiday.type)</dd>
+                        </div>
+                        <div class="bg-gray-100 p-3 rounded">
+                            <dt class="font-bold mb-1">تاريخ الانتهاء</dt>
+                            <dd>@Html.DisplayFor(model => model.end_date)</dd>
+                        </div>
+                        <div class="bg-gray-100 p-3 rounded">
+                            <dt class="font-bold mb-1">الحالة</dt>
+                            <dd>@Html.DisplayFor(model => model.status)</dd>
+                        </div>
 
-                            <dt class="col-sm-4 mb-2">الوصف</dt>
-                            <dd class="col-sm-8 mb-3">@Html.DisplayFor(model => model.description)</dd>
-
-                            <dt class="col-sm-4 mb-2">تاريخ البدء</dt>
-                            <dd class="col-sm-8 mb-3">@Html.DisplayFor(model => model.start_date)</dd>
-
-                            <dt class="col-sm-4 mb-2">النوع</dt>
-                            <dd class="col-sm-8 mb-3">@Html.DisplayFor(model => model.holiday.type)</dd>
-
-                            <dt class="col-sm-4 mb-2">تاريخ الانتهاء</dt>
-                            <dd class="col-sm-8 mb-3">@Html.DisplayFor(model => model.end_date)</dd>
-
-                            <dt class="col-sm-4 mb-2">الحالة</dt>
-                            <dd class="col-sm-8 mb-3">@Html.DisplayFor(model => model.status)</dd>
-
-                            <dt class="col-sm-4 mb-2">الملفات</dt>
-                            <dd class="col-sm-8">
+                        <div class="bg-gray-100 p-3 rounded col-span-2">
+                            <dt class="font-bold mb-1">الملفات</dt>
+                            <dd>
                                 @if (!string.IsNullOrEmpty(Model.files))
                                 {
-                                    <a href="@fileUrl" target="_blank">@Model.files</a>
+                                    <a href="@fileUrl" target="_blank" class="text-blue-600 hover:underline">@Model.files</a>
                                 }
                                 else
                                 {
                                     <span>لا توجد مرفقات</span>
                                 }
                             </dd>
-                        </dl>
-                    </div>
-                    <div class="flex justify-center space-x-2">
-                        <div class="col-12 text-center">
-
-                            <button type="button" class="btn btn-danger ml-8" data-toggle="modal" data-target="#confirmEndModal-@Model.holidays_history_id">
-                                إنهاء الطلب
-                            </button>
-                            <button type="button" class="btn btn-success ml-8" data-toggle="modal" data-target="#confirmAcceptModal-@Model.holidays_history_id">
-                                قبول الطلب
-                            </button>
-
-
-                            <button type="button" class="btn btn-dark" data-dismiss="modal">إخفاء</button>
                         </div>
-                    </div>
+                    </dl>
                 </div>
+
+                <div class="flex flex-wrap items-center justify-center gap-4 mt-6">
+                    @if (Model.status=="مرسلة")
+                    {
+                        <button type="button" class="px-4 py-2 text-sm font-medium text-white bg-green-500 rounded-md hover:bg-green-600 focus:outline-none focus:ring-4 focus:ring-green-300 transition duration-300" data-toggle="modal" data-target="#confirmApprovalModal-@Model.holidays_history_id">
+                            موافقة
+                        </button>
+                        <button type="button" class="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-md hover:bg-red-600 focus:outline-none focus:ring-4 focus:ring-red-300 transition duration-300" data-toggle="modal" data-target="#confirmRejectionModal-@Model.holidays_history_id">
+                            رفض
+                        </button>
+                    }
+                    <button data-dismiss="modal" type="button" class="px-4 py-2 text-sm font-medium text-white bg-gray-500 rounded-md hover:bg-gray-600 focus:outline-none focus:ring-4 focus:ring-gray-300 transition duration-300">
+                        إخفاء
+                    </button>
             </div>
         </div>
     </div>
 </div>
-<div class="modal fade" id="confirmEndModal-@Model.holidays_history_id" tabindex="-1" role="dialog" aria-labelledby="confirmEndLabel" aria-hidden="true">
+
+<!-- Approval Confirmation Modal -->
+<div class="modal fade" id="confirmApprovalModal-@Model.holidays_history_id" tabindex="-1" role="dialog" aria-labelledby="confirmApprovalLabel-@Model.holidays_history_id" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="confirmEndLabel">تأكيد إنهاء المعاملة</h5>
+                <h5 class="modal-title" id="confirmApprovalLabel-@Model.holidays_history_id">تأكيد الموافقة</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
             <div class="modal-body">
-                <div class="form-group">
-                    <label for="endReason">سبب الإنهاء:</label>
-                    <textarea id="endReason-@Model.holidays_history_id" name="endReason" class="form-control mb-14" required></textarea>
-                </div>
+                هل أنت متأكد أنك تريد الموافقة على هذه الاجازة؟
             </div>
-            <div class="modal-footer flex pt-14 justify-center">
-                @using (Html.BeginForm("UpdateHolidayStatus", "CustomerServiceManager", FormMethod.Post, new { id = $"updateStatusFormConfirm-{Model.holidays_history_id}" }))
-                {
-                    @Html.AntiForgeryToken()
-                    @Html.HiddenFor(model => model.holidays_history_id)
-                    <button type="submit" class="btn btn-danger" onclick="addReasonToForm(@Model.holidays_history_id)">نعم، إنهاء</button>
-                }
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">الغاء</button>
+            <div class="modal-footer justify-center">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">إلغاء</button>
+                <button type="button" class="btn btn-success" onclick="submitApproval(@Model.holidays_history_id)">تأكيد</button>
             </div>
         </div>
     </div>
 </div>
-<div class="modal fade" id="confirmAcceptModal-@Model.holidays_history_id" tabindex="-1" role="dialog" aria-labelledby="confirmEndLabel" aria-hidden="true">
+
+<!-- Rejection Confirmation Modal -->
+<div class="modal fade" id="confirmRejectionModal-@Model.holidays_history_id" tabindex="-1" role="dialog" aria-labelledby="confirmRejectionLabel-@Model.holidays_history_id" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="confirmEndLabel">تأكيد قبول المعاملة</h5>
+                <h5 class="modal-title" id="confirmRejectionLabel-@Model.holidays_history_id">تأكيد الرفض</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
-
-            <div class="modal-footer flex pt-14 justify-center">
-                @using (Html.BeginForm("ApproveHoliday", "CustomerServiceManager", FormMethod.Post, new { id = $"updateStatusFormConfirm-{Model.holidays_history_id}" }))
-                {
-                    @Html.AntiForgeryToken()
-                    @Html.HiddenFor(model => model.holidays_history_id)
-                    <button type="submit" class="btn btn-primary" onclick="addReasonToForm(@Model.holidays_history_id)">نعم، قبول</button>
-                }
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">الغاء</button>
+            <div class="modal-body">
+                هل أنت متأكد أنك تريد رفض هذه الاجازة؟
+            </div>
+            <div class="modal-footer justify-center">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">إلغاء</button>
+                <button type="button" class="btn btn-danger" onclick="submitRejection(@Model.holidays_history_id)">تأكيد</button>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+    function submitApproval(holidays_history_id) {
+        $.ajax({
+                url: '/CustomerServiceManager/ApproveHoliday',
+            type: 'POST',
+            data: { holiday_id: holidays_history_id },
+            success: function (response) {
+                if (response.success) {
+                    Swal.fire('نجاح', response.message, 'success').then(() => {
+                            window.location.href = '/CustomerServiceManager/Transactions';
+                    });
+                } else {
+                    Swal.fire('خطأ', response.message, 'error');
+                }
+            },
+            error: function () {
+                Swal.fire('خطأ', 'حدث خطأ أثناء معالجة طلبك.', 'error');
+            }
+        });
+    }
+
+    function submitRejection(holidays_history_id) {
+        $.ajax({
+                url: '/CustomerServiceManager/DenyHoliday',
+            type: 'POST',
+            data: { holiday_id: holidays_history_id },
+            success: function (response) {
+                if (response.success) {
+                    Swal.fire('نجاح', response.message, 'success').then(() => {
+                            window.location.href = '/CustomerServiceManager/Transactions';
+                    });
+                } else {
+                    Swal.fire('خطأ', response.message, 'error');
+                }
+            },
+            error: function () {
+                Swal.fire('خطأ', 'حدث خطأ أثناء معالجة طلبك.', 'error');
+            }
+        });
+    }
+</script>

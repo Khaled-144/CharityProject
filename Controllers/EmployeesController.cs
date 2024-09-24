@@ -39,7 +39,8 @@ namespace CharityProject.Controllers
             if (employeeIdString != null && int.TryParse(employeeIdString, out int employeeId))
             {
                 var employeeDetails = await _context.employee_details
-                    .Include(ed => ed.employee) // To include related employee data
+                    .Include(ed => ed.employee)
+                   .Include(ed => ed.Department)
                     .FirstOrDefaultAsync(ed => ed.employee_id == employeeId);
 
                 return employeeDetails;
@@ -77,25 +78,35 @@ namespace CharityProject.Controllers
         public async Task<IActionResult> Index()
         {
             int currentUserId = GetEmployeeIdFromSession();
-
+           
             // Count transactions based on their status, ensuring no duplicates
-            var newTransactions = await _context.Transactions
-                .Where(t => t.status == "مرسلة" && (t.to_emp_id == currentUserId || t.Referrals.Any(r => r.to_employee_id == currentUserId)))
-                .GroupBy(t => t.transaction_id)
-                .Select(g => g.FirstOrDefault())
+            var newTransactions =await _context.Transactions
+                .Include(t => t.Referrals)
+                    .ThenInclude(r => r.from_employee)
+                .Include(t => t.Referrals)
+                    .ThenInclude(r => r.to_employee)
+                .Where(t => t.status != "منهاة" && (
+                    (t.status == "مرسلة" && t.to_emp_id == currentUserId) || t.Referrals.Any() &&
+                    t.Referrals
+                        .OrderByDescending(r => r.referral_date)
+                        .First().to_employee_id == currentUserId &&
+                    t.Referrals
+                        .OrderByDescending(r => r.referral_date)
+                        .First().from_employee_id != currentUserId
+                ))
+                .OrderByDescending(t => t.transaction_id)
                 .CountAsync();
 
             var ongoingTransactions = await _context.Transactions
-                .Where(t => t.status != "منهاة" && (t.to_emp_id == currentUserId || t.Referrals.Any(r => r.to_employee_id == currentUserId)))
-                .GroupBy(t => t.transaction_id)
-                .Select(g => g.FirstOrDefault())
-                .CountAsync();
+                    .Where(t => t.to_emp_id == currentUserId && t.status == "تحت الإجراء")
+                   .GroupBy(t => t.transaction_id)
+                   .Select(g => g.FirstOrDefault())
+                   .CountAsync();
 
             var completedTransactions = await _context.Transactions
-                .Where(t => t.status == "منهاة" && (t.to_emp_id == currentUserId || t.Referrals.Any(r => r.to_employee_id == currentUserId)))
+                .Where(t => t.status == "منهاة" && t.to_emp_id == currentUserId)
                 .GroupBy(t => t.transaction_id)
-                .Select(g => g.FirstOrDefault())
-                .CountAsync();
+                .Select(g => g.FirstOrDefault()).CountAsync();
 
             // Passing the counts to the view using ViewBag
             ViewBag.NewTransactionsCount = newTransactions;
@@ -118,7 +129,8 @@ namespace CharityProject.Controllers
                 Value = d.departement_id.ToString(),
                 Text = d.departement_name
             }).ToList();
-
+            var holidayTypes = await _context.Holidays.ToListAsync();
+            ViewData["HolidayTypes"] = holidayTypes ?? new List<Holiday>();
             // Filter transactions based on the current user's ID
             var transactions = await _context.Transactions
                 .Where(t => t.to_emp_id == currentUserId)
@@ -146,7 +158,9 @@ namespace CharityProject.Controllers
             int assetsCount = await _context.charter
                 .Where(c => c.to_emp_id == currentUserId)
                 .CountAsync();
+        
 
+          
             // Passing the counts to the view using ViewBag
             ViewBag.InternalCount = internalCount;
             ViewBag.HolidaysCount = holidaysCount;
@@ -469,6 +483,8 @@ namespace CharityProject.Controllers
 
             // Fetch holidays created by the logged-in employee
             var holidays = await _context.HolidayHistories
+                .Include(h=>h.holiday)
+                 .Include(h => h.Employee)
                 .Where(h => h.emp_id == employeeId)
                 .OrderByDescending(h => h.holidays_history_id)
                 .ToListAsync();
@@ -477,6 +493,12 @@ namespace CharityProject.Controllers
                 // Render the _NothingNew partial view if no letters
                 return PartialView("_NothingNew");
             }
+            var employeeIds = holidays.SelectMany(t => new[] { t.emp_id }).Distinct().ToList();
+            var employees = await _context.employee
+                .Where(e => employeeIds.Contains(e.employee_id))
+                .ToDictionaryAsync(e => e.employee_id, e => e.name);
+
+            ViewBag.EmployeeNames = employees;
             return PartialView("_getAllArchivedHolidays", holidays);
         }
 
@@ -547,7 +569,8 @@ namespace CharityProject.Controllers
             var totalTakenDuration = _context.HolidayHistories
                 .Where(hh => hh.emp_id == employeeId
                              && hh.holiday_id == holidayId
-                             && hh.start_date.Year == DateTime.Now.Year)
+                             && (hh.start_date.Year == DateTime.Now.Year && hh.holiday.type != "استئذان")
+                             || (hh.start_date.Month == DateTime.Now.Month && hh.holiday.type == "استئذان") && hh.status == "موافقة مدير الموارد البشرية")
                 .Sum(hh => hh.duration);
 
             var remainingBalance = holidayType - totalTakenDuration;
@@ -565,18 +588,22 @@ namespace CharityProject.Controllers
         {
             var employeeDetails = await GetEmployeeDetailsFromSessionAsync();
             var letters = await _context.letters
-                .Where(l => l.to_emp_id == employeeDetails.employee_id || l.departement_id == employeeDetails.departement_id)
-                .OrderByDescending(l => l.letters_id)
+                  .Where(l => l.to_emp_id == employeeDetails.employee_id || (l.to_departement_name == employeeDetails.Department.departement_name && l.to_emp_id == 0))
+                .OrderByDescending(l => l.letters_id) // Order by letters_id in descending order
                 .ToListAsync();
-
-            // Check if there are no letters
             if (letters.Count == 0)
             {
-                // Render the _NothingNew partial view if no letters
+                // Render the _NothingNew partial view if no transactions
                 return PartialView("_NothingNew");
             }
 
-            // Render the _getAllLetters partial view if there are letters
+            var employeeIds = letters.SelectMany(t => new[] { t.from_emp_id, t.to_emp_id }).Distinct().ToList();
+            var employees = await _context.employee
+                .Where(e => employeeIds.Contains(e.employee_id))
+                .ToDictionaryAsync(e => e.employee_id, e => e.name);
+
+            ViewBag.EmployeeNames = employees;
+
             return PartialView("_getAllLetters", letters);
         }
 
@@ -597,11 +624,13 @@ namespace CharityProject.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create_Letter(IFormFile files, [Bind("title,description,type,to_emp_id")] letter letter)
+        public async Task<IActionResult> Create_Letter(
+      IFormFile files,
+      int[]? to_departement_name,
+      string[]? to_emp_id,
+      [Bind("title,description,type,from_emp_id,date,files,Confidentiality,Urgency,Importance")] letter letter)
         {
-            var employeeId = GetEmployeeIdFromSession();
-            letter.from_emp_id = employeeId; // Assign the employee ID to the letter
-
+            var employee_details = await GetEmployeeDetailsFromSessionAsync();
             if (files != null && files.Length > 0)
             {
                 // Validate the file type
@@ -611,8 +640,7 @@ namespace CharityProject.Controllers
                 if (!allowedExtensions.Contains(extension))
                 {
                     ModelState.AddModelError("files", "Only PDF, Excel, and Word files are allowed.");
-                    // Return the view with validation error
-                    return View(letter);
+                    return View(letter); // Return the view with validation error
                 }
 
                 string filename = Path.GetFileName(files.FileName);
@@ -629,18 +657,144 @@ namespace CharityProject.Controllers
                 letter.files = filename;
             }
 
+            letter.date = DateTime.Now;
+            letter.from_emp_id = employee_details.employee_id;
+            letter.departement_id = employee_details.departement_id;
 
-            letter.date = DateTime.Now; // Set the current date
+            bool letterCreated = false;
+            HashSet<int> processedEmployees = new HashSet<int>();
 
-            // Optionally set department_id dynamically based on the user's department
-            // letter.departement_id = /* retrieve from employee details */;
+            // If specific employees are chosen, prioritize them
+            if (to_emp_id != null && to_emp_id.Any())
+            {
+                foreach (var empId in to_emp_id.Select(int.Parse))
+                {
+                    // Find the employee and their department
+                    var employee = await _context.employee_details
+                                                .Include(ed => ed.Department)
+                                                .FirstOrDefaultAsync(ed => ed.employee_id == empId);
 
-            _context.Add(letter);
+                    if (employee != null)
+                    {
+                        var newLetter = new letter
+                        {
+                            title = letter.title,
+                            description = letter.description,
+                            type = letter.type,
+                            from_emp_id = letter.from_emp_id,
+                            files = letter.files,
+                            Confidentiality = letter.Confidentiality,
+                            Urgency = letter.Urgency,
+                            Importance = letter.Importance,
+                            date = letter.date,
+                            to_emp_id = empId,
+                            to_departement_name = employee.Department.departement_name,
+                            departement_id = letter.departement_id
+                        };
+
+                        _context.Add(newLetter);
+                        processedEmployees.Add(empId);
+                        letterCreated = true;
+                    }
+                }
+            }
+
+            // If departments are selected
+            if (to_departement_name != null && to_departement_name.Any())
+            {
+                foreach (var deptId in to_departement_name)
+                {
+                    // Find the department by ID
+                    var department = await _context.Department.FirstOrDefaultAsync(d => d.departement_id == deptId);
+
+                    if (department != null)
+                    {
+                        // Get all active employees in the selected department
+                        var departmentEmployees = await _context.employee_details
+                            .Where(ed => ed.departement_id == deptId && ed.active)
+                            .Select(ed => ed.employee_id)
+                            .ToListAsync();
+
+                        // If there are no active employees or no specific employees are chosen
+                        if (!departmentEmployees.Any() || (to_emp_id == null || !to_emp_id.Any()))
+                        {
+                            // Create a new letter record for the department
+                            var newLetter = new letter
+                            {
+                                title = letter.title,
+                                description = letter.description,
+                                type = letter.type,
+                                from_emp_id = letter.from_emp_id,
+                                files = letter.files,
+                                Confidentiality = letter.Confidentiality,
+                                Urgency = letter.Urgency,
+                                Importance = letter.Importance,
+                                date = letter.date,
+                                to_emp_id = 0,
+                                to_departement_name = department.departement_name,
+                                departement_id = letter.departement_id
+                            };
+
+                            _context.Add(newLetter);
+                            letterCreated = true;
+                        }
+                        else
+                        {
+                            foreach (var empId in departmentEmployees)
+                            {
+                                // Create a new letter record for each employee in the department
+                                // that hasn't been processed yet
+                                if (!processedEmployees.Contains(empId))
+                                {
+                                    var newLetter = new letter
+                                    {
+                                        title = letter.title,
+                                        description = letter.description,
+                                        type = letter.type,
+                                        from_emp_id = letter.from_emp_id,
+                                        files = letter.files,
+                                        Confidentiality = letter.Confidentiality,
+                                        Urgency = letter.Urgency,
+                                        Importance = letter.Importance,
+                                        date = letter.date,
+                                        to_emp_id = empId,
+                                        to_departement_name = department.departement_name,
+                                        departement_id = letter.departement_id
+                                    };
+
+                                    _context.Add(newLetter);
+                                    letterCreated = true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // If no departments or employees are chosen, create a letter for all departments
+            if (!letterCreated)
+            {
+                var newLetter = new letter
+                {
+                    title = letter.title,
+                    description = letter.description,
+                    type = letter.type,
+                    from_emp_id = letter.from_emp_id,
+                    files = letter.files,
+                    Confidentiality = letter.Confidentiality,
+                    Urgency = letter.Urgency,
+                    Importance = letter.Importance,
+                    date = letter.date,
+                    to_emp_id = 0,
+                    to_departement_name = "الادارة التنفيذية",
+                    departement_id = letter.departement_id
+                };
+
+                _context.Add(newLetter);
+            }
+
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Transactions)); // Or any other relevant action
-
-
-            // Return the same view with validation errors
+            return RedirectToAction(nameof(Transactions));
         }
 
 

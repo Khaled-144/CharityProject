@@ -17,12 +17,14 @@
         public int emp_id { get; set; }
         [ForeignKey("emp_id")]
         public employee_details Employee_detail { get; set; }
-
+        [ForeignKey("emp_id")]
+        public employee Employee { get; set; }
         public DateOnly creation_date { get; set; }
-        public DateTime start_date { get; set; }
-        public DateTime end_date { get; set; }
+        public DateOnly start_date { get; set; }
+        public DateOnly end_date { get; set; }
         public string? files { get; set; }
         public string? status { get; set; }
+       
 
         [ForeignKey("holiday_id")]
         public virtual Holiday holiday { get; set; }
