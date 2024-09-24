@@ -12,6 +12,10 @@ using Microsoft.Data.SqlClient;
 using System.Linq;
 using System.Diagnostics.Metrics;
 using Microsoft.CodeAnalysis.Elfie.Diagnostics;
+using OfficeOpenXml;
+using System.IO;
+using Microsoft.AspNetCore.Http;
+
 namespace CharityProject.Controllers
 {
 	public class HRController : Controller
@@ -27,6 +31,113 @@ namespace CharityProject.Controllers
 			_context = context;
 			_logger = logger;
 		}
+
+        public IActionResult ExportToExcel()
+        {
+            var salaries = _context.SalaryHistories.ToList();
+
+            using (var package = new ExcelPackage())
+            {
+                var worksheet = package.Workbook.Worksheets.Add("Salaries");
+
+                // Add headers
+                worksheet.Cells[1, 1].Value = "Employee ID";
+                worksheet.Cells[1, 2].Value = "Base Salary";
+                worksheet.Cells[1, 3].Value = "Housing Allowances";
+                worksheet.Cells[1, 4].Value = "Transportation Allowances";
+                worksheet.Cells[1, 5].Value = "Other Allowances";
+                worksheet.Cells[1, 6].Value = "Overtime";
+                worksheet.Cells[1, 7].Value = "Bonus";
+                worksheet.Cells[1, 8].Value = "Delay Discount";
+                worksheet.Cells[1, 9].Value = "Absence Discount";
+                worksheet.Cells[1, 10].Value = "Other Discount";
+                worksheet.Cells[1, 11].Value = "Debt";
+                worksheet.Cells[1, 12].Value = "Shared Portion";
+                worksheet.Cells[1, 13].Value = "Facility Portion";
+                worksheet.Cells[1, 14].Value = "Social Insurance";
+                worksheet.Cells[1, 15].Value = "Work Days";
+                worksheet.Cells[1, 16].Value = "Date";
+                worksheet.Cells[1, 17].Value = "Exchange Statement";
+                worksheet.Cells[1, 18].Value = "Notes";
+
+                // Add data
+                for (int i = 0; i < salaries.Count; i++)
+                {
+                    worksheet.Cells[i + 2, 1].Value = salaries[i].emp_id;
+                    worksheet.Cells[i + 2, 2].Value = salaries[i].base_salary;
+                    worksheet.Cells[i + 2, 3].Value = salaries[i].housing_allowances;
+                    worksheet.Cells[i + 2, 4].Value = salaries[i].transportaion_allowances;
+                    worksheet.Cells[i + 2, 5].Value = salaries[i].other_allowances;
+                    worksheet.Cells[i + 2, 6].Value = salaries[i].overtime;
+                    worksheet.Cells[i + 2, 7].Value = salaries[i].bonus;
+                    worksheet.Cells[i + 2, 8].Value = salaries[i].delay_discount;
+                    worksheet.Cells[i + 2, 9].Value = salaries[i].absence_discount;
+                    worksheet.Cells[i + 2, 10].Value = salaries[i].other_discount;
+                    worksheet.Cells[i + 2, 11].Value = salaries[i].debt;
+                    worksheet.Cells[i + 2, 12].Value = salaries[i].shared_portion;
+                    worksheet.Cells[i + 2, 13].Value = salaries[i].facility_portion;
+                    worksheet.Cells[i + 2, 14].Value = salaries[i].Social_insurance;
+                    worksheet.Cells[i + 2, 15].Value = salaries[i].work_days;
+                    worksheet.Cells[i + 2, 16].Value = salaries[i].date.ToString("yyyy-MM-dd");
+                    worksheet.Cells[i + 2, 17].Value = salaries[i].exchange_statement;
+                    worksheet.Cells[i + 2, 18].Value = salaries[i].notes;
+                }
+
+                var stream = new MemoryStream();
+                package.SaveAs(stream);
+                var fileName = $"Salaries_{DateTime.Now.ToString("yyyyMMddHHmmss")}.xlsx";
+                return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ImportFromExcel(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                return RedirectToAction("Index");
+            }
+
+            using (var stream = new MemoryStream())
+            {
+                await file.CopyToAsync(stream);
+                using (var package = new ExcelPackage(stream))
+                {
+                    var worksheet = package.Workbook.Worksheets[0];
+                    var rowCount = worksheet.Dimension.Rows;
+
+                    for (int row = 2; row <= rowCount; row++)
+                    {
+                        var salaryRecord = new salaries_history
+                        {
+                            emp_id = Convert.ToInt32(worksheet.Cells[row, 1].Value),
+                            base_salary = Convert.ToDouble(worksheet.Cells[row, 2].Value),
+                            housing_allowances = Convert.ToDouble(worksheet.Cells[row, 3].Value),
+                            transportaion_allowances = Convert.ToDouble(worksheet.Cells[row, 4].Value),
+                            other_allowances = Convert.ToDouble(worksheet.Cells[row, 5].Value),
+                            overtime = Convert.ToDouble(worksheet.Cells[row, 6].Value),
+                            bonus = Convert.ToDouble(worksheet.Cells[row, 7].Value),
+                            delay_discount = Convert.ToDouble(worksheet.Cells[row, 8].Value),
+                            absence_discount = Convert.ToDouble(worksheet.Cells[row, 9].Value),
+                            other_discount = Convert.ToDouble(worksheet.Cells[row, 10].Value),
+                            debt = Convert.ToDouble(worksheet.Cells[row, 11].Value),
+                            shared_portion = Convert.ToDouble(worksheet.Cells[row, 12].Value),
+                            facility_portion = Convert.ToDouble(worksheet.Cells[row, 13].Value),
+                            Social_insurance = Convert.ToDouble(worksheet.Cells[row, 14].Value),
+                            work_days = Convert.ToInt32(worksheet.Cells[row, 15].Value),
+                            date = Convert.ToDateTime(worksheet.Cells[row, 16].Value),
+                            exchange_statement = worksheet.Cells[row, 17].Value.ToString(),
+                            notes = worksheet.Cells[row, 18].Value?.ToString()
+                        };
+
+                        _context.SalaryHistories.Add(salaryRecord);
+                    }
+                    await _context.SaveChangesAsync();
+                }
+            }
+
+            return RedirectToAction("Index");
+        }
 
         public async Task<IActionResult> Index()
         {
