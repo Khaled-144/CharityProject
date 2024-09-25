@@ -863,8 +863,6 @@ namespace CharityProject.Controllers
         [HttpGet]
         public async Task<IActionResult> GetEmployeesByDepartment(int departmentId)
         {
-            _logger.LogInformation($"Fetching employees for department ID: {departmentId}");
-
             var employees = await _context.employee_details
                 .Where(ed => ed.departement_id == departmentId)
                 .Select(ed => new
@@ -879,11 +877,9 @@ namespace CharityProject.Controllers
 
             if (!employees.Any())
             {
-                _logger.LogWarning($"No employees found for department ID: {departmentId}");
-                return NotFound("No employees found for the given department.");
+                return Ok(new { message = "لا يوجد موظفين في هذا القسم" });
             }
 
-            _logger.LogInformation($"Found {employees.Count} employees for department ID: {departmentId}");
             return Ok(employees);
         }
         [HttpPost]
