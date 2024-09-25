@@ -115,8 +115,8 @@ namespace CharityProject.Controllers
 
                  return await _context.SalaryHistories
                            .Where(s => s.emp_id == employeeId)
-                                    .OrderByDescending(s => s.date) // Retrieve the latest salary based on date
-                                    .FirstOrDefaultAsync();
+                           .OrderByDescending(s => s.date) // Retrieve the latest salary based on date
+                           .FirstOrDefaultAsync();
             
         }
 
