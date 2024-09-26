@@ -89,6 +89,10 @@
                 </button>
                 <span class="text-red-500 text-sm ml-2">(@ViewBag.InternalCount)</span>
             </li>
+            <li class="me-2 flex items-center" role="presentation">
+                <button class="inline-block p-4 border-b-2 rounded-t-lg" id="external-tab" data-content-url="@Url.Action("GetAllExternalTransactions", "CustomerServiceManager")" type="button" role="tab">خارجية</button>
+                <span class="text-red-500 text-sm ml-2">(@ViewBag.ExternalCount)</span>
+            </li>
             <li class="me-2" role="presentation">
                 <button class="inline-block p-4 border-b-2 rounded-t-lg" id="holidays-tab" data-content-url="@Url.Action("GetAllHolidays", "CustomerServiceManager")" type="button" role="tab">
                     إجازات

@@ -9,39 +9,45 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="~/256_clean_icon.ico" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/CharityProject.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.6.5/flowbite.min.css" rel="stylesheet" />
     <title>رمز التحقق</title>
 </head>
 
 <body class="bg-cover bg-center bg-no-repeat bg-fixed" style="background-image: url('../images/alharm22.jpg');">
     <div>
-        <img src="/images/logo.png" alt="logo image" class="mx-auto w-32" />
-        <div class="w-[70vw] md:w-[300px] bg-white mx-auto justify-center shadow-lg border border-primaryColor rounded-md">
-            <div class="p-4">
-                <h1 class="text-xl font-bold text-center mt-4 text-veryDarkBlue">أدخل رمز التحقق</h1>
+        <img src="/images/logo.png" alt="logo image" class="mx-auto w-52" />
+        <div class="w-[80vw] md:w-[400px] bg-white mx-auto justify-center shadow-2xl border border-primaryColor rounded-md p-6">
+            <h1 class="text-xl font-bold text-center mt-4 text-veryDarkBlue">أدخل رمز التحقق</h1>
+            
+            @if (ViewData["Message"] != null)
+            {
+                <div class="text-red-500 text-center mb-4">
+                    @ViewData["Message"]
+                </div>
+            }
 
-                <form asp-action="VerifyCode">
-                    <div class="mt-4 mb-2">
-                        <label for="verificationCode" class="block mb-2 text-sm font-medium text-gray-900">رمز التحقق</label>
-                        <input type="text" id="verificationCode" name="verificationCode" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2" required>
-                    </div>
-
-                    <button class="mt-4 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 w-full rounded-md transition duration-200" type="submit">
-                        تحقق
-                    </button>
-                </form>
-            </div>
+            <form asp-action="VerifyCode" class="mt-4">
+                <div class="mb-4">
+                    <label for="verificationCode" class="block mb-1 text-sm font-medium text-gray-700">رمز التحقق</label>
+                    <input type="text" id="verificationCode" name="verificationCode" 
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg 
+                               focus:ring-blue-500 focus:border-blue-500 block w-full p-2" 
+                        required>
+                </div>
+                <button class="w-full bg-green-500 hover:bg-green-700 text-white font-bold py-2 rounded-md transition duration-200" type="submit">
+                    تحقق
+                </button>
+            </form>
         </div>
     </div>
+
     <script src="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.js"></script>
 </body>
 
-<style>
-    body {
-        background-image: url(./images/alharm22.jpg);
-        background-repeat: no-repeat;
-        background-size: cover;
-        background-position: center;
-        height: 100vh;
-    }
-</style>
 </html>
