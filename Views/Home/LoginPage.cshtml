@@ -3,7 +3,7 @@
 @{
     // Determine layout based on user permission position
     var permissionPosition = Context.Session.GetString("Permission_position");
-    
+
     if (permissionPosition == "مدير الموارد البشرية والمالية")
     {
         Layout = "_Layout_HR";
@@ -58,7 +58,7 @@
                         <p class="mb-2 text-red-500">
                             @message
                         </p>
-                        
+
                         <label for="userid" class="block mb-2 text-base font-medium text-gray-900 dark:text-white">الرقم الوظيفي</label>
                         <div class="relative mb-6">
                             <div class="flex flex-row justify-center gap-3">
@@ -107,6 +107,13 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.js"></script>
+
+    <!-- Restrict الرقم الوظيفي input to numbers -->
+    <script>
+        document.getElementById('userid').addEventListener('input', function (e) {
+            this.value = this.value.replace(/\D/g, '');
+        });
+    </script>
 </body>
 
 <style>
