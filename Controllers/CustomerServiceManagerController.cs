@@ -598,10 +598,10 @@ namespace CharityProject.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create_Letter(
-        List<IFormFile> files,
-        int[]? to_departement_name,
-        string[]? to_emp_id,
-        [Bind("title,description,type,from_emp_id,date,files,Confidentiality,Urgency,Importance")] letter letter)
+         List<IFormFile> files,
+         int[]? to_departement_name,
+         string[]? to_emp_id,
+         [Bind("title,description,type,from_emp_id,date,files,Confidentiality,Urgency,Importance")] letter letter)
         {
             // Retrieve employee details from the session
             var employee_details = await GetEmployeeDetailsFromSessionAsync();
@@ -654,7 +654,7 @@ namespace CharityProject.Controllers
             HashSet<int> processedEmployees = new HashSet<int>();
 
             // If specific employees are chosen, prioritize them
-            if (to_emp_id != null && to_emp_id.Any())
+            if (to_emp_id != null && to_emp_id.Any() && letter.type != "تظلم")
             {
                 foreach (var empId in to_emp_id.Select(int.Parse))
                 {
@@ -689,7 +689,7 @@ namespace CharityProject.Controllers
             }
 
             // If only departments are selected, create letters with to_emp_id set to 0
-            if ((to_emp_id == null || !to_emp_id.Any()) && to_departement_name != null && to_departement_name.Any())
+            if ((to_emp_id == null || !to_emp_id.Any()) && to_departement_name != null && to_departement_name.Any() && letter.type!="تظلم")
             {
                 foreach (var deptId in to_departement_name)
                 {
@@ -730,6 +730,30 @@ namespace CharityProject.Controllers
                 }
             }
 
+            // Additional condition: If type is "تظلم" and no departments or employees are chosen
+            if (letter.type == "تظلم")
+            {
+                // Create a letter with to_emp_id set to 0 and to_departement_name set to null
+                var newLetter = new letter
+                {
+                    title = letter.title,
+                    description = letter.description,
+                    type = letter.type,
+                    from_emp_id = letter.from_emp_id,
+                    files = letter.files,
+                    Confidentiality = letter.Confidentiality,
+                    Urgency = letter.Urgency,
+                    Importance = letter.Importance,
+                    date = letter.date,
+                    to_emp_id = 0,
+                    to_departement_name = null, // Set to_departement_name to null
+                    departement_id = letter.departement_id
+                };
+
+                _context.Add(newLetter);
+                letterCreated = true;
+            }
+
             // If no departments or employees are chosen, create a letter for the default department
             if (!letterCreated)
             {
@@ -744,8 +768,7 @@ namespace CharityProject.Controllers
                     Urgency = letter.Urgency,
                     Importance = letter.Importance,
                     date = letter.date,
-                    to_emp_id = 0,
-                    to_departement_name = "الادارة التنفيذية",
+                    to_emp_id = letter.from_emp_id,
                     departement_id = letter.departement_id
                 };
 
@@ -846,8 +869,6 @@ namespace CharityProject.Controllers
         [HttpGet]
         public async Task<IActionResult> GetEmployeesByDepartment(int departmentId)
         {
-            _logger.LogInformation($"Fetching employees for department ID: {departmentId}");
-
             var employees = await _context.employee_details
                 .Where(ed => ed.departement_id == departmentId)
                 .Select(ed => new
@@ -862,11 +883,9 @@ namespace CharityProject.Controllers
 
             if (!employees.Any())
             {
-                _logger.LogWarning($"No employees found for department ID: {departmentId}");
-                return NotFound("No employees found for the given department.");
+                return Ok(new { message = "لا يوجد موظفين في هذا القسم" });
             }
 
-            _logger.LogInformation($"Found {employees.Count} employees for department ID: {departmentId}");
             return Ok(employees);
         }
         [HttpPost]

@@ -53,9 +53,9 @@ namespace CharityProject.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> GenerateSalaryStatement(string salaryAmount, string recipient)
+        public async Task<IActionResult> GenerateSalaryStatement(string recipient)
         {
-            var employee = await GetEmployeeDetailsFromSessionAsync();
+            var employee = await GetEmployeeDetailsFromSessionAsync(); // Retrieve employee details from session
             string employeeName = employee.employee.name;
             string employeeId = employee.employee_id.ToString();
             QuestPDF.Settings.License = LicenseType.Community;
@@ -64,6 +64,13 @@ namespace CharityProject.Controllers
 
             try
             {
+                // Fetch the latest salary record based on the employee ID
+                var salaryHistory = await GetLastEmployeeSalaryAsync(employee.employee_id);
+                if (salaryHistory == null)
+                {
+                    return StatusCode(404, "لايوجد رواتب مسجلة لهذا الموظف");
+                }
+
                 var document = Document.Create(container =>
                 {
                     container.Page(page =>
@@ -73,7 +80,7 @@ namespace CharityProject.Controllers
                         page.DefaultTextStyle(x => x.FontFamily("Arial").FontSize(11));
 
                         page.Header().Element(ComposeHeader);
-                        page.Content().Element(container => ComposeContent(container, employeeName, employeeId, salaryAmount, recipient));
+                        page.Content().Element(container => ComposeContent(container, employeeName, employeeId, salaryHistory, recipient));
                         page.Footer().Element(ComposeFooter);
 
                         page.Background().Border(1).BorderColor(Colors.Grey.Lighten2);
@@ -102,6 +109,17 @@ namespace CharityProject.Controllers
             }
         }
 
+        // Method to get the latest salary record for an employee
+        private async Task<salaries_history> GetLastEmployeeSalaryAsync(int employeeId)
+        {
+
+                 return await _context.SalaryHistories
+                           .Where(s => s.emp_id == employeeId)
+                           .OrderByDescending(s => s.date) // Retrieve the latest salary based on date
+                           .FirstOrDefaultAsync();
+            
+        }
+
         void ComposeHeader(IContainer container)
         {
             container.Background(Colors.Grey.Lighten3).Padding(20).Row(row =>
@@ -123,7 +141,7 @@ namespace CharityProject.Controllers
             return $"{day} {arabicMonths[date.Month - 1]} {year}";
         }
 
-        void ComposeContent(IContainer container, string employeeName, string employeeId, string salaryAmount, string recipient)
+        void ComposeContent(IContainer container, string employeeName, string employeeId, salaries_history salaryHistory, string recipient)
         {
             container.PaddingVertical(1, Unit.Centimetre).Column(column =>
             {
@@ -139,13 +157,15 @@ namespace CharityProject.Controllers
                 {
                     table.ColumnsDefinition(columns =>
                     {
-                        columns.RelativeColumn();
-                        columns.ConstantColumn(150);
+                        columns.RelativeColumn();  // Label column
+                        columns.ConstantColumn(150); // Value column
                     });
 
-                    string salaryText = salaryAmount;
+                    // Format the salary amount as a string with 2 decimal places
+                    string salaryText = salaryHistory.base_salary.ToString("N2");
                     string reversedSalaryText = new string(salaryText.Reverse().ToArray());
 
+                    // Add table rows
                     AddTableRow(table, "اسم الموظف:", employeeName);
                     AddTableRow(table, "رقم الموظف:", employeeId);
                     AddTableRow(table, "مبلغ الراتب:", $"{reversedSalaryText} ريال سعودي فقط");
@@ -158,6 +178,7 @@ namespace CharityProject.Controllers
             });
         }
 
+        // Helper method to add table rows
         void AddTableRow(TableDescriptor table, string label, string value)
         {
             table.Cell().Border(1).BorderColor(Colors.Grey.Lighten2).Padding(5).AlignRight().Text(value);
@@ -192,6 +213,10 @@ namespace CharityProject.Controllers
             try
             {
                 var salaryRecords = await GetSalaryRecordsAsync(employeeId, startDate, endDate);
+                if (!salaryRecords.Any())  // Use .Any() to check if there are any records
+                {
+                    return StatusCode(404, "لايوجد رواتب مسجلة لهذا الموظف في هذه الفترة");
+                }
 
                 var document = Document.Create(container =>
                 {
