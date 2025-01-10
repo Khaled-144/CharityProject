@@ -90,7 +90,7 @@
             </div>
             <div class="modal-body p-6">
                 <div class="text-right" dir="rtl">
-                    <form asp-action="Create_Holiday" method="post">
+                    <form asp-action="Create_Holiday" method="post" enctype="multipart/form-data">
                         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
                         <div class="mb-4">
@@ -159,7 +159,6 @@
         </div>
     </div>
 </div>
-
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         let currentDate = new Date();

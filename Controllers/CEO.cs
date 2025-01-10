@@ -159,7 +159,7 @@ namespace CharityProject.Controllers
             var employeeId = GetEmployeeIdFromSession();
             var employeeDetails = await GetEmployeeDetailsFromSessionAsync();
             var hrManager = _context.employee_details
-        .FirstOrDefault(e => e.position == "مدير الموارد البشرية والمالية");
+        .FirstOrDefault(e => e.position == "المدير التنفيذي");
 
             // Count transactions based on their status, ensuring no duplicates
             var newTransactions = await _context.Transactions
@@ -184,13 +184,13 @@ namespace CharityProject.Controllers
                 .CountAsync();
 
             var ongoingTransactions = await _context.Transactions
-                .Where(t => t.Referrals.Any(r => r.to_employee_id == employeeId))
+                 .Where(t => t.to_emp_id == employeeId && t.status == "تحت الإجراء")
                 .GroupBy(t => t.transaction_id)
                 .Select(g => g.FirstOrDefault())
                 .CountAsync();
 
             var completedTransactions = await _context.Transactions
-                .Where(t => t.status == "منهاة" && (t.to_emp_id == employeeId || t.Referrals.Any(r => r.to_employee_id == employeeId)))
+                .Where(t => t.status == "منهاة" &&t.to_emp_id == employeeId)
                 .GroupBy(t => t.transaction_id)
                 .Select(g => g.FirstOrDefault())
                 .CountAsync();
@@ -653,14 +653,13 @@ namespace CharityProject.Controllers
             return RedirectToAction(nameof(Transactions));
         }
 
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create_Letter(
-     List<IFormFile> files,
-     int[]? to_departement_name,
-     string[]? to_emp_id,
-     [Bind("title,description,type,from_emp_id,date,files,Confidentiality,Urgency,Importance")] letter letter)
+             List<IFormFile> files,
+             int[]? to_departement_name,
+             string[]? to_emp_id,
+             [Bind("title,description,type,from_emp_id,date,files,Confidentiality,Urgency,Importance")] letter letter)
         {
             // Retrieve employee details from the session
             var employee_details = await GetEmployeeDetailsFromSessionAsync();
@@ -713,14 +712,14 @@ namespace CharityProject.Controllers
             HashSet<int> processedEmployees = new HashSet<int>();
 
             // If specific employees are chosen, prioritize them
-            if (to_emp_id != null && to_emp_id.Any())
+            if (to_emp_id != null && to_emp_id.Any() && letter.type != "تظلم")
             {
                 foreach (var empId in to_emp_id.Select(int.Parse))
                 {
                     // Find the employee and their department
                     var employee = await _context.employee_details
-                                                  .Include(ed => ed.Department)
-                                                  .FirstOrDefaultAsync(ed => ed.employee_id == empId);
+                                                 .Include(ed => ed.Department)
+                                                 .FirstOrDefaultAsync(ed => ed.employee_id == empId);
 
                     if (employee != null)
                     {
@@ -747,8 +746,8 @@ namespace CharityProject.Controllers
                 }
             }
 
-            // If departments are selected
-            if (to_departement_name != null && to_departement_name.Any())
+            // If only departments are selected, create letters with to_emp_id set to 0
+            if ((to_emp_id == null || !to_emp_id.Any()) && to_departement_name != null && to_departement_name.Any() && letter.type != "تظلم")
             {
                 foreach (var deptId in to_departement_name)
                 {
@@ -763,10 +762,9 @@ namespace CharityProject.Controllers
                             .Select(ed => ed.employee_id)
                             .ToListAsync();
 
-                        // If there are no active employees or no specific employees are chosen
-                        if (!departmentEmployees.Any() || (to_emp_id == null || !to_emp_id.Any()))
+                        // Create a single letter for the department with to_emp_id set to 0
+                        if (departmentEmployees.Any())
                         {
-                            // Create a new letter record for the department
                             var newLetter = new letter
                             {
                                 title = letter.title,
@@ -778,7 +776,7 @@ namespace CharityProject.Controllers
                                 Urgency = letter.Urgency,
                                 Importance = letter.Importance,
                                 date = letter.date,
-                                to_emp_id = 0,
+                                to_emp_id = 0, // Set to_emp_id to 0 because this is department-wide
                                 to_departement_name = department.departement_name,
                                 departement_id = letter.departement_id
                             };
@@ -786,40 +784,35 @@ namespace CharityProject.Controllers
                             _context.Add(newLetter);
                             letterCreated = true;
                         }
-                        else
-                        {
-                            foreach (var empId in departmentEmployees)
-                            {
-                                // Create a new letter record for each employee in the department
-                                // that hasn't been processed yet
-                                if (!processedEmployees.Contains(empId))
-                                {
-                                    var newLetter = new letter
-                                    {
-                                        title = letter.title,
-                                        description = letter.description,
-                                        type = letter.type,
-                                        from_emp_id = letter.from_emp_id,
-                                        files = letter.files,
-                                        Confidentiality = letter.Confidentiality,
-                                        Urgency = letter.Urgency,
-                                        Importance = letter.Importance,
-                                        date = letter.date,
-                                        to_emp_id = empId,
-                                        to_departement_name = department.departement_name,
-                                        departement_id = letter.departement_id
-                                    };
-
-                                    _context.Add(newLetter);
-                                    letterCreated = true;
-                                }
-                            }
-                        }
                     }
                 }
             }
 
-            // If no departments or employees are chosen, create a letter for all departments
+            // Additional condition: If type is "تظلم" and no departments or employees are chosen
+            if (letter.type == "تظلم")
+            {
+                // Create a letter with to_emp_id set to 0 and to_departement_name set to null
+                var newLetter = new letter
+                {
+                    title = letter.title,
+                    description = letter.description,
+                    type = letter.type,
+                    from_emp_id = letter.from_emp_id,
+                    files = letter.files,
+                    Confidentiality = letter.Confidentiality,
+                    Urgency = letter.Urgency,
+                    Importance = letter.Importance,
+                    date = letter.date,
+                    to_emp_id = 0,
+                    to_departement_name = null, // Set to_departement_name to null
+                    departement_id = letter.departement_id
+                };
+
+                _context.Add(newLetter);
+                letterCreated = true;
+            }
+
+            // If no departments or employees are chosen, create a letter for the default department
             if (!letterCreated)
             {
                 var newLetter = new letter
@@ -833,8 +826,7 @@ namespace CharityProject.Controllers
                     Urgency = letter.Urgency,
                     Importance = letter.Importance,
                     date = letter.date,
-                    to_emp_id = 0,
-                    to_departement_name = "الادارة التنفيذية",
+                    to_emp_id = letter.from_emp_id,
                     departement_id = letter.departement_id
                 };
 

@@ -38,17 +38,23 @@
                                     @(employeeNames.TryGetValue(Model.to_emp_id ?? 0, out var toName) ? toName : "غير معروف")
                                 </dd>
                             }
+                            <
                             <dt class="col-sm-4">الى قسم</dt>
                             <dd class="col-sm-8">@Html.DisplayFor(model => model.Department.departement_name)</dd>
+
                             <dt class="col-sm-4">تاريخ الانشاء</dt>
-                            <dd class="col-sm-8">@Html.DisplayFor(model => model.create_date)</dd>
-                            <dt class="col-sm-4">تاريخ الانهاء</dt>
-                            <dd class="col-sm-8">@Html.DisplayFor(model => model.close_date)</dd>
+                            <dd class="col-sm-8">@Model.create_date?.ToString("yyyy-MM-dd")</dd>
+
+                            @if (Model.close_date != null)
+                            {
+                                <dt class="col-sm-4">تاريخ الانهاء</dt>
+                                <dd class="col-sm-8">@Model.close_date?.ToString("yyyy-MM-dd")</dd>
+                            }
                             <dt class="col-sm-4">الحالة</dt>
                             <dd class="col-sm-8">@Html.DisplayFor(model => model.status)</dd>
-                            @if (Model.status == "منهاة")
+                            @if (Model.TerminationCause != null)
                             {
-                                <dt class="col-sm-4">سبب الإنهاء</dt>
+                                <dt class="col-sm-4">سبب الانهاء</dt>
                                 <dd class="col-sm-8">@Html.DisplayFor(model => model.TerminationCause)</dd>
                             }
                             <dt class="col-sm-4">المرفقات</dt>
@@ -74,9 +80,12 @@
                     <div class="col-md-7" dir="rtl">
                         <h5>تفاصيل الإحالات</h5>
                         <hr class="w-48 h-1 mx-auto my-2 bg-gray-950 border-2 rounded md:my-10 dark:bg-gray-800">
+
                         @if (Model.Referrals != null && Model.Referrals.Any())
                         {
-                            <div class="border border-gray-300 shadow-sm rounded-lg overflow-hidden">
+                            <!-- Set overflow-auto to allow scrolling -->
+                            <div class="border border-gray-300 shadow-sm rounded-lg overflow-auto max-h-96">
+                                <!-- Table structure -->
                                 <table class="w-full text-sm leading-5">
                                     <thead class="bg-gray-100">
                                         <tr>
@@ -84,7 +93,7 @@
                                             <th class="py-3 px-4 text-right font-medium text-gray-600">من الموظف</th>
                                             <th class="py-3 px-4 text-right font-medium text-gray-600">إلى الموظف</th>
                                             <th class="py-3 px-4 text-right font-medium text-gray-600">التعليقات</th>
-                                            <th class="py-3 px-4 text-right font-medium text-gray-600">المرفقات</th> <!-- New column for files -->
+                                            <th class="py-3 px-4 text-right font-medium text-gray-600">المرفقات</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -145,7 +154,6 @@
                             <p>لا توجد إحالات لهذه المعاملة.</p>
                         }
                     </div>
-                </div>
                 @if (!currentUrl.Contains("GetArchivedTransactions"))
                 {
                     <div id="referForm-@Model.transaction_id" class="mt-4">

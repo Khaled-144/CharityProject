@@ -1,0 +1,52 @@
+﻿@model IEnumerable<CharityProject.Models.ExternalTransaction>
+    <div>
+        <div class="p-2 rounded-lg shadow-lg" style="max-height: 750px; overflow-y: auto;">
+            <ul class="w-full divide-y divide-gray-200">
+                @foreach (var item in Model)
+                {
+                    <li class="mb-2 bg-gray-50 rounded-lg shadow-sm">
+                        <div class="flex justify-between space-y-2 text-right p-2">
+                            <!-- Main Information -->
+                            <div class="w-1/4">
+                                <p class="text-lg font-medium text-gray-900">
+                                    @Html.DisplayFor(modelItem => item.name) | @Html.DisplayFor(modelItem => item.identity_number)
+                                </p>
+                                <p class="text-gray-800 text-sm">
+                                    @Html.DisplayFor(modelItem => item.status) | @Html.DisplayFor(modelItem => item.communication) | @Html.DisplayFor(modelItem => item.case_status)
+                                </p>
+                            </div>
+                            <!-- Transaction Details -->
+                        <div class="w-fit">
+                            <div class="flex">
+                                <div >
+                                    <span>صادرة برقم:</span>
+                                    <span class="text-center inline-block w-20 text-sm">@Html.DisplayFor(modelItem => item.external_transactions_id)</span>
+                                </div>
+                                <div >
+                                    <span>بتاريخ:</span>
+                                    <span class="text-sm">@Html.DisplayFor(modelItem => item.sending_date)</span>
+                                </div>
+                            </div>
+                            <div class="flex">
+                                <div>
+                                    <span>واردة برقم:</span>
+                                    <span class="text-center inline-block w-20 text-sm">@Html.DisplayFor(modelItem => item.receiving_number)</span>
+                                </div>
+                                <div >
+                                    <span>بتاريخ:</span>
+                                    <span class="text-sm">@Html.DisplayFor(modelItem => item.receiving_date)</span>
+                                </div>
+                            </div>
+                        </div>
+                            <div class="inline-flex items-center text-base font-semibold text-gray-900 ml-3 dark:text-white">
+                                <button type="button" class="btn btn-dark" data-toggle="modal" data-target="#updateModal-@item.external_transactions_id">
+                                    تعديل
+                                </button>
+                                @await Html.PartialAsync("_UpdateExternalTransaction", item)
+                            </div>
+                        </div>
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
