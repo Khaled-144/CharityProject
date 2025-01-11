@@ -5,6 +5,7 @@
     string currentUrl = Context.Request.Path;
     var fileNames = Model.files?.Split(',') ?? new string[] { };
 
+
 }
 
 <div class="modal fade" id="detailModal-@Model.transaction_id" role="dialog" data-transaction-id="@Model.transaction_id">
@@ -40,15 +41,22 @@
                                 </dd>
                             }
                             <dt class="col-sm-4">الى قسم</dt>
-                            <dd class="col-sm-8">
-                                <span id="department-name-@Model.transaction_id"></span>
-                            </dd>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.Department.departement_name)</dd>
+
                             <dt class="col-sm-4">تاريخ الانشاء</dt>
-                            <dd class="col-sm-8">@Html.DisplayFor(model => model.create_date)</dd>
-                            <dt class="col-sm-4">تاريخ الانهاء</dt>
-                            <dd class="col-sm-8">@Html.DisplayFor(model => model.close_date)</dd>
+                            <dd class="col-sm-8">@Model.create_date?.ToString("yyyy-MM-dd")</dd>
+
+                            @if (Model.close_date != null)
+                            {
+                                <dt class="col-sm-4">تاريخ الانهاء</dt>
+                                <dd class="col-sm-8">@Model.close_date?.ToString("yyyy-MM-dd")</dd>
+                            }
                             <dt class="col-sm-4">الحالة</dt>
                             <dd class="col-sm-8">@Html.DisplayFor(model => model.status)</dd>
+                            @if (Model.TerminationCause != null) { 
+                            <dt class="col-sm-4">سبب الانهاء</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.TerminationCause)</dd>
+                            }
                             <dt class="col-sm-4">المرفقات</dt>
                             <dd class="col-sm-8">
                                 @if (fileNames.Any())
@@ -72,9 +80,12 @@
                     <div class="col-md-7" dir="rtl">
                         <h5>تفاصيل الإحالات</h5>
                         <hr class="w-48 h-1 mx-auto my-2 bg-gray-950 border-2 rounded md:my-10 dark:bg-gray-800">
+
                         @if (Model.Referrals != null && Model.Referrals.Any())
                         {
-                            <div class="border border-gray-300 shadow-sm rounded-lg overflow-hidden">
+                            <!-- Set overflow-auto to allow scrolling -->
+                            <div class="border border-gray-300 shadow-sm rounded-lg overflow-auto max-h-96">
+                                <!-- Table structure -->
                                 <table class="w-full text-sm leading-5">
                                     <thead class="bg-gray-100">
                                         <tr>
@@ -82,7 +93,7 @@
                                             <th class="py-3 px-4 text-right font-medium text-gray-600">من الموظف</th>
                                             <th class="py-3 px-4 text-right font-medium text-gray-600">إلى الموظف</th>
                                             <th class="py-3 px-4 text-right font-medium text-gray-600">التعليقات</th>
-                                            <th class="py-3 px-4 text-right font-medium text-gray-600">المرفقات</th> <!-- New column for files -->
+                                            <th class="py-3 px-4 text-right font-medium text-gray-600">المرفقات</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -91,6 +102,7 @@
                                             foreach (var referral in Model.Referrals.OrderByDescending(r => r.referral_date))
                                             {
                                                 var rowClass = index % 2 == 0 ? "" : "bg-gray-50";
+                                                var referralFileNames = referral.files?.Split(',') ?? new string[] { }; // Handle multiple files
                                                 <tr class="@rowClass">
                                                     <td class="py-3 px-4 text-right">@referral.referral_date.ToString("yyyy/MM/dd - HH:mm")</td>
                                                     <td class="py-3 px-4 text-right">
@@ -115,10 +127,20 @@
                                                     </td>
                                                     <td class="py-3 px-4 text-right">@referral.comments</td>
                                                     <td class="py-3 px-4 text-right">
-
+                                                        @if (referralFileNames.Any())
+                                                        {
+                                                            foreach (var fileName in referralFileNames)
+                                                            {
+                                                                var fileUrl = Url.Content($"~/files/{fileName.Trim()}");
+                                                                <a href="@fileUrl" target="_blank">@fileName.Trim()</a>
+                                                                <br />
+                                                            }
+                                                        }
+                                                        else
+                                                        {
                                                             <span>لا توجد مرفقات</span>
-                                                        
-                                                    </td> <!-- Display files here -->
+                                                        }
+                                                    </td>
                                                 </tr>
                                                 index++;
                                             }
@@ -132,7 +154,6 @@
                             <p>لا توجد إحالات لهذه المعاملة.</p>
                         }
                     </div>
-                </div>
                 @if (!currentUrl.Contains("GetArchivedTransactions"))
                 {
                     <div id="referForm-@Model.transaction_id" class="mt-4">
@@ -181,7 +202,9 @@
                 }
                 else
                 {
+                    <div>
                     <button type="button" class="btn btn-dark" data-dismiss="modal">إخفاء</button>
+                        </div>
                 }
             </div>
         </div>
@@ -199,21 +222,24 @@
                 </button>
             </div>
             <div class="modal-body">
-                <label for="comments">سبب الإنهاء</label>
-                <textarea name="comments" id="comments" class="form-control" required></textarea>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">إلغاء</button>
-                @using (Html.BeginForm("UpdateStatus", "Transactions", FormMethod.Post, new { id = $"confirmEndForm-{Model.transaction_id}" }))
+                @using (Html.BeginForm("UpdateTransactionStatus", "Employees", FormMethod.Post, new { id = $"confirmEndForm-{Model.transaction_id}" }))
                 {
                     @Html.AntiForgeryToken()
                     @Html.HiddenFor(model => model.transaction_id)
-                    <button type="submit" class="btn btn-primary">تأكيد</button>
+
+                    <label for="TerminationCause">سبب الإنهاء</label>
+                    <textarea name="TerminationCause" id="TerminationCause" class="form-control" required></textarea>
+
+                    <div class="modal-footer flex justify-center">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">إلغاء</button>
+                        <button type="submit" class="btn btn-primary">تأكيد</button>
+                    </div>
                 }
             </div>
         </div>
     </div>
 </div>
+
 
 <!-- Modal Script and Form -->
 <script>

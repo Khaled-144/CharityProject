@@ -78,9 +78,9 @@ namespace CharityProject.Controllers
         public async Task<IActionResult> Index()
         {
             int currentUserId = GetEmployeeIdFromSession();
-           
+
             // Count transactions based on their status, ensuring no duplicates
-            var newTransactions =await _context.Transactions
+            var newTransactions = await _context.Transactions
                 .Include(t => t.Referrals)
                     .ThenInclude(r => r.from_employee)
                 .Include(t => t.Referrals)
@@ -119,6 +119,27 @@ namespace CharityProject.Controllers
         public async Task<IActionResult> Archive() { return View(); }
 
         //-----------------------------------------------------------------------------{ Transactions Actions }-----------------------------------------------
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateTransactionStatus(int transaction_id, string TerminationCause)
+        {
+            var transaction = await _context.Transactions.FindAsync(transaction_id);
+            if (transaction == null)
+            {
+                return NotFound();
+            }
+
+            // Update the status to "Closed"
+            transaction.status = "منهاة";
+            transaction.close_date = DateTime.Now;
+            transaction.TerminationCause = TerminationCause;
+            // Save changes to the database
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Transactions));
+        }
+
         public async Task<IActionResult> Transactions()
         {
             // Retrieve the current user's ID from the session or context
@@ -158,9 +179,9 @@ namespace CharityProject.Controllers
             int assetsCount = await _context.charter
                 .Where(c => c.to_emp_id == currentUserId)
                 .CountAsync();
-        
 
-          
+
+
             // Passing the counts to the view using ViewBag
             ViewBag.InternalCount = internalCount;
             ViewBag.HolidaysCount = holidaysCount;
@@ -397,14 +418,51 @@ namespace CharityProject.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ReferTransaction(int transaction_id, int to_employee_id, string comments)
+        public async Task<IActionResult> ReferTransaction(List<IFormFile> files, int transaction_id, int to_employee_id, string comments)
         {
             var transaction = await _context.Transactions.FindAsync(transaction_id);
             if (transaction == null)
             {
                 return NotFound();
             }
+            List<string> fileNames = new List<string>();
+            if (files != null && files.Count > 0)
+            {
+                var allowedExtensions = new[] { ".pdf", ".xls", ".xlsx", ".doc", ".docx" };
 
+
+                foreach (var file in files)
+                {
+                    // Validate the file type
+                    var extension = Path.GetExtension(file.FileName).ToLower();
+                    if (!allowedExtensions.Contains(extension))
+                    {
+                        ModelState.AddModelError("files", "Only PDF, Excel, and Word files are allowed.");
+                        return View(transaction); // Return the view with validation error
+                    }
+
+                    // Save the file
+                    string filename = Path.GetFileName(file.FileName);
+                    string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/files");
+
+                    if (!Directory.Exists(path))
+                    {
+                        Directory.CreateDirectory(path);
+                    }
+
+                    string filePath = Path.Combine(path, filename);
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await file.CopyToAsync(fileStream);
+                    }
+
+                    // Add the filename to the list
+                    fileNames.Add(filename);
+                }
+
+                // Concatenate the file names and store them in the transaction
+
+            }
             // Get the current employee's ID from the session
             int fromEmployeeId;
             if (!int.TryParse(HttpContext.Session.GetString("Id"), out fromEmployeeId))
@@ -420,30 +478,16 @@ namespace CharityProject.Controllers
                 to_employee_id = to_employee_id,
                 referral_date = DateTime.Now,
                 comments = comments,
+                files = string.Join(",", fileNames)
             };
 
             _context.Referrals.Add(referral);
             transaction.to_emp_id = to_employee_id;
+            transaction.status = "تحت الإجراء";
             await _context.SaveChangesAsync();
 
-
-
             // Redirect to the Transactions page after successful referral
-            return RedirectToAction("Transactions", "Employees");
-        }
-
-        // New method to view referral history
-        public async Task<IActionResult> ReferralHistory(int id)
-        {
-
-            var referrals = await _context.Referrals
-                .Where(r => r.transaction_id == id)
-                .Include(r => r.from_employee)
-                .Include(r => r.to_employee)
-                .OrderByDescending(r => r.referral_date)
-                .ToListAsync();
-
-            return View(referrals);
+            return RedirectToAction("Transactions");
         }
 
 
@@ -483,7 +527,7 @@ namespace CharityProject.Controllers
 
             // Fetch holidays created by the logged-in employee
             var holidays = await _context.HolidayHistories
-                .Include(h=>h.holiday)
+                .Include(h => h.holiday)
                  .Include(h => h.Employee)
                 .Where(h => h.emp_id == employeeId)
                 .OrderByDescending(h => h.holidays_history_id)
@@ -625,54 +669,70 @@ namespace CharityProject.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create_Letter(
-      IFormFile files,
-      int[]? to_departement_name,
-      string[]? to_emp_id,
-      [Bind("title,description,type,from_emp_id,date,files,Confidentiality,Urgency,Importance")] letter letter)
+       List<IFormFile> files,
+       int[]? to_departement_name,
+       string[]? to_emp_id,
+       [Bind("title,description,type,from_emp_id,date,files,Confidentiality,Urgency,Importance")] letter letter)
         {
+            // Retrieve employee details from the session
             var employee_details = await GetEmployeeDetailsFromSessionAsync();
-            if (files != null && files.Length > 0)
-            {
-                // Validate the file type
-                var allowedExtensions = new[] { ".pdf", ".xls", ".xlsx", ".doc", ".docx" };
-                var extension = Path.GetExtension(files.FileName).ToLower();
-
-                if (!allowedExtensions.Contains(extension))
-                {
-                    ModelState.AddModelError("files", "Only PDF, Excel, and Word files are allowed.");
-                    return View(letter); // Return the view with validation error
-                }
-
-                string filename = Path.GetFileName(files.FileName);
-                string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/files");
-                if (!Directory.Exists(path))
-                {
-                    Directory.CreateDirectory(path);
-                }
-                string filePath = Path.Combine(path, filename);
-                using (var filestream = new FileStream(filePath, FileMode.Create))
-                {
-                    await files.CopyToAsync(filestream);
-                }
-                letter.files = filename;
-            }
-
-            letter.date = DateTime.Now;
             letter.from_emp_id = employee_details.employee_id;
             letter.departement_id = employee_details.departement_id;
+
+            // Check if files were uploaded
+            if (files != null && files.Count > 0)
+            {
+                var allowedExtensions = new[] { ".pdf", ".xls", ".xlsx", ".doc", ".docx" };
+                List<string> fileNames = new List<string>();
+
+                foreach (var file in files)
+                {
+                    // Validate the file type
+                    var extension = Path.GetExtension(file.FileName).ToLower();
+                    if (!allowedExtensions.Contains(extension))
+                    {
+                        ModelState.AddModelError("files", "Only PDF, Excel, and Word files are allowed.");
+                        return View(letter); // Return the view with validation error
+                    }
+
+                    // Save the file
+                    string filename = Path.GetFileName(file.FileName);
+                    string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/files");
+
+                    if (!Directory.Exists(path))
+                    {
+                        Directory.CreateDirectory(path);
+                    }
+
+                    string filePath = Path.Combine(path, filename);
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await file.CopyToAsync(fileStream);
+                    }
+
+                    // Add the filename to the list
+                    fileNames.Add(filename);
+                }
+
+                // Concatenate the file names and store them in the letter
+                letter.files = string.Join(",", fileNames);
+            }
+
+            // Set the date to now if not provided
+            letter.date = DateTime.Now;
 
             bool letterCreated = false;
             HashSet<int> processedEmployees = new HashSet<int>();
 
             // If specific employees are chosen, prioritize them
-            if (to_emp_id != null && to_emp_id.Any())
+            if (to_emp_id != null && to_emp_id.Any() && letter.type != "تظلم")
             {
                 foreach (var empId in to_emp_id.Select(int.Parse))
                 {
                     // Find the employee and their department
                     var employee = await _context.employee_details
-                                                .Include(ed => ed.Department)
-                                                .FirstOrDefaultAsync(ed => ed.employee_id == empId);
+                                                 .Include(ed => ed.Department)
+                                                 .FirstOrDefaultAsync(ed => ed.employee_id == empId);
 
                     if (employee != null)
                     {
@@ -699,8 +759,8 @@ namespace CharityProject.Controllers
                 }
             }
 
-            // If departments are selected
-            if (to_departement_name != null && to_departement_name.Any())
+            // If only departments are selected, create letters with to_emp_id set to 0
+            if ((to_emp_id == null || !to_emp_id.Any()) && to_departement_name != null && to_departement_name.Any() && letter.type != "تظلم")
             {
                 foreach (var deptId in to_departement_name)
                 {
@@ -715,10 +775,9 @@ namespace CharityProject.Controllers
                             .Select(ed => ed.employee_id)
                             .ToListAsync();
 
-                        // If there are no active employees or no specific employees are chosen
-                        if (!departmentEmployees.Any() || (to_emp_id == null || !to_emp_id.Any()))
+                        // Create a single letter for the department with to_emp_id set to 0
+                        if (departmentEmployees.Any())
                         {
-                            // Create a new letter record for the department
                             var newLetter = new letter
                             {
                                 title = letter.title,
@@ -730,7 +789,7 @@ namespace CharityProject.Controllers
                                 Urgency = letter.Urgency,
                                 Importance = letter.Importance,
                                 date = letter.date,
-                                to_emp_id = 0,
+                                to_emp_id = 0, // Set to_emp_id to 0 because this is department-wide
                                 to_departement_name = department.departement_name,
                                 departement_id = letter.departement_id
                             };
@@ -738,40 +797,35 @@ namespace CharityProject.Controllers
                             _context.Add(newLetter);
                             letterCreated = true;
                         }
-                        else
-                        {
-                            foreach (var empId in departmentEmployees)
-                            {
-                                // Create a new letter record for each employee in the department
-                                // that hasn't been processed yet
-                                if (!processedEmployees.Contains(empId))
-                                {
-                                    var newLetter = new letter
-                                    {
-                                        title = letter.title,
-                                        description = letter.description,
-                                        type = letter.type,
-                                        from_emp_id = letter.from_emp_id,
-                                        files = letter.files,
-                                        Confidentiality = letter.Confidentiality,
-                                        Urgency = letter.Urgency,
-                                        Importance = letter.Importance,
-                                        date = letter.date,
-                                        to_emp_id = empId,
-                                        to_departement_name = department.departement_name,
-                                        departement_id = letter.departement_id
-                                    };
-
-                                    _context.Add(newLetter);
-                                    letterCreated = true;
-                                }
-                            }
-                        }
                     }
                 }
             }
 
-            // If no departments or employees are chosen, create a letter for all departments
+            // Additional condition: If type is "تظلم" and no departments or employees are chosen
+            if (letter.type == "تظلم")
+            {
+                // Create a letter with to_emp_id set to 0 and to_departement_name set to null
+                var newLetter = new letter
+                {
+                    title = letter.title,
+                    description = letter.description,
+                    type = letter.type,
+                    from_emp_id = letter.from_emp_id,
+                    files = letter.files,
+                    Confidentiality = letter.Confidentiality,
+                    Urgency = letter.Urgency,
+                    Importance = letter.Importance,
+                    date = letter.date,
+                    to_emp_id = 0,
+                    to_departement_name = null, // Set to_departement_name to null
+                    departement_id = letter.departement_id
+                };
+
+                _context.Add(newLetter);
+                letterCreated = true;
+            }
+
+            // If no departments or employees are chosen, create a letter for the default department
             if (!letterCreated)
             {
                 var newLetter = new letter
@@ -785,8 +839,7 @@ namespace CharityProject.Controllers
                     Urgency = letter.Urgency,
                     Importance = letter.Importance,
                     date = letter.date,
-                    to_emp_id = 0,
-                    to_departement_name = "الادارة التنفيذية",
+                    to_emp_id = letter.from_emp_id,
                     departement_id = letter.departement_id
                 };
 
@@ -796,7 +849,6 @@ namespace CharityProject.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Transactions));
         }
-
 
 
         [HttpGet]

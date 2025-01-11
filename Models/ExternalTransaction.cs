@@ -8,7 +8,7 @@
         [Key]
         public int external_transactions_id { get; set; }
         public string name { get; set; }
-        public int identity_number { get; set; }
+        public long identity_number { get; set; }
         public string status { get; set; }
         public string communication { get; set; }
         public string case_status { get; set; }
