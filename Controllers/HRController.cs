@@ -1411,7 +1411,9 @@ namespace CharityProject.Controllers
 
             return View();
         }
-		public IActionResult EmployeeView()
+        [HttpPost]
+    
+    public IActionResult EmployeeView()
 		{
 			var employeeList = _context.employee
 				.Include(e => e.EmployeeDetails) // Include employee details
@@ -2366,12 +2368,45 @@ namespace CharityProject.Controllers
             return RedirectToAction("Transactions");
         }
 
+
+
+
+        public IActionResult ChangePassword(string current_password, string new_password, string confirm_password)
+        {
+            // Retrieve the current password stored in the session
+            var storedPassword = HttpContext.Session.GetString("Password");
+
+            // Check if the current password matches the stored password
+            if (storedPassword != current_password)
+            {
+                // Password does not match
+                TempData["ErrorMessage"] = "كلمة المرور الحالية غير صحيحة.";
+                return RedirectToAction("EmployeeProfile");
+            }
+
+            // Check if new password matches confirm password
+            if (new_password != confirm_password)
+            {
+                // New password and confirm password do not match
+                TempData["ErrorMessage"] = "كلمة المرور الجديدة وتأكيد كلمة المرور غير متطابقتين.";
+                return RedirectToAction("EmployeeProfile");
+            }
+
+            // Update the password in the session (you may want to save this in a database in a real-world scenario)
+            HttpContext.Session.SetString("Password", new_password);
+
+            // Show success message
+            TempData["SuccessMessage"] = "تم تحديث كلمة المرور بنجاح.";
+            return RedirectToAction("EmployeeProfile");
+        }
     }
 
-
-
-
-
-
-
 }
+
+
+
+
+
+
+
+
