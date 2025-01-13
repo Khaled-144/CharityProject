@@ -33,10 +33,14 @@
 <body class="bg-gradient-to-br from-green-50 to-emerald-100 min-h-screen p-8">
     <div class="max-w-7xl mx-auto">
         <!-- Page Header -->
-        <h2 class="p-4 text-5xl font-bold mb-12 text-center text-black shadow-text fade-in">سجلات الرواتب الشهرية</h2>
+        <h2 class="p-4 text-3xl font-bold mb-8 text-center text-black fade-in">سجلات الرواتب الشهرية</h2>
 
         <!-- Search and Add Buttons -->
         <div class="flex flex-col md:flex-row justify-between items-center mb-10 space-y-4 md:space-y-0">
+            <!-- Add New Entry Button -->
+            <a asp-action="CreateRecord" class="bg-primaryButtons text-white font-bold rounded-lg px-6 py-3 hover:bg-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-opacity-50 transition duration-300 ease-in-out transform hover:scale-105 shadow-lg">
+                إضافة مسير جديد
+            </a>
             <!-- Search Form -->
             <form asp-action="SearchByYear" method="get" class="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4 rtl:space-x-reverse">
                 <label for="year" class="px-4 text-lg font-semibold text-gray-700">ابحث حسب السنة:</label>
@@ -45,40 +49,43 @@
                     بحث
                 </button>
             </form>
-
-            <!-- Add New Entry Button -->
-            <a asp-action="CreateRecord" class="bg-primaryButtons text-white font-bold rounded-lg px-6 py-3 hover:bg-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-opacity-50 transition duration-300 ease-in-out transform hover:scale-105 shadow-lg">
-                إضافة مسير جديد
-            </a>
         </div>
 
-        <!-- Import/Export Buttons -->
-        <div class="flex justify-between mb-4">
-            <!-- Import from Excel -->
-            <form asp-action="ImportFromExcel" method="post" enctype="multipart/form-data" class="flex items-center">
-                <input type="file" name="file" accept=".xlsx" required class="border border-emerald-300 rounded-lg p-2" />
-                <button type="submit" class="bg-green-500 text-white rounded-lg px-4 py-2 ml-2 hover:bg-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-opacity-50 transition duration-300 ease-in-out transform hover:scale-105 shadow-lg">
-                    استيراد من Excel
-                </button>
-            </form>
-
-            <!-- Export to Excel -->
-            <form asp-action="ExportToExcel" method="get" class="flex items-center">
-                <div class="flex flex-col ml-4">
-                    <label for="startDate" class="text-sm font-semibold text-gray-700">تاريخ البداية:</label>
-                    <input type="date" id="startDate" name="startDate" required class="border border-emerald-300 rounded-lg p-2" />
-                </div>
-                <div class="flex flex-col ml-4">
-                    <label for="endDate" class="text-sm font-semibold text-gray-700">تاريخ النهاية:</label>
-                    <input type="date" id="endDate" name="endDate" required class="border border-emerald-300 rounded-lg p-2" />
-                </div>
-                <div class="flex flex-col ml-4 mt-3">
-                <button type="submit" class="bg-green-500  text-white rounded-lg px-4 py-2 ml-2 hover:bg-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-opacity-50 transition duration-300 ease-in-out transform hover:scale-105 shadow-lg">
-                        تصدير إلى Excel
-                </button>
-                </div>
-            </form>
+        <!-- Toggle Import/Export Section -->
+        <div class="mb-8 flex justify-end">
+            <button id="toggleExcel" class="bg-primaryButtons text-white font-bold rounded-lg px-6 py-3 hover:bg-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-opacity-50 transition duration-300 ease-in-out transform shadow-lg">
+                استيراد/تصدير Excel
+            </button>
         </div>
+        <div id="excelSection" class="mt-6 hidden">
+            <div class="flex justify-between bg-white shadow-lg rounded-lg p-6">
+                <!-- Import from Excel -->
+                <form asp-action="ImportFromExcel" method="post" enctype="multipart/form-data" class="flex items-center">
+                    <input type="file" name="file" accept=".xlsx" required class="border border-emerald-300 rounded-lg ml-2 p-2" />
+                    <button type="submit" class="bg-green-500 text-white rounded-lg px-4 py-2 ml-2 hover:bg-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-opacity-50 transition duration-300 ease-in-out transform shadow-lg">
+                        استيراد من Excel
+                    </button>
+                </form>
+
+                <!-- Export to Excel -->
+                <form asp-action="ExportToExcel" method="get" class="flex items-center">
+                    <div class="flex flex-col ml-4">
+                        <label for="startDate" class="text-sm font-semibold text-gray-700">تاريخ البداية:</label>
+                        <input type="date" id="startDate" name="startDate" required class="border border-emerald-300 rounded-lg p-2" />
+                    </div>
+                    <div class="flex flex-col ml-4">
+                        <label for="endDate" class="text-sm font-semibold text-gray-700">تاريخ النهاية:</label>
+                        <input type="date" id="endDate" name="endDate" required class="border border-emerald-300 rounded-lg p-2" />
+                    </div>
+                    <div class="flex flex-col ml-4 mt-3">
+                        <button type="submit" class="bg-green-500 text-white rounded-lg px-4 py-2 ml-2 hover:bg-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-opacity-50 transition duration-300 ease-in-out transform shadow-lg">
+                            تصدير إلى Excel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
 
         <!-- Salary Records -->
         <div id="salaryTable" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -91,7 +98,7 @@
                     <div class="p-6">
                         <p class="text-gray-800 mb-2"><span class="font-semibold">عدد السجلات:</span> @item.Count</p>
                         <p class="text-gray-800 mb-4"><span class="font-semibold">إجمالي الصرف:</span> @item.Total</p>
-                        <a asp-action="MonthDetails" asp-route-month="@item.Month" class="inline-block bg-primaryButtons text-white rounded-lg px-4 py-2 hover:bg-emerald-800 transition duration-300 ease-in-out transform hover:scale-105">
+                        <a asp-action="MonthDetails" asp-route-month="@item.Month" class="inline-block bg-primaryButtons text-white rounded-lg px-4 py-2 hover:bg-emerald-800 transition duration-300 ease-in-out transform">
                             عرض التفاصيل
                         </a>
                     </div>
@@ -103,11 +110,14 @@
         <div id="pagination" class="flex justify-center mt-8 space-x-2 rtl:space-x-reverse"></div>
     </div>
 
-    <style>
-        .shadow-text {
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-        }
-    </style>
+    <script>
+        // Toggle Import/Export Section
+        document.getElementById('toggleExcel').addEventListener('click', () => {
+            const excelSection = document.getElementById('excelSection');
+            excelSection.classList.toggle('hidden');
+        });
+    </script>
+</body>
 
     @functions {
         private string getArabicMonth(string monthYear)
@@ -178,6 +188,4 @@
             showPage(1);
         });
     </script>
-</body>
-
 </html>
