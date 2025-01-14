@@ -154,197 +154,199 @@
                             <p>لا توجد إحالات لهذه المعاملة.</p>
                         }
                     </div>
-                @if (Model.status !="منهاة")
-                {
-                    <div id="referForm-@Model.transaction_id" class="mt-4">
-                        <h5>إحالة المعاملة #@Model.transaction_id</h5>
-                        @using (Html.BeginForm("ReferTransaction", "HR", FormMethod.Post, new { id = $"referTransactionForm-{Model.transaction_id}", enctype = "multipart/form-data" }))
-                        {
-                            @Html.AntiForgeryToken()
-                            @Html.HiddenFor(model => model.transaction_id)
-                            <div class="form-group">
-                                <label for="department_id">القسم:</label>
-                                <select id="department_id" name="department_id" class="form-control" required>
-                                    <option value="">اختر القسم</option>
-                                    @foreach (var dept in ViewBag.Departments)
-                                    {
-                                        <option value="@dept.Value">@dept.Text</option>
-                                    }
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="to_employee_id">إحالة إلى الموظف:</label>
-                                <select name="to_employee_id" id="to_employee_id" class="form-control" required>
-                                    <option value="">اختر الموظف</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="comments">توجيهات الإحالة:</label>
-                                <textarea name="comments" id="comments" class="form-control" required></textarea>
-                            </div>
-                            <div class="form-group">
-                                <label for="fileInput" class="block text-gray-700">مرفقات الإحالة</label>
-                                <input type="file" id="fileInput" name="files" accept=".pdf,.xls,.xlsx,.doc,.docx" multiple class="block mt-2" />
-                                <ul id="fileList" class="mt-2 flex flex-wrap gap-2 p-2 border border-gray-300 rounded-lg shadow-sm"></ul>
-                            </div>
-                            <button type="submit" class="btn btn-primary">تأكيد الإحالة</button>
-                            @using (Html.BeginForm("UpdateTransactionStatus", "HR", FormMethod.Post, new { id = $"updateStatusForm-{Model.transaction_id}", @class = "d-inline" }))
+                    @if (Model.status != "منهاة")
+                    {
+                        <div id="referForm-@Model.transaction_id" class="mt-4">
+                            <h5>إحالة المعاملة #@Model.transaction_id</h5>
+                            @using (Html.BeginForm("ReferTransaction", "HR", FormMethod.Post, new { id = $"referTransactionForm-{Model.transaction_id}", enctype = "multipart/form-data" }))
                             {
                                 @Html.AntiForgeryToken()
-                                <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#confirmEndModal-@Model.transaction_id">
-                                    إنهاء المعاملة
-                                </button>
                                 @Html.HiddenFor(model => model.transaction_id)
-                                <button type="button" class="btn btn-dark" data-dismiss="modal">إخفاء</button>
+                                <div class="form-group">
+                                    <label for="department_id">القسم:</label>
+                                    <select id="department_id" name="department_id" class="form-control" required>
+                                        <option value="">اختر القسم</option>
+                                        @foreach (var dept in ViewBag.Departments)
+                                        {
+                                            <option value="@dept.Value">@dept.Text</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="to_employee_id">إحالة إلى الموظف:</label>
+                                    <select name="to_employee_id" id="to_employee_id" class="form-control" required>
+                                        <option value="">اختر الموظف</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="comments">توجيهات الإحالة:</label>
+                                    <textarea name="comments" id="comments" class="form-control" required></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="fileInput" class="block text-gray-700">مرفقات الإحالة</label>
+                                    <input type="file" id="fileInput" name="files" accept=".pdf,.xls,.xlsx,.doc,.docx" multiple class="block mt-2" />
+                                    <ul id="fileList" class="mt-2 flex flex-wrap gap-2 p-2 border border-gray-300 rounded-lg shadow-sm"></ul>
+                                </div>
+                                <button type="submit" class="btn btn-primary">تأكيد الإحالة</button>
+                                @using (Html.BeginForm("UpdateTransactionStatus", "HR", FormMethod.Post, new { id = $"updateStatusForm-{Model.transaction_id}", @class = "d-inline" }))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#confirmEndModal-@Model.transaction_id">
+                                        إنهاء المعاملة
+                                    </button>
+                                    @Html.HiddenFor(model => model.transaction_id)
+                                    <button type="button" class="btn btn-dark" data-dismiss="modal">إخفاء</button>
+                                }
                             }
-                        }
+                        </div>
+                    }
+                    else
+                    {
+                        <div>
+                            <button type="button" class="btn btn-dark" data-dismiss="modal">إخفاء</button>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div class="modal fade" id="confirmEndModal-@Model.transaction_id" tabindex="-1" role="dialog" aria-labelledby="confirmEndLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmEndLabel">تأكيد إنهاء المعاملة</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                @using (Html.BeginForm("UpdateTransactionStatus", "HR", FormMethod.Post, new { id = $"confirmEndForm-{Model.transaction_id}" }))
+                {
+                    <div class="modal-body">
+                        <label for="TerminationCause">سبب الإنهاء</label>
+                        <textarea name="TerminationCause" id="TerminationCause" class="form-control" required></textarea>
+                    </div>
+                    <div class="modal-footer justify-center">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">إلغاء</button>
+                        @Html.AntiForgeryToken()
+                        @Html.HiddenFor(model => model.transaction_id)
+                        <button type="submit" class="btn btn-primary">تأكيد</button>
                     </div>
                 }
-                else
-                {
-                    <button type="button" class="btn btn-dark" data-dismiss="modal">إخفاء</button>
-                }
             </div>
         </div>
     </div>
-</div>
 
-<!-- Confirmation Modal -->
-<div class="modal fade" id="confirmEndModal-@Model.transaction_id" tabindex="-1" role="dialog" aria-labelledby="confirmEndLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="confirmEndLabel">تأكيد إنهاء المعاملة</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            @using (Html.BeginForm("UpdateTransactionStatus", "HR", FormMethod.Post, new { id = $"confirmEndForm-{Model.transaction_id}" }))
-            {
-                <div class="modal-body">
-                    <label for="TerminationCause">سبب الإنهاء</label>
-                    <textarea name="TerminationCause" id="TerminationCause" class="form-control" required></textarea>
-                </div>
-                <div class="modal-footer justify-center">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">إلغاء</button>
-                    @Html.AntiForgeryToken()
-                    @Html.HiddenFor(model => model.transaction_id)
-                    <button type="submit" class="btn btn-primary">تأكيد</button>
-                </div>
-            }
-        </div>
-    </div>
-</div>
+    <!-- Modal Script and Form -->
+    <script>
+        $(document).ready(function () {
+            // Department selection handler for dynamic employee dropdown population
+            $(document).off('change', '#department_id').on('change', '#department_id', function () {
+                var departmentId = $(this).val();
+                var employeeDropdown = $(this).closest('form').find('#to_employee_id');
+                employeeDropdown.empty();
+                employeeDropdown.append('<option value="">اختر الموظف</option>');
 
-<!-- Modal Script and Form -->
-<script>
-    $(document).ready(function () {
-        // Department selection handler for dynamic employee dropdown population
-        $(document).off('change', '#department_id').on('change', '#department_id', function () {
-            var departmentId = $(this).val();
-            var employeeDropdown = $(this).closest('form').find('#to_employee_id');
-            employeeDropdown.empty();
-            employeeDropdown.append('<option value="">اختر الموظف</option>');
-
-            if (departmentId) {
-                $.ajax({
-                    url: '@Url.Action("GetEmployeesByDepartment", "HR")',
-                    type: 'GET',
-                    data: { departmentId: departmentId },
-                    success: function (data) {
-                        if (Array.isArray(data) && data.length > 0) {
-                            $.each(data, function (index, item) {
-                                employeeDropdown.append($('<option></option>')
-                                    .val(item.employee_id)
-                                    .text(item.name + ' - ' + item.position));
-                            });
-                        } else {
-                            employeeDropdown.append($('<option></option>').val('').text(data.message || 'لا يوجد موظفين في هذا القسم'));
+                if (departmentId) {
+                    $.ajax({
+                        url: '@Url.Action("GetEmployeesByDepartment", "HR")',
+                        type: 'GET',
+                        data: { departmentId: departmentId },
+                        success: function (data) {
+                            if (Array.isArray(data) && data.length > 0) {
+                                $.each(data, function (index, item) {
+                                    employeeDropdown.append($('<option></option>')
+                                        .val(item.employee_id)
+                                        .text(item.name + ' - ' + item.position));
+                                });
+                            } else {
+                                employeeDropdown.append($('<option></option>').val('').text(data.message || 'لا يوجد موظفين في هذا القسم'));
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            console.error("Error fetching employees:", error);
+                            employeeDropdown.append($('<option></option>').val('').text('حدث خطأ أثناء جلب الموظفين'));
                         }
-                    },
-                    error: function (xhr, status, error) {
-                        console.error("Error fetching employees:", error);
-                        employeeDropdown.append($('<option></option>').val('').text('حدث خطأ أثناء جلب الموظفين'));
-                    }
-                });
-            }
-        });
+                    });
+                }
+            });
 
-        // Fetch department name when modal is shown
-        $(document).on('shown.bs.modal', '[id^=detailModal]', function () {
-            var transactionId = $(this).data('transaction-id');
-            var departmentId = $(this).find('#department_id').val();
+            // Fetch department name when modal is shown
+            $(document).on('shown.bs.modal', '[id^=detailModal]', function () {
+                var transactionId = $(this).data('transaction-id');
+                var departmentId = $(this).find('#department_id').val();
 
-            if (departmentId) {
-                $.ajax({
-                    url: '@Url.Action("GetDepartmentName", "HR")',
-                    type: 'GET',
-                    data: { departmentId: departmentId },
-                    success: function (data) {
-                        $('#department-name-' + transactionId).text(data);
-                    },
-                    error: function (xhr, status, error) {
-                        console.error("Error fetching department name:", error);
-                        $('#department-name-' + transactionId).text("غير معروف");
-                    }
-                });
-            }
-        });
-
-        // File input management
-        $('#fileInput').on('change', function () {
-            var fileList = $('#fileList');
-            fileList.empty(); // Clear previous file list
-
-            for (var i = 0; i < this.files.length; i++) {
-                var file = this.files[i];
-                var listItem = $('<li></li>')
-                    .addClass('flex items-center p-2 bg-white border border-gray-300 rounded-md shadow-sm');
-                var fileName = $('<span></span>').text(file.name).addClass('mr-2');
-                var removeButton = $('<button type="button" class="bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center">X</button>');
-
-                removeButton.on('click', function () {
-                    var listItem = $(this).parent();
-                    var fileName = listItem.find('span').text().trim();
-
-                    // Remove file from file input
-                    var dataTransfer = new DataTransfer();
-                    var input = $('#fileInput')[0];
-
-                    for (var i = 0; i < input.files.length; i++) {
-                        if (input.files[i].name !== fileName) {
-                            dataTransfer.items.add(input.files[i]);
+                if (departmentId) {
+                    $.ajax({
+                        url: '@Url.Action("GetDepartmentName", "HR")',
+                        type: 'GET',
+                        data: { departmentId: departmentId },
+                        success: function (data) {
+                            $('#department-name-' + transactionId).text(data);
+                        },
+                        error: function (xhr, status, error) {
+                            console.error("Error fetching department name:", error);
+                            $('#department-name-' + transactionId).text("غير معروف");
                         }
-                    }
+                    });
+                }
+            });
 
-                    input.files = dataTransfer.files;
+            // File input management
+            $('#fileInput').on('change', function () {
+                var fileList = $('#fileList');
+                fileList.empty(); // Clear previous file list
 
-                    listItem.remove();
-                });
+                for (var i = 0; i < this.files.length; i++) {
+                    var file = this.files[i];
+                    var listItem = $('<li></li>')
+                        .addClass('flex items-center p-2 bg-white border border-gray-300 rounded-md shadow-sm');
+                    var fileName = $('<span></span>').text(file.name).addClass('mr-2');
+                    var removeButton = $('<button type="button" class="bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center">X</button>');
 
-                listItem.append(fileName).append(removeButton);
-                fileList.append(listItem);
-            }
-        });
+                    removeButton.on('click', function () {
+                        var listItem = $(this).parent();
+                        var fileName = listItem.find('span').text().trim();
 
-        // Validate file types on form submission
-        $('#referTransactionForm').on('submit', function (e) {
-            var fileInput = document.getElementById('fileInput');
-            var allowedExtensions = /(\.pdf|\.xls|\.xlsx|\.doc|\.docx)$/i;
-            var fileError = document.getElementById('fileError');
-            fileError.style.display = 'none';
+                        // Remove file from file input
+                        var dataTransfer = new DataTransfer();
+                        var input = $('#fileInput')[0];
 
-            if (fileInput.files.length > 0) {
-                for (var i = 0; i < fileInput.files.length; i++) {
-                    var file = fileInput.files[i];
-                    if (!allowedExtensions.exec(file.name)) {
-                        fileError.style.display = 'block';
-                        e.preventDefault();
-                        return;
+                        for (var i = 0; i < input.files.length; i++) {
+                            if (input.files[i].name !== fileName) {
+                                dataTransfer.items.add(input.files[i]);
+                            }
+                        }
+
+                        input.files = dataTransfer.files;
+
+                        listItem.remove();
+                    });
+
+                    listItem.append(fileName).append(removeButton);
+                    fileList.append(listItem);
+                }
+            });
+
+            // Validate file types on form submission
+            $('#referTransactionForm').on('submit', function (e) {
+                var fileInput = document.getElementById('fileInput');
+                var allowedExtensions = /(\.pdf|\.xls|\.xlsx|\.doc|\.docx)$/i;
+                var fileError = document.getElementById('fileError');
+                fileError.style.display = 'none';
+
+                if (fileInput.files.length > 0) {
+                    for (var i = 0; i < fileInput.files.length; i++) {
+                        var file = fileInput.files[i];
+                        if (!allowedExtensions.exec(file.name)) {
+                            fileError.style.display = 'block';
+                            e.preventDefault();
+                            return;
+                        }
                     }
                 }
-            }
+            });
         });
-    });
-</script>
+    </script>
 

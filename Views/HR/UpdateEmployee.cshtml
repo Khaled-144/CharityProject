@@ -1,4 +1,10 @@
-﻿<!DOCTYPE html>
+﻿@{
+    var employeeData = (dynamic)ViewData["EmployeeData"];
+    var departments = (List<Department>)ViewData["Departments"];
+    var salaryDetails = employeeData.SalaryDetails;
+
+}
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -8,157 +14,312 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/flowbite@1.5.0/dist/flowbite.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@1.5.0/dist/flowbite.min.js"></script>
 </head>
 <body class="bg-gray-100">
+
+
+
     <div class="container mx-auto px-4 py-8">
-        <h1 class="text-3xl font-bold mb-6">تحديث بيانات الموظف</h1>
-        <p style="color:green">@ViewData["message"]</p>
-        <form asp-action="UpdateEmployee" method="post" enctype="multipart/form-data" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4" id="employeeForm">
-            @{
-             
-
-
-
-                var employeeData = (dynamic)ViewData["EmployeeData"];
-                var departments = (List<Department>)ViewData["Departments"];
-    
-            }
-
-            <input type="hidden" id="employee_id" name="employee_id" value="@employeeData.employee_id" />
-
-            <div class="mb-6">
-                <h2 class="text-xl font-semibold mb-4">معلومات الموظف الأساسية</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label for="name" class="block text-gray-700 text-sm font-bold mb-2">الاسم</label>
-                        <input id="name" name="name" value="@employeeData.name" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
-                    </div>
-                    <div>
-                        <label for="username" class="block text-gray-700 text-sm font-bold mb-2">اسم المستخدم</label>
-                        <input id="username" name="username" value="@employeeData.username" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
-                    </div>
-                    <div>
-                        <label for="password" class="block text-gray-700 text-sm font-bold mb-2">كلمة المرور</label>
-                        <input id="password" name="password" type="password" value="@employeeData.password" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
-                    </div>
-                    <div>
-                        <label for="search_role" class="block text-gray-700 text-sm font-bold mb-2">دور البحث</label>
-                        <input id="search_role" name="search_role" value="@employeeData.search_role" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
-                    </div>
-                </div>
-            </div>
-
-            <div class="mb-6">
-                <h2 class="text-xl font-semibold mb-4">تفاصيل الموظف</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <div>
-                        <label for="identity_number" class="block text-gray-700 text-sm font-bold mb-2">رقم الهوية</label>
-                        <input id="identity_number" name="identity_number" type="number" value="@employeeData.identity_number" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
-                    </div>
-                    <div>
-                        <input type="hidden" id="departement_id_hidden" value="@employeeData.departement_id" />
-                        <label for="departement_id" class="block text-gray-700 text-sm font-bold mb-2">القسم</label>
-                        <select id="departement_id" name="departement_id" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                            <option value="">اختر القسم</option>
-                            @foreach (var department in departments)
-                            {
-                                <option value="@department.departement_id">@department.departement_name</option>
-                            }
-                        </select>
-                    </div>
-                    <div>
-                        <label for="position" class="block text-gray-700 text-sm font-bold mb-2">المنصب</label>
-                        <input type="hidden" id="position_hidden" value="@employeeData.position" />
-                        <select id="position" name="position" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                            <option value="موظف">موظف</option>
-                            <option value="مدير الموارد البشرية والمالية">مدير الموارد البشرية والمالية</option>
-                            <option value="مدير التنمية المالية والاستدامة">مدير التنمية المالية والاستدامة</option>
-                            <option value="مدير خدمة المستفيدين">مدير خدمة المستفيدين</option>
-                            <option value="السكرتير">السكرتير</option>
-                            <option value="المدير التنفيذي">المدير التنفيذي</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="permission_position" class="block text-gray-700 text-sm font-bold mb-2">الصلاحيات</label>
-                        <input type="hidden" id="permission_position_hidden" value="@employeeData.permission_position" />
-                        <select id="permission_position" name="permission_position" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                            <option value="موظف">موظف</option>
-                            <option value="مدير الموارد البشرية والمالية">مدير الموارد البشرية والمالية</option>
-                            <option value="مدير التنمية المالية والاستدامة">مدير التنمية المالية والاستدامة</option>
-                            <option value="مدير خدمة المستفيدين">مدير خدمة المستفيدين</option>
-                            <option value="السكرتير">السكرتير</option>
-                            <option value="المدير التنفيذي">المدير التنفيذي</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label for="contract_type" class="block text-gray-700 text-sm font-bold mb-2">نوع العقد</label>
-                        <input id="contract_type" name="contract_type" value="@employeeData.contract_type" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
-                    </div>
-                    <div>
-                        <label for="national_address" class="block text-gray-700 text-sm font-bold mb-2">العنوان الوطني</label>
-                        <input id="national_address" name="national_address" value="@employeeData.national_address" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
-                    </div>
-                    <div>
-                        <label for="education_level" class="block text-gray-700 text-sm font-bold mb-2">المستوى التعليمي</label>
-                        <input id="education_level" name="education_level" value="@employeeData.education_level" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
-                    </div>
-                    <div>
-                        <label for="hire_date" class="block text-gray-700 text-sm font-bold mb-2">تاريخ التوظيف</label>
-                        <input id="hire_date" name="hire_date" type="date" value="@(((DateTime)employeeData.hire_date).ToString("yyyy-MM-dd"))" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
-                    </div>
-                    <div>
-                        <label for="leave_date" class="block text-gray-700 text-sm font-bold mb-2">تاريخ انتهاء العقد</label>
-                        <input id="leave_date" name="leave_date" type="date" value="@(((DateTime)employeeData.leave_date).ToString("yyyy-MM-dd"))" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
-                    </div>
-                    <div>
-                        <label for="email" class="block text-gray-700 text-sm font-bold mb-2">البريد الإلكتروني</label>
-                        <input id="email" name="email" type="email" value="@employeeData.email" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
-                    </div>
-                    <div>
-                        <label for="phone_number" class="block text-gray-700 text-sm font-bold mb-2">رقم الهاتف</label>
-                        <input id="phone_number" name="phone_number" type="number" value="@employeeData.phone_number" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
-                    </div>
-                    <input type="hidden" id="gender_hidden" value="@employeeData.gender" />
-                    <div class="mb-4">
-                        <label for="gender" class="block text-gray-700 text-sm font-bold mb-2">الجنس</label>
-                        <select id="gender" name="gender" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                            <option value="">اختر الجنس</option>
-                            <option value="Male">ذكر</option>
-                            <option value="Female">أنثى</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-         @*    <div class="mb-6">
-                <label for="employee_files" class="block text-gray-700 text-sm font-bold mb-2">الملفات</label>
-                <input  id="employee_files" name="employee_files" type="file" multiple class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
-            </div> *@
-            <div class="form-group mb-4">
-                <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="employee_files">المرفقات</label>
-                <input id="employee_files" name="employee_files" class="form-control w-full border rounded focus:ring-blue-500 focus:border-blue-500" type="file" accept=".pdf,.xls,.xlsx,.doc,.docx" />
-                <span for="employee_files" class="text-danger"></span>
-                <small id="fileError" class="text-danger" style="display:none;">الملفات المسموح بها فقط :PDF, Excel, Word</small>
-            </div>
-      
-
-            <div class="flex items-center justify-between">
-                <div class="flex items-center">
-                    <input id="active" name="active" type="checkbox" class="form-checkbox h-5 w-5 text-blue-600" value="true" checked="@employeeData.active" />
-                    <label for="active" class="mr-2 block text-gray-700 text-sm font-bold">نشط</label>
-                </div>
-                <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                    تحديث بيانات الموظف
-                </button>
-            </div>
-        </form>
-
         <div>
-            <a asp-action="EmployeeView" class="btn btn-dark text-white">العودة إلى القائمة</a>
+            <div class="mb-2 flex justify-content-end">
+                <a asp-action="EmployeeView" class="btn btn-dark text-white">العودة إلى القائمة</a>
+            </div>
+            <p style="color:green">@ViewData["message"]</p>
+            <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+                <div id="accordion-color" data-accordion="collapse" data-active-classes="bg-white">
+                    <h2 id="accordion-color-heading-1">
+                        <button type="button" class="flex items-center justify-between w-full p-5 font-medium rtl:text-right text-gray-500 border border-b-0 border-gray-200 rounded-t-xl focus:ring-4 focus:ring-blue-200 dark:focus:ring-blue-800 dark:border-gray-700 dark:text-gray-400 hover:bg-blue-100 dark:hover:bg-gray-800 gap-3" data-accordion-target="#accordion-color-body-1" aria-expanded="false" aria-controls="accordion-color-body-1">
+                            <span class="text-2xl">بيانات الموظف الأساسية</span>
+                            <svg data-accordion-icon class="w-3 h-3 rotate-180 shrink-0" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5 5 1 1 5" />
+                            </svg>
+                        </button>
+                    </h2>
+                    <div id="accordion-color-body-1" class="hidden" aria-labelledby="accordion-color-heading-1">
+                        <div class="p-5 border border-b-0 border-gray-200 dark:border-gray-700 dark:bg-gray-900">
+                            <form asp-action="UpdateEmployee" method="post" enctype="multipart/form-data" id="employeeForm">
+
+                                <input type="hidden" id="employee_id" name="employee_id" value="@employeeData.employee_id" />
+                                <div class="mb-6">
+                                    <h2 class="text-xl font-semibold mb-4">معلومات الموظف الأساسية</h2>
+
+                                    <div class="grid grid-cols-2 md:grid-cols-2 gap-4">
+                                        <!-- Name and Role -->
+                                        <div>
+                                            <label for="name" class="text-gray-700 text-sm font-bold mb-2">الاسم</label>
+                                            <input id="name" name="name" value="@employeeData.name" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+                                        </div>
+                                        <div>
+                                            <label for="search_role" class="text-gray-700 text-sm font-bold mb-2">دور البحث</label>
+                                            <input id="search_role" name="search_role" value="@employeeData.search_role" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+                                        </div>
+
+                                        <!-- Username and Password -->
+                                        <div>
+                                            <label for="username" class="text-gray-700 text-sm font-bold mb-2">اسم المستخدم</label>
+                                            <input id="username" name="username" value="@employeeData.username" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+                                        </div>
+                                        <div>
+                                            <label for="password" class="text-gray-700 text-sm font-bold mb-2">كلمة المرور</label>
+                                            <input id="password" name="password" type="password" value="@employeeData.password" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="mb-6">
+                                    <h2 class="text-xl font-semibold mb-4">تفاصيل الموظف</h2>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                        <div>
+                                            <label for="identity_number" class="block text-gray-700 text-sm font-bold mb-2">رقم الهوية</label>
+                                            <input id="identity_number" name="identity_number" type="number" value="@employeeData.identity_number" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+                                        </div>
+                                        <div>
+                                            <input type="hidden" id="departement_id_hidden" value="@employeeData.departement_id" />
+                                            <label for="departement_id" class="block text-gray-700 text-sm font-bold mb-2">القسم</label>
+                                            <select id="departement_id" name="departement_id" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                                                <option value="">اختر القسم</option>
+                                                @foreach (var department in departments)
+                                                {
+                                                    <option value="@department.departement_id">@department.departement_name</option>
+                                                }
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label for="position" class="block text-gray-700 text-sm font-bold mb-2">المنصب</label>
+                                            <input type="hidden" id="position_hidden" value="@employeeData.position" />
+                                            <select id="position" name="position" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                                                <option value="موظف">موظف</option>
+                                                <option value="مدير الموارد البشرية والمالية">مدير الموارد البشرية والمالية</option>
+                                                <option value="مدير التنمية المالية والاستدامة">مدير التنمية المالية والاستدامة</option>
+                                                <option value="مدير خدمة المستفيدين">مدير خدمة المستفيدين</option>
+                                                <option value="السكرتير">السكرتير</option>
+                                                <option value="المدير التنفيذي">المدير التنفيذي</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label for="permission_position" class="block text-gray-700 text-sm font-bold mb-2">الصلاحيات</label>
+                                            <input type="hidden" id="permission_position_hidden" value="@employeeData.permission_position" />
+                                            <select id="permission_position" name="permission_position" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                                                <option value="موظف">موظف</option>
+                                                <option value="مدير الموارد البشرية والمالية">مدير الموارد البشرية والمالية</option>
+                                                <option value="مدير التنمية المالية والاستدامة">مدير التنمية المالية والاستدامة</option>
+                                                <option value="مدير خدمة المستفيدين">مدير خدمة المستفيدين</option>
+                                                <option value="السكرتير">السكرتير</option>
+                                                <option value="المدير التنفيذي">المدير التنفيذي</option>
+                                            </select>
+                                        </div>
+
+                                        <div>
+                                            <label for="contract_type" class="block text-gray-700 text-sm font-bold mb-2">نوع العقد</label>
+                                            <input id="contract_type" name="contract_type" value="@employeeData.contract_type" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+                                        </div>
+                                        <div>
+                                            <label for="national_address" class="block text-gray-700 text-sm font-bold mb-2">العنوان الوطني</label>
+                                            <input id="national_address" name="national_address" value="@employeeData.national_address" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+                                        </div>
+                                        <div>
+                                            <label for="education_level" class="block text-gray-700 text-sm font-bold mb-2">المستوى التعليمي</label>
+                                            <input id="education_level" name="education_level" value="@employeeData.education_level" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+                                        </div>
+                                        <div>
+                                            <label for="hire_date" class="block text-gray-700 text-sm font-bold mb-2">تاريخ التوظيف</label>
+                                            <input id="hire_date" name="hire_date" type="date" value="@(((DateTime)employeeData.hire_date).ToString("yyyy-MM-dd"))" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+                                        </div>
+                                        <div>
+                                            <label for="leave_date" class="block text-gray-700 text-sm font-bold mb-2">تاريخ انتهاء العقد</label>
+                                            <input id="leave_date" name="leave_date" type="date" value="@(((DateTime)employeeData.leave_date).ToString("yyyy-MM-dd"))" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+                                        </div>
+                                        <div>
+                                            <label for="email" class="block text-gray-700 text-sm font-bold mb-2">البريد الإلكتروني</label>
+                                            <input id="email" name="email" type="email" value="@employeeData.email" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+                                        </div>
+                                        <div>
+                                            <label for="phone_number" class="block text-gray-700 text-sm font-bold mb-2">رقم الهاتف</label>
+                                            <input id="phone_number" name="phone_number" type="number" value="@employeeData.phone_number" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+                                        </div>
+                                        <input type="hidden" id="gender_hidden" value="@employeeData.gender" />
+                                        <div class="mb-4">
+                                            <label for="gender" class="block text-gray-700 text-sm font-bold mb-2">الجنس</label>
+                                            <select id="gender" name="gender" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                                                <option value="">اختر الجنس</option>
+                                                <option value="Male">ذكر</option>
+                                                <option value="Female">أنثى</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group mb-4">
+                                    <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="employee_files">المرفقات</label>
+                                    <input id="employee_files" name="employee_files" class="form-control w-full border rounded focus:ring-blue-500 focus:border-blue-500" type="file" accept=".pdf,.xls,.xlsx,.doc,.docx" />
+                                    <span for="employee_files" class="text-danger"></span>
+                                    <small id="fileError" class="text-danger" style="display:none;">الملفات المسموح بها فقط :PDF, Excel, Word</small>
+                                </div>
+
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <input id="active" name="active" type="checkbox" class="form-checkbox h-5 w-5 text-blue-600" value="true" checked="@employeeData.active" />
+                                        <label for="active" class="mr-2 block text-gray-700 text-sm font-bold">نشط</label>
+                                    </div>
+                                    <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                                        تحديث بيانات الموظف
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <h2 id="accordion-color-heading-2">
+                        <button type="button" class="flex items-center justify-between w-full p-5 font-medium rtl:text-right text-gray-500 border border-b-0 border-gray-200 rounded-t-xl focus:ring-4 focus:ring-blue-200 dark:focus:ring-blue-800 dark:border-gray-700 dark:text-gray-400 hover:bg-blue-100 dark:hover:bg-gray-800 gap-3" data-accordion-target="#accordion-color-body-2" aria-expanded="false" aria-controls="accordion-color-body-2">
+                            <span class="text-2xl">رصيد الإجازات للموظف</span>
+                            <svg data-accordion-icon class="w-3 h-3 rotate-180 shrink-0" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5 5 1 1 5" />
+                            </svg>
+                        </button>
+                    </h2>
+                    <div id="accordion-color-body-2" class="hidden" aria-labelledby="accordion-color-heading-1">
+                        <div class="p-5 border border-b-0 border-gray-200 dark:border-gray-700 dark:bg-gray-900 grid grid-cols-2 md:grid-cols-2 gap-4">
+
+                            <!-- مرضية -->
+                            <div>
+                                <label for="sick-leave" class="text-gray-700 text-sm font-bold mb-2">المتبقي من رصيد المرضية</label>
+                                <input id="sick-leave" name="balance" disabled value="-1"
+                                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+                            </div>
+                            <!-- سنوية -->
+                            <div>
+                                <label for="annual-leave" class="text-gray-700 text-sm font-bold mb-2">المتبقي من رصيد السنوية</label>
+                                <input id="annual-leave" name="balance" disabled value="-1"
+                                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+                            </div>
+                            <!-- استئذان -->
+                            <div>
+                                <label for="permission-leave" class="text-gray-700 text-sm font-bold mb-2">المتبقي من رصيد الاستئذان</label>
+                                <input id="permission-leave" name="balance" disabled value="-1"
+                                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+                            </div>
+                            <!-- اضطرارية -->
+                            <div>
+                                <label for="emergency-leave" class="text-gray-700 text-sm font-bold mb-2">المتبقي من رصيد الاضطرارية</label>
+                                <input id="emergency-leave" name="balance" disabled value="-1"
+                                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+                            </div>
+                        </div>
+
+                    </div>
+                    <h2 id="accordion-color-heading-3">
+                        <button type="button" class="flex items-center justify-between w-full p-5 font-medium rtl:text-right text-gray-500 border border-b-0 border-gray-200 rounded-t-xl focus:ring-4 focus:ring-blue-200 dark:focus:ring-blue-800 dark:border-gray-700 dark:text-gray-400 hover:bg-blue-100 dark:hover:bg-gray-800 gap-3" data-accordion-target="#accordion-color-body-3" aria-expanded="false" aria-controls="accordion-color-body-3">
+                            <span class="text-2xl">معلومات راتب الموظف</span>
+                            <svg data-accordion-icon class="w-3 h-3 rotate-180 shrink-0" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5 5 1 1 5" />
+                            </svg>
+                        </button>
+                    </h2>
+                    <div id="accordion-color-body-3" class="hidden" aria-labelledby="accordion-color-heading-3">
+                        <div class="p-3 border border-b-0 border-gray-200 dark:border-gray-700 dark:bg-gray-900">
+                            <div class="p-3 border border-b-0 border-gray-200 dark:border-gray-700 dark:bg-gray-900">
+                                <form method="post" asp-action="UpdateEmployeeSalary">
+                                    <input type="hidden" name="empId" value="@employeeData.employee_id" />
+
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                        <div class="flex flex-col">
+                                            <label for="baseSalary" class="text-sm font-medium text-gray-700 dark:text-gray-300">الراتب الأساسي</label>
+                                            <input id="baseSalary" name="baseSalary" value="@salaryDetails.base_salary" type="number" step="0.01" class="p-2 border rounded" required />
+                                        </div>
+
+                                        <div class="flex flex-col">
+                                            <label for="housingAllowances" class="text-sm font-medium text-gray-700 dark:text-gray-300">بدل السكن</label>
+                                            <input id="housingAllowances" name="housingAllowances" value="@salaryDetails.housing_allowances" type="number" step="0.01" class="p-2 border rounded" />
+                                        </div>
+
+                                        <div class="flex flex-col">
+                                            <label for="transportationAllowances" class="text-sm font-medium text-gray-700 dark:text-gray-300">بدل المواصلات</label>
+                                            <input id="transportationAllowances" name="transportationAllowances" value="@salaryDetails.transportation_allowances" type="number" step="0.01" class="p-2 border rounded" />
+                                        </div>
+
+                                        <div class="flex flex-col">
+                                            <label for="otherAllowances" class="text-sm font-medium text-gray-700 dark:text-gray-300">بدلات أخرى</label>
+                                            <input id="otherAllowances" name="otherAllowances" value="@salaryDetails.other_allowances" type="number" step="0.01" class="p-2 border rounded" />
+                                        </div>
+
+                                        <div class="flex flex-col">
+                                            <label for="sharedPortion" class="text-sm font-medium text-gray-700 dark:text-gray-300">حصة المشترك</label>
+                                            <input id="sharedPortion" name="sharedPortion" value="@salaryDetails.shared_portion" type="number" step="0.01" class="p-2 border rounded" />
+                                        </div>
+
+                                        <div class="flex flex-col">
+                                            <label for="facilityPortion" class="text-sm font-medium text-gray-700 dark:text-gray-300">حصة المنشأة</label>
+                                            <input id="facilityPortion" name="facilityPortion" value="@salaryDetails.facility_portion" type="number" step="0.01" class="p-2 border rounded" />
+                                        </div>
+
+                                        <div class="flex flex-col">
+                                            <label for="socialInsuranceRate" class="text-sm font-medium text-gray-700 dark:text-gray-300">التأمينات الاجتماعية</label>
+                                            <input id="socialInsuranceRate" name="socialInsuranceRate" value="@salaryDetails.Social_insurance_rate" type="number" step="0.01" class="p-2 border rounded" />
+                                        </div>
+
+                                        <div class="flex flex-col">
+                                            <label for="maxOvertimeRate" class="text-sm font-medium text-gray-700 dark:text-gray-300">الحد الأقصى للعمل الإضافي</label>
+                                            <input id="maxOvertimeRate" name="maxOvertimeRate" value="@salaryDetails.max_overtime_rate" type="number" step="0.01" class="p-2 border rounded" />
+                                        </div>
+
+                                        <div class="flex flex-col col-span-2">
+                                            <label for="salaryNotes" class="text-sm font-medium text-gray-700 dark:text-gray-300">الملاحظات</label>
+<textarea id="salaryNotes" name="salaryNotes" class="p-2 border rounded">@salaryDetails.salary_notes</textarea>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-4 text-center">
+                                        <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">تحديث الراتب</button>
+                                    </div>
+                                </form>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
         </div>
     </div>
+
+
     <script>
+        function fetchAndDisplayHolidayBalances(employeeNumber) {
+            const holidayMappings = [
+                { id: 1, field: 'sick-leave' },       // مرضية
+                { id: 2, field: 'annual-leave' },    // سنوية
+                { id: 3, field: 'permission-leave' },// استئذان
+                { id: 4, field: 'emergency-leave' }  // اضطرارية
+            ];
+
+            holidayMappings.forEach(holiday => {
+                const inputField = document.getElementById(holiday.field);
+
+                fetch(`/HR/GetRemainingHolidayBalanceForEmployee?employeeNumber=${employeeNumber}&holidayId=${holiday.id}`)
+                    .then(response => {
+                        if (!response.ok) throw new Error('Failed to fetch holiday balance.');
+                        return response.json();
+                    })
+                    .then(balance => {
+                        if (typeof balance === 'number' && balance >= 0) {
+                            inputField.value = balance; // Update balance
+                        } else {
+                            inputField.value = 'غير متوفر'; // Handle invalid balance
+                        }
+                    })
+                    .catch(error => {
+                        console.error(`Error fetching balance for holiday ID ${holiday.id}:`, error);
+                        inputField.value = 'خطأ'; // Show error in case of failure
+                    });
+            });
+        }
+
+        // Call this function and pass the employee number (e.g., from the session or view context)
+        fetchAndDisplayHolidayBalances(@employeeData.employee_id);
+
+
         $(document).on('submit', '#employeeForm', function (e) {
             e.preventDefault();
 
@@ -252,5 +413,7 @@
 
 
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@1.5.0/dist/flowbite.min.js"></script>
+
 </body>
 </html>
