@@ -399,6 +399,44 @@ namespace CharityProject.Controllers
 
             return PartialView("_getAllHolidays", holidays);
         }
+
+
+
+        /// <summary>
+        /// ////////////////////////////////////////////////////////////////////////////////////////////
+        /// </summary>
+        /// <returns></returns>
+        /// 
+
+
+
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateStatusToExempt(int holidayHistoryId)
+        {
+            var holidayHistory = await _context.HolidayHistories
+                .FirstOrDefaultAsync(h => h.holidays_history_id == holidayHistoryId);
+
+            if (holidayHistory == null)
+            {
+                return Json(new { success = false, message = "السجل غير موجود." });
+            }
+
+            holidayHistory.status = "معفاه";
+            await _context.SaveChangesAsync();
+
+            return Json(new { success = true, message = "" });
+        }
+
+
+
+        /// <summary>
+        /// ////////////////////////////////////////////////////////////////////////////////////////////
+        /// </summary>
+        /// <returns></returns>
+        /// 
+
+
         public async Task<IActionResult> GetAllLetters()
         {
             var employeeDetails = await GetEmployeeDetailsFromSessionAsync();

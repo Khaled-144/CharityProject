@@ -1,5 +1,6 @@
 ﻿<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 
 @model CharityProject.Models.HolidayHistory
 
@@ -185,9 +186,20 @@
                             رفض
                         </button>
                     }
+                    else{
+                        <button data-dismiss="modal"
+                                type="button"
+                                class="px-4 py-2 text-sm font-medium text-white bg-green-500 rounded-md hover:bg-gray-600 focus:outline-none focus:ring-4 focus:ring-gray-300 transition duration-300"
+                                onclick="updateStatusToExempt(@Model.holidays_history_id)">
+                            إعفاء
+                        </button>
+
+                    }
+              
                     <button data-dismiss="modal" type="button" class="px-4 py-2 text-sm font-medium text-white bg-gray-500 rounded-md hover:bg-gray-600 focus:outline-none focus:ring-4 focus:ring-gray-300 transition duration-300">
                         إخفاء
                     </button>
+
                 </div>
             </div>
         </div>
@@ -276,4 +288,67 @@
             }
         });
     }
+    /*  function updateStatusToExempt(holidayHistoryId) {
+        console.log("Holiday History ID sent to the server:", holidayHistoryId);
+
+        $.ajax({
+            url: '/CEO/UpdateStatusToExempt', // Adjust the URL as necessary
+            type: 'POST',
+            data: { holidayHistoryId: holidayHistoryId },
+            success: function (response) {
+                if (response.success) {
+                    alert(response.message);
+                } else {
+                    alert(response.message);
+                }
+            },
+            error: function (err) {
+                console.error("Error in AJAX request:", err);
+            }
+        });
+    }
+    */
+
+       function updateStatusToExempt(holidayHistoryId) {
+        console.log("Holiday History ID sent to the server:", holidayHistoryId);
+
+        $.ajax({
+            url: '/CEO/UpdateStatusToExempt', // Adjust the URL as necessary
+            type: 'POST',
+            data: { holidayHistoryId: holidayHistoryId },
+            success: function (response) {
+                if (response.success) {
+                    // Success message using SweetAlert2
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'تم تحديث الحالة الى معفاه',
+                        text: response.message,
+                        confirmButtonColor: '#4CAF50',
+                    }).then(() => {
+                        // Optionally, reload the page or update the UI if necessary
+                        window.location.reload();
+                    });
+                } else {
+                    // Error message using SweetAlert2
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'حدث خطأ',
+                        text: response.message,
+                        confirmButtonColor: '#f44336',
+                    });
+                }
+            },
+            error: function (err) {
+                console.error("Error in AJAX request:", err);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'حدث خطأ أثناء معالجة طلبك.',
+                    confirmButtonColor: '#f44336',
+                });
+            }
+        });
+    }
+
+
+    
 </script>
