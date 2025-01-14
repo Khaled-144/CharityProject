@@ -12,15 +12,6 @@ namespace CharityProject.Data
             : base(options)
         {
         }
-
-    /*    public void ConfigureServices(IServiceCollection services)
-        {
-            IServiceCollection serviceCollection = services.Configure<SmtpSettings>(Configuration.GetSection("SmtpSettings"));
-        }*/ 
-    
-
-      /*  public DbSet<Configuration> Configuration { get; set; }*/
-        // DbSet properties for your entities
         public DbSet<charter> charter { get; set; }
         public DbSet<Department> Department { get; set; }
         public DbSet<Devices> Devices { get; set; }
@@ -31,6 +22,7 @@ namespace CharityProject.Data
         public DbSet<HolidayHistory> HolidayHistories { get; set; }
         public DbSet<letter> letters { get; set; }
         public DbSet<salaries_history> SalaryHistories { get; set; }
+        public DbSet<Salary> EmployeeSalary { get; set; }
         public DbSet<Transaction> Transactions { get; set; }
         public DbSet<OtherService> OtherServices { get; set; }
         public DbSet<Referral> Referrals { get; set; }
