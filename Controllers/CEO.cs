@@ -355,8 +355,8 @@ namespace CharityProject.Controllers
 
             // Fetch holidays with the status "مرسلة" where the employee's department ID is 5
             var holidays = await _context.HolidayHistories
-                .Include(h=>h.holiday)
-                .Where(h=> h.status == "مرسلة من مدير" )
+                .Include(h => h.holiday)
+                .Where(h => h.status == "مرسلة من مدير")
                 .OrderByDescending(h => h.holidays_history_id)
                 .ToListAsync();
             var employeeIds = holidays.SelectMany(t => new[] { t.emp_id }).Distinct().ToList();
@@ -373,6 +373,7 @@ namespace CharityProject.Controllers
 
             return PartialView("_getAllHolidays", holidays);
         }
+
         public async Task<IActionResult> GetAllHolidaysArchived()
         {
             var employee = await GetEmployeeDetailsFromSessionAsync();
@@ -380,7 +381,7 @@ namespace CharityProject.Controllers
             // Fetch holidays with the status "مرسلة" where the employee's department ID is 5
             var holidays = await _context.HolidayHistories
                  .Include(h => h.holiday)
-                .Where(h => h.status == "موافقة مدير الموارد البشرية" || h.status == "رفضت من مدير الموارد البشرية"|| h.status == "موافقة المدير التنفيذي"|| h.status == "رفضت من المدير التنفيذي")
+                .Where(h => h.status == "موافقة مدير الموارد البشرية" || h.status == "رفضت من مدير الموارد البشرية"|| h.status == "موافقة المدير التنفيذي"|| h.status == "رفضت من المدير التنفيذي" || h.status=="معفاه")
                 .OrderByDescending(h => h.holidays_history_id)
                 .ToListAsync();
             var employeeIds = holidays.SelectMany(t => new[] { t.emp_id }).Distinct().ToList();

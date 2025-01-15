@@ -6,7 +6,7 @@ namespace CharityProject.Controllers
 {
    
 
-    public class EmployeeProfileController : Controller
+    public class _employeeProfileController : Controller
     {
         // Show profile view
         public IActionResult _employeeProfile()
