@@ -71,6 +71,31 @@
                                             رفضت من مدير الموارد البشرية
                                         </li>
                                     }
+                                    else if (item.status == "معفاه")
+                                    {
+
+                                        <li class="flex items-center text-green-600 dark:text-green-500">
+                                            <svg class="w-3.5 h-3.5 ml-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
+                                            </svg>
+                                            موافقة المدير المباشر
+                                            <span class="mx-2">/</span>
+                                        </li>
+                                        <li class="flex items-center text-green-600 dark:text-green-500">
+                                            <svg class="w-3.5 h-3.5 ml-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
+                                            </svg>
+                                            موافقة مدير الموارد البشرية
+                                            <span class="mx-2">/</span>
+                                        </li>
+
+                                        <li class="flex items-center @((item.status == "معفاه")? "text-green-600 dark:text-green-500" : "text-gray-400 dark:text-gray-500")">
+                                            <svg class="w-3.5 h-3.5 ml-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
+                                            </svg>
+                                           معفاه من الإدارة التنفيذية
+                                        </li>
+                                    }
                                     else
                                     {
                                         <li class="flex items-center @((item.status == "موافقة المدير المباشر" || item.status == "موافقة مدير الموارد البشرية") ? "text-green-600 dark:text-green-500" : "text-gray-400 dark:text-gray-500")">

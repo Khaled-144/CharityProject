@@ -39,9 +39,9 @@
     <title>الاسكان التنموي - تسجيل دخول</title>
 </head>
 
-<body class="bg-cover bg-center bg-no-repeat bg-fixed min-h-screen">
-    <div>
-        <div class="w-[80vw] md:w-[400px] bg-white mx-auto justify-center shadow-2xl border border-primaryColor rounded-md mt-4">
+<body>
+    <div class="flex items-center justify-center">
+        <div class="w-[80vw] md:w-[400px] bg-white shadow-2xl border border-primaryColor rounded-md mt-24">
             <div class="p-6 pt-2">
                 <h1 class="text-2xl justify-center font-bold mt-4 text-veryDarkBlue"> تسجيل الدخول </h1>
                 <form asp-action="LoginPage">
@@ -98,9 +98,16 @@
                     </button>
                 </form>
 
-                <div class="mt-2">
-                    <a href="/Home/ForgotPassword" class="text-primaryColor underline underline-offset-8">نسيت كلمة السر</a>
+                <div class="mt-2 pt-2 flex justify-between items-center gap-4">
+                    <a href="/Home/ForgotPassword"
+                       class="text-primaryColor underline underline-offset-4 hover:text-primaryButtons transition duration-200">
+                        نسيت كلمة السر
+                    </a>
+                    <button class="bg-primaryButtons text-white px-2 py-2 text-sm rounded hover:bg-opacity-90 transition duration-200">
+                        نظام البحث الاجتماعي
+                    </button>
                 </div>
+
             </div>
         </div>
     </div>
