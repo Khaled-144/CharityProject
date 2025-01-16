@@ -59,10 +59,18 @@
             </button>
 
             </li>
-            <li class="me-2" role="presentation">
+            <li class="me-2 flex items-center relative" role="presentation">
                 <button class="inline-block p-4 border-b-2 rounded-t-lg" id="holidays-tab" data-content-url="@Url.Action("GetAllHolidaysArchive", "HR")" type="button" role="tab">
                     إجازات
                 </button>
+                <svg class="w-4 h-4 ml-2 cursor-pointer arrow-down" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+                <!-- Dropdown menu -->
+                <ul class="absolute left-0 mt-2 hidden w-32 bg-white border border-gray-200 rounded-lg shadow-lg dropdown-menu">
+                    <li><a href="#" id="sec1" class="block px-4 py-2 text-black hover:bg-gray-100" data-content-url="@Url.Action("GetMyHolidays", "HR")"> خاصة بي</a></li>
+                    <li><a href="#" id="sec2" class="block px-4 py-2 text-black hover:bg-gray-100" data-content-url="@Url.Action("GetAllHolidaysArchive", "HR")"> منهاة</a></li>
+                </ul>
 
             </li>
             <li class="me-2 flex items-center" role="presentation">
@@ -166,6 +174,46 @@
 
             });
         });
+        $('.arrow-down').on('click', function (event) {
+            event.stopPropagation(); // Prevent the click from triggering the tab functionality
+            $(this).siblings('.dropdown-menu').toggle(); // Toggle the dropdown visibility
+        });
+
+        // Close the dropdown when clicking outside
+        $(document).on('click', function () {
+            $('.dropdown-menu').hide(); // Hide the dropdown when clicking outside
+        });
+
+        // Prevent closing the dropdown when clicking inside it
+        $('.dropdown-menu').on('click', function (event) {
+            event.stopPropagation(); // Prevent the click from closing the dropdown
+        });
+
+        // Load holidays for sec1 (rejected holidays)
+        $('#sec1').on('click', function (event) {
+            event.preventDefault();
+            loadHolidays('@Url.Action("GetMyHolidays", "HR")', 'mine');  // Load rejected holidays
+        });
+
+        // Load holidays for sec2 (all holidays)
+        $('#sec2').on('click', function (event) {
+            event.preventDefault();
+            loadHolidays('@Url.Action("GetAllHolidaysArchive", "HR")', 'all');  // Load all holidays (similar to إجازات)
+        });
+        function loadHolidays(url, type) {
+            $.ajax({
+                url: url,
+                type: 'GET',
+                dataType: 'html', // Expect HTML content for better dynamic content rendering
+                success: function (data) {
+                    // Clear the current content and append the new results directly into the #tab-content-container
+                    $('#tab-content-container').html(data);
+                },
+                error: function () {
+                    alert('Error loading holidays.');
+                }
+            });
+        }
     </script>
 
 </body>

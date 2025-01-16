@@ -653,7 +653,7 @@ namespace CharityProject.Controllers
                 .Include(h=>h.holiday)
                 .Include(h => h.holiday)
                .Where(h =>
-        (h.status.Contains("موافقة") || h.status.Contains("رفضت") || h.status == "مرسلة من مدير")
+        (h.status.Contains("موافقة") || h.status.Contains("رفضت") )
         && h.Employee_detail.departement_id == employee.departement_id)
                 .OrderByDescending(h => h.holidays_history_id)
                 .ToListAsync();
@@ -1604,6 +1604,54 @@ namespace CharityProject.Controllers
             ViewData["Departments"] = departments;
             ViewData["EmployeeList"] = employeeList;
             return View();
+        }
+        public async Task<IActionResult> GetRejectedHolidays()
+        {
+         
+            var holidays = await _context.HolidayHistories
+                .Include(h => h.holiday)  // Eager load the Holiday entity
+                .Where(h => h.status == "رفضت من المدير المباشر" || h.status=="رفضت من مدير الموارد البشرية") // Filter for rejected holidays
+                .OrderByDescending(h => h.holidays_history_id)
+                .ToListAsync();
+            var employeeIds = holidays.SelectMany(t => new[] { t.emp_id }).Distinct().ToList();
+            var employees = await _context.employee
+                .Where(e => employeeIds.Contains(e.employee_id))
+                .ToDictionaryAsync(e => e.employee_id, e => e.name);
+
+            ViewBag.EmployeeNames = employees;
+
+            if (holidays.Count == 0)
+            {
+                // Render the _NothingNew partial view if no holidays are found
+                return PartialView("_NothingNew");
+            }
+            return PartialView("_getRejectedHolidays", holidays); // Separate partial view for rejected holidays
+        }
+        public async Task<IActionResult> GetMyHolidays()
+        {
+            var emp = GetEmployeeIdFromSession();
+
+            // Fetch the employee name for the current employee
+            // Store the single employee name in ViewBag
+
+            var holidays = await _context.HolidayHistories
+                .Include(h => h.holiday) // Eager load the Holiday entity
+                .Where(h => h.emp_id == emp)
+                .OrderByDescending(h => h.holidays_history_id)
+                .ToListAsync();
+
+            var employeeIds = holidays.SelectMany(t => new[] { t.emp_id }).Distinct().ToList();
+            var employees = await _context.employee
+                .Where(e => employeeIds.Contains(e.employee_id))
+                .ToDictionaryAsync(e => e.employee_id, e => e.name);
+
+            if (!holidays.Any())
+            {
+                // Render the _NothingNew partial view if no holidays are found
+                return PartialView("_NothingNew");
+            }
+
+            return PartialView("_getAllHolidays", holidays); // Separate partial view for rejected holidays
         }
         [HttpPost]
         public IActionResult UpdatePermission(int id, string permissionPosition)
