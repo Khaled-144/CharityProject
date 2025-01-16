@@ -47,7 +47,7 @@
     </style>
 </head>
 <body class="bg-gradient-to-br from-emerald-100 via-teal-200 to-cyan-300 min-h-screen p-8 font-sans">
-    <div class="max-w-7xl mx-auto">
+    <div class="max-w-8xl mx-auto">
         <h2 class="p-4 text-5xl font-bold mb-12 text-center text-black shadow-text fade-in">قائمة الموظفين </h2>
 
         @{
@@ -84,7 +84,7 @@
                             <th class="py-4 px-6 text-right">المنصب</th>
                             <th class="py-4 px-6 text-right">الصلاحيات</th>
                             <th class="py-4 px-6 text-right">اسم القسم</th>
-                            <th class="py-4 px-6 text-right">الملفات</th>
+                            <th class="py-4 px-6 text-right">نوع العقد</th>
                             <th class="py-4 px-6 text-right">الاجراءات</th>
                         </tr>
                     </thead>
@@ -99,22 +99,13 @@
                                 <td class="py-4 px-6 border-b">@employee.PermissionPosition</td>
                                 <td class="py-4 px-6 border-b">@employee.DepartmentName</td>
                                 <td class="py-4 px-6 border-b">
-                                    @if (!string.IsNullOrEmpty(employee.Files))
-                                    {
-                                        <a href="@Url.Action("DownloadFile", "HR", new { employeeId = employee.employee_id })" class="bg-gradient-to-r from-blue-500 to-blue-600 text-white py-2 px-4 rounded-lg hover:from-blue-600 hover:to-blue-700 transition duration-300 ease-in-out transform hover:scale-105 inline-block">
-                                          تحميل
-                                        </a>
-                                    }
-                                    else
-                                    {
-                                        <span class="text-gray-500">لا يوجد ملف</span>
-                                    }
+                                    @employee.contract_type
                                 </td>
                                 <td class="py-4 px-6 border-b">
                                     <form asp-controller="HR" asp-action="UpdateEmployee" method="get">
                                         <input type="hidden" name="id" value="@employee.employee_id" />
                                         <button class="bg-primaryButtons text-white py-2 px-4 rounded-lg hover:from-emerald-600 hover:to-teal-700 transition duration-300 ease-in-out transform hover:scale-105">
-                                            تحديث
+                                            التفاصيل
                                         </button>
                                     </form>
                                 </td>

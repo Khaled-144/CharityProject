@@ -1,70 +1,52 @@
-﻿
-
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>الصفحة الشخصية</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-</head>
-<body>
-    <div class="flex flex-col items-center max-w-xl gap-2 mt-20 justify-center mx-auto">
-        <div class="bg-white overflow-hidden shadow rounded-lg border">
-
-            <div class="px-4 py-5 sm:px-6 justify-center flex justify-center">
-                <div class="h-20 w-20 overflow-hidden rounded-full flex justify-center bg-gray-200">
-                    <svg class="h-20 w-20 object-cover" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                        <path fill-rule="evenodd" d="M12 2a5 5 0 100 10 5 5 0 000-10zM4 19a8 8 0 0116 0v1H4v-1z" clip-rule="evenodd" />
-                    </svg>
-                </div>
-            </div>
-
-            <h3 class="text-lg leading-6 font-medium text-gray-900 text-center">
-                الملف الشخصي
-            </h3>
-
-            <div class="border-t border-gray-200 px-4 py-5 sm:p-0">
-                <dl class="sm:divide-y sm:divide-gray-200">
-                    <div class="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                        <dt class="text-sm font-medium text-gray-500">
-                            الاسم
-                        </dt>
-                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                            @Context.Session.GetString("Name")
-                        </dd>
-                    </div>
-                    <div class="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                        <dt class="text-sm font-medium text-gray-500">
-                            القسم
-                        </dt>
-                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                            @Context.Session.GetString("DepartmentName")
-                           
-                        </dd>
-                    </div>
-                    <div class="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                        <dt class="text-sm font-medium text-gray-500">
-                            المنصب
-                        </dt>
-                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                          
-                           @Context.Session.GetString("Position")
-                           
-                        </dd>
-                    </div>
-                    <div class="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                        <dt class="text-sm font-medium text-gray-500">
-                           الرقم الوظيفي
-                        </dt>
-                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                           
-                            @Context.Session.GetString("Id")
-                        </dd>
-                    </div>
-                </dl>
+﻿<div class="flex flex-col items-center justify-center h-screen mx-auto max-w-xl gap-2">
+    <div class="bg-white overflow-hidden shadow rounded-lg border">
+        <div class="px-4 py-5 sm:px-6 flex justify-center">
+            <div class="h-20 w-20 overflow-hidden rounded-full flex justify-center bg-gray-200">
+                <svg class="h-20 w-20 object-cover" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path fill-rule="evenodd" d="M12 2a5 5 0 100 10 5 5 0 000-10zM4 19a8 8 0 0116 0v1H4v-1z" clip-rule="evenodd" />
+                </svg>
             </div>
         </div>
+
+        <h3 class="text-lg leading-6 font-medium text-gray-900 text-center">
+            الملف الشخصي
+        </h3>
+
+        <div class="border-t border-gray-200 px-4 py-5 sm:p-0">
+            <dl class="sm:divide-y sm:divide-gray-200">
+                <div class="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <dt class="text-sm font-medium text-gray-500">
+                        الاسم
+                    </dt>
+                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                        @Context.Session.GetString("Name")
+                    </dd>
+                </div>
+                <div class="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <dt class="text-sm font-medium text-gray-500">
+                        القسم
+                    </dt>
+                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                        @Context.Session.GetString("DepartmentName")
+                    </dd>
+                </div>
+                <div class="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <dt class="text-sm font-medium text-gray-500">
+                        المنصب
+                    </dt>
+                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                        @Context.Session.GetString("Position")
+                    </dd>
+                </div>
+                <div class="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <dt class="text-sm font-medium text-gray-500">
+                        الرقم الوظيفي
+                    </dt>
+                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                        @Context.Session.GetString("Id")
+                    </dd>
+                </div>
+            </dl>
+        </div>
     </div>
-</body>
-</html>
+</div>
