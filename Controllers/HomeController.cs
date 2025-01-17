@@ -217,5 +217,66 @@ namespace CharityProject.Controllers
             ViewData["Message"] = "حدث خطأ، حاول مرة أخرى";
             return View("ResetPasswordForm");
         }
+
+        [HttpPost]
+        public async Task<IActionResult> VerifyCurrentPassword([FromBody] string currentPassword)
+        {
+            if (string.IsNullOrEmpty(currentPassword))
+            {
+                return BadRequest(new { message = "Password is required", password = currentPassword });
+            }
+
+            var userId = HttpContext.Session.GetString("Id");
+
+            if (!string.IsNullOrEmpty(userId))
+            {
+                var user = await _context.employee.FirstOrDefaultAsync(e => e.employee_id.ToString() == userId);
+
+                if (user != null)
+                {
+                    if (user.password == currentPassword)
+                    {
+                        return Ok(new { message = "كلمة المرور صحيحة" });
+                    }
+                    else
+                    {
+                        return Unauthorized(new { message = "كلمة المرور خاطئة" });
+                    }
+                }
+            }
+
+            return BadRequest(new { message = "Error, try again." });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ChangePassword([FromBody] string newPassword)
+        {
+            try
+            {
+                // Get the user's ID from the session
+                var userId = HttpContext.Session.GetString("Id");
+
+                // Find the user in the database
+                var user = await _context.employee.FirstOrDefaultAsync(e => e.employee_id.ToString() == userId);
+
+                if (user == null)
+                {
+                    return RedirectToAction("LoginPage");
+                }
+
+                user.password = newPassword;
+
+                // Save changes to the database
+                await _context.SaveChangesAsync();
+
+                return Ok(new { success = true, message = "تم تغيير كلمة المرور بنجاح" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "حدث خطأ أثناء تغيير كلمة المرور", error = ex.Message });
+            }
+        }
+
+
     }
 }
