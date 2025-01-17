@@ -221,67 +221,16 @@
                     }
                     return 0; // No sorting by default
                 });
-<<<<<<< HEAD
                 $('#tab-content-container').html('').append(items);
             });
 
-            // Handle dropdown arrow click to toggle visibility
-            $('.arrow-down').on('click', function (event) {
-                event.stopPropagation(); // Prevent the click from triggering the tab functionality
-                $(this).siblings('.dropdown-menu').toggle(); // Toggle the dropdown visibility
-            });
-
-            // Close the dropdown when clicking outside
-            $(document).on('click', function () {
-                $('.dropdown-menu').hide(); // Hide the dropdown when clicking outside
-            });
-
-            // Prevent closing the dropdown when clicking inside it
-            $('.dropdown-menu').on('click', function (event) {
-                event.stopPropagation(); // Prevent the click from closing the dropdown
-            });
-
-            // Load holidays for sec1 (rejected holidays)
-            $('#sec1').on('click', function (event) {
-                event.preventDefault();
-                loadHolidays('@Url.Action("GetRejectedHolidays", "HR")', 'rejected');  // Load rejected holidays
-            });
-
-            // Load holidays for sec2 (all holidays)
-            $('#sec2').on('click', function (event) {
-                event.preventDefault();
-                loadHolidays('@Url.Action("GetAllHolidays", "HR")', 'all');  // Load all holidays (similar to إجازات)
-            });
-
-            // Function to load holidays based on URL and type
-            function loadHolidays(url, type) {
-                $.ajax({
-                    url: url,
-                    type: 'GET',
-                    dataType: 'html', // Expect HTML content for better dynamic content rendering
-                    success: function (data) {
-                        // Clear the current content and append the new results directly into the #tab-content-container
-                        $('#tab-content-container').html(data);
-                    },
-                    error: function () {
-                        alert('Error loading holidays.');
-                    }
-                });
-            }
-=======
-
-                // Re-append sorted items to the `<ul>`
-                var container = $('#tab-content-container ul');
+                // Re-append the sorted items back to the container
                 $.each(items, function (i, li) {
-                    container.append(li); // Add sorted items
+                    $('#tab-content-container ul').append(li);
                 });
+
             });
-
-
-
->>>>>>> 269526e123b6c271f040cb185de0229ea996193e
         });
-
     </script>
 
 
