@@ -18,6 +18,9 @@ using Microsoft.AspNetCore.Http;
 
 namespace CharityProject.Controllers
 {
+    [PermissionFilter("مدير الموارد البشرية والمالية")]
+
+
     public class HRController : Controller
 
 
@@ -653,7 +656,7 @@ namespace CharityProject.Controllers
                 .Include(h => h.holiday)
                 .Include(h => h.holiday)
                .Where(h =>
-        (h.status.Contains("موافقة") || h.status.Contains("رفضت") )
+        (h.status.Contains("موافقة") || h.status.Contains("رفضت"))
         && h.Employee_detail.departement_id == employee.departement_id)
                 .OrderByDescending(h => h.holidays_history_id)
                 .ToListAsync();
@@ -1608,10 +1611,10 @@ namespace CharityProject.Controllers
         }
         public async Task<IActionResult> GetRejectedHolidays()
         {
-         
+
             var holidays = await _context.HolidayHistories
                 .Include(h => h.holiday)  // Eager load the Holiday entity
-                .Where(h => h.status == "رفضت من المدير المباشر" || h.status=="رفضت من مدير الموارد البشرية") // Filter for rejected holidays
+                .Where(h => h.status == "رفضت من المدير المباشر" || h.status == "رفضت من مدير الموارد البشرية") // Filter for rejected holidays
                 .OrderByDescending(h => h.holidays_history_id)
                 .ToListAsync();
             var employeeIds = holidays.SelectMany(t => new[] { t.emp_id }).Distinct().ToList();

@@ -20,6 +20,8 @@ using QuestPDF.Elements;
 
 namespace CharityProject.Controllers
 {
+    [PermissionFilter("موظف", "السكرتير", "مدير الموارد البشرية والمالية", "مدير التنمية المالية والاستدامة", "مدير خدمة المستفيدين", "المدير التنفيذي")]
+
     public class OtherServicesController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -113,11 +115,11 @@ namespace CharityProject.Controllers
         private async Task<salaries_history> GetLastEmployeeSalaryAsync(int employeeId)
         {
 
-                 return await _context.SalaryHistories
-                           .Where(s => s.emp_id == employeeId)
-                           .OrderByDescending(s => s.date) // Retrieve the latest salary based on date
-                           .FirstOrDefaultAsync();
-            
+            return await _context.SalaryHistories
+                      .Where(s => s.emp_id == employeeId)
+                      .OrderByDescending(s => s.date) // Retrieve the latest salary based on date
+                      .FirstOrDefaultAsync();
+
         }
 
         void ComposeHeader(IContainer container)
@@ -316,7 +318,7 @@ namespace CharityProject.Controllers
                             + (decimal)(record.other_discount ?? 0)
                             + (decimal)(record.debt ?? 0)
                             + (decimal)(record.shared_portion ?? 0);
-                           
+
 
                         decimal finalTotal = totalAllowances - totalDiscounts;
 

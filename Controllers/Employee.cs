@@ -24,16 +24,16 @@ namespace CharityProject.Controllers
             ViewData["Departments"] = departments;
             return View();
         }
-  /*      public IActionResult EditEmployee()
-        {
-            return View();
-        }
-        public IActionResult EmployeeProfile()
-        {
+        /*      public IActionResult EditEmployee()
+              {
+                  return View();
+              }
+              public IActionResult EmployeeProfile()
+              {
 
-            return View();
-        }
-      */
+                  return View();
+              }
+            */
 
         public IActionResult EmployeeView()
         {
@@ -59,114 +59,114 @@ namespace CharityProject.Controllers
         }
 
 
-      [HttpPost]
-[ValidateAntiForgeryToken]
-public async Task<IActionResult> InsertEmployee(
-    string employee_name,
-    string employee_username,
-    string employee_password,
-    string employee_search_role,
-    string employee_identity_number,
-    string employee_departement_id,
-    string employee_position,
-    string employee_permission_position,
-    string employee_contract_type,
-    string employee_national_address,
-    string employee_education_level,
-    DateTime employee_hire_date,
-    DateTime employee_leave_date,
-    string employee_email,
-    string employee_phone_number,
-    string employee_gender,
-    bool employee_active)
-{
-    var employee = new employee
-    {
-        name = employee_name,
-        username = employee_username,
-        password = employee_password,
-        search_role = employee_search_role
-    };
-
-    using var transaction = await _context.Database.BeginTransactionAsync();
-    try
-    {
-        _context.employee.Add(employee);
-        await _context.SaveChangesAsync();
-
-        var employeeDetails = new employee_details
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> InsertEmployee(
+      string employee_name,
+      string employee_username,
+      string employee_password,
+      string employee_search_role,
+      string employee_identity_number,
+      string employee_departement_id,
+      string employee_position,
+      string employee_permission_position,
+      string employee_contract_type,
+      string employee_national_address,
+      string employee_education_level,
+      DateTime employee_hire_date,
+      DateTime employee_leave_date,
+      string employee_email,
+      string employee_phone_number,
+      string employee_gender,
+      bool employee_active)
         {
-            employee_details_id = employee.employee_id, // Ensuring both IDs are the same
-            employee_id = employee.employee_id,
-            identity_number = int.Parse(employee_identity_number),
-            departement_id = int.Parse(employee_departement_id),
-            position = employee_position,
-            permission_position = employee_permission_position,
-            contract_type = employee_contract_type,
-            national_address = employee_national_address,
-            education_level = employee_education_level,
-            hire_date = employee_hire_date,
-            leave_date = employee_leave_date,
-            email = employee_email,
-            phone_number = employee_phone_number,
-            gender = employee_gender,
-            active = employee_active
-        };
-
-        _context.employee_details.Add(employeeDetails);
-        await _context.SaveChangesAsync();
-
-        // Check if the position contains 'مدير'
-        if (employee_position.Contains("مدير"))
-        {
-            var department = _context.Department.FirstOrDefault(d => d.departement_id == employeeDetails.departement_id);
-            if (department != null)
+            var employee = new employee
             {
-                var oldSupervisorId = department.supervisor_id;
+                name = employee_name,
+                username = employee_username,
+                password = employee_password,
+                search_role = employee_search_role
+            };
 
-                // Extract the part of the position after 'مدير'
-                var positionSuffix = employee_position.Replace("مدير", "").Trim();
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                _context.employee.Add(employee);
+                await _context.SaveChangesAsync();
 
-                // Check if the department name matches the position suffix
-                if (department.departement_name != positionSuffix)
+                var employeeDetails = new employee_details
                 {
-                    // Return error if department name does not match
-                    await transaction.RollbackAsync();
-                    return Json(new { success = false, message = "اسم القسم والمنصب غير متوافقين" });
-                }
+                    employee_details_id = employee.employee_id, // Ensuring both IDs are the same
+                    employee_id = employee.employee_id,
+                    identity_number = int.Parse(employee_identity_number),
+                    departement_id = int.Parse(employee_departement_id),
+                    position = employee_position,
+                    permission_position = employee_permission_position,
+                    contract_type = employee_contract_type,
+                    national_address = employee_national_address,
+                    education_level = employee_education_level,
+                    hire_date = employee_hire_date,
+                    leave_date = employee_leave_date,
+                    email = employee_email,
+                    phone_number = employee_phone_number,
+                    gender = employee_gender,
+                    active = employee_active
+                };
 
-                // Check if the old supervisor ID is not the same as the current employee ID
-                if (oldSupervisorId != employee.employee_id)
+                _context.employee_details.Add(employeeDetails);
+                await _context.SaveChangesAsync();
+
+                // Check if the position contains 'مدير'
+                if (employee_position.Contains("مدير"))
                 {
-                    // Update the old supervisor's position and permission_position
-                    var oldSupervisor = _context.employee.Include(e => e.EmployeeDetails).FirstOrDefault(e => e.employee_id == oldSupervisorId);
-                    if (oldSupervisor != null)
+                    var department = _context.Department.FirstOrDefault(d => d.departement_id == employeeDetails.departement_id);
+                    if (department != null)
                     {
-                        var oldSupervisorDetails = oldSupervisor.EmployeeDetails;
-                        if (oldSupervisorDetails != null)
+                        var oldSupervisorId = department.supervisor_id;
+
+                        // Extract the part of the position after 'مدير'
+                        var positionSuffix = employee_position.Replace("مدير", "").Trim();
+
+                        // Check if the department name matches the position suffix
+                        if (department.departement_name != positionSuffix)
                         {
-                            oldSupervisorDetails.position = "موظف";
-                            oldSupervisorDetails.permission_position = "موظف";
+                            // Return error if department name does not match
+                            await transaction.RollbackAsync();
+                            return Json(new { success = false, message = "اسم القسم والمنصب غير متوافقين" });
+                        }
+
+                        // Check if the old supervisor ID is not the same as the current employee ID
+                        if (oldSupervisorId != employee.employee_id)
+                        {
+                            // Update the old supervisor's position and permission_position
+                            var oldSupervisor = _context.employee.Include(e => e.EmployeeDetails).FirstOrDefault(e => e.employee_id == oldSupervisorId);
+                            if (oldSupervisor != null)
+                            {
+                                var oldSupervisorDetails = oldSupervisor.EmployeeDetails;
+                                if (oldSupervisorDetails != null)
+                                {
+                                    oldSupervisorDetails.position = "موظف";
+                                    oldSupervisorDetails.permission_position = "موظف";
+                                }
+                            }
+
+                            // Set the new supervisor
+                            department.supervisor_id = employee.employee_id;
                         }
                     }
-
-                    // Set the new supervisor
-                    department.supervisor_id = employee.employee_id;
                 }
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return Json(new { success = true, message = "تم إنشاء موظف جديد بنجاح!" });
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return Json(new { success = false, message = "لم يتم إنشاء الموظف." });
             }
         }
-
-        await _context.SaveChangesAsync();
-        await transaction.CommitAsync();
-
-        return Json(new { success = true, message = "تم إنشاء موظف جديد بنجاح!" });
-    }
-    catch (Exception ex)
-    {
-        await transaction.RollbackAsync();
-        return Json(new { success = false, message = "لم يتم إنشاء الموظف." });
-    }
-}
 
 
 

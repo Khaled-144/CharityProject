@@ -152,8 +152,7 @@
                             </a>
                         </li>
                         @if (Context.Session.GetString("Position") == "مدير خدمة المستفيدين" ||
-                               Context.Session.GetString("Position") == "مدير التنمية المالية والاستدامة" ||
-                        Context.Session.GetString("Position") == "المدير التنفيذي")
+                               Context.Session.GetString("Position") == "مدير التنمية المالية والاستدامة")
                         {
                             <li>
                                 <a asp-controller="HR" asp-action="ManageEmpPer" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-black hover:bg-gray-100 dark:hover:bg-gray-700 group">
@@ -166,6 +165,22 @@
                                 </a>
                             </li>
                         }
+
+                        @if (Context.Session.GetString("Position") == "المدير التنفيذي")
+
+                        {
+                            <li>
+                                <a asp-controller="CEO" asp-action="ManageEmpPer" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-black hover:bg-gray-100 dark:hover:bg-gray-700 group">
+                                    <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="50.000000pt" height="50.000000pt" viewBox="0 0 50.000000 50.000000" preserveAspectRatio="xMidYMid meet">
+                                        <g transform="translate(0.000000,50.000000) scale(0.100000,-0.100000)" fill="#000000" stroke="none">
+                                            <path d="M209 425 c-15 -8 -29 -21 -32 -28 -3 -9 -15 -13 -29 -10 -14 3 -34 -4 -51 -17 -22 -17 -27 -29 -27 -65 0 -24 8 -58 18 -75 16 -31 16 -32 -2 -43 -65 -41 -81 -55 -84 -75 -3 -19 1 -22 32 -22 25 0 36 -4 36 -15 0 -13 27 -15 180 -15 153 0 180 2 180 15 0 10 11 15 35 15 22 0 35 5 35 13 0 24 -30 56 -65 67 -38 13 -45 33 -20 66 8 10 15 38 15 62 0 34 -6 48 -27 68 -15 14 -36 24 -48 22 -19 -2 -29 3 -70 40 -18 16 -43 15 -76 -3z m61 -15 c0 -5 7 -10 15 -10 36 0 43 -83 13 -150 -9 -19 -18 -43 -22 -52 -7 -23 -45 -23 -52 0 -4 9 -13 33 -22 52 -20 44 -25 105 -11 131 15 29 79 52 79 29z m-116 -49 c4 -5 7 -22 7 -38 1 -15 11 -50 22 -77 l21 -48 -24 -20 c-22 -18 -25 -18 -28 -4 -2 9 -9 16 -16 16 -15 0 -37 54 -43 107 -3 34 0 44 19 57 26 18 35 20 42 7z m232 -7 c19 -13 24 -24 23 -53 -1 -20 -8 -46 -16 -58 -7 -12 -13 -29 -13 -38 0 -8 -6 -15 -14 -15 -8 0 -16 -7 -18 -16 -3 -14 -6 -14 -28 4 l-25 20 23 46 c12 26 22 64 22 86 0 44 8 48 46 24z m-261 -204 c-5 -8 -11 -8 -17 -2 -6 6 -7 16 -3 22 5 8 11 8 17 2 6 -6 7 -16 3 -22z m110 10 c4 -6 3 -24 0 -42 -8 -36 -25 -20 -25 25 0 27 13 36 25 17z m54 -12 c0 -13 -4 -32 -8 -43 -7 -18 -9 -16 -15 12 -8 33 -2 53 15 53 5 0 9 -10 8 -22z m109 11 c-2 -6 -8 -10 -13 -10 -5 0 -11 4 -13 10 -2 6 4 11 13 11 9 0 15 -5 13 -11z" />
+                                        </g>
+                                    </svg>
+                                    <span class="ms-3 whitespace-nowrap">موظفين القسم</span>
+                                </a>
+                            </li>
+                        }
+
                             <li>
                             @if (Context.Session.GetString("Position") == "المدير التنفيذي")
                             {

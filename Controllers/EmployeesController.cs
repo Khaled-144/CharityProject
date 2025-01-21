@@ -8,6 +8,8 @@ using System.Linq;
 using Microsoft.Extensions.Logging;
 namespace CharityProject.Controllers
 {
+    [PermissionFilter("موظف", "السكرتير")]
+
     public class EmployeesController : Controller
     {
 

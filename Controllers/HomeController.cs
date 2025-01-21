@@ -99,7 +99,7 @@ namespace CharityProject.Controllers
 
             if (user != null)
             {
-                SetUserSession(user, rememberMe);
+                await SetUserSession(user, rememberMe); // Await the async operation
                 return RedirectToActionBasedOnPermission(user.EmployeeDetails.permission_position);
             }
 
@@ -107,7 +107,8 @@ namespace CharityProject.Controllers
             return View();
         }
 
-        private void SetUserSession(employee user, bool rememberMe)
+        // Change to async Task instead of async void
+        private async Task SetUserSession(employee user, bool rememberMe)
         {
             HttpContext.Session.SetString("Id", user.employee_id.ToString());
             HttpContext.Session.SetString("Name", user.name);

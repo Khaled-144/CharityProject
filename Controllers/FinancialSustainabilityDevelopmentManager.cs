@@ -16,6 +16,10 @@ using Microsoft.CodeAnalysis.CSharp;
 
 namespace CharityProject.Controllers
 {
+
+
+    [PermissionFilter("مدير التنمية المالية والاستدامة")]
+
     public class FinancialSustainabilityDevelopmentManager : Controller
     {
 
@@ -76,7 +80,7 @@ namespace CharityProject.Controllers
             if (files != null && files.Count > 0)
             {
                 var allowedExtensions = new[] { ".pdf", ".xls", ".xlsx", ".doc", ".docx" };
-               
+
 
                 foreach (var file in files)
                 {
@@ -108,7 +112,7 @@ namespace CharityProject.Controllers
                 }
 
                 // Concatenate the file names and store them in the transaction
-              
+
             }
             // Get the current employee's ID from the session
             int fromEmployeeId;
@@ -162,7 +166,7 @@ namespace CharityProject.Controllers
 
             // Count transactions based on their status, ensuring no duplicates
             var newTransactions = await _context.Transactions
-              
+
                 .Where(t =>
      (t.status == "مرسلة" && t.Employee_detail.departement_id == employeeDetails.departement_id && t.Employee_detail.employee_id != employeeDetails.employee_id && t.Employee_detail.permission_position == "موظف") ||
     (t.status == "مرسلة" && (t.to_emp_id == employeeId || t.to_emp_id == hrManager.employee_id) && t.Employee_detail.permission_position != "موظف")
@@ -222,7 +226,7 @@ namespace CharityProject.Controllers
             ViewData["HolidayTypes"] = holidayTypes ?? new List<Holiday>();
 
             // Get the counts for various entities
-            int internalCount = 
+            int internalCount =
                          await _context.Transactions
                 .Include(t => t.Referrals)
                     .ThenInclude(r => r.from_employee)
@@ -315,12 +319,12 @@ namespace CharityProject.Controllers
         }
         public async Task<IActionResult> GetAllHolidays()
         {
-          
+
             var emplyee_Details = await GetEmployeeDetailsFromSessionAsync();
             // Fetch holidays with the status "مرسلة" where the employee's department ID is 5
             var holidays = await _context.HolidayHistories
                 .Include(h => h.holiday)
-                .Where(h => h.status == "مرسلة" && h.Employee_detail.departement_id== emplyee_Details.departement_id)
+                .Where(h => h.status == "مرسلة" && h.Employee_detail.departement_id == emplyee_Details.departement_id)
                 .OrderByDescending(h => h.holidays_history_id)
                 .ToListAsync();
             var employeeIds = holidays.SelectMany(t => new[] { t.emp_id }).Distinct().ToList();
@@ -486,38 +490,38 @@ namespace CharityProject.Controllers
 
             return PartialView("_getAllHolidays", holidays);
         }
-       /* [HttpGet]
-        public async Task<IActionResult> SearchLetters(string searchTerm = "", string sortOrder = "")
-        {
+        /* [HttpGet]
+         public async Task<IActionResult> SearchLetters(string searchTerm = "", string sortOrder = "")
+         {
 
-            var employeeId = GetEmployeeIdFromSession();
+             var employeeId = GetEmployeeIdFromSession();
 
-            var query = _context.letters
-                .Where(l => l.to_emp_id == employeeId);
+             var query = _context.letters
+                 .Where(l => l.to_emp_id == employeeId);
 
-            if (!string.IsNullOrEmpty(searchTerm))
-            {
-                query = query.Where(l =>
-                    l.letters_id.ToString().Contains(searchTerm) ||
-                    l.title.Contains(searchTerm)
-                );
-            }
+             if (!string.IsNullOrEmpty(searchTerm))
+             {
+                 query = query.Where(l =>
+                     l.letters_id.ToString().Contains(searchTerm) ||
+                     l.title.Contains(searchTerm)
+                 );
+             }
 
-            switch (sortOrder)
-            {
-                case "oldest":
-                    query = query.OrderBy(l => l.date);
-                    break;
-                case "newest":
-                default:
-                    query = query.OrderByDescending(l => l.date);
-                    break;
-            }
+             switch (sortOrder)
+             {
+                 case "oldest":
+                     query = query.OrderBy(l => l.date);
+                     break;
+                 case "newest":
+                 default:
+                     query = query.OrderByDescending(l => l.date);
+                     break;
+             }
 
-            var letters = await query.ToListAsync();
+             var letters = await query.ToListAsync();
 
-            return PartialView("_getAllLetters", letters);
-        }*/
+             return PartialView("_getAllLetters", letters);
+         }*/
         [HttpGet]
         public IActionResult SearchExternalTransactions(string searchTerm)
         {
@@ -1053,8 +1057,8 @@ namespace CharityProject.Controllers
 
         // mange permisions --------------------------------------------------------
 
-      
-       
+
+
 
         ////////////////////////////////////////////////////////////////////     Archive //////////////////////////////
         ///
@@ -1063,7 +1067,7 @@ namespace CharityProject.Controllers
         {
             var employeeId = GetEmployeeIdFromSession();
             var employeeDetails = await GetEmployeeDetailsFromSessionAsync();
-         
+
 
             // Fetch transactions based on the conditions provided
             var transactions = await _context.Transactions
@@ -1072,7 +1076,7 @@ namespace CharityProject.Controllers
                 .Include(t => t.Referrals)
                     .ThenInclude(r => r.to_employee)
                 .Where(t =>
-               (t.status == "منهاة" && t.Employee_detail.departement_id == employeeDetails.departement_id)) 
+               (t.status == "منهاة" && t.Employee_detail.departement_id == employeeDetails.departement_id))
 
                 .OrderByDescending(t => t.transaction_id)
                 .ToListAsync();
@@ -1212,7 +1216,7 @@ namespace CharityProject.Controllers
                 .CountAsync();
 
             // Passing the counts to the view using ViewBag
-                
+
 
             return View();
         }
