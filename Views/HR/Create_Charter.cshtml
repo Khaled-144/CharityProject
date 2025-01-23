@@ -58,7 +58,7 @@
                             </div>
                             <div class="flex-1">
                                 <label asp-for="to_emp_id" class="block font-medium text-gray-700 mb-1">الموظف</label>
-                                <select id="to_employee_id" asp-for="to_emp_id" asp-items="@(ViewData["Employees"] as IEnumerable<SelectListItem>)" class="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <select id="to_employee_id" asp-for="to_emp_id" class="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                                     <option value="" disabled selected>-- اختر الموظف --</option>
                                 </select>
                             </div>
@@ -88,11 +88,11 @@
             $('#creation_date').val(formattedDate);
 
             // Department selection handler for dynamic employee dropdown population
-            $('#department_id').on('change', function () {
+            $(document).off('change', '#department_id').on('change', '#department_id', function () {
                 var departmentId = $(this).val();
                 var employeeDropdown = $(this).closest('form').find('#to_employee_id');
                 employeeDropdown.empty();
-                employeeDropdown.append('<option value="" disabled selected >اختر الموظف</option>');
+                employeeDropdown.append('<option value="">اختر الموظف</option>');
 
                 if (departmentId) {
                     $.ajax({
