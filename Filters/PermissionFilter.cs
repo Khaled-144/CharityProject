@@ -18,8 +18,6 @@ public class PermissionFilter : ActionFilterAttribute
         // If permission is not set in the session, check the user's permission from the model
         if (string.IsNullOrEmpty(permissionPosition) || !_allowedPermissions.Contains(permissionPosition))
         {
-            // Clear the session before redirecting (if necessary)
-            context.HttpContext.Session.Clear();
 
             // Redirect to login page
             context.Result = new RedirectToActionResult("LoginPage", "Home", null);

@@ -16,6 +16,7 @@ using Microsoft.CodeAnalysis.CSharp;
 
 namespace CharityProject.Controllers
 {
+    [PermissionFilter("المدير التنفيذي")]
 
     public class CEO : Controller
     {
@@ -209,6 +210,8 @@ namespace CharityProject.Controllers
         {
             return View();
         }
+
+
         public async Task<IActionResult> Transactions()
         {
             // Retrieve the current user's ID from the session or context
@@ -222,6 +225,8 @@ namespace CharityProject.Controllers
                 Value = d.departement_id.ToString(),
                 Text = d.departement_name
             }).ToList();
+            var holidayTypes = await _context.Holidays.ToListAsync();
+            ViewData["HolidayTypes"] = holidayTypes ?? new List<Holiday>();
 
             // Get the counts for various entities
             int internalCount =
@@ -646,7 +651,6 @@ namespace CharityProject.Controllers
         [HttpGet]
         public async Task<IActionResult> GetEmployeesByDepartmentName([FromQuery] int[] departmentNames)
         {
-            _logger.LogInformation($"Fetching employees for department names: {string.Join(", ", departmentNames)}");
 
             // Find department IDs by names
             var departmentIds = await _context.Department
@@ -656,7 +660,6 @@ namespace CharityProject.Controllers
 
             if (!departmentIds.Any())
             {
-                _logger.LogWarning($"No departments found with names: {string.Join(", ", departmentNames)}");
                 return NotFound("No departments found with the given names.");
             }
 
@@ -675,11 +678,9 @@ namespace CharityProject.Controllers
 
             if (!employees.Any())
             {
-                _logger.LogWarning($"No employees found for department names: {string.Join(", ", departmentNames)}");
                 return NotFound("No employees found for the given departments.");
             }
 
-            _logger.LogInformation($"Found {employees.Count} employees for department names: {string.Join(", ", departmentNames)}");
             return Ok(employees);
         }
 
