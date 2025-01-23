@@ -9,6 +9,8 @@ using System;
 
 namespace CharityProject.Controllers
 {
+    [PermissionFilter("مدير خدمة المستفيدين")]
+
     public class CustomerServiceManagerController : Controller
     {
 
@@ -689,7 +691,7 @@ namespace CharityProject.Controllers
             }
 
             // If only departments are selected, create letters with to_emp_id set to 0
-            if ((to_emp_id == null || !to_emp_id.Any()) && to_departement_name != null && to_departement_name.Any() && letter.type!="تظلم")
+            if ((to_emp_id == null || !to_emp_id.Any()) && to_departement_name != null && to_departement_name.Any() && letter.type != "تظلم")
             {
                 foreach (var deptId in to_departement_name)
                 {
@@ -777,6 +779,15 @@ namespace CharityProject.Controllers
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Transactions));
+        }
+        public async Task<IActionResult> ReferralHistory(int id)
+        {
+            var referrals = await _context.Referrals
+                .Where(r => r.transaction_id == id)
+                .OrderByDescending(r => r.referral_date)
+                .ToListAsync();
+
+            return View(referrals);
         }
 
         [HttpGet]

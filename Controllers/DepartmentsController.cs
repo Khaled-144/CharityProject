@@ -10,6 +10,7 @@ using CharityProject.Models;
 
 namespace CharityProject.Controllers
 {
+
     public class DepartmentsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -30,7 +31,7 @@ namespace CharityProject.Controllers
 
             return View(departments);
         }
-        
+
 
         // GET: Departments/Details/5
         public async Task<IActionResult> Details(int? id)
@@ -63,11 +64,11 @@ namespace CharityProject.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("departement_id,departement_name,supervisor_id")] Department department)
         {
-          
-                _context.Add(department);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            
+
+            _context.Add(department);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+
             return View(department);
         }
 

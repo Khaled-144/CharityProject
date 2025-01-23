@@ -54,16 +54,25 @@
     <!-- Tab navigation -->
     <div class="mb-4 border-b border-gray-200 dark:border-gray-700">
         <ul class="flex flex-wrap -mb-px text-xl font-medium text-center" id="default-tab" role="tablist">
+            <li>
             <button class="inline-block p-4 border-b-2 rounded-t-lg active-tab" id="internal-tab" data-content-url="@Url.Action("GetAllTransactionsArchive", "HR")" type="button" role="tab">
                 داخلية
             </button>
 
             </li>
-            <li class="me-2" role="presentation">
-                <button class="inline-block p-4 border-b-2 rounded-t-lg" id="holidays-tab" data-content-url="@Url.Action("GetAllHolidaysArchive", "HR")" type="button" role="tab">
-                    إجازات
+            <li class="me-2 flex items-center relative" role="presentation">
+                <button class="inline-block p-4 border-b-2 rounded-t-lg" id="holidays-tab" data-content-url="@Url.Action("GetMyHolidays", "HR")" type="button" role="tab">
+                    إجازاتي
                 </button>
-
+                <svg class="w-4 h-4 ml-2 cursor-pointer arrow-down" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+                <!-- Dropdown menu -->
+                <ul class="absolute left-0 mt-2 hidden w-32 bg-white border border-gray-200 text-right rounded-lg shadow-lg dropdown-menu">
+                    <li><a href="#" id="sec1" class="block px-4 py-2 text-black hover:bg-gray-100" data-content-url="@Url.Action("GetRejectedHolidays", "HR")"> المرفوضة</a></li>
+                    <li><a href="#" id="sec2" class="block px-4 py-2 text-black hover:bg-gray-100" data-content-url="@Url.Action("GetAllHolidaysArchive", "HR")"> جميع الاجازات</a></li>
+                </ul>
+                
             </li>
             <li class="me-2 flex items-center" role="presentation">
                 <button class="inline-block p-4 border-b-2 rounded-t-lg" id="letters-tab" data-content-url="@Url.Action("GetAllLettersArchive", "HR")" type="button" role="tab">
@@ -144,28 +153,69 @@
             // Handle sort selection change
             $('#sortOrder').on('change', function () {
                 var sortOrder = $(this).val();
-                var items = $('#tab-content-container li').get();
+
+                var items = $('#tab-content-container ul > li').detach(); // Detach `li` elements
 
                 // Sort items based on the selected order
                 items.sort(function (a, b) {
-                    var firstItem = $(a).text(); // Get the text from each item
-                    var secondItem = $(b).text();
+                    var firstItem = $(a).text().trim();
+                    var secondItem = $(b).text().trim();
 
                     if (sortOrder === 'newest') {
-                        return firstItem > secondItem ? -1 : 1;
+                        return firstItem > secondItem ? -1 : 1; // Sort descending
                     } else if (sortOrder === 'oldest') {
-                        return firstItem < secondItem ? -1 : 1;
+                        return firstItem < secondItem ? -1 : 1; // Sort ascending
                     }
-                    return 0; // Default, no sorting
+                    return 0; // No sorting by default
                 });
 
-                // Re-append the sorted items back to the container
+                // Re-append sorted items to the `<ul>`
+                var container = $('#tab-content-container ul');
                 $.each(items, function (i, li) {
-                    $('#tab-content-container ul').append(li);
+                    container.append(li); // Add sorted items
                 });
-
             });
         });
+        $('.arrow-down').on('click', function (event) {
+            event.stopPropagation(); // Prevent the click from triggering the tab functionality
+            $(this).siblings('.dropdown-menu').toggle(); // Toggle the dropdown visibility
+        });
+
+        // Close the dropdown when clicking outside
+        $(document).on('click', function () {
+            $('.dropdown-menu').hide(); // Hide the dropdown when clicking outside
+        });
+
+        // Prevent closing the dropdown when clicking inside it
+        $('.dropdown-menu').on('click', function (event) {
+            event.stopPropagation(); // Prevent the click from closing the dropdown
+        });
+
+        // Load holidays for sec1 (rejected holidays)
+        $('#sec1').on('click', function (event) {
+            event.preventDefault();
+            loadHolidays('@Url.Action("GetRejectedHolidays", "HR")', 'mine');  // Load rejected holidays
+        });
+
+        // Load holidays for sec2 (all holidays)
+        $('#sec2').on('click', function (event) {
+            event.preventDefault();
+            loadHolidays('@Url.Action("GetAllHolidaysArchive", "HR")', 'all');  // Load all holidays (similar to إجازات)
+        });
+        function loadHolidays(url, type) {
+            $.ajax({
+                url: url,
+                type: 'GET',
+                dataType: 'html', // Expect HTML content for better dynamic content rendering
+                success: function (data) {
+                    // Clear the current content and append the new results directly into the #tab-content-container
+                    $('#tab-content-container').html(data);
+                },
+                error: function () {
+                    alert('Error loading holidays.');
+                }
+            });
+        }
     </script>
 
 </body>

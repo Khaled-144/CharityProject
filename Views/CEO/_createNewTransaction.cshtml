@@ -216,7 +216,7 @@
             employeeSelect.innerHTML = '';
 
             if (departmentId) {
-                fetch('/HR/GetEmployeesByDepartment?departmentId=' + departmentId)
+                fetch('/CEO/GetEmployeesByDepartment?departmentId=' + departmentId)
                     .then(response => response.json())
                     .then(data => {
                         if (data.length > 0) {

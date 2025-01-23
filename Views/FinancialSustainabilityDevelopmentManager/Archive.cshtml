@@ -144,26 +144,27 @@
             // Handle sort selection change
             $('#sortOrder').on('change', function () {
                 var sortOrder = $(this).val();
-                var items = $('#tab-content-container li').get();
+
+                var items = $('#tab-content-container ul > li').detach(); // Detach `li` elements
 
                 // Sort items based on the selected order
                 items.sort(function (a, b) {
-                    var firstItem = $(a).text(); // Get the text from each item
-                    var secondItem = $(b).text();
+                    var firstItem = $(a).text().trim();
+                    var secondItem = $(b).text().trim();
 
                     if (sortOrder === 'newest') {
-                        return firstItem > secondItem ? -1 : 1;
+                        return firstItem > secondItem ? -1 : 1; // Sort descending
                     } else if (sortOrder === 'oldest') {
-                        return firstItem < secondItem ? -1 : 1;
+                        return firstItem < secondItem ? -1 : 1; // Sort ascending
                     }
-                    return 0; // Default, no sorting
+                    return 0; // No sorting by default
                 });
 
-                // Re-append the sorted items back to the container
+                // Re-append sorted items to the `<ul>`
+                var container = $('#tab-content-container ul');
                 $.each(items, function (i, li) {
-                    $('#tab-content-container ul').append(li);
+                    container.append(li); // Add sorted items
                 });
-
             });
         });
     </script>

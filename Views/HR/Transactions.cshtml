@@ -32,10 +32,22 @@
     <title>@ViewData["PageTitle"]</title>
     <link rel="stylesheet" href="~/css/site.css">
     <style>
-        .active-tab {
-            border-color: #248277;
-            color: #248277;
+        .arrow-down {
+            cursor: pointer;
         }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            left: 0;
+            top: 100%;
+            z-index: 10;
+        }
+
+        .active-tab {
+            border-bottom: 2px solid green; /* Example of green line */
+        }
+
     </style>
 </head>
 <body>
@@ -88,10 +100,15 @@
                 <button class="inline-block p-4 border-b-2 rounded-t-lg active-tab" id="internal-tab" data-content-url="@Url.Action("GetAllTransactions", "HR")" type="button" role="tab">داخلية </button>
                 <span class="text-red-500 text-sm ml-2">(@ViewBag.InternalCount)</span>
             </li>
-            <li class="me-2 flex items-center" role="presentation">
-                <button class="inline-block p-4 border-b-2 rounded-t-lg" id="holidays-tab" data-content-url="@Url.Action("GetAllHolidays", "HR")" type="button" role="tab">إجازات</button>
+            <li class="me-2 flex items-center relative" role="presentation">
+                <button class="inline-block p-4 border-b-2 rounded-t-lg" id="holidays-tab" data-content-url="@Url.Action("GetAllHolidays", "HR")" type="button" role="tab">
+                    إجازات
+                </button>
                 <span class="text-red-500 text-sm ml-2">(@ViewBag.HolidaysCount)</span>
             </li>
+
+
+
             <li class="me-2 flex items-center" role="presentation">
                 <button class="inline-block p-4 border-b-2 rounded-t-lg" id="letters-tab" data-content-url="@Url.Action("GetAllLetters", "HR")" type="button" role="tab">خطابات</button>
                 <span class="text-red-500 text-sm ml-2">(@ViewBag.LettersCount)</span>
@@ -147,12 +164,15 @@
                 selectedTab = $(this).attr('id').replace('-tab', ''); // Update selectedTab with the clicked tab id
                 var url = $(this).data("content-url");
                 loadTabContent(url, $('#transactionSearch').val(), $('#sortOrder').val());
+
+                // Remove active-tab from other tabs and add it to the clicked tab
                 $("#default-tab button").removeClass("active-tab");
                 $(this).addClass("active-tab");
 
                 // Update the placeholder text based on selected tab
                 $('#transactionSearch').attr('placeholder', placeholders[selectedTab]);
             });
+
 
             // Load initial tab content
             $("#internal-tab").trigger("click");
@@ -173,28 +193,31 @@
             // Handle sort selection change
             $('#sortOrder').on('change', function () {
                 var sortOrder = $(this).val();
-                var items = $('#tab-content-container li').get();
+
+                var items = $('#tab-content-container ul > li').detach(); // Detach `li` elements
 
                 // Sort items based on the selected order
                 items.sort(function (a, b) {
-                    var firstItem = $(a).text(); // Get the text from each item
-                    var secondItem = $(b).text();
+                    var firstItem = $(a).text().trim();
+                    var secondItem = $(b).text().trim();
 
                     if (sortOrder === 'newest') {
-                        return firstItem > secondItem ? -1 : 1;
+                        return firstItem > secondItem ? -1 : 1; // Sort descending
                     } else if (sortOrder === 'oldest') {
-                        return firstItem < secondItem ? -1 : 1;
+                        return firstItem < secondItem ? -1 : 1; // Sort ascending
                     }
-                    return 0; // Default, no sorting
+                    return 0; // No sorting by default
                 });
 
-                // Re-append the sorted items back to the container
+                // Re-append sorted items to the `<ul>`
+                var container = $('#tab-content-container ul');
                 $.each(items, function (i, li) {
-                    $('#tab-content-container ul').append(li);
+                    container.append(li); // Add sorted items
                 });
-
             });
+
         });
+
     </script>
 
 
