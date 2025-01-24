@@ -23,7 +23,8 @@
                         <p class="text-gray-500 truncate dark:text-gray-400">
                             @Html.DisplayFor(modelItem => item.description)
                         </p>
-
+                            <p class="text-base">بواسطة: @item.Employee.name</p>
+                         
                         <!-- Breadcrumb Navigation -->
                         <div class="my-1 w-fit rounded px-2 py-1 bg-zinc-200">
                             <ol class="flex items-center w-auto text-sm font-medium text-center text-black dark:text-gray-400">
