@@ -1097,7 +1097,7 @@ namespace CharityProject.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
+       
         public async Task<IActionResult> DenyHoliday(int holiday_id)
         {
             var holiday = await _context.HolidayHistories.FindAsync(holiday_id);
