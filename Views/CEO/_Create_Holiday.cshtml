@@ -125,9 +125,9 @@
                             <div class="flex items-center mb-2">
                                 <label for="counter" class="text-gray-700 font-bold mr-4" id="counterLabel">المدة</label>
                                 <div class="flex items-center mr-3">
-                                    <button type="button" onclick="decrementCounter()" class="counter-btn">-</button>
+                                    <button type="button" onclick="decrementCounter()" class="counter-btn" id="decrement">-</button>
                                     <input required type="number" id="counter" asp-for="duration" name="duration" class="form-control mx-2 w-16 text-center" value="1" readonly>
-                                    <button type="button" onclick="incrementCounter()" class="counter-btn">+</button>
+                                    <button type="button" onclick="incrementCounter()" class="counter-btn" id="increment">+</button>
                                 </div>
                             </div>
                             <div class="flex items-center">
@@ -159,7 +159,6 @@
         </div>
     </div>
 </div>
-
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         let currentDate = new Date();
@@ -169,8 +168,19 @@
         document.getElementById('holidayBalance').textContent = 'الرصيد المتبقي: ---';
         fetchRemainingHolidayBalance();
     });
-
+    function adjustForWeekend(date) {
+        const day = date.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+        if (day === 5) {
+            // If Friday, add 2 days to skip to Sunday
+            date.setDate(date.getDate() + 2);
+        } else if (day === 6) {
+            // If Saturday, add 1 day to skip to Sunday
+            date.setDate(date.getDate() + 1);
+        }
+        return date;
+    }
     let previousHolidayType = "";
+
 
     function handleHolidayTypeChange() {
         var holidayType = $('#holidayType option:selected').text();
@@ -183,7 +193,8 @@
         var normalDiv = document.getElementById('normal-div');
         var holidayBalanceElem = document.getElementById('holidayBalance');
         var noBalanceMessage = document.getElementById('no-balance-message');
-
+        var inc = document.getElementById('increment');
+        var dec = document.getElementById('decrement');
         if (holidayType !== previousHolidayType) {
             counterInput.value = 0;
             previousHolidayType = holidayType;
@@ -205,6 +216,8 @@
             endDateInput.style.display = 'none';
             fromLabel.style.display = 'none';
             toLabel.style.display = 'none';
+            inc.style.display = 'inline';
+            dec.style.display = 'inline';
             document.getElementById('counterLabel').textContent = 'المدة بالساعات';
             counterInput.setAttribute('min', '1');
             counterInput.setAttribute('max', '2');
@@ -213,25 +226,88 @@
             endDateInput.style.display = 'inline';
             fromLabel.style.display = 'inline';
             toLabel.style.display = 'inline';
+            inc.style.display = 'inline';
+            dec.style.display = 'inline';
             document.getElementById('counterLabel').textContent = 'المدة بالأيام';
 
             let startDate = new Date();
             startDate.setDate(startDate.getDate() + 3);
+            startDate = adjustForWeekend(startDate);
             startDateInput.value = startDate.toISOString().split('T')[0];
-            updateEndDate();
-        } else {
+            startDateInput.readOnly = true; // Disable editing
+            endDateInput.readOnly = true; // Disable editing
+            updateEndDateWithWeekends();
+        } else if (holidayType === 'اضطرارية') {
             startDateInput.style.display = 'inline';
             endDateInput.style.display = 'inline';
             fromLabel.style.display = 'inline';
             toLabel.style.display = 'inline';
+            inc.style.display = 'inline';
+            dec.style.display = 'inline';
+            document.getElementById('counterLabel').textContent = 'المدة بالأيام';
+
+            let startDate = new Date();
+            startDate = adjustForWeekend(startDate);
+            startDateInput.value = startDate.toISOString().split('T')[0];
+            startDateInput.readOnly = true; // Disable editing
+            endDateInput.readOnly = true; // Disable editing
+            updateEndDateWithWeekends();
+        }
+        else if (holidayType === 'مرضية') {
+            startDateInput.style.display = 'inline';
+            endDateInput.style.display = 'inline';
+            fromLabel.style.display = 'inline';
+            toLabel.style.display = 'inline';
+            inc.style.display = 'none';
+            dec.style.display = 'none';
+            document.getElementById('counterLabel').textContent = 'المدة بالأيام';
+
+            let startDate = new Date();
+            startDate = adjustForWeekend(startDate);
+            startDateInput.value = startDate.toISOString().split('T')[0];
+            updateEndDateWithWeekends();
+            startDateInput.readOnly = false; // Enable editing
+            endDateInput.readOnly = false; // Enable editing
+        }
+        else {
+            startDateInput.style.display = 'inline';
+            endDateInput.style.display = 'inline';
+            fromLabel.style.display = 'inline';
+            toLabel.style.display = 'inline';
+            inc.style.display = 'inline';
+            dec.style.display = 'inline';
             document.getElementById('counterLabel').textContent = 'المدة بالأيام';
 
             let currentDate = new Date();
             startDateInput.value = currentDate.toISOString().split('T')[0];
             endDateInput.value = currentDate.toISOString().split('T')[0];
+            startDateInput.readOnly = false; // Enable editing
+            endDateInput.readOnly = false; // Enable editing
         }
 
         fetchRemainingHolidayBalance();
+    }
+
+    function updateEndDateWithWeekends() {
+        const counterInput = document.getElementById('counter');
+        const startDateInput = document.getElementById('start_date');
+        const endDateInput = document.getElementById('end_date');
+        const holidayType = $('#holidayType option:selected').text();
+
+        if (holidayType != 'استئذان') {
+            let startDate = new Date(startDateInput.value);
+            let durationDays = parseInt(counterInput.value);
+            let actualDays = 0;
+
+            while (actualDays < durationDays) {
+                startDate.setDate(startDate.getDate() + 1);
+                // Skip Fridays (5) and Saturdays (6)
+                if (startDate.getDay() !== 5 && startDate.getDay() !== 6) {
+                    actualDays++;
+                }
+            }
+            endDateInput.value = startDate.toISOString().split('T')[0];
+        }
     }
 
     function incrementCounter() {
@@ -240,7 +316,7 @@
 
         if (parseInt(counterInput.value) < maxValue) {
             counterInput.value = parseInt(counterInput.value) + 1;
-            updateEndDate();
+            updateEndDateWithWeekends();
             validateForm();
         }
     }
@@ -249,7 +325,7 @@
         const counterInput = document.getElementById('counter');
         if (parseInt(counterInput.value) > 1) {
             counterInput.value = parseInt(counterInput.value) - 1;
-            updateEndDate();
+            updateEndDateWithWeekends();
             validateForm();
         }
     }
@@ -261,12 +337,67 @@
         const holidayType = $('#holidayType option:selected').text();
 
         if (holidayType !== 'استئذان') {
-            let startDate = new Date(startDateInput.value);
-            let durationDays = parseInt(counterInput.value);
-            startDate.setDate(startDate.getDate() + durationDays);
-            endDateInput.value = startDate.toISOString().split('T')[0];
+            if (holidayType !== 'مرضية') {
+                // For non-medical leave
+                let startDate = new Date(startDateInput.value);
+                let durationDays = parseInt(counterInput.value, 10);
+                let daysAdded = 0;
+
+                while (daysAdded < durationDays) {
+                    startDate.setDate(startDate.getDate() + 1);
+                    const dayOfWeek = startDate.getDay();
+                    // Skip Fridays and Saturdays
+                    if (dayOfWeek !== 5 && dayOfWeek !== 6) {
+                        daysAdded++;
+                    }
+                }
+                endDateInput.value = startDate.toISOString().split('T')[0];
+            } else {
+                // For medical leave
+                if (!startDateInput.value || !endDateInput.value) {
+                    return; // Exit if either date is empty
+                }
+
+                let startDate = new Date(startDateInput.value);
+                let endDate = new Date(endDateInput.value);
+
+                // Ensure end date is not before start date
+                if (endDate <= startDate) {
+                    endDateInput.value = startDateInput.value;
+                    counterInput.value = 0;
+                    return;
+                }
+
+                // Calculate the difference in days, excluding Fridays and Saturdays, and not including the end date
+                let differenceInDays = 0;
+                let tempDate = new Date(startDate);
+
+                while (tempDate < endDate) { // Use strict inequality to exclude the end date
+                    const dayOfWeek = tempDate.getDay();
+                    // Count only weekdays (excluding Fridays and Saturdays)
+                    if (dayOfWeek !== 5 && dayOfWeek !== 6) {
+                        differenceInDays++;
+                    }
+                    tempDate.setDate(tempDate.getDate() + 1);
+                }
+
+                // Update counter with the calculated days
+                counterInput.value = differenceInDays;
+
+                // Log for debugging
+                console.log('Start Date:', startDate);
+                console.log('End Date:', endDate);
+                console.log('Difference in days (excluding Fridays, Saturdays, and end date):', differenceInDays);
+            }
         }
     }
+
+
+
+
+    // Add event listeners for both date inputs
+    document.getElementById('start_date').addEventListener('change', updateEndDate);
+    document.getElementById('end_date').addEventListener('change', updateEndDate);
 
     function fetchRemainingHolidayBalance() {
         var holidayTypeId = document.getElementById('holidayType').value;
@@ -280,7 +411,7 @@
             return;
         }
 
-        fetch(`/CEO/GetRemainingHolidayBalance?holidayId=${holidayTypeId}`)
+        fetch(`/Employees/GetRemainingHolidayBalance?holidayId=${holidayTypeId}`)
             .then(response => {
                 if (!response.ok) throw new Error('Network response was not ok');
                 return response.json();
