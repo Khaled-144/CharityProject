@@ -660,6 +660,13 @@ namespace CharityProject.Controllers
                 .Where(l => l.from_emp_id == employeeDetails.employee_details_id)
                 .OrderByDescending(l => l.letters_id)
                 .ToListAsync();
+
+            var employeeIds = letters.SelectMany(t => new[] { t.from_emp_id, t.to_emp_id }).Distinct().ToList();
+            var employees = await _context.employee
+                .Where(e => employeeIds.Contains(e.employee_id))
+                .ToDictionaryAsync(e => e.employee_id, e => e.name);
+
+            ViewBag.EmployeeNames = employees;
             if (letters.Count == 0)
             {
                 // Render the _NothingNew partial view if no letters

@@ -25,7 +25,24 @@
                         </p>
                         <!-- Confidentiality, Urgency, Importance -->
                         <div class="flex w-fit mb-1">
-                            <p class="text-base">@Html.DisplayFor(modelItem => item.from_emp_id)</p>
+                            @if (ViewBag.EmployeeNames != null)
+                            {
+                                <p class="text-base ml-4">
+                                    بواسطة:
+                                    @{
+                                        string fromName;
+                                        var employeeNames = ViewBag.EmployeeNames as Dictionary<int, string>;
+                                        if (employeeNames != null && employeeNames.TryGetValue(item.from_emp_id, out fromName))
+                                        {
+                                            @fromName
+                                        }
+                                        else
+                                        {
+                                            <text>Unknown Employee (ID: @item.from_emp_id)</text>
+                                        }
+                                    }
+                                </p>
+                            }
                             <div class="flex p-1 bg-gray-100 rounded-md items-center text-sm mr-4">
                                 <i class="fas fa-lock text-xs ml-1"></i>
                                 <span class="text-gray-700">سري</span>
