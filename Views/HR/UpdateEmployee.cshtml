@@ -51,10 +51,14 @@
                                             <label for="name" class="text-gray-700 text-sm font-bold mb-2">الاسم</label>
                                             <input id="name" name="name" value="@employeeData.name" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
                                         </div>
-                                        <div>
-                                            <label for="search_role" class="text-gray-700 text-sm font-bold mb-2">دور البحث</label>
-                                            <input id="search_role" name="search_role" value="@employeeData.search_role" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+                                        <div class="flex align-bottom space-x-2">
+                                            <label for="isAdmin" class="text-gray-700 text-sm font-semibold ml-2">تفعيله في نظام البحث الإجتماعي</label>
+                                            <input id="isAdmin" name="isAdmin" type="checkbox" value="true"
+                                                   class="w-5 h-5 border-black rounded focus:ring-blue-500 focus:ring-2"
+                                            @(employeeData.search_role == "admin" ? "checked" : "") />
                                         </div>
+
+
 
                                         <!-- Username and Password -->
                                         <div>
@@ -322,6 +326,10 @@
 
         $(document).on('submit', '#employeeForm', function (e) {
             e.preventDefault();
+
+
+            // Log the value of isAdmin before submission
+
 
             // Create FormData object to handle files
             var formData = new FormData(this);

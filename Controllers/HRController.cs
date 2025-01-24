@@ -1742,7 +1742,7 @@ namespace CharityProject.Controllers
      string employee_name,
      string employee_username,
      string employee_password,
-     string employee_search_role,
+     string? employee_search_role,
      string employee_identity_number,
      string employee_departement_id,
      string employee_position,
@@ -2048,7 +2048,7 @@ namespace CharityProject.Controllers
         string name,
         string username,
         string password,
-        string search_role,
+        bool isAdmin,
         int identity_number,
         int departement_id,
         string position,
@@ -2081,7 +2081,8 @@ namespace CharityProject.Controllers
             employee.name = name;
             employee.username = username;
             employee.password = password;
-            employee.search_role = search_role;
+            employee.search_role = isAdmin ? "admin" : null;
+
 
             // Update employee details
             var details = employee.EmployeeDetails;

@@ -35,10 +35,14 @@
                         <label for="employee_password" class="block text-gray-700 text-sm font-bold mb-2">كلمة المرور</label>
                         <input id="employee_password" name="employee_password" type="password" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
                     </div>
-                    <div>
-                        <label for="employee_search_role" class="block text-gray-700 text-sm font-bold mb-2">دور البحث</label>
-                        <input id="employee_search_role" name="employee_search_role" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+                    <div class="flex align-bottom space-x-2">
+                        <label for="isAdmin" class="text-gray-700 text-sm font-semibold ml-2">
+                            تفعيله في نظام البحث الإجتماعي
+                        </label>
+                        <input id="isAdmin" name="employee_search_role" type="checkbox" value="admin"
+                               class="w-5 h-5 border-black rounded focus:ring-blue-500 focus:ring-2" />
                     </div>
+
                 </div>
             </div>
 
