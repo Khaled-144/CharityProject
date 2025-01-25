@@ -116,7 +116,7 @@
                         @foreach (var employee in (IEnumerable<dynamic>)ViewData["EmployeeList"])
                         {
                             <tr class="table-row-hover hover:bg-emerald-50 transition duration-300 ease-in-out" data-name="@employee.name">
-                                <td class="py-4 px-6 border-b">@employee.employee_id</td>
+                                <td class="py-4 px-6 border-b">@employee.employee_number</td>
                                 <td class="py-4 px-6 border-b">@employee.name</td>
                                 <td class="py-4 px-6 border-b">@employee.username</td>
                                 <td class="py-4 px-6 border-b">@employee.Position</td>

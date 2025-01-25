@@ -92,10 +92,12 @@ namespace CharityProject.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> LoginPage(string userid, string pass, bool rememberMe)
         {
+            var encryptedPassword = Encrypt.EncryptPassword(pass);
+
             var user = await _context.employee
                 .Include(e => e.EmployeeDetails)
                     .ThenInclude(ed => ed.Department)
-                .FirstOrDefaultAsync(e => e.employee_id.ToString() == userid && e.password == pass);
+                .FirstOrDefaultAsync(e => e.employee_number.ToString() == userid && e.password == encryptedPassword);
 
             if (user != null)
             {
@@ -111,6 +113,7 @@ namespace CharityProject.Controllers
         private async Task SetUserSession(employee user, bool rememberMe)
         {
             HttpContext.Session.SetString("Id", user.employee_id.ToString());
+            HttpContext.Session.SetString("EmployeeNumber", user.employee_number.ToString());
             HttpContext.Session.SetString("Name", user.name);
             HttpContext.Session.SetString("Position", user.EmployeeDetails.position);
             HttpContext.Session.SetString("Permission_position", user.EmployeeDetails.permission_position);
@@ -229,13 +232,16 @@ namespace CharityProject.Controllers
 
             var userId = HttpContext.Session.GetString("Id");
 
+            var encryptedPassword = Encrypt.EncryptPassword(currentPassword);
+
+
             if (!string.IsNullOrEmpty(userId))
             {
                 var user = await _context.employee.FirstOrDefaultAsync(e => e.employee_id.ToString() == userId);
 
                 if (user != null)
                 {
-                    if (user.password == currentPassword)
+                    if (user.password == encryptedPassword)
                     {
                         return Ok(new { message = "كلمة المرور صحيحة" });
                     }
@@ -262,21 +268,28 @@ namespace CharityProject.Controllers
 
                 if (user == null)
                 {
-                    return RedirectToAction("LoginPage");
+                    return RedirectToAction("LoginPage");  // Redirect if user is not found
                 }
 
-                user.password = newPassword;
+                var encryptedPassword = Encrypt.EncryptPassword(newPassword);
+
+                user.password = encryptedPassword;
 
                 // Save changes to the database
                 await _context.SaveChangesAsync();
 
-                return Ok(new { success = true, message = "تم تغيير كلمة المرور بنجاح" });
+                // Clear the session to log out the user
+                HttpContext.Session.Clear();
+
+                // Return a success response with a message to be displayed
+                return Ok(new { success = true, message = "تم تغيير كلمة المرور بنجاح", redirectToLogin = true });
             }
             catch (Exception ex)
             {
                 return StatusCode(500, new { message = "حدث خطأ أثناء تغيير كلمة المرور", error = ex.Message });
             }
         }
+
 
 
     }

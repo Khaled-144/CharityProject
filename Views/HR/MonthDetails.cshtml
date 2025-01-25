@@ -105,7 +105,7 @@
                     @foreach (var record in Model)
                     {
                         <tr class="border-b border-gray-200 hover:bg-emerald-100">
-                            <td class="py-2 px-4 text-right">@record.employee.employee_id</td>
+                            <td class="py-2 px-4 text-right">@record.employee.employee_number</td>
                             <td class="py-2 px-4 text-right employee-name">@record.employee.name</td>
                             <td class="py-2 px-4 text-right">@record.date.ToShortDateString()</td>
                             <td class="py-2 px-4 text-right">@record.base_salary.ToString()</td>

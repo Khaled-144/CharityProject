@@ -922,7 +922,7 @@ namespace CharityProject.Controllers
         }
 
 
-    
+
 
         /// <summary>
         /// /thisssssssssssssssssss is Newwwwwwwwwwwwwww Action
@@ -1561,6 +1561,7 @@ namespace CharityProject.Controllers
                 .Select(e => new
                 {
                     e.employee_id,
+                    e.employee_number, // Make sure this is included and exists
                     e.name,
                     e.username,
                     Position = e.EmployeeDetails != null ? e.EmployeeDetails.position : "No Position",
@@ -1582,7 +1583,6 @@ namespace CharityProject.Controllers
         {
             var currentEmployee = await GetEmployeeDetailsFromSessionAsync();
 
-
             var employeeList = await _context.employee
                 .Include(e => e.EmployeeDetails)
                 .ThenInclude(ed => ed.Department)
@@ -1590,6 +1590,7 @@ namespace CharityProject.Controllers
                 .Select(e => new
                 {
                     e.employee_id,
+                    e.employee_number,
                     e.name,
                     e.username,
                     Position = e.EmployeeDetails != null ? e.EmployeeDetails.position : "No Position",
@@ -1735,6 +1736,21 @@ namespace CharityProject.Controllers
         }
 
 
+
+        public async Task<int> GetNextEmployeeNumberAsync()
+        {
+            var lastEmployee = await _context.employee
+                .OrderByDescending(e => e.employee_number)
+                .FirstOrDefaultAsync();
+
+            // If there are no employees yet, start from 1000
+            if (lastEmployee == null)
+                return 1000;
+
+            // Return the next employee number, incremented by 1
+            return lastEmployee.employee_number + 1;
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> InsertEmployee(
@@ -1757,13 +1773,17 @@ namespace CharityProject.Controllers
      string employee_gender,
      bool employee_active)
         {
+            var encryptedPassword = Encrypt.EncryptPassword(employee_password);
+
             var employee = new employee
             {
                 name = employee_name,
                 username = employee_username,
-                password = employee_password,
+                password = encryptedPassword,
                 search_role = employee_search_role
             };
+            int nextEmployeeNumber = await GetNextEmployeeNumberAsync();
+            employee.employee_number = nextEmployeeNumber;  // Set the employee number
 
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
@@ -1904,12 +1924,12 @@ namespace CharityProject.Controllers
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
-                return Json(new { success = true, message = "تم إنشاء موظف جديد بنجاح!" });
+                return Json(new { success = true, message = "تم إنشاء موظف جديد بنجاح! \n برقم " + nextEmployeeNumber });
             }
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
-                return Json(new { success = false, message = "لم يتم إنشاء الموظف." });
+                return Json(new { success = false, message = "لم يتم إنشاء الموظف." + ex });
             }
         }
 
@@ -1942,6 +1962,7 @@ namespace CharityProject.Controllers
                 employee.employee_id,
                 employee.name,
                 employee.username,
+                employee.employee_number,
                 employee.password,
                 employee.search_role,
                 employee.EmployeeDetails.identity_number,

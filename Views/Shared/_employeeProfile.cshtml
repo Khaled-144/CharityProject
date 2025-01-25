@@ -31,8 +31,8 @@
             @foreach (var detail in new[] { 
                 new { Label = "الاسم", Value = @Context.Session.GetString("Name") }, 
                 new { Label = "القسم", Value = @Context.Session.GetString("DepartmentName") }, 
-                new { Label = "المنصب", Value = @Context.Session.GetString("Position") }, 
-                new { Label = "الرقم الوظيفي", Value = @Context.Session.GetString("Id") } 
+                new { Label = "المنصب", Value = @Context.Session.GetString("Position") },
+            new { Label = "الرقم الوظيفي", Value = @Context.Session.GetString("EmployeeNumber") }
             })
             {
                 <div class="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -101,87 +101,93 @@
 </div>
 
 <script>
-// Toggles the visibility of the password form
-function togglePasswordForm() {
-    const formDiv = document.getElementById('passwordFormDiv');
-    formDiv.style.display = (formDiv.style.display === "none" || formDiv.style.display === "") ? "block" : "none";
-}
-
-// Handles the password form submission
-document.getElementById("passwordForm").addEventListener("submit", function(event) {
-    event.preventDefault(); // Prevent form submission
-
-    const currentPassword = document.getElementById("current_password_input").value;
-    const newPassword = document.getElementById("new_password").value;
-    const confirmPassword = document.getElementById("confirm_password").value;
-
-    // Clear any previous error or success message
-    const errorMessage = document.getElementById("currentPasswordError");
-    const successMessage = document.getElementById("passwordChangeSuccess");
-    errorMessage.classList.add("hidden");
-    errorMessage.textContent = '';
-    successMessage.classList.add("hidden");
-    successMessage.textContent = '';
-
-    // Validate if new password matches confirm password
-    if (newPassword !== confirmPassword) {
-        errorMessage.textContent = "كلمة المرور الجديدة غير متطابقة";
-        errorMessage.classList.remove("hidden");
-        return;
+    // Toggles the visibility of the password form
+    function togglePasswordForm() {
+        const formDiv = document.getElementById('passwordFormDiv');
+        formDiv.style.display = (formDiv.style.display === "none" || formDiv.style.display === "") ? "block" : "none";
     }
 
-    // Validate the new password (minimum length, contains numbers and special characters)
-    const passwordValidationError = validatePassword(newPassword);
-    if (passwordValidationError) {
-        errorMessage.textContent = passwordValidationError;
-        errorMessage.classList.remove("hidden");
-        return;
-    }
+    // Handles the password form submission
+    document.getElementById("passwordForm").addEventListener("submit", function (event) {
+        event.preventDefault(); // Prevent form submission
 
-    // Send the current password to the server for verification
-    fetch('@Url.Action("VerifyCurrentPassword", "Home")', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(currentPassword)
-    })
-    .then(response => response.json())
-    .then(data => {
-        // Handle the server response for current password verification
-        if (data.message === "كلمة المرور صحيحة") {
-            // Now send the new password to the server to change it
-            fetch('@Url.Action("ChangePassword", "Home")', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(newPassword)
-            })
+        const currentPassword = document.getElementById("current_password_input").value;
+        const newPassword = document.getElementById("new_password").value;
+        const confirmPassword = document.getElementById("confirm_password").value;
+
+        // Clear any previous error or success message
+        const errorMessage = document.getElementById("currentPasswordError");
+        const successMessage = document.getElementById("passwordChangeSuccess");
+        errorMessage.classList.add("hidden");
+        errorMessage.textContent = '';
+        successMessage.classList.add("hidden");
+        successMessage.textContent = '';
+
+        // Validate if new password matches confirm password
+        if (newPassword !== confirmPassword) {
+            errorMessage.textContent = "كلمة المرور الجديدة غير متطابقة";
+            errorMessage.classList.remove("hidden");
+            return;
+        }
+
+        // Validate the new password (minimum length, contains numbers and special characters)
+        const passwordValidationError = validatePassword(newPassword);
+        if (passwordValidationError) {
+            errorMessage.textContent = passwordValidationError;
+            errorMessage.classList.remove("hidden");
+            return;
+        }
+
+        // Send the current password to the server for verification
+        fetch('@Url.Action("VerifyCurrentPassword", "Home")', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(currentPassword)
+        })
             .then(response => response.json())
             .then(data => {
-                if (data.success) {
-                    successMessage.textContent = 'تم تغيير كلمة المرور بنجاح';
-                    successMessage.classList.remove("hidden");
+                // Handle the server response for current password verification
+                if (data.message === "كلمة المرور صحيحة") {
+                    // Now send the new password to the server to change it
+                    fetch('@Url.Action("ChangePassword", "Home")', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(newPassword)
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                successMessage.textContent = 'تم تغيير كلمة المرور بنجاح';
+                                successMessage.classList.remove("hidden");
+
+                                // Wait for 2 seconds before redirecting to the login page
+                                setTimeout(function() {
+                                    window.location.href = '@Url.Action("LoginPage", "Home")';  // Redirect to login page
+                                }, 2000);  // 2-second delay
+                            } else {
+                                errorMessage.textContent = data.message || "حدث خطأ أثناء تغيير كلمة المرور";
+                                errorMessage.classList.remove("hidden");
+                            }
+                        })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        errorMessage.textContent = "حدث خطأ، يرجى المحاولة لاحقاً";
+                        errorMessage.classList.remove("hidden");
+                    });
                 } else {
-                    errorMessage.textContent = data.message || "حدث خطأ أثناء تغيير كلمة المرور";
+                    errorMessage.textContent = "كلمة المرور غير صحيحة";
                     errorMessage.classList.remove("hidden");
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                errorMessage.textContent = "حدث خطأ، يرجى المحاولة لاحقاً";
-                errorMessage.classList.remove("hidden");
-            });
-        } else {
-            errorMessage.textContent = "كلمة المرور غير صحيحة";
-            errorMessage.classList.remove("hidden");
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
     });
-});
+
 
 // Function to validate the new password
 function validatePassword(password) {
