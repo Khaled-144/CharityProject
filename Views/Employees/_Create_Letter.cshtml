@@ -306,7 +306,7 @@
             return;
         }
 
-        fetch('/HR/GetEmployeesByDepartmentName?departmentNames=' + selectedDepartments.join('&departmentNames='), {
+        fetch('/Employees/GetEmployeesByDepartmentName?departmentNames=' + selectedDepartments.join('&departmentNames='), {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
