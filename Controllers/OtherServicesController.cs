@@ -70,7 +70,7 @@ namespace CharityProject.Controllers
                 var salaryHistory = await GetLastEmployeeSalaryAsync(employee.employee_id);
                 if (salaryHistory == null)
                 {
-                    return StatusCode(404, "لايوجد رواتب مسجلة لهذا الموظف");
+                    return View("index", new { ErrorMessage = "لايوجد رواتب مسجلة لهذا الموظف" });
                 }
 
                 var document = Document.Create(container =>
@@ -217,7 +217,8 @@ namespace CharityProject.Controllers
                 var salaryRecords = await GetSalaryRecordsAsync(employeeId, startDate, endDate);
                 if (!salaryRecords.Any())  // Use .Any() to check if there are any records
                 {
-                    return StatusCode(404, "لايوجد رواتب مسجلة لهذا الموظف في هذه الفترة");
+                    return View("index", new { ErrorMessage = "لايوجد رواتب مسجلة لهذا الموظف في هذه الفترة" });
+
                 }
 
                 var document = Document.Create(container =>
