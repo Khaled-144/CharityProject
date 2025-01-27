@@ -167,7 +167,15 @@ namespace CharityProject.Controllers
                 HttpContext.Session.SetString("VerificationCode", verificationCode);
                 HttpContext.Session.SetString("ResetUserId", userid);
 
-                bool emailSent = _emailService.SendEmail(email, "رمز التحقق", $"رمز التحقق الخاص بك هو: {verificationCode}");
+                bool emailSent = false;
+                try
+                {
+                    emailSent = _emailService.SendEmail(email, "رمز التحقق", $"رمز التحقق الخاص بك هو: {verificationCode}");
+                }
+                catch (Exception)
+                {
+                    // Error handling without logger
+                }
 
                 ViewData["Message"] = emailSent ? "تم إرسال رمز التحقق إلى بريدك الإلكتروني" : "فشل في إرسال البريد الإلكتروني";
                 return emailSent ? RedirectToAction("VerifyCode") : View("ForgotPassword");
@@ -176,6 +184,8 @@ namespace CharityProject.Controllers
             ViewData["Message"] = "المستخدم غير موجود";
             return View("ForgotPassword");
         }
+
+
 
         public IActionResult VerifyCode() => View();
 

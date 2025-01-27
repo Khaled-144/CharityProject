@@ -7,11 +7,8 @@
     {
         [Key]
         public int employee_id { get; set; }
-
-
-        public int employee_number { get; set; } // New property for "الرقم الوظيفي"
-
-        public string name { get; set; }
+        public int employee_number { get; set; }
+        public string? name { get; set; }
         public string username { get; set; }
         public string password { get; set; }
         public string? search_role { get; set; }

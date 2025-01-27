@@ -19,12 +19,12 @@
     <title>رمز التحقق</title>
 </head>
 
-<body class="bg-cover bg-center bg-no-repeat bg-fixed" style="background-image: url('../images/alharm22.jpg');">
-    <div>
-        <img src="/images/logo.png" alt="logo image" class="mx-auto w-52" />
-        <div class="w-[80vw] md:w-[400px] bg-white mx-auto justify-center shadow-2xl border border-primaryColor rounded-md p-6">
-            <h1 class="text-xl font-bold text-center mt-4 text-veryDarkBlue">أدخل رمز التحقق</h1>
-            
+<body>
+    <div class="flex items-center justify-center">
+        <div class="w-[80vw] md:w-[400px] bg-white shadow-2xl border border-primaryColor rounded-md mt-24 p-6">
+            <img src="/images/logo.png" alt="logo image" class="mx-auto w-52 mb-6" />
+            <h1 class="text-xl font-bold text-center text-veryDarkBlue">أدخل رمز التحقق</h1>
+
             @if (ViewData["Message"] != null)
             {
                 <div class="text-red-500 text-center mb-4">
@@ -35,10 +35,10 @@
             <form asp-action="VerifyCode" class="mt-4">
                 <div class="mb-4">
                     <label for="verificationCode" class="block mb-1 text-sm font-medium text-gray-700">رمز التحقق</label>
-                    <input type="text" id="verificationCode" name="verificationCode" 
-                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg 
-                               focus:ring-blue-500 focus:border-blue-500 block w-full p-2" 
-                        required>
+                    <input type="text" id="verificationCode" name="verificationCode"
+                           class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
+                               focus:ring-blue-500 focus:border-blue-500 block w-full p-2"
+                           required>
                 </div>
                 <button class="w-full bg-green-500 hover:bg-green-700 text-white font-bold py-2 rounded-md transition duration-200" type="submit">
                     تحقق
@@ -49,5 +49,12 @@
 
     <script src="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.js"></script>
 </body>
-
 </html>
+<style>
+    body {
+        background-image: linear-gradient(to right bottom, rgba(0, 0, 0, 0.804), rgba(90, 90, 90, 0.84)), url(../images/alharm22.jpg);
+        background-repeat: no-repeat;
+        background-size: cover;
+        min-height: 100vh;
+    }
+</style>
