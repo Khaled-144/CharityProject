@@ -66,8 +66,13 @@
                                             <input id="username" name="username" value="@employeeData.username" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
                                         </div>
                                         <div>
-                                            <label for="password" class="text-gray-700 text-sm font-bold mb-2">كلمة المرور</label>
-                                            <input id="password" name="password" type="password" value="@employeeData.password" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+                                            <label for="employee_number" class="text-gray-700 text-sm font-bold mb-2">رقم الموظف</label>
+                                            <input id="employee_number"
+                                                   type="text"
+                                                   value="@employeeData.employee_number"
+                                                   class="shadow appearance-none border rounded w-full py-2 px-3 bg-gray-100 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                                   disabled
+                                                   readonly />
                                         </div>
                                     </div>
 
@@ -326,7 +331,12 @@
 
         $(document).on('submit', '#employeeForm', function (e) {
             e.preventDefault();
-
+                    var passwordInput = document.createElement('input');
+        passwordInput.type = 'hidden'; // To ensure it’s not visible
+        passwordInput.name = 'password';
+        passwordInput.value = '@employeeData.password';  // Pass the password value here
+        document.getElementById('employeeForm').appendChild(passwordInput);
+    
 
             // Log the value of isAdmin before submission
 
