@@ -18,8 +18,8 @@
         Layout = "_Layout";
     }
 
-    ViewData["PageTitle"] = "حصر الأجهزة";
-    ViewData["Title"] = "صفحة حصر الأجهزة";
+    ViewData["Title"] = "موظفين القسم";
+    ViewData["pageTtile"] = "موظفين القسم";
 }
 
 <!DOCTYPE html>
@@ -27,7 +27,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>قائمة الموظفين الخاصة بقسمك</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -189,6 +188,52 @@
     </div>
 
     <script>
+                    $(document).on('submit', '#permissionForm', function (e) {
+                e.preventDefault();
+
+                // Create FormData object to handle the form data
+                var formData = new FormData(this);
+
+                $.ajax({
+                url: '@Url.Action("UpdatePermission", "HR")',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,  // Prevent jQuery from automatically processing data
+                    contentType: false,  // Prevent jQuery from setting the content type
+                    success: function (response) {
+                        if (response.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'نجاح',
+                                text: response.message,
+                                showConfirmButton: false,
+                                timer: 3000
+                            }).then(function () {
+                                location.reload(); // Refresh the page after the alert
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'خطأ!',
+                                text: response.message,
+                                confirmButtonText: 'حسناً'
+                            });
+                        }
+                    },
+                    error: function () {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'خطأ!',
+                            text: 'حدث خطأ في الاتصال بالخادم.',
+                            confirmButtonText: 'حسناً',
+                            customClass: {
+                                confirmButton: 'btn btn-error'
+                            }
+                        });
+                    }
+                });
+            });
+
         function filterEmployees() {
             const searchQuery = document.getElementById('employeeSearch').value.toLowerCase();
             const rows = document.querySelectorAll('#employeeTable tbody tr');

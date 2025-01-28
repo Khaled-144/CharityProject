@@ -35,7 +35,7 @@
                         <label for="employee_password" class="block text-gray-700 text-sm font-bold mb-2">كلمة المرور</label>
                         <input id="employee_password" name="employee_password" type="password" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
                     </div>
-                    <div class="flex align-bottom space-x-2">
+                    <div class="flex items-end mb-2">
                         <label for="isAdmin" class="text-gray-700 text-sm font-semibold ml-2">
                             تفعيله في نظام البحث الإجتماعي
                         </label>
@@ -71,22 +71,27 @@
                         <label for="employee_position" class="block text-gray-700 text-sm font-bold mb-2">المنصب</label>
                         <select id="employee_position" name="employee_position" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                             <option value="موظف">موظف</option>
-                            <option value="مدير الموارد البشرية والمالية">مدير الموارد البشرية والمالية</option>
-                            <option value="مدير التنمية المالية والاستدامة">مدير التنمية المالية والاستدامة</option>
-                            <option value="مدير خدمة المستفيدين">مدير خدمة المستفيدين</option>
-                            <option value="السكرتير">السكرتير</option>
-                            <option value="المدير التنفيذي">المدير التنفيذي</option>
+                            @foreach (var department in departments)
+                            {
+
+                                if (department.departement_name != "الادارة التنفيذية")
+                                {
+                                    <option value="مدير @department.departement_name">مدير @department.departement_name</option>
+
+                                }
+                                if (department.departement_name == "الادارة التنفيذية")
+                                {
+                                    <option value="السكرتير">السكرتير</option>
+
+                                }
+
+                            }
                         </select>
                     </div>
                     <div>
                         <label for="employee_permission_position" class="block text-gray-700 text-sm font-bold mb-2"> الصلاحيات</label>
                         <select id="employee_permission_position" name="employee_permission_position" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                             <option value="موظف">موظف</option>
-                            <option value="مدير الموارد البشرية والمالية">مدير الموارد البشرية والمالية</option>
-                            <option value="مدير التنمية المالية والاستدامة">مدير التنمية المالية والاستدامة</option>
-                            <option value="مدير خدمة المستفيدين">مدير خدمة المستفيدين</option>
-                            <option value="السكرتير">السكرتير</option>
-                            <option value="المدير التنفيذي">المدير التنفيذي</option>
                         </select>
                     </div>
                     <div>

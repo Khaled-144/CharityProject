@@ -1,4 +1,5 @@
-﻿@{
+﻿@model IEnumerable<CharityProject.Models.Devices>
+@{
     if (Context.Session.GetString("Permission_position") == "مدير الموارد البشرية والمالية")
     {
         Layout = "_Layout_HR";
@@ -17,14 +18,14 @@
         Layout = "_Layout";
     }
 
-    ViewData["PageTitle"] = "موظفين القسم";
+    ViewData["Title"] = "موظفين القسم";
 }
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>قائمة الموظفين الخاصة بقسمك</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -59,11 +60,32 @@
             border-radius: 10px;
             border: 1px solid rgba(255, 255, 255, 0.3);
         }
+
+        .hero-text {
+            font-size: 2.5rem; /* Reduced font size */
+            text-align: center;
+            color: #333;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-hover-effect:hover {
+            background-color: #4CAF50;
+            transform: scale(1.05);
+        }
+
+        .modal-content {
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .table-row-hover:hover {
+            background-color: #f0fdf4; /* Soft hover effect */
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-emerald-100 via-teal-200 to-cyan-300 min-h-screen p-8 font-sans">
     <div class="max-w-7xl mx-auto">
-        <h2 class="p-4 text-5xl font-bold mb-12 text-center text-black shadow-text fade-in">قائمة الموظفين بقسمك</h2>
+        <h2 class="p-4 text-4xl font-bold mb-8 hero-text fade-in">قائمة الموظفين بقسمك</h2>
 
         <div class="glass-effect p-8 mb-10 fade-in shadow-lg">
             <form id="searchForm" onsubmit="return false;" class="mb-6">
@@ -91,18 +113,17 @@
                     <tbody>
                         @foreach (var employee in (IEnumerable<dynamic>)ViewData["EmployeeList"])
                         {
-                            <tr class="employeeRow hover:bg-emerald-50 transition duration-300 ease-in-out" data-name="@employee.name">
-                                <td class="py-4 px-6 border-b">@employee.employee_id</td>
+                            <tr class="table-row-hover hover:bg-emerald-50 transition duration-300 ease-in-out" data-name="@employee.name">
+                                <td class="py-4 px-6 border-b">@employee.employee_number</td>
                                 <td class="py-4 px-6 border-b">@employee.name</td>
                                 <td class="py-4 px-6 border-b">@employee.username</td>
                                 <td class="py-4 px-6 border-b">@employee.Position</td>
                                 <td class="py-4 px-6 border-b">@employee.PermissionPosition</td>
                                 <td class="py-4 px-6 border-b">@employee.DepartmentName</td>
                                 <td class="py-4 px-6 border-b">
-                                    <button class="bg-primaryButtons text-white py-2 px-4 rounded-lg hover:from-emerald-600 hover:to-teal-700 transition duration-300 ease-in-out transform hover:scale-105" data-toggle="modal" data-target="@("#EditPerModal-" + @employee.employee_id)">تعديل</button>
+                                    <button class="bg-primaryButtons text-white py-2 px-4 rounded-lg hover:bg-green-600 transition duration-300 ease-in-out transform hover:scale-105" data-toggle="modal" data-target="@("#EditPerModal-" + @employee.employee_id)">تعديل</button>
                                 </td>
                             </tr>
-
                             <!-- Modal -->
                             <div class="modal fade" id="EditPerModal-@employee.employee_id" tabindex="-1" role="dialog" aria-labelledby="editPerModalLabel-@employee.employee_id" aria-hidden="true">
                                 <div class="modal-dialog" role="document">
@@ -116,7 +137,6 @@
                                         <div class="modal-body p-6">
                                             <form id="permissionForm" asp-action="UpdatePermission" method="post">
                                                 <input type="hidden" name="id" value="@employee.employee_id" />
-
                                                 <div class="mb-4">
                                                     <label for="currentPermission" class="block text-gray-700 font-medium mb-2">الصلاحية الحالية:</label>
                                                     <p id="currentPermission" class="text-gray-800">@employee.PermissionPosition</p>
@@ -126,45 +146,55 @@
                                                     <label for="permissionPosition-@employee.employee_id" class="block text-gray-700 font-medium mb-2">تغيير الصلاحية:</label>
                                                     <select class="form-select block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" id="permissionPosition-@employee.employee_id" name="permissionPosition">
                                                         <option disabled selected>اختر الصلاحيات الجديدة</option>
-                                                        <option value="موظف">موظف</option>
-                                                        <option value="مدير التنمية المالية والاستدامة">مدير</option>
+                                                        <!-- Dynamic options based on role -->
+                                                        @if (Context.Session.GetString("Permission_position") == "مدير الموارد البشرية والمالية")
+                                                        {
+                                                            <option value="موظف">موظف</option>
+                                                            <option value="مدير الموارد البشرية والمالية">مدير</option>
+                                                        }
+                                                        else if (Context.Session.GetString("Permission_position") == "مدير خدمة المستفيدين")
+                                                        {
+                                                            <option value="موظف">موظف</option>
+                                                            <option value="مدير خدمة المستفيدين">مدير</option>
+                                                        }
+                                                        else if (Context.Session.GetString("Permission_position") == "مدير التنمية المالية والاستدامة")
+                                                        {
+                                                            <option value="موظف">موظف</option>
+                                                            <option value="مدير التنمية المالية والاستدامة">مدير</option>
+                                                        }
+                                                        else if (Context.Session.GetString("Permission_position") == "المدير التنفيذي")
+                                                        {
+                                                            <option value="موظف">موظف</option>
+                                                            <option value="المدير التنفيذي">مدير</option>
+                                                        }
                                                     </select>
                                                 </div>
 
                                                 <div class="modal-footer flex justify-center mt-4">
                                                     <button class="btn btn-primary text-white hover:bg-blue-700 rounded-md px-4 py-2">حفظ التغييرات</button>
                                                     <button class="btn btn-dark text-white rounded-md px-4 py-2 mr-2" data-dismiss="modal">إخفاء</button>
-                                                   
                                                 </div>
                                             </form>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-
                         }
                     </tbody>
                 </table>
             </div>
         }
-        else
-        {
-            <p class="text-gray-700 text-center mt-4 text-xl fade-in bg-white p-8 rounded-lg shadow-lg">لا توجد بيانات لعرضها.</p>
-        }
-
-     
     </div>
 
     <script>
-     
-            $(document).on('submit', '#permissionForm', function (e) {
+                    $(document).on('submit', '#permissionForm', function (e) {
                 e.preventDefault();
 
                 // Create FormData object to handle the form data
                 var formData = new FormData(this);
 
                 $.ajax({
-                url: '@Url.Action("UpdatePermission", "FinancialSustainabilityDevelopmentManager")',
+                url: '@Url.Action("UpdatePermission", "CustomerServiceManager")',
                     type: 'POST',
                     data: formData,
                     processData: false,  // Prevent jQuery from automatically processing data
@@ -176,7 +206,7 @@
                                 title: 'نجاح',
                                 text: response.message,
                                 showConfirmButton: false,
-                                timer: 5000
+                                timer: 3000
                             }).then(function () {
                                 location.reload(); // Refresh the page after the alert
                             });
@@ -189,34 +219,32 @@
                             });
                         }
                     },
-                    error: function () {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'خطأ!',
-                            text: 'حدث خطأ في الاتصال بالخادم.',
-                            confirmButtonText: 'حسناً'
-                        });
-                    }
+                error: function () {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'خطأ!',
+                        text: 'حدث خطأ في الاتصال بالخادم.',
+                        confirmButtonText: 'حسناً',
+                        customClass: {
+                            confirmButton: 'btn btn-error'
+                        }
+                    });
+                }
                 });
             });
 
-
         function filterEmployees() {
-            var input = document.getElementById('employeeSearch').value.toLowerCase();
-            var table = document.getElementById('employeeTable');
-            var rows = table.getElementsByClassName('employeeRow');
+            const searchQuery = document.getElementById('employeeSearch').value.toLowerCase();
+            const rows = document.querySelectorAll('#employeeTable tbody tr');
 
-            for (var i = 0; i < rows.length; i++) {
-                var name = rows[i].getAttribute('data-name').toLowerCase();
-
-                if (name.includes(input) || input === '') {
-                    rows[i].style.display = '';
-                    rows[i].classList.add('fade-in');
+            rows.forEach(row => {
+                const name = row.getAttribute('data-name').toLowerCase();
+                if (name.includes(searchQuery)) {
+                    row.style.display = '';
                 } else {
-                    rows[i].style.display = 'none';
-                    rows[i].classList.remove('fade-in');
+                    row.style.display = 'none';
                 }
-            }
+            });
         }
     </script>
 </body>
