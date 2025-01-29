@@ -171,7 +171,7 @@ namespace CharityProject.Controllers
                 return emailSent ? RedirectToAction("VerifyCode") : View("ForgotPassword");
             }
 
-            ViewData["Message"] = "المستخدم غير موجود";
+            ViewData["Message"] = "الرقم الوظيفي او البريد الإلكتروني غير صحيح";
             return View("ForgotPassword");
         }
 
