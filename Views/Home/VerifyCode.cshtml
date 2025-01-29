@@ -27,11 +27,13 @@
 
             @if (ViewData["Message"] != null)
             {
-                <div class="text-red-500 text-center mb-4">
-                    @ViewData["Message"]
+                var message = ViewData["Message"].ToString();
+                var messageColor = message.Contains("تم إرسال رمز التحقق") ? "text-green-500" : "text-red-500";
+
+                <div class="@messageColor text-center mb-4">
+                    @message
                 </div>
             }
-
             <form asp-action="VerifyCode" class="mt-4">
                 <div class="mb-4">
                     <label for="verificationCode" class="block mb-1 text-sm font-medium text-gray-700">رمز التحقق</label>

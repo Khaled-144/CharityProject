@@ -78,13 +78,7 @@ namespace CharityProject.Controllers
 
         public IActionResult LoginPage()
         {
-            if (!HttpContext.Request.Cookies.ContainsKey("Id"))
-                return View();
-
-            string id = HttpContext.Request.Cookies["Id"];
-            string pass = HttpContext.Request.Cookies["pass"];
-            ViewData["UserId"] = id;
-            ViewData["Password"] = pass;
+            HttpContext.Session.Clear();
             return View();
         }
 
@@ -101,7 +95,7 @@ namespace CharityProject.Controllers
 
             if (user != null)
             {
-                await SetUserSession(user, rememberMe); // Await the async operation
+                await SetUserSession(user); // Await the async operation
                 return RedirectToActionBasedOnPermission(user.EmployeeDetails.permission_position);
             }
 
@@ -110,7 +104,7 @@ namespace CharityProject.Controllers
         }
 
         // Change to async Task instead of async void
-        private async Task SetUserSession(employee user, bool rememberMe)
+        private async Task SetUserSession(employee user)
         {
             HttpContext.Session.SetString("Id", user.employee_id.ToString());
             HttpContext.Session.SetString("EmployeeNumber", user.employee_number.ToString());
@@ -119,12 +113,6 @@ namespace CharityProject.Controllers
             HttpContext.Session.SetString("Permission_position", user.EmployeeDetails.permission_position);
             HttpContext.Session.SetString("DepartmentId", user.EmployeeDetails.departement_id.ToString());
             HttpContext.Session.SetString("DepartmentName", user.EmployeeDetails.Department.departement_name);
-
-            if (rememberMe)
-            {
-                Response.Cookies.Append("Id", user.employee_id.ToString());
-                Response.Cookies.Append("pass", user.password);
-            }
         }
 
         private IActionResult RedirectToActionBasedOnPermission(string permissionPosition)
@@ -159,13 +147,15 @@ namespace CharityProject.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult SendVerificationCode(string userid, string email)
         {
-            var user = _context.employee_details.FirstOrDefault(e => e.employee_id.ToString() == userid && e.email == email);
+            var user = _context.employee
+                    .Include(e => e.EmployeeDetails)
+                    .FirstOrDefault(e => e.employee_number.ToString() == userid && e.EmployeeDetails.email == email);
 
             if (user != null)
             {
                 var verificationCode = new Random().Next(100000, 999999).ToString();
                 HttpContext.Session.SetString("VerificationCode", verificationCode);
-                HttpContext.Session.SetString("ResetUserId", userid);
+                HttpContext.Session.SetString("ResetUserId", userid.ToString());
 
                 bool emailSent = false;
                 try
@@ -187,7 +177,11 @@ namespace CharityProject.Controllers
 
 
 
-        public IActionResult VerifyCode() => View();
+        public IActionResult VerifyCode()
+        {
+            ViewData["Message"] = "تم إرسال رمز التحقق";
+            return View();
+        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
