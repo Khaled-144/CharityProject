@@ -100,11 +100,21 @@
                                             <input type="hidden" id="position_hidden" value="@employeeData.position" />
                                             <select id="position" name="position" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                                                 <option value="موظف">موظف</option>
-                                                <option value="مدير الموارد البشرية والمالية">مدير الموارد البشرية والمالية</option>
-                                                <option value="مدير التنمية المالية والاستدامة">مدير التنمية المالية والاستدامة</option>
-                                                <option value="مدير خدمة المستفيدين">مدير خدمة المستفيدين</option>
-                                                <option value="السكرتير">السكرتير</option>
-                                                <option value="المدير التنفيذي">المدير التنفيذي</option>
+                                                @foreach (var department in departments)
+                                                {
+
+                                                    if (department.departement_name != "الادارة التنفيذية")
+                                                    {
+                                                        <option value="مدير @department.departement_name">مدير @department.departement_name</option>
+
+                                                    }
+                                                    if (department.departement_name == "الادارة التنفيذية")
+                                                    {
+                                                        <option value="السكرتير">السكرتير</option>
+
+                                                    }
+
+                                                }
                                             </select>
                                         </div>
                                         <div>
@@ -112,11 +122,21 @@
                                             <input type="hidden" id="permission_position_hidden" value="@employeeData.permission_position" />
                                             <select id="permission_position" name="permission_position" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                                                 <option value="موظف">موظف</option>
-                                                <option value="مدير الموارد البشرية والمالية">مدير الموارد البشرية والمالية</option>
-                                                <option value="مدير التنمية المالية والاستدامة">مدير التنمية المالية والاستدامة</option>
-                                                <option value="مدير خدمة المستفيدين">مدير خدمة المستفيدين</option>
-                                                <option value="السكرتير">السكرتير</option>
-                                                <option value="المدير التنفيذي">المدير التنفيذي</option>
+                                                @foreach (var department in departments)
+                                                {
+
+                                                    if (department.departement_name != "الادارة التنفيذية")
+                                                    {
+                                                        <option value="مدير @department.departement_name">مدير @department.departement_name</option>
+
+                                                    }
+                                                    if (department.departement_name == "الادارة التنفيذية")
+                                                    {
+                                                        <option value="السكرتير">السكرتير</option>
+
+                                                    }
+
+                                                }
                                             </select>
                                         </div>
 
