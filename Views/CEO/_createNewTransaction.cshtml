@@ -44,7 +44,11 @@
                             <!-- Title -->
                             <div class="mb-3">
                                 <label asp-for="title" class="block text-sm font-medium font-bold text-gray-700">عنوان المعاملة</label>
-                                <input asp-for="title" required type="text" id="title" name="title" class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500">
+                                <input asp-for="title" required type="text" id="title" name="title" 
+                                       class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500"
+                                       maxlength="255"
+                                       oninput="updateTitleCharacterCount()">
+                                <div id="titleCharCount" class="text-gray-500">عدد الأحرف المتبقية: 255</div>
                             </div>
 
                             <!-- Date and To -->
@@ -90,9 +94,13 @@
                             <!-- Description -->
                             <div class="mb-3">
                                 <label asp-for="description" class="block text-sm font-bold text-gray-700">وصف المعاملة</label>
-                                <textarea asp-for="description" id="description" name="description" class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500"></textarea>
-                                <div id="charCount" class="text-gray-500">عدد الأحرف المسموح بها: 1000</div>
+                                <textarea asp-for="description" id="description" name="description" 
+                                          class="mt-1 p-2 w-full border rounded-md focus:ring-blue-500 focus:border-blue-500"
+                                          maxlength="1000"
+                                          oninput="updateCharacterCount()"></textarea>
+                                <div id="charCount" class="text-gray-500">عدد الأحرف المتبقية: 1000</div>
                             </div>
+
                             <div class="mb-3">
                                 <div class="form-group mb-4">
                                     <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="files">المرفقات</label>
@@ -208,6 +216,40 @@
                 }
             });
         });
+
+        // Add new function for title counter
+        const maxTitleChars = 255;
+        
+        function updateTitleCharacterCount() {
+            const titleField = document.getElementById('title');
+            const titleCharCount = document.getElementById('titleCharCount');
+            const currentLength = titleField.value.length;
+            const remainingChars = maxTitleChars - currentLength;
+
+            titleCharCount.textContent = `عدد الأحرف المتبقية: ${remainingChars}`;
+            titleCharCount.style.color = remainingChars < 0 ? 'red' : '#6b7280';
+        }
+
+        // Initialize character counter when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCharacterCount(); // Initial update
+            
+            // Add input event listener
+            document.getElementById('description').addEventListener('input', updateCharacterCount);
+        });
+
+        const maxChars = 1000;
+
+        function updateCharacterCount() {
+            const descriptionField = document.getElementById('description');
+            const charCountDisplay = document.getElementById('charCount');
+            const currentLength = descriptionField.value.length;
+            const remainingChars = maxChars - currentLength;
+
+            // Update display and color
+            charCountDisplay.textContent = `عدد الأحرف المتبقية: ${remainingChars}`;
+            charCountDisplay.style.color = remainingChars < 0 ? 'red' : '#6b7280'; // Gray color
+        }
 
         document.getElementById('departmentSelect').addEventListener('change', function () {
             let departmentId = this.value;
