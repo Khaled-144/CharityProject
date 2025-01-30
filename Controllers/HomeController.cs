@@ -75,10 +75,12 @@ namespace CharityProject.Controllers
         public IActionResult Charter() => View();
         public IActionResult WorkingLoginPage() => View();
         public IActionResult EmpHomePage() => View();
-
+        public IActionResult NotAuthorized()
+        {
+            return View();
+        }
         public IActionResult LoginPage()
         {
-            HttpContext.Session.Clear();
             return View();
         }
 

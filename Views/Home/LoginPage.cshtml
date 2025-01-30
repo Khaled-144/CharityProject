@@ -1,29 +1,8 @@
 ﻿@model IEnumerable<CharityProject.Models.employee_details>
 
 @{
-    // Determine layout based on user permission position
-    var permissionPosition = Context.Session.GetString("Permission_position");
-
-    if (permissionPosition == "مدير الموارد البشرية والمالية")
-    {
-        Layout = "_Layout_HR";
-    }
-    else if (permissionPosition == "مدير خدمة المستفيدين" || permissionPosition == "مدير التنمية المالية والاستدامة")
-    {
-        Layout = "_Layout_Managers";
-    }
-    else if (permissionPosition == "موظف")
-    {
-        Layout = "_Layout_Employees";
-    }
-    else
-    {
-        Layout = "_Layout";
-    }
-
     // Set page title
-    ViewData["PageTitle"] = "تسجيل الدخول";
-    ViewData["Title"] = "صفحة تسجيل الدخول";
+    ViewData["Title"] = "تسجيل الدخول";
 }
 
 <!DOCTYPE html>
