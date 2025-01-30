@@ -27,11 +27,35 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.Requ
 
 builder.Services.AddSession(options => { options.IdleTimeout = TimeSpan.FromMinutes(10); });
 
+var logPath = Path.Combine(Directory.GetCurrentDirectory(), "Logs");
+if (Directory.Exists(logPath))
+{
+    var cutoff = DateTime.Now.AddDays(-7);
+    foreach (var file in Directory.GetFiles(logPath, "*.txt"))
+    {
+        var fileInfo = new FileInfo(file);
+        if (fileInfo.CreationTime < cutoff)
+        {
+            try
+            {
+                fileInfo.Delete();
+            }
+            catch (Exception ex)
+            {
+                Log.Warning($"Could not delete old log file {file}: {ex.Message}");
+            }
+        }
+    }
+}
+
 // Configure Serilog
 Log.Logger = new LoggerConfiguration()
-    .WriteTo.File(Path.Combine("Logs", $"log-{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.txt"),
-        rollingInterval: RollingInterval.Infinite,
-        retainedFileCountLimit: 5)
+    .WriteTo.File(
+        path: Path.Combine("Logs", $"log-{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.txt"),
+        fileSizeLimitBytes: 10 * 1024 * 1024, // 10MB
+        rollOnFileSizeLimit: true,
+        retainedFileCountLimit: null, // Disable Serilog's retention
+        flushToDiskInterval: TimeSpan.FromSeconds(30))
     .CreateLogger();
 
 builder.Host.UseSerilog();
