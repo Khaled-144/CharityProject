@@ -267,13 +267,13 @@
             document.getElementById('description').addEventListener('input', updateCharacterCount);
         });
 
-        const maxChars = 1000;
+        const maxdescriptionChars = 1000;
 
         function updateCharacterCount() {
             const descriptionField = document.getElementById('description');
             const charCountDisplay = document.getElementById('charCount');
             const currentLength = descriptionField.value.length;
-            const remainingChars = maxChars - currentLength;
+            const remainingChars = maxdescriptionChars - currentLength;
 
             // Update display and color
             charCountDisplay.textContent = `عدد الأحرف المتبقية: ${remainingChars}`;
