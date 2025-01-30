@@ -189,7 +189,7 @@
                             @if (Model.status != "منهاة")
                             {
                                 <button type="submit" class="btn btn-primary">تأكيد الإحالة</button>
-                                @using (Html.BeginForm("UpdateTransactionStatus", "CustomerServiceManager", FormMethod.Post, new { id = $"updateStatusForm-{Model.transaction_id}", @class = "d-inline" }))
+                                    @using (Html.BeginForm("UpdateTransactionStatus", "FinancialSustainabilityDevelopmentManager", FormMethod.Post, new { id = $"updateStatusForm-{Model.transaction_id}", @class = "d-inline" }))
                                 {
                                     @Html.AntiForgeryToken()
                                     <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#confirmEndModal-@Model.transaction_id">

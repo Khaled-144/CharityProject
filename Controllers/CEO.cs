@@ -165,25 +165,29 @@ namespace CharityProject.Controllers
 
             // Count transactions based on their status, ensuring no duplicates
             var newTransactions = await _context.Transactions
+                .Where(t => t.status == "مرسلة" && (
+                    (t.Employee_detail.departement_id == employeeDetails.departement_id &&
+                     t.Employee_detail.employee_id != employeeDetails.employee_id &&
+                     t.Employee_detail.permission_position == "موظف") ||
 
-                .Where(t =>
-     (t.status == "مرسلة" && t.Employee_detail.departement_id == employeeDetails.departement_id && t.Employee_detail.employee_id != employeeDetails.employee_id && t.Employee_detail.permission_position == "موظف") ||
-    (t.status == "مرسلة" && (t.to_emp_id == employeeId || t.to_emp_id == hrManager.employee_id) && t.Employee_detail.permission_position != "موظف")
-    || (t.status == "مرسلة" && t.department_id == employeeDetails.departement_id && t.Employee_detail.permission_position != "موظف" && t.Employee_detail.employee_id != employeeDetails.employee_id) ||// Transactions sent to the employee
-    (t.Referrals.Any() && // Ensure there are referrals
-        (
-            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == employeeId ||
-            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == hrManager.employee_id
-        ) &&
-        (
-            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == employeeId ||
-            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == hrManager.employee_id
-        )
-    )
-)
+                    ((t.to_emp_id == employeeId || t.to_emp_id == hrManager.employee_id) &&
+                     t.Employee_detail.permission_position != "موظف") ||
+
+                    (t.department_id == employeeDetails.departement_id &&
+                     t.Employee_detail.permission_position != "موظف" &&
+                     t.Employee_detail.employee_id != employeeDetails.employee_id) ||
+
+                    (t.Referrals.Any() &&
+                     t.Referrals.OrderByDescending(r => r.referral_date)
+                        .Select(r => r.to_employee_id)
+                        .FirstOrDefault() == employeeId ||
+                     t.Referrals.OrderByDescending(r => r.referral_date)
+                        .Select(r => r.to_employee_id)
+                        .FirstOrDefault() == hrManager.employee_id)
+                ))
                 .GroupBy(t => t.transaction_id)
-                .Select(g => g.FirstOrDefault())
                 .CountAsync();
+
 
             var ongoingTransactions = await _context.Transactions
                  .Where(t => t.to_emp_id == employeeId && t.status == "تحت الإجراء")
@@ -1100,7 +1104,7 @@ namespace CharityProject.Controllers
         }
 
         [HttpPost]
-       
+
         public async Task<IActionResult> DenyHoliday(int holiday_id)
         {
             var holiday = await _context.HolidayHistories.FindAsync(holiday_id);

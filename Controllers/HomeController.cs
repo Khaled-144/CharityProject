@@ -84,7 +84,7 @@ namespace CharityProject.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> LoginPage(string userid, string pass, bool rememberMe)
+        public async Task<IActionResult> LoginPage(string userid, string pass)
         {
             var encryptedPassword = Encrypt.EncryptPassword(pass);
 
