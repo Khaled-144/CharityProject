@@ -151,7 +151,7 @@
                             <p>لا توجد إحالات لهذه المعاملة.</p>
                         }
                     </div>
-                @if (!currentUrl.Contains("GetArchivedTransactions"))
+                    @if (!currentUrl.Contains("GetAllTransactionsArchived"))
                 {
                     <div id="referForm-@Model.transaction_id" class="mt-4">
                         <h5>إحالة المعاملة #@Model.transaction_id</h5>
@@ -206,9 +206,9 @@
                 }
                 else
                 {
-                    <button data-dismiss="modal" type="button" class="px-4 py-2 text-sm font-medium text-white bg-gray-500 rounded-md hover:bg-gray-600 focus:outline-none focus:ring-4 focus:ring-gray-300 transition duration-300">
-                        إخفاء
-                    </button>
+                        <div>
+                            <button type="button" class="btn btn-dark" data-dismiss="modal">إخفاء</button>
+                        </div>
                 }
             </div>
         </div>

@@ -393,6 +393,8 @@ namespace CharityProject.Controllers
             }
             return PartialView("_getAllTransactions", transactions);
         }
+
+
         public async Task<IActionResult> GetAllHolidays()
         {
             var employee = await GetEmployeeDetailsFromSessionAsync();

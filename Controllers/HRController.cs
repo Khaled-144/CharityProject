@@ -624,8 +624,10 @@ namespace CharityProject.Controllers
                 .Include(t => t.Referrals)
                     .ThenInclude(r => r.to_employee)
                 .Where(t =>
-     (t.status == "منهاة" && t.department_id == employeeDetails.departement_id))
-
+                    (t.to_emp_id == employeeDetails.employee_id
+                    || t.from_emp_id == employeeDetails.employee_id
+                    || t.Referrals.Any(r => r.to_employee_id == employeeDetails.employee_id)
+                    || t.department_id == employeeDetails.departement_id))
                 .OrderByDescending(t => t.transaction_id)
                 .ToListAsync();
             var employeeIds = transactions.SelectMany(t => new[] { t.from_emp_id, t.to_emp_id }).Distinct().ToList();
