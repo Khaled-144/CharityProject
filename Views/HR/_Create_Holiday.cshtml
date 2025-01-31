@@ -219,6 +219,9 @@
             inc.style.display = 'inline';
             dec.style.display = 'inline';
             document.getElementById('counterLabel').textContent = 'المدة بالساعات';
+            let startDate = new Date();
+            startDateInput.value = startDate.toISOString().split('T')[0];
+            endDateInput.value = startDate.toISOString().split('T')[0];
             counterInput.setAttribute('min', '1');
             counterInput.setAttribute('max', '2');
         } else if (holidayType === 'سنوية') {

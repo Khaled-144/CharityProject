@@ -222,7 +222,7 @@ namespace CharityProject.Controllers
             int employeeId = GetEmployeeIdFromSession();
             var employeeDetails = await GetEmployeeDetailsFromSessionAsync();
             var Manager = _context.employee_details
-       .FirstOrDefault(e => e.position == "مدير التنمية المالية والاستدامة");
+       .FirstOrDefault(e => e.position == "المدير التنفيذي");
             // Populate the Departments dropdown list
             ViewData["Departments"] = _context.Department.Select(d => new SelectListItem
             {
@@ -233,26 +233,29 @@ namespace CharityProject.Controllers
             ViewData["HolidayTypes"] = holidayTypes ?? new List<Holiday>();
 
             // Get the counts for various entities
-            int internalCount =
-                         await _context.Transactions
-                .Include(t => t.Referrals)
-                    .ThenInclude(r => r.from_employee)
-                .Include(t => t.Referrals)
-                    .ThenInclude(r => r.to_employee)
-                .Where(t =>
-     (t.status == "مرسلة" && t.Employee_detail.departement_id == employeeDetails.departement_id && t.Employee_detail.employee_id != employeeDetails.employee_id && t.Employee_detail.permission_position == "موظف") ||
+            var newTransactions = await _context.Transactions
+                .Where(t => t.status == "مرسلة" && (
+                    (t.Employee_detail.departement_id == employeeDetails.departement_id &&
+                     t.Employee_detail.employee_id != employeeDetails.employee_id &&
+                     t.Employee_detail.permission_position == "موظف") ||
 
-    (t.Referrals.Any() && // Ensure there are referrals
-        (
-            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == employeeId ||
-            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == Manager.employee_id
-        ) &&
-        (
-            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == employeeId ||
-            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == Manager.employee_id
-        )
-    )
-).CountAsync();
+                    ((t.to_emp_id == employeeId || t.to_emp_id == Manager.employee_id) &&
+                     t.Employee_detail.permission_position != "موظف") ||
+
+                    (t.department_id == employeeDetails.departement_id &&
+                     t.Employee_detail.permission_position != "موظف" &&
+                     t.Employee_detail.employee_id != employeeDetails.employee_id) ||
+
+                    (t.Referrals.Any() &&
+                     t.Referrals.OrderByDescending(r => r.referral_date)
+                        .Select(r => r.to_employee_id)
+                        .FirstOrDefault() == employeeId ||
+                     t.Referrals.OrderByDescending(r => r.referral_date)
+                        .Select(r => r.to_employee_id)
+                        .FirstOrDefault() == Manager.employee_id)
+                ))
+                .GroupBy(t => t.transaction_id)
+                .CountAsync();
 
             int holidaysCount = await _context.HolidayHistories
                 .Where(h => h.status == "مرسلة من مدير" || (h.status == "مرسلة" && h.Employee_detail.departement_id == employeeDetails.departement_id))
@@ -267,7 +270,7 @@ namespace CharityProject.Controllers
                 .CountAsync();
 
             // Passing the counts to the view using ViewBag
-            ViewBag.InternalCount = internalCount;
+            ViewBag.InternalCount = newTransactions;
             ViewBag.HolidaysCount = holidaysCount;
             ViewBag.LettersCount = lettersCount;
             ViewBag.AssetsCount = assetsCount;
