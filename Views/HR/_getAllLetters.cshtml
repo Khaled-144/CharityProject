@@ -19,8 +19,8 @@
                             <p class="font-medium text-gray-900 truncate dark:text-white px-2">
                                 @Html.DisplayFor(modelItem => item.title)
                             </p>
-                            <p class="font-medium text-gray-900 truncate dark:text-white">
-                                بتاريخ: @Html.DisplayFor(modelItem => item.date)
+                            <p class="font-medium text-gray-900 truncate dark:text-white" dir="ltr">
+                              @(item.date.ToString("yyyy-MM-dd") ?? "1/1/1000")  |
                             </p>
                         </div>
 
