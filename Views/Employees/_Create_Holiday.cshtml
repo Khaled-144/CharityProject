@@ -90,12 +90,14 @@
             </div>
             <div class="modal-body p-6">
                 <div class="text-right" dir="rtl">
-                    <form asp-action="Create_Holiday" method="post" enctype="multipart/form-data">
+                    <form id="holidayForm" asp-action="Create_Holiday" method="post" enctype="multipart/form-data">
                         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
+                        <!-- Subject (Title) Field -->
                         <div class="mb-4">
                             <label for="subject" class="block text-gray-700 font-bold mb-2">موضوع الإجازة</label>
-                            <input type="text" id="subject" name="title" asp-for="title" required class="form-control" placeholder="أدخل موضوع الإجازة">
+                            <input type="text" id="subject" name="title" asp-for="title" required
+                                class="form-control" maxlength="255">
                         </div>
 
                         <div class="mb-4 flex items-center">
@@ -138,9 +140,11 @@
                             </div>
                         </div>
 
+                        <!-- Notes (Description) Field -->
                         <div class="mb-4">
                             <label for="notes" class="block text-gray-700 font-bold mb-2">الملاحظات</label>
-                            <textarea id="notes" name="description" asp-for="description" class="form-control" rows="3" placeholder="أدخل الملاحظات"></textarea>
+                            <textarea id="notes" name="description" asp-for="description" class="form-control"
+                                    rows="3" maxlength="255"></textarea>
                         </div>
 
                         <div class="mb-4">
@@ -160,6 +164,65 @@
     </div>
 </div>
 <script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Scope the script only to the holiday form
+    var holidayForm = document.getElementById('holidayForm');
+    if (!holidayForm) {
+        return; // Exit if the form isn't found
+    }
+
+    // Select the subject and notes fields within the holiday form
+    var subjectInput = holidayForm.querySelector('#subject');
+    var notesInput = holidayForm.querySelector('#notes');
+
+    // Define maximum number of characters allowed for each field
+    var subjectMax = 255;
+    var notesMax = 255;
+
+    // Create counter elements for subject and notes
+    var subjectCounter = document.createElement('span');
+    subjectCounter.className = 'char-counter';
+    subjectCounter.style.display = 'block';
+    subjectCounter.style.textAlign = 'right';
+    subjectCounter.style.marginTop = '5px';
+    subjectCounter.style.color = 'gray';
+
+    var notesCounter = document.createElement('span');
+    notesCounter.className = 'char-counter';
+    notesCounter.style.display = 'block';
+    notesCounter.style.textAlign = 'right';
+    notesCounter.style.marginTop = '5px';
+    notesCounter.style.color = 'gray';
+
+    // Insert the counter elements just after the respective input fields
+    subjectInput.insertAdjacentElement('afterend', subjectCounter);
+    notesInput.insertAdjacentElement('afterend', notesCounter);
+
+    // Helper function to update a counter element, enforce the max character limit, and show remaining characters.
+    function updateCounter(inputElement, counterElement, maxCount) {
+        var count = inputElement.value.length;
+        if (count > maxCount) {
+            // Trim any characters exceeding the max count
+            inputElement.value = inputElement.value.substring(0, maxCount);
+            count = maxCount;
+        }
+        var remaining = maxCount - count;
+        counterElement.textContent = "عدد الأحرف المتبقية: " + remaining;
+    }
+
+    // Bind input event listeners to update the counters and enforce limits on the fly
+    subjectInput.addEventListener('input', function () {
+        updateCounter(subjectInput, subjectCounter, subjectMax);
+    });
+    notesInput.addEventListener('input', function () {
+        updateCounter(notesInput, notesCounter, notesMax);
+    });
+
+    // Initialize counters on page load
+    updateCounter(subjectInput, subjectCounter, subjectMax);
+    updateCounter(notesInput, notesCounter, notesMax);
+});
+
 document.addEventListener("DOMContentLoaded", function () {
     let currentDate = new Date();
     document.getElementById('start_date').value = currentDate.toISOString().split('T')[0];
