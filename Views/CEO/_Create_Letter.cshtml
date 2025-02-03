@@ -202,6 +202,65 @@
 </body>
 
 <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Get the letter form to scope the script only to the letter partial view.
+        var letterForm = document.getElementById('letterForm');
+        if (!letterForm) {
+            return; // Exit if the form isn't found
+        }
+
+        // Select the title and description fields within the letter form
+        var titleInput = letterForm.querySelector('#title');
+        var descriptionInput = letterForm.querySelector('#description');
+
+        // Define maximum number of characters allowed for each field
+        var titleMax = 255;
+        var descriptionMax = 1000;
+
+        // Create counter elements for title and description
+        var titleCounter = document.createElement('span');
+        titleCounter.className = 'char-counter';
+        titleCounter.style.display = 'block';
+        titleCounter.style.textAlign = 'right';
+        titleCounter.style.marginTop = '5px';
+        titleCounter.style.color = 'gray';
+
+        var descriptionCounter = document.createElement('span');
+        descriptionCounter.className = 'char-counter';
+        descriptionCounter.style.display = 'block';
+        descriptionCounter.style.textAlign = 'right';
+        descriptionCounter.style.marginTop = '5px';
+        descriptionCounter.style.color = 'gray';
+
+        // Insert the counter elements just after the respective input fields
+        titleInput.insertAdjacentElement('afterend', titleCounter);
+        descriptionInput.insertAdjacentElement('afterend', descriptionCounter);
+
+        // Helper function to update a counter element, enforce the max character limit, and show remaining characters.
+        function updateCounter(inputElement, counterElement, maxCount) {
+            var count = inputElement.value.length;
+            if (count > maxCount) {
+                // Trim any characters exceeding the max count
+                inputElement.value = inputElement.value.substring(0, maxCount);
+                count = maxCount;
+            }
+            var remaining = maxCount - count;
+            counterElement.textContent = "عدد الأحرف المتبقية: " + remaining;
+        }
+
+        // Bind input event listeners to update the counters and enforce limits on the fly
+        titleInput.addEventListener('input', function () {
+            updateCounter(titleInput, titleCounter, titleMax);
+        });
+        descriptionInput.addEventListener('input', function () {
+            updateCounter(descriptionInput, descriptionCounter, descriptionMax);
+        });
+
+        // Initialize counters on page load
+        updateCounter(titleInput, titleCounter, titleMax);
+        updateCounter(descriptionInput, descriptionCounter, descriptionMax);
+    });
+    
     document.getElementById('transactionForm').addEventListener('submit', function (e) {
         var fileInput = document.getElementById('files');
         var allowedExtensions = /(\.pdf|\.xls|\.xlsx|\.doc|\.docx)$/i;
