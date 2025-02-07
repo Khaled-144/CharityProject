@@ -86,25 +86,41 @@
             </div>
         </div>
 
-
+        @if(Model.Any()){
         <!-- Salary Records -->
         <div id="salaryTable" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            @foreach (var item in Model)
+ 
+                @foreach (var item in Model)
+                {
+                    <div class="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition duration-300 ease-in-out transform hover:-translate-y-1">
+                        <div class="bg-primaryButtons p-4">
+                            <h3 class="text-xl font-bold text-white">@getArabicMonth(item.Month)</h3>
+                        </div>
+                        <div class="p-6">
+                            <p class="text-gray-800 mb-2 text-sm">
+                                <span class="font-semibold">عدد السجلات:</span> @item.Count
+                            </p>
+                            <p class="text-gray-800 mb-4 text-sm">
+                                <span class="font-semibold">إجمالي الصرف:</span> @item.Total
+                            </p>
+                            <a asp-action="MonthDetails" asp-route-month="@item.Month"
+                               class="inline-block bg-primaryButtons text-white rounded-lg px-4 py-2 hover:bg-emerald-800 transition duration-300 ease-in-out transform">
+                                عرض التفاصيل
+                            </a>
+                        </div>
+                    </div>
+                }
+
+
+            
+        </div>}
+        else
             {
-                <div class="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition duration-300 ease-in-out transform hover:-translate-y-1">
-                    <div class="bg-primaryButtons p-4">
-                        <h3 class="text-xl font-bold text-white">@getArabicMonth(item.Month)</h3>
-                    </div>
-                    <div class="p-6">
-                        <p class="text-gray-800 mb-2"><span class="font-semibold">عدد السجلات:</span> @item.Count</p>
-                        <p class="text-gray-800 mb-4"><span class="font-semibold">إجمالي الصرف:</span> @item.Total</p>
-                        <a asp-action="MonthDetails" asp-route-month="@item.Month" class="inline-block bg-primaryButtons text-white rounded-lg px-4 py-2 hover:bg-emerald-800 transition duration-300 ease-in-out transform">
-                            عرض التفاصيل
-                        </a>
-                    </div>
+                <div class="col-span-full text-center py-4 rounded-xl">
+                    <p class="text-xl font-semibold text-gray-600">لما يتم صرف اي رواتب</p>
                 </div>
-            }
-        </div>
+    }
+
 
         <!-- Pagination -->
         <div id="pagination" class="flex justify-center mt-8 space-x-2 rtl:space-x-reverse"></div>
