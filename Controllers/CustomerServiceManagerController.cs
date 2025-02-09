@@ -812,8 +812,8 @@ namespace CharityProject.Controllers
             var totalTakenDuration = _context.HolidayHistories
                  .Where(hh => hh.emp_id == employeeId
                               && hh.holiday_id == holidayId
-                              && ((hh.start_date.Year == DateTime.Now.Year && hh.holiday.type != "استئذان")
-                                  || (hh.start_date.Month == DateTime.Now.Month && hh.holiday.type == "استئذان"))
+                              && (
+                                   (hh.start_date.Month == DateTime.Now.Month && hh.holiday.type == "استئذان"))
                               && (hh.status == "موافقة المدير التنفيذي" || hh.status == "موافقة مدير الموارد البشرية"))
                  .Sum(hh => hh.duration);
 

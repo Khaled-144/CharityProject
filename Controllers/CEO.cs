@@ -227,7 +227,7 @@ namespace CharityProject.Controllers
             ViewData["Departments"] = _context.Department.Select(d => new SelectListItem
             {
                 Value = d.departement_id.ToString(),
-                Text = d.departement_name
+                Text = d.departement_name   
             }).ToList();
             var holidayTypes = await _context.Holidays.ToListAsync();
             ViewData["HolidayTypes"] = holidayTypes ?? new List<Holiday>();
