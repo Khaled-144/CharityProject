@@ -219,21 +219,28 @@ namespace CharityProject.Controllers
 
             // Get the counts for various entities
             int internalCount = await _context.Transactions
-               .Where(t =>
-     (t.status == "مرسلة" && t.Employee_detail.departement_id == employeeDetails.departement_id && t.Employee_detail.employee_id != employeeDetails.employee_id && t.Employee_detail.permission_position == "موظف") ||
-    (t.status == "مرسلة" && (t.to_emp_id == employeeId || t.to_emp_id == hrManager.employee_id) && t.Employee_detail.permission_position != "موظف")
-    || (t.status == "مرسلة" && t.department_id == employeeDetails.departement_id && t.Employee_detail.permission_position != "موظف" && t.Employee_detail.employee_id != employeeDetails.employee_id) ||// Transactions sent to the employee
-    (t.Referrals.Any() && // Ensure there are referrals
-        (
-            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == employeeId ||
-            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == hrManager.employee_id
-        ) &&
-        (
-            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == employeeId ||
-            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == hrManager.employee_id
-        )
-    )
-).CountAsync();
+                .Where(t =>
+                    t.status != "منهاة" && (
+                        (t.status == "مرسلة" &&
+                         t.Employee_detail.departement_id == employeeDetails.departement_id &&
+                         t.Employee_detail.employee_id != employeeDetails.employee_id &&
+                         t.Employee_detail.permission_position == "موظف") ||
+
+                        (t.status == "مرسلة" &&
+                         (t.to_emp_id == employeeId || t.to_emp_id == hrManager.employee_id) &&
+                         t.Employee_detail.permission_position != "موظف") ||
+
+                        (t.status == "مرسلة" &&
+                         t.department_id == employeeDetails.departement_id &&
+                         t.Employee_detail.permission_position != "موظف" &&
+                         t.Employee_detail.employee_id != employeeDetails.employee_id) ||
+
+                        (t.Referrals.Any() &&
+                         t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == employeeId ||
+                         t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == hrManager.employee_id)
+                    )
+                )
+                .CountAsync();
 
             int holidaysCount = await _context.HolidayHistories
                 .Where(h => h.status == "مرسلة" && h.Employee_detail.departement_id == emplyee_Details.departement_id)
@@ -262,32 +269,45 @@ namespace CharityProject.Controllers
         public async Task<IActionResult> GetAllTransactions()
         {
             var employeeId = GetEmployeeIdFromSession();
-            var emplyee_Details = await GetEmployeeDetailsFromSessionAsync();
-            var Manager = _context.employee_details
-        .FirstOrDefault(e => e.position == "مدير خدمة المستفيدين");
+            var employeeDetails = await GetEmployeeDetailsFromSessionAsync();
 
-            // Fetch transactions based on the conditions provided
+            // Fetch the Manager details asynchronously
+            var manager = await _context.employee_details
+                .Where(e => e.position == "مدير خدمة المستفيدين")
+                .Select(e => e.employee_id) // Fetch only the needed ID
+                .FirstOrDefaultAsync();
+
+            // Fetch transactions based on conditions
             var transactions = await _context.Transactions
                 .Include(t => t.Referrals)
                     .ThenInclude(r => r.from_employee)
                 .Include(t => t.Referrals)
                     .ThenInclude(r => r.to_employee)
-                 .Where(t =>
-     (t.status == "مرسلة" && t.Employee_detail.departement_id == emplyee_Details.departement_id && t.Employee_detail.employee_id != emplyee_Details.employee_id && t.Employee_detail.permission_position == "موظف") ||
-    (t.status == "مرسلة" && (t.to_emp_id == employeeId || t.to_emp_id == Manager.employee_id) && t.Employee_detail.permission_position != "موظف")
-    || (t.status == "مرسلة" && t.department_id == emplyee_Details.departement_id && t.Employee_detail.permission_position != "موظف" && t.Employee_detail.employee_id != emplyee_Details.employee_id) ||// Transactions sent to the employee
-    (t.Referrals.Any() && // Ensure there are referrals
-        (
-            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == employeeId ||
-            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == Manager.employee_id
-        ) &&
-        (
-            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == employeeId ||
-            t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == Manager.employee_id
-        )
-    )
-)
+                .Where(t =>
+                    t.status != "منهاة" && (
+                        // Case 1: Sent within the same department, excluding the employee themselves, limited to "موظف"
+                        (t.status == "مرسلة" &&
+                         t.Employee_detail.departement_id == employeeDetails.departement_id &&
+                         t.Employee_detail.employee_id != employeeDetails.employee_id &&
+                         t.Employee_detail.permission_position == "موظف") ||
 
+                        // Case 2: Sent to the logged-in employee or the manager (excluding "موظف" cases)
+                        (t.status == "مرسلة" &&
+                         (t.to_emp_id == employeeId || t.to_emp_id == manager) &&
+                         t.Employee_detail.permission_position != "موظف") ||
+
+                        // Case 3: Sent within the department to non-"موظف" roles (excluding self)
+                        (t.status == "مرسلة" &&
+                         t.department_id == employeeDetails.departement_id &&
+                         t.Employee_detail.permission_position != "موظف" &&
+                         t.Employee_detail.employee_id != employeeDetails.employee_id) ||
+
+                        // Case 4: Latest referral was directed to the logged-in employee or the manager
+                        (t.Referrals.Any() &&
+                         t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == employeeId ||
+                         t.Referrals.OrderByDescending(r => r.referral_date).First().to_employee_id == manager)
+                    )
+                )
                 .OrderByDescending(t => t.transaction_id)
                 .ToListAsync();
             var employeeIds = transactions.SelectMany(t => new[] { t.from_emp_id, t.to_emp_id }).Distinct().ToList();
@@ -325,7 +345,10 @@ namespace CharityProject.Controllers
                 .Include(t => t.Referrals)
                     .ThenInclude(r => r.to_employee)
                 .Where(t =>
-    (t.status == "منهاة" && t.Employee_detail.departement_id == employe_details.departement_id))
+                    (t.to_emp_id == employe_details.employee_id
+                    || t.from_emp_id == employe_details.employee_id
+                    || t.Referrals.Any(r => r.to_employee_id == employe_details.employee_id)
+                    || t.department_id == employe_details.departement_id))
 
                 .OrderByDescending(t => t.transaction_id)
                 .ToListAsync();

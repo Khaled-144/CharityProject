@@ -31,7 +31,23 @@ namespace CharityProject.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // Additional configurations if needed
+
+            //  For new database table names:
+            //modelBuilder.Entity<charter>().ToTable("charter");
+            //modelBuilder.Entity<Department>().ToTable("department");
+            //modelBuilder.Entity<Devices>().ToTable("devices");
+            //modelBuilder.Entity<employee>().ToTable("employee");
+            //modelBuilder.Entity<employee_details>().ToTable("employee_details");
+            //modelBuilder.Entity<ExternalTransaction>().ToTable("external_transactions");
+            //modelBuilder.Entity<Holiday>().ToTable("holidays");
+            //modelBuilder.Entity<HolidayHistory>().ToTable("holidays_history");
+            //modelBuilder.Entity<letter>().ToTable("letters");
+            //modelBuilder.Entity<salaries_history>().ToTable("salaries_history");
+            //modelBuilder.Entity<Salary>().ToTable("employee_salary");
+            //modelBuilder.Entity<Transaction>().ToTable("transactions");
+            //modelBuilder.Entity<OtherService>().ToTable("other_services");
+            //modelBuilder.Entity<Referral>().ToTable("referrals");
         }
+
     }
 }

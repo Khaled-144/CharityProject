@@ -1,4 +1,4 @@
-﻿@model IEnumerable<CharityProject.Models.Devices>
+﻿@model IEnumerable<CharityProject.Models.employee>
 @{
     if (Context.Session.GetString("Permission_position") == "مدير الموارد البشرية والمالية")
     {
@@ -20,6 +20,8 @@
 
     ViewData["Title"] = "موظفين القسم";
     ViewData["pageTtile"] = "موظفين القسم";
+    var employeeList = ViewData["EmployeeList"] as IEnumerable<dynamic>;
+
 }
 
 <!DOCTYPE html>
@@ -96,8 +98,7 @@
             </form>
         </div>
 
-        @if (ViewData["EmployeeList"] != null)
-        {
+
             <div class="overflow-x-auto fade-in">
                 <table id="employeeTable" class="w-full bg-white rounded-lg shadow-xl overflow-hidden">
                     <thead>
@@ -112,6 +113,8 @@
                         </tr>
                     </thead>
                     <tbody>
+                    @if (employeeList != null && employeeList.Any())
+                    {
                         @foreach (var employee in (IEnumerable<dynamic>)ViewData["EmployeeList"])
                         {
                             <tr class="table-row-hover hover:bg-emerald-50 transition duration-300 ease-in-out" data-name="@employee.name">
@@ -181,10 +184,21 @@
                                 </div>
                             </div>
                         }
-                    </tbody>
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="7" class="py-4 px-6 text-center text-gray-500">لايوجد موظفين</td>
+                        </tr>
+                    }
+
+                    
+
+                    
+                </tbody>
                 </table>
             </div>
-        }
+        
     </div>
 
     <script>

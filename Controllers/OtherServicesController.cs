@@ -16,6 +16,7 @@ using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 using QuestPDF.Elements;
+using System.Globalization;
 
 
 namespace CharityProject.Controllers
@@ -59,7 +60,12 @@ namespace CharityProject.Controllers
         {
             var employee = await GetEmployeeDetailsFromSessionAsync(); // Retrieve employee details from session
             string employeeName = employee.employee.name;
-            string employeeId = employee.employee_id.ToString();
+            int employeeId = _context.employee
+                            .Where(e => e.employee_id == employee.employee_id)
+                            .Select(e => e.employee_number)  // Assuming employee_number is the field you want
+                            .FirstOrDefault();  // Use FirstOrDefault() to get the first match or null if not found
+
+            DateTime hiringDate = employee.hire_date;
             QuestPDF.Settings.License = LicenseType.Community;
             string dateTime = DateTime.Now.ToString("yyyy_MM_dd_HHmmss");
             string outputFileName = $"تعريف بالراتب للموظف_{employeeName}_بتاريخ_{dateTime}.pdf";
@@ -67,8 +73,8 @@ namespace CharityProject.Controllers
             try
             {
                 // Fetch the latest salary record based on the employee ID
-                var salaryHistory = await GetLastEmployeeSalaryAsync(employee.employee_id);
-                if (salaryHistory == null)
+                var salaries = await GetLastEmployeeSalaryAsync(employee.employee_id);
+                if (salaries == null)
                 {
                     return View("index", new { ErrorMessage = "لايوجد رواتب مسجلة لهذا الموظف" });
                 }
@@ -82,7 +88,7 @@ namespace CharityProject.Controllers
                         page.DefaultTextStyle(x => x.FontFamily("Arial").FontSize(11));
 
                         page.Header().Element(ComposeHeader);
-                        page.Content().Element(container => ComposeContent(container, employeeName, employeeId, salaryHistory, recipient));
+                        page.Content().Element(container => ComposeContent(container, employeeName, employeeId, hiringDate, salaries, recipient));
                         page.Footer().Element(ComposeFooter);
 
                         page.Background().Border(1).BorderColor(Colors.Grey.Lighten2);
@@ -112,14 +118,25 @@ namespace CharityProject.Controllers
         }
 
         // Method to get the latest salary record for an employee
-        private async Task<salaries_history> GetLastEmployeeSalaryAsync(int employeeId)
+        private async Task<Salary> GetLastEmployeeSalaryAsync(int employeeId)
         {
+            var salary = await _context.EmployeeSalary
+                .Where(e => e.emp_id == employeeId)
+                .Select(e => new Salary
+                {
+                    emp_id = e.emp_id,
+                    base_salary = e.base_salary,
+                    housing_allowances = e.housing_allowances,
+                    transportation_allowances = e.transportation_allowances,
+                    other_allowances = e.other_allowances,
+                    shared_portion = e.shared_portion,
+                    facility_portion = e.facility_portion,
+                    Social_insurance_rate = e.Social_insurance_rate,
+                    max_overtime_rate = e.max_overtime_rate
+                })
+                .FirstOrDefaultAsync();
 
-            return await _context.SalaryHistories
-                      .Where(s => s.emp_id == employeeId)
-                      .OrderByDescending(s => s.date) // Retrieve the latest salary based on date
-                      .FirstOrDefaultAsync();
-
+            return salary;
         }
 
         void ComposeHeader(IContainer container)
@@ -143,7 +160,7 @@ namespace CharityProject.Controllers
             return $"{day} {arabicMonths[date.Month - 1]} {year}";
         }
 
-        void ComposeContent(IContainer container, string employeeName, string employeeId, salaries_history salaryHistory, string recipient)
+        void ComposeContent(IContainer container, string employeeName, int employeeId, DateTime hiringDate, Salary salaryHistory, string recipient)
         {
             container.PaddingVertical(1, Unit.Centimetre).Column(column =>
             {
@@ -151,8 +168,8 @@ namespace CharityProject.Controllers
 
                 column.Item().Background(Colors.Grey.Lighten4).Padding(10).Column(innerColumn =>
                 {
-                    innerColumn.Item().AlignRight().Text("نموذج تعريف بالراتب لموظفين جمعية مسكني – المدينة المنورة").Bold().FontSize(14);
-                    innerColumn.Item().AlignRight().Text("هذا النموذج خاص بجمعية مسكني وتم انشاء هذه الصفحة بناءً على طلب الموظف ولا تتحمل الجمعية أي مسؤولية بخصوص صحة البيانات أدناه.").FontSize(10);
+                    innerColumn.Item().AlignRight().Text("نموذج تعريف بالراتب لموظفي جمعية مسكني – المدينة المنورة").Bold().FontSize(14);
+                    innerColumn.Item().AlignRight().Text("هذا النموذج خاص بجمعية مسكني وتم إنشاء هذه الصفحة بناءً على طلب الموظف. ولا تتحمل الجمعية أي مسؤولية بخصوص صحة البيانات أدناه.").FontSize(10);
                 });
 
                 column.Item().Table(table =>
@@ -163,22 +180,44 @@ namespace CharityProject.Controllers
                         columns.ConstantColumn(150); // Value column
                     });
 
-                    // Format the salary amount as a string with 2 decimal places
-                    string salaryText = salaryHistory.base_salary.ToString("N2");
-                    string reversedSalaryText = new string(salaryText.Reverse().ToArray());
+                    // Calculate total allowances and net salary
+                    decimal totalAllowances = (salaryHistory.housing_allowances ?? 0) +
+                                              (salaryHistory.transportation_allowances ?? 0) +
+                                              (salaryHistory.other_allowances ?? 0);
 
-                    // Add table rows
-                    AddTableRow(table, "اسم الموظف:", employeeName);
-                    AddTableRow(table, "رقم الموظف:", employeeId);
-                    AddTableRow(table, "مبلغ الراتب:", $"{reversedSalaryText} ريال سعودي فقط");
-                    AddTableRow(table, "الى:", recipient);
+                    decimal netSalary = salaryHistory.base_salary + totalAllowances;
+
+                    // Use default numeric formatting for English
+                    string baseSalaryFormatted = salaryHistory.base_salary.ToString("N2");
+                    string allowancesFormatted = totalAllowances.ToString("N2");
+                    string netSalaryFormatted = netSalary.ToString("N2");
+
+                    // Add table rows as per the template
+                    AddTableRow(table, "الاسم:", employeeName);
+                    AddTableRow(table, "الرقم الوظيفي:", employeeId.ToString());
+                    AddTableRow(table, "تاريخ التعيين:", hiringDate.ToString("yyyy-MM-dd"));
+                    AddTableRow(table, "الراتب الأساسي:", $"{baseSalaryFormatted}");
+                    AddTableRow(table, "مجمل البدلات:", $"{allowancesFormatted}");
+                    AddTableRow(table, "الراتب الصافي:", $"{netSalaryFormatted}");
                 });
+
+                column.Item().PaddingTop(20).AlignRight().Text($"المكرم مدير: ").Bold().FontSize(12);
+
+                column.Item().PaddingTop(20).AlignRight().Text(
+                    "السلام عليكم ورحمة الله وبركاته،\n\n" +
+                    "الموضح أعلاه هو بيان يوضح راتب الموظف بناءً على بياناته المسجلة لدينا، " +
+                    "وقد تم إصدار هذا المستند بناءً على طلبه، دون تحمل أي مسؤولية قانونية من قبل الجمعية.\n\n" +
+                    $"تم تقديم هذا التعريف إلى: {recipient}"
+                ).FontSize(10);
 
                 column.Item().PaddingTop(20).LineHorizontal(1).LineColor(Colors.Grey.Medium);
 
                 column.Item().PaddingTop(20).AlignRight().Text("هذا المستند يوثق معلومات الراتب").FontSize(10).FontColor(Colors.Grey.Medium);
             });
         }
+
+
+
 
         // Helper method to add table rows
         void AddTableRow(TableDescriptor table, string label, string value)

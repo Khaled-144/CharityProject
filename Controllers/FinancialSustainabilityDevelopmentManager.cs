@@ -337,6 +337,7 @@ namespace CharityProject.Controllers
                 .Include(t => t.Referrals)
                     .ThenInclude(r => r.to_employee)
                 .Where(t =>
+                t.status!="منهاة" && 
      (t.status == "مرسلة" && t.Employee_detail.departement_id == employeeDetails.departement_id && t.Employee_detail.employee_id != employeeDetails.employee_id && t.Employee_detail.permission_position == "موظف") ||
     (t.status == "مرسلة" && (t.to_emp_id == employeeId || t.to_emp_id == Manager.employee_id) && t.Employee_detail.permission_position != "موظف")
     || (t.status == "مرسلة" && t.department_id == employeeDetails.departement_id && t.Employee_detail.permission_position != "موظف" && t.Employee_detail.employee_id != employeeDetails.employee_id) ||// Transactions sent to the employee
@@ -387,6 +388,11 @@ namespace CharityProject.Controllers
                 .ToDictionaryAsync(e => e.employee_id, e => e.name);
 
             ViewBag.EmployeeNames = employees;
+            if (holidays.Count == 0)
+            {
+                // Render the _NothingNew partial view if no transactions
+                return PartialView("_NothingNew");
+            }
 
             return PartialView("_getAllHolidays", holidays);
         }
@@ -982,25 +988,7 @@ namespace CharityProject.Controllers
 
 
         // Update Actions --------------------------------------------------------
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateTransactionStatus(int transaction_id)
-        {
-            var transaction = await _context.Transactions.FindAsync(transaction_id);
-            if (transaction == null)
-            {
-                return NotFound();
-            }
-
-            // Update the status to "Closed"
-            transaction.status = "منهاة";
-            transaction.close_date = DateTime.Now;
-
-            // Save changes to the database
-            await _context.SaveChangesAsync();
-
-            return RedirectToAction(nameof(Transactions));
-        }
+        
         [HttpPost]
         public IActionResult ArchiveHoliday(int id)
         {
@@ -1132,7 +1120,10 @@ namespace CharityProject.Controllers
                 .Include(t => t.Referrals)
                     .ThenInclude(r => r.to_employee)
                 .Where(t =>
-               (t.status == "منهاة" && t.Employee_detail.departement_id == employeeDetails.departement_id))
+                    (t.to_emp_id == employeeDetails.employee_id
+                    || t.from_emp_id == employeeDetails.employee_id
+                    || t.Referrals.Any(r => r.to_employee_id == employeeDetails.employee_id)
+                    || t.department_id == employeeDetails.departement_id))
 
                 .OrderByDescending(t => t.transaction_id)
                 .ToListAsync();
@@ -1159,10 +1150,10 @@ namespace CharityProject.Controllers
         {
             var employee = await GetEmployeeDetailsFromSessionAsync();
 
-            // Fetch holidays with the status "مرسلة" where the employee's department ID is 5
             var holidays = await _context.HolidayHistories
-               .Where(h => (h.status.Contains("موافقة") || h.status.Contains("رفضت") || h.status == "مرسلة من مدير")
-                && h.Employee_detail.departement_id == employee.departement_id)
+                .Include(h => h.holiday)
+                 .Include(h => h.Employee)
+                .Where(h => h.emp_id == employee.employee_id)
                 .OrderByDescending(h => h.holidays_history_id)
                 .ToListAsync();
             var employeeIds = holidays.SelectMany(t => new[] { t.emp_id }).Distinct().ToList();
@@ -1184,8 +1175,8 @@ namespace CharityProject.Controllers
         {
             var employeeDetails = await GetEmployeeDetailsFromSessionAsync();
             var letters = await _context.letters
-                  .Where(l => l.to_emp_id == employeeDetails.employee_id || (l.to_departement_name == employeeDetails.Department.departement_name && l.to_emp_id == 0))
-                .OrderByDescending(l => l.letters_id) // Order by letters_id in descending order
+                .Where(l => l.from_emp_id == employeeDetails.employee_details_id)
+                .OrderByDescending(l => l.letters_id)
                 .ToListAsync();
             if (letters.Count == 0)
             {
