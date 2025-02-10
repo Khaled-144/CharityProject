@@ -651,10 +651,12 @@ namespace CharityProject.Controllers
 
         public async Task<IActionResult> GetAllHolidaysArchive()
         {
+            var employee = await GetEmployeeDetailsFromSessionAsync();
             // Fetch all holidays with the status "موافقة" or "رفضت"
             var holidays = await _context.HolidayHistories
                 .Include(h => h.holiday)
                 .Include(h => h.Employee_detail)
+                .Where(h => h.status == "رفضت من المدير المباشر" || h.status == "موافقة مدير الموارد البشرية" || h.status ==  "رفضت من مدير الموارد البشرية") // Filter for rejected holidays
                 .OrderByDescending(h => h.holidays_history_id)
                 .ToListAsync();
 
