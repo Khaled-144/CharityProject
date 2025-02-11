@@ -10,7 +10,8 @@
         public int charter_id { get; set; }
         public string charter_info { get; set; }  
       
-        public int? serial_number { get; set; }  
+        public double? serial_number { get; set; }
+       
         public DateOnly creation_date { get; set; } 
         public string from_departement_name { get; set; }  
         public string status { get; set; }

@@ -5,7 +5,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title">تعديل</h4>
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <button type="button" style="font-size: 2rem;" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body text-right">
                 <form asp-action="EditDevice" asp-route-id="@Model.devices_id" method="post">
@@ -13,8 +13,8 @@
                     <input type="hidden" asp-for="devices_id" />
 
                     <div class="form-group">
-                        <label asp-for="name" class="control-label">اسم الجهاز</label>
-                        <input asp-for="name" class="form-control" placeholder="أدخل اسم الجهاز" />
+                        <label asp-for="name" class="control-label">اسم الأصل</label>
+                        <input asp-for="name" class="form-control" placeholder="أدخل اسم الأصل" />
                         <span asp-validation-for="name" class="text-danger"></span>
                     </div>
 

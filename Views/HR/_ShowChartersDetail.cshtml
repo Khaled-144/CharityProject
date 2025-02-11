@@ -45,7 +45,7 @@
                 <div class="flex flex-wrap items-center justify-center gap-4 mt-6">
                     @if (Model.status != "مستلمة")
                     {
-                        @using (Html.BeginForm("UpdateStatus", "Charters", FormMethod.Post, new { id = $"updateStatusForm-{Model.charter_id}" }))
+                        @using (Html.BeginForm("UpdateStatuss", "HR", FormMethod.Post, new { id = $"updateStatusForm-{Model.charter_id}" }))
                         {
                             @Html.AntiForgeryToken()
                             <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 focus:outline-none focus:ring-4 focus:ring-green-300 transition duration-300">

@@ -2708,6 +2708,28 @@ namespace CharityProject.Controllers
             return RedirectToAction("Transactions");
         }
 
+
+
+        /// //////    this Action for the Charters ///////// 
+
+        public async Task<IActionResult> UpdateStatuss(int charter_id)
+        {
+            var charter = await _context.charter.FindAsync(charter_id);
+            if (charter == null)
+            {
+                return NotFound();
+            }
+
+            // Update the status to "Closed"
+            charter.status = "مستلمة";
+            charter.receive_date = DateTime.Now;
+
+            // Save changes to the database
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Transactions");
+        }
+
     }
 
 

@@ -36,13 +36,13 @@
         <div class="w-full max-w-7xl">
             <div class="d-flex justify-content-between mt-5 mb-2 align-items-center">
                 <button class="bg-primaryButtons hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mb-2 text-white font-bold transition duration-300 ease-in-out" data-toggle="modal" data-target="#CreateDeviceModal">
-                    إضافة جهاز جديد
+                    إضافة أصل  جديد
                 </button>
                 @await Html.PartialAsync("_CreateDevice", new Devices())
                 <div class="flex-grow-1 d-flex justify-content-start" style="max-width: 300px;">
                     <div class="flex justify-end mt-10">
                         <div class="flex items-center space-x-2">
-                            <input id="searchInput" placeholder="  أدخل اسم الجهاز  " class="form-control py-2 px-4 w-3/4 text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" type="search" aria-label="search" />
+                            <input id="searchInput" placeholder="  أدخل اسم الأصل  " class="form-control py-2 px-4 w-3/4 text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" type="search" aria-label="search" />
                             <button id="searchButton" class="btn btn-dark" type="button">بحث</button>
 
                         </div>
@@ -55,7 +55,7 @@
                 <table class="w-full bg-white rounded-lg shadow-md overflow-hidden">
                     <thead>
                         <tr class="bg-primaryButtons text-white">
-                            <th class="py-4 px-6 text-right">اسم الجهاز</th>
+                            <th class="py-4 px-6 text-right">اسم الأصل</th>
                             <th class="py-4 px-6 text-center">الكمية</th>
                             <th class="py-4 px-6 text-left">العمليات</th>
                         </tr>

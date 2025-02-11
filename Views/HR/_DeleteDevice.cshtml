@@ -4,15 +4,15 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">حذف الجهاز</h4>
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">حذف الأصل</h4>
+                <button type="button" style="font-size: 2rem;" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body text-right">
-                <h4>تفاصيل الجهاز</h4>
+                <h4>تفاصيل الأصل</h4>
                 <hr />
                 <dl class="row">
                     <dt class="col-sm-2 text-right">
-                        الجهاز
+                        الأصل
                     </dt>
                     <dd class="col-sm-10 text-right">
                         @Html.DisplayFor(model => model.name)
@@ -24,7 +24,7 @@
                         @Html.DisplayFor(model => model.quantity)
                     </dd>
                 </dl>
-                <p>هل أنت متأكد أنك تريد حذف هذا الجهاز؟</p>
+                <p>هل أنت متأكد أنك تريد حذف هذا الأصل؟</p>
             </div>
             <div class="modal-footer justify-content-start">
                 <!-- Align buttons to the right -->

@@ -104,7 +104,7 @@ namespace CharityProject.Controllers
 
             _context.Add(charter);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Transaction));
 
 
 
@@ -264,7 +264,7 @@ namespace CharityProject.Controllers
             // Save changes to the database
             await _context.SaveChangesAsync();
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Transactions");
         }
 
 
