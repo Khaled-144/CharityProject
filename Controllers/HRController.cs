@@ -2130,8 +2130,10 @@ namespace CharityProject.Controllers
             employee.name = name;
             employee.username = username;
             employee.password = password;
-            employee.search_role = isAdmin ? "admin" : null;
-
+            if (isAdmin)
+            {
+                employee.search_role = "admin"; 
+            } // if not keep as the curr search-role. 
 
             // Update employee details
             var details = employee.EmployeeDetails;
