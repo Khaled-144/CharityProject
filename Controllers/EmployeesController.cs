@@ -174,7 +174,7 @@ namespace CharityProject.Controllers
                 .Where(l => l.to_emp_id == currentUserId || l.to_emp_id == currentUserId)
                 .CountAsync();
             int assetsCount = await _context.charter
-                .Where(c => c.to_emp_id == currentUserId)
+                .Where(c => c.status == "غير مسلمة" && c.to_emp_id == currentUserId)
                 .CountAsync();
 
 
@@ -185,7 +185,6 @@ namespace CharityProject.Controllers
             ViewBag.LettersCount = lettersCount;
             ViewBag.ExternalCount = externalCount;
             ViewBag.AssetsCount = assetsCount;
-
             return View(transactions);
         }
 
