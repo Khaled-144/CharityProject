@@ -2,17 +2,8 @@
 using CharityProject.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using CharityProject.Data;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using CharityProject.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using System.Xml.Linq;
-using Microsoft.Data.SqlClient;
-using System.Linq;
-using System.Diagnostics.Metrics;
-using Microsoft.CodeAnalysis.Elfie.Diagnostics;
-using Microsoft.CodeAnalysis.CSharp;
+
 
 namespace CharityProject.Controllers
 {
@@ -22,7 +13,6 @@ namespace CharityProject.Controllers
     {
 
         private readonly ApplicationDbContext _context;
-        private readonly ILogger<EmployeesController> _logger;
 
         public CEO(ApplicationDbContext context)
         {
@@ -227,7 +217,7 @@ namespace CharityProject.Controllers
             ViewData["Departments"] = _context.Department.Select(d => new SelectListItem
             {
                 Value = d.departement_id.ToString(),
-                Text = d.departement_name   
+                Text = d.departement_name
             }).ToList();
             var holidayTypes = await _context.Holidays.ToListAsync();
             ViewData["HolidayTypes"] = holidayTypes ?? new List<Holiday>();
@@ -623,38 +613,6 @@ namespace CharityProject.Controllers
             }
             return PartialView("_GetAllCharters", charter);
         }
-        /* [HttpGet]
-         public async Task<IActionResult> SearchLetters(string searchTerm = "", string sortOrder = "")
-         {
-
-             var employeeId = GetEmployeeIdFromSession();
-
-             var query = _context.letters
-                 .Where(l => l.to_emp_id == employeeId);
-
-             if (!string.IsNullOrEmpty(searchTerm))
-             {
-                 query = query.Where(l =>
-                     l.letters_id.ToString().Contains(searchTerm) ||
-                     l.title.Contains(searchTerm)
-                 );
-             }
-
-             switch (sortOrder)
-             {
-                 case "oldest":
-                     query = query.OrderBy(l => l.date);
-                     break;
-                 case "newest":
-                 default:
-                     query = query.OrderByDescending(l => l.date);
-                     break;
-             }
-
-             var letters = await query.ToListAsync();
-
-             return PartialView("_getAllLetters", letters);
-         }*/
 
 
         [HttpGet]
@@ -693,12 +651,7 @@ namespace CharityProject.Controllers
             return Ok(employees);
         }
 
-        // Create Actions  --------------------------------------------------------
 
-
-        // POST: Transactions/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create_Transaction(List<IFormFile> files, [Bind("create_date,close_date,title,description,to_emp_id,department_id,Confidentiality,Urgency,Importance")] Transaction transaction)

@@ -11,6 +11,8 @@ using CharityProject.Models;
 namespace CharityProject.Controllers
 {
 
+    [PermissionFilter("المدير التنفيذي")]
+
     public class DepartmentsController : Controller
     {
         private readonly ApplicationDbContext _context;

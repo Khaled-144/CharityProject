@@ -3,9 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using CharityProject.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using System.Xml.Linq;
-
-using System;
 
 namespace CharityProject.Controllers
 {
@@ -15,7 +12,6 @@ namespace CharityProject.Controllers
     {
 
         private readonly ApplicationDbContext _context;
-        private readonly ILogger<EmployeesController> _logger;
 
         public CustomerServiceManagerController(ApplicationDbContext context)
         {
@@ -24,7 +20,6 @@ namespace CharityProject.Controllers
 
 
 
-        // Start of khaled work -----------------------------------------------------
         private int GetEmployeeIdFromSession()
         {
             var employeeIdString = HttpContext.Session.GetString("Id");
@@ -132,7 +127,6 @@ namespace CharityProject.Controllers
             return RedirectToAction("Transactions", "CustomerServiceManager");
         }
 
-        // End of khaled work -----------------------------------------------------
 
 
 
@@ -475,7 +469,6 @@ namespace CharityProject.Controllers
         [HttpGet]
         public async Task<IActionResult> GetEmployeesByDepartmentName([FromQuery] int[] departmentNames)
         {
-            _logger.LogInformation($"Fetching employees for department names: {string.Join(", ", departmentNames)}");
 
             // Find department IDs by names
             var departmentIds = await _context.Department
@@ -485,7 +478,6 @@ namespace CharityProject.Controllers
 
             if (!departmentIds.Any())
             {
-                _logger.LogWarning($"No departments found with names: {string.Join(", ", departmentNames)}");
                 return NotFound("No departments found with the given names.");
             }
 
@@ -504,20 +496,14 @@ namespace CharityProject.Controllers
 
             if (!employees.Any())
             {
-                _logger.LogWarning($"No employees found for department names: {string.Join(", ", departmentNames)}");
                 return NotFound("No employees found for the given departments.");
             }
 
-            _logger.LogInformation($"Found {employees.Count} employees for department names: {string.Join(", ", departmentNames)}");
             return Ok(employees);
         }
 
         // Create Actions  --------------------------------------------------------
 
-
-        // POST: Transactions/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create_Transaction(List<IFormFile> files, [Bind("create_date,close_date,title,description,to_emp_id,department_id,Confidentiality,Urgency,Importance")] Transaction transaction)

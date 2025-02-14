@@ -2,17 +2,8 @@
 using CharityProject.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using CharityProject.Data;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using CharityProject.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using System.Xml.Linq;
-using Microsoft.Data.SqlClient;
-using System.Linq;
-using System.Diagnostics.Metrics;
-using Microsoft.CodeAnalysis.Elfie.Diagnostics;
-using Microsoft.CodeAnalysis.CSharp;
+
 
 namespace CharityProject.Controllers
 {
@@ -24,7 +15,6 @@ namespace CharityProject.Controllers
     {
 
         private readonly ApplicationDbContext _context;
-        private readonly ILogger<EmployeesController> _logger;
 
         public FinancialSustainabilityDevelopmentManager(ApplicationDbContext context)
         {
@@ -337,7 +327,7 @@ namespace CharityProject.Controllers
                 .Include(t => t.Referrals)
                     .ThenInclude(r => r.to_employee)
                 .Where(t =>
-                t.status!="منهاة" && 
+                t.status != "منهاة" &&
      (t.status == "مرسلة" && t.Employee_detail.departement_id == employeeDetails.departement_id && t.Employee_detail.employee_id != employeeDetails.employee_id && t.Employee_detail.permission_position == "موظف") ||
     (t.status == "مرسلة" && (t.to_emp_id == employeeId || t.to_emp_id == Manager.employee_id) && t.Employee_detail.permission_position != "موظف")
     || (t.status == "مرسلة" && t.department_id == employeeDetails.departement_id && t.Employee_detail.permission_position != "موظف" && t.Employee_detail.employee_id != employeeDetails.employee_id) ||// Transactions sent to the employee
@@ -550,38 +540,7 @@ namespace CharityProject.Controllers
 
             return PartialView("_getAllHolidays", holidays);
         }
-        /* [HttpGet]
-         public async Task<IActionResult> SearchLetters(string searchTerm = "", string sortOrder = "")
-         {
 
-             var employeeId = GetEmployeeIdFromSession();
-
-             var query = _context.letters
-                 .Where(l => l.to_emp_id == employeeId);
-
-             if (!string.IsNullOrEmpty(searchTerm))
-             {
-                 query = query.Where(l =>
-                     l.letters_id.ToString().Contains(searchTerm) ||
-                     l.title.Contains(searchTerm)
-                 );
-             }
-
-             switch (sortOrder)
-             {
-                 case "oldest":
-                     query = query.OrderBy(l => l.date);
-                     break;
-                 case "newest":
-                 default:
-                     query = query.OrderByDescending(l => l.date);
-                     break;
-             }
-
-             var letters = await query.ToListAsync();
-
-             return PartialView("_getAllLetters", letters);
-         }*/
         [HttpGet]
         public IActionResult SearchExternalTransactions(string searchTerm)
         {
@@ -605,7 +564,6 @@ namespace CharityProject.Controllers
         [HttpGet]
         public async Task<IActionResult> GetEmployeesByDepartmentName([FromQuery] int[] departmentNames)
         {
-            _logger.LogInformation($"Fetching employees for department names: {string.Join(", ", departmentNames)}");
 
             // Find department IDs by names
             var departmentIds = await _context.Department
@@ -615,7 +573,6 @@ namespace CharityProject.Controllers
 
             if (!departmentIds.Any())
             {
-                _logger.LogWarning($"No departments found with names: {string.Join(", ", departmentNames)}");
                 return NotFound("No departments found with the given names.");
             }
 
@@ -634,20 +591,14 @@ namespace CharityProject.Controllers
 
             if (!employees.Any())
             {
-                _logger.LogWarning($"No employees found for department names: {string.Join(", ", departmentNames)}");
                 return NotFound("No employees found for the given departments.");
             }
 
-            _logger.LogInformation($"Found {employees.Count} employees for department names: {string.Join(", ", departmentNames)}");
             return Ok(employees);
         }
 
         // Create Actions  --------------------------------------------------------
 
-
-        // POST: Transactions/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create_Transaction(List<IFormFile> files, [Bind("create_date,close_date,title,description,to_emp_id,department_id,Confidentiality,Urgency,Importance")] Transaction transaction)
@@ -988,7 +939,7 @@ namespace CharityProject.Controllers
 
 
         // Update Actions --------------------------------------------------------
-        
+
         [HttpPost]
         public IActionResult ArchiveHoliday(int id)
         {
@@ -1099,13 +1050,8 @@ namespace CharityProject.Controllers
 
 
 
-        // mange permisions --------------------------------------------------------
+        // manage permisions --------------------------------------------------------
 
-
-
-
-        ////////////////////////////////////////////////////////////////////     Archive //////////////////////////////
-        ///
 
         public async Task<IActionResult> GetAllTransactionsArchive()
         {

@@ -1,23 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using CharityProject.Data;
 using CharityProject.Models;
-using System.IO;
-using Microsoft.Extensions.Logging;
-using System.Reflection;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
-using QuestPDF.Elements;
-using System.Globalization;
-
 
 namespace CharityProject.Controllers
 {
@@ -26,15 +13,12 @@ namespace CharityProject.Controllers
     public class OtherServicesController : Controller
     {
         private readonly ApplicationDbContext _context;
-        private readonly ILogger<OtherServicesController> _logger;
 
 
-        public OtherServicesController(ApplicationDbContext context, ILogger<OtherServicesController> logger)
+        public OtherServicesController(ApplicationDbContext context)
         {
             _context = context;
-            _logger = logger;
-            // Register Bouncy Castle provider
-            //Security.AddProvider(new Org.BouncyCastle.Crypto.Providers.BouncyCastleProvider());
+
 
         }
 
@@ -112,7 +96,6 @@ namespace CharityProject.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error generating PDF: {ErrorMessage}", ex.Message);
                 return StatusCode(500, "Error generating PDF");
             }
         }
@@ -291,7 +274,6 @@ namespace CharityProject.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error generating PDF: {ErrorMessage}", ex.Message);
                 return StatusCode(500, "Error generating PDF");
             }
         }

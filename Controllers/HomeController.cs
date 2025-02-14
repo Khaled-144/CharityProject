@@ -3,23 +3,19 @@ using CharityProject.Models;
 using CharityProject.Services;  // Ensure this is included for EmailService
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
+
 
 namespace CharityProject.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
         private readonly ApplicationDbContext _context;
         private readonly IEmailService _emailService;
 
         // Constructor for dependency injection
-        public HomeController(ILogger<HomeController> logger, ApplicationDbContext context, IEmailService emailService)
+        public HomeController(ApplicationDbContext context, IEmailService emailService)
         {
-            _logger = logger;
             _context = context;
             _emailService = emailService;
         }

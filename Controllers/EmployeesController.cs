@@ -3,9 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using CharityProject.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using System.Xml.Linq;
-using System.Linq;
-using Microsoft.Extensions.Logging;
 namespace CharityProject.Controllers
 {
     [PermissionFilter("موظف", "السكرتير")]
@@ -14,12 +11,10 @@ namespace CharityProject.Controllers
     {
 
         private readonly ApplicationDbContext _context;
-        private readonly ILogger<EmployeesController> _logger;
 
-        public EmployeesController(ApplicationDbContext context, ILogger<EmployeesController> logger)
+        public EmployeesController(ApplicationDbContext context)
         {
             _context = context;
-            _logger = logger;
         }
 
         private int GetEmployeeIdFromSession()
@@ -1030,7 +1025,6 @@ namespace CharityProject.Controllers
         [HttpGet]
         public async Task<IActionResult> GetEmployeesByDepartmentName([FromQuery] int[] departmentNames)
         {
-            _logger.LogInformation($"Fetching employees for department names: {string.Join(", ", departmentNames)}");
 
             // Find department IDs by names
             var departmentIds = await _context.Department
@@ -1040,7 +1034,6 @@ namespace CharityProject.Controllers
 
             if (!departmentIds.Any())
             {
-                _logger.LogWarning($"No departments found with names: {string.Join(", ", departmentNames)}");
                 return NotFound("No departments found with the given names.");
             }
 
@@ -1059,11 +1052,9 @@ namespace CharityProject.Controllers
 
             if (!employees.Any())
             {
-                _logger.LogWarning($"No employees found for department names: {string.Join(", ", departmentNames)}");
                 return NotFound("No employees found for the given departments.");
             }
 
-            _logger.LogInformation($"Found {employees.Count} employees for department names: {string.Join(", ", departmentNames)}");
             return Ok(employees);
         }
 

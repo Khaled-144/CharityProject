@@ -2,19 +2,9 @@
 using CharityProject.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using CharityProject.Data;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using CharityProject.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using System.Xml.Linq;
-using Microsoft.Data.SqlClient;
-using System.Linq;
-using System.Diagnostics.Metrics;
-using Microsoft.CodeAnalysis.Elfie.Diagnostics;
 using OfficeOpenXml;
-using System.IO;
-using Microsoft.AspNetCore.Http;
+
 
 namespace CharityProject.Controllers
 {
@@ -26,13 +16,11 @@ namespace CharityProject.Controllers
 
 
     {
-        private readonly ILogger<EmployeesController> _logger;
         private readonly ApplicationDbContext _context;
 
-        public HRController(ApplicationDbContext context, ILogger<EmployeesController> logger)
+        public HRController(ApplicationDbContext context)
         {
             _context = context;
-            _logger = logger;
         }
 
         public IActionResult ExportToExcel(DateTime startDate, DateTime endDate)
@@ -385,7 +373,6 @@ namespace CharityProject.Controllers
         // New method to view referral history
         public async Task<IActionResult> ReferralHistory(int id)
         {
-            _logger.LogInformation($"Fetching referral history for transaction {id}");
 
             var referrals = await _context.Referrals
                 .Where(r => r.transaction_id == id)
@@ -394,12 +381,8 @@ namespace CharityProject.Controllers
                 .OrderByDescending(r => r.referral_date)
                 .ToListAsync();
 
-            _logger.LogInformation($"Found {referrals.Count} referrals");
 
-            foreach (var referral in referrals)
-            {
-                _logger.LogInformation($"Referral {referral.referral_id}: From {referral.from_employee_id} ({referral.from_employee?.name ?? "N/A"}) To {referral.to_employee_id} ({referral.to_employee?.name ?? "N/A"})");
-            }
+
 
             return View(referrals);
         }
@@ -679,7 +662,7 @@ namespace CharityProject.Controllers
             var holidays = await _context.HolidayHistories
                 .Include(h => h.holiday)
                 .Include(h => h.Employee_detail)
-                .Where(h => h.status == "رفضت من المدير المباشر" || h.status == "موافقة مدير الموارد البشرية" || h.status ==  "رفضت من مدير الموارد البشرية") // Filter for rejected holidays
+                .Where(h => h.status == "رفضت من المدير المباشر" || h.status == "موافقة مدير الموارد البشرية" || h.status == "رفضت من مدير الموارد البشرية") // Filter for rejected holidays
                 .OrderByDescending(h => h.holidays_history_id)
                 .ToListAsync();
 
@@ -767,7 +750,6 @@ namespace CharityProject.Controllers
         [HttpGet]
         public async Task<IActionResult> GetEmployeesByDepartment(int departmentId)
         {
-            _logger.LogInformation($"Fetching employees for department ID: {departmentId}");
 
             var employees = await _context.employee_details
                 .Where(ed => ed.departement_id == departmentId)
@@ -783,11 +765,9 @@ namespace CharityProject.Controllers
 
             if (!employees.Any())
             {
-                _logger.LogWarning($"No employees found for department ID: {departmentId}");
                 return NotFound("No employees found for the given department.");
             }
 
-            _logger.LogInformation($"Found {employees.Count} employees for department ID: {departmentId}");
             return Ok(employees);
         }
         [HttpGet]
@@ -950,77 +930,6 @@ namespace CharityProject.Controllers
             return RedirectToAction(nameof(Transactions));
         }
 
-
-
-
-        /// <summary>
-        /// /thisssssssssssssssssss is Newwwwwwwwwwwwwww Action
-        /// </summary>
-        /// <returns></returns>
-
-        /*  public IActionResult Create_Letter()
-          {
-              // Any initialization code if needed
-              return View(); // This will look for a view named "Create_Letter" by default
-          }
-
-
-          [HttpPost]
-          [ValidateAntiForgeryToken]
-          public async Task<IActionResult> Create_Letter(IFormFile files, string[] to_departement_name, string[] to_emp_id, [Bind("title,description,type,from_emp_id,Confidentiality,Urgency,Importance")] letter letter)
-          {
-              // Handle file upload
-              if (files != null && files.Length > 0)
-              {
-                  var allowedExtensions = new[] { ".pdf", ".xls", ".xlsx", ".doc", ".docx" };
-                  var extension = Path.GetExtension(files.FileName).ToLower();
-
-                  if (!allowedExtensions.Contains(extension))
-                  {
-                      ModelState.AddModelError("files", "Only PDF, Excel, and Word files are allowed.");
-                      return View(letter);
-                  }
-
-                  string filename = Path.GetFileName(files.FileName);
-                  string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/files");
-                  if (!Directory.Exists(path))
-                  {
-                      Directory.CreateDirectory(path);
-                  }
-                  string filePath = Path.Combine(path, filename);
-                  using (var filestream = new FileStream(filePath, FileMode.Create))
-                  {
-                      await files.CopyToAsync(filestream);
-                  }
-                  letter.files = filename;
-              }
-
-              // Convert selected departments and employees to comma-separated strings
-              if (to_departement_name != null)
-              {
-                  letter.to_departement_name = string.Join(",", to_departement_name);
-              }
-
-             if (to_emp_id != null)
-              {
-                  letter.to_emp_id = string.Join(",", to_emp_id);
-              }
-
-              if (ModelState.IsValid)
-              {
-                  letter.date = DateTime.Now;
-                  letter.departement_id = 3;
-                  _context.Add(letter);
-                  await _context.SaveChangesAsync();
-                  return RedirectToAction(nameof(Index));
-              }
-
-
-              return View(letter);
-          }*/
-
-
-        ///////   Old Code
         public void Create_Letter()
         {
             ViewData["Departments"] = _context.Department.Select(d => new SelectListItem
@@ -1038,104 +947,6 @@ namespace CharityProject.Controllers
 
         }
 
-
-
-        /*[HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create_Letter(
-    IFormFile files,
-    string[]? to_departement_name,
-    string[]? to_emp_id,
-    [Bind("title,description,type,from_emp_id,files,Confidentiality,Urgency,Importance")] letter letter)
-        {
-            if (files != null && files.Length > 0)
-            {
-                // Validate the file type
-                var allowedExtensions = new[] { ".pdf", ".xls", ".xlsx", ".doc", ".docx" };
-                var extension = Path.GetExtension(files.FileName).ToLower();
-
-                if (!allowedExtensions.Contains(extension))
-                {
-                    ModelState.AddModelError("files", "Only PDF, Excel, and Word files are allowed.");
-                    return View(letter); // Return the view with validation error
-                }
-
-                string filename = Path.GetFileName(files.FileName);
-                string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/files");
-                if (!Directory.Exists(path))
-                {
-                    Directory.CreateDirectory(path);
-                }
-                string filePath = Path.Combine(path, filename);
-                using (var filestream = new FileStream(filePath, FileMode.Create))
-                {
-                    await files.CopyToAsync(filestream);
-                }
-                letter.files = filename;
-            }
-
-
-                letter.date = DateTime.Now; // Set the current date
-         letter.from_emp_id = 23;
-         letter.departement_id = 1;
-
-                // If departments are selected, send the letter to the departments
-                if (to_departement_name != null && to_departement_name.Any())
-                {
-                    foreach (var dept in to_departement_name)
-                    {
-                        var newLetter = new letter
-                        {
-                            title = letter.title,
-                            description = letter.description,
-                            type = letter.type,
-                            from_emp_id = letter.from_emp_id,
-                            files = letter.files,
-                            Confidentiality = letter.Confidentiality,
-                            Urgency = letter.Urgency,
-                            Importance = letter.Importance,
-                            date = letter.date,
-                            departement_id = letter.departement_id,
-                            to_departement_name = dept,
-                            to_emp_id = letter.to_emp_id // No employee selected
-                        };
-
-                        _context.Add(newLetter);
-                    }
-                }
-
-                // If employees are selected, send the letter to the employees
-                if (to_emp_id != null && to_emp_id.Any())
-                {
-                    foreach (var emp in to_emp_id)
-                    {
-                        var newLetter = new letter
-                        {
-                            title = letter.title,
-                            description = letter.description,
-                            type = letter.type,
-                            from_emp_id = letter.from_emp_id,
-                            files = letter.files,
-                            Confidentiality = letter.Confidentiality,
-                            Urgency = letter.Urgency,
-                            Importance = letter.Importance,
-                            date = letter.date,
-                            departement_id = letter.departement_id,
-                            to_departement_name = letter.to_departement_name, // No department selected
-                            to_emp_id = int.Parse(emp)
-                        };
-
-                        _context.Add(newLetter);
-                    }
-                }
-
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Transactions));
-
-
-            return View(letter);
-        }
-*/
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create_Letter(
@@ -1319,116 +1130,6 @@ namespace CharityProject.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Transactions));
         }
-
-
-
-
-
-
-        /*       [HttpPost]
-                   [ValidateAntiForgeryToken]
-                   public async Task<IActionResult> Create_Letter(IFormFile files, [Bind("title,description,type,from_emp_id,to_emp_id,files,Confidentiality,Urgency,Importance,to_departement_name")] letter letter)
-                   {
-
-
-                       if (files != null && files.Length > 0)
-                       {
-                           // Validate the file type
-                           var allowedExtensions = new[] { ".pdf", ".xls", ".xlsx", ".doc", ".docx" };
-                           var extension = Path.GetExtension(files.FileName).ToLower();
-
-                           if (!allowedExtensions.Contains(extension))
-                           {
-                               ModelState.AddModelError("files", "Only PDF, Excel, and Word files are allowed.");
-                               return View(letter); // Return the view with validation error
-                           }
-
-                           string filename = Path.GetFileName(files.FileName);
-                           string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/files");
-                           if (!Directory.Exists(path))
-                           {
-                               Directory.CreateDirectory(path);
-                           }
-                           string filePath = Path.Combine(path, filename);
-                           using (var filestream = new FileStream(filePath, FileMode.Create))
-                           {
-                               await files.CopyToAsync(filestream);
-                           }
-                           letter.files = filename;
-                       }
-
-
-                           letter.date = DateTime.Now; // Set the current date
-                           letter.departement_id = 3;
-                           _context.Add(letter);
-                           await _context.SaveChangesAsync();
-                           return RedirectToAction(nameof(Transactions));
-
-
-                    }*/
-
-
-        /*        [HttpPost]
-                [ValidateAntiForgeryToken]
-                public async Task<IActionResult> Create_Letter(string title,
-            string description,
-            string type,
-            int from_emp_id,
-            int to_emp_id,
-            string Confidentiality,
-            string Urgency,
-            string Importance,
-            string to_departement_name, IFormFile files)
-                {
-                    var letter = new letter
-                    {
-                        title = title,
-                        description = description,
-                        type = type,
-                        from_emp_id = from_emp_id,
-                        to_emp_id = to_emp_id,
-                        Confidentiality = Confidentiality,
-                        Urgency = Urgency,
-                        Importance = Importance,
-                        to_departement_name = to_departement_name
-                    };
-
-                    if (files != null && files.Length > 0)
-                    {
-                        // Validate the file type
-                        var allowedExtensions = new[] { ".pdf", ".xls", ".xlsx", ".doc", ".docx" };
-                        var extension = Path.GetExtension(files.FileName).ToLower();
-
-                        if (!allowedExtensions.Contains(extension))
-                        {
-                            ModelState.AddModelError("files", "Only PDF, Excel, and Word files are allowed.");
-                            return View(letter); // Return the view with validation error
-                        }
-
-                        string filename = Path.GetFileName(files.FileName);
-                        string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/files");
-                        if (!Directory.Exists(path))
-                        {
-                            Directory.CreateDirectory(path);
-                        }
-                        string filePath = Path.Combine(path, filename);
-                        using (var filestream = new FileStream(filePath, FileMode.Create))
-                        {
-                            await files.CopyToAsync(filestream);
-                        }
-                        letter.files = filename;
-                    }
-
-                    if (ModelState.IsValid)
-                    {
-                        letter.date = DateTime.Now; // Set the current date
-                        letter.departement_id = 3;
-                        _context.Add(letter);
-                        await _context.SaveChangesAsync();
-                        return RedirectToAction(nameof(Index));
-                    }
-                    return View(letter);
-                }*/
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -2132,7 +1833,7 @@ namespace CharityProject.Controllers
             employee.password = password;
             if (isAdmin)
             {
-                employee.search_role = "admin"; 
+                employee.search_role = "admin";
             } // if not keep as the curr search-role. 
 
             // Update employee details
@@ -2378,34 +2079,6 @@ namespace CharityProject.Controllers
 
             return Json(new { success = true });
         }
-
-        /*[HttpGet]
-		public async Task<IActionResult> GetEmployeesByDepartment(int departmentId)
-		{
-			_logger.LogInformation($"Fetching employees for department ID: {departmentId}");
-
-			var employees = await _context.employee_details
-				.Where(ed => ed.departement_id == departmentId)
-				.Select(ed => new
-				{
-					employee_id = ed.employee_id,
-					name = ed.employee.name,
-					position = ed.position
-				})
-				.GroupBy(e => e.employee_id)
-				.Select(g => g.First())
-				.ToListAsync();
-
-			if (!employees.Any())
-			{
-				_logger.LogWarning($"No employees found for department ID: {departmentId}");
-				return NotFound("No employees found for the given department.");
-			}
-
-			_logger.LogInformation($"Found {employees.Count} employees for department ID: {departmentId}");
-			return Ok(employees);
-		}*/
-
 
         //////////////   Salaries ////////////////////////
         ///
