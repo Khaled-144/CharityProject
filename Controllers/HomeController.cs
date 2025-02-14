@@ -207,11 +207,12 @@ namespace CharityProject.Controllers
 
             if (!string.IsNullOrEmpty(userId))
             {
-                var user = await _context.employee.FirstOrDefaultAsync(e => e.employee_id.ToString() == userId);
+                var user = await _context.employee.FirstOrDefaultAsync(e => e.employee_number.ToString() == userId);
+                var encryptedPassword = Encrypt.EncryptPassword(newPassword);
 
                 if (user != null)
                 {
-                    user.password = newPassword;
+                    user.password = encryptedPassword;
                     _context.Update(user);
                     await _context.SaveChangesAsync();
 
@@ -220,7 +221,7 @@ namespace CharityProject.Controllers
                 }
             }
 
-            ViewData["Message"] = "حدث خطأ، حاول مرة أخرى";
+            ViewData["Message"] = "حدث خطأ، حاول مرة أخرى" + userId;
             return View("ResetPasswordForm");
         }
 
